@@ -2,9 +2,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import re
+import sys
+argvs=sys.argv
 
 lines=[]
-f = open('run2.dos1ev','r')
+f = open(argvs[1],'r')
 i=0
 for l in f:
 	lines.append(l.rstrip())
@@ -22,7 +24,7 @@ for j in range(start,endnum):
 
 intdos=0
 for j in range(0,num):
-	if ene[j] <= 0:
+	if ene[j] <= -0:
 		print ene[j],dos[j]
 		intdos=intdos+dos[j]*(ene[j+1]-ene[j])
 #plt.figure(figsize=(6,9))
