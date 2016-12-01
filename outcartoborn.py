@@ -13,10 +13,10 @@ superFound=0
 
 for l in f:
 	if "Atomic positions" in l:
-		AtomFound=1
+		AtomFound=AtomFound+1
 	if "super cell" in l:
 		superFound=1
-	if AtomFound == 1 and superFound == 0:
+	if AtomFound == 2 and superFound == 0:
 		if "*" in l:
 			values=l.split()
 			#indx[na]=values[0]
