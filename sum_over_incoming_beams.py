@@ -4,7 +4,7 @@ import h5py
 
 
 nb = 48
-proplist = [1,2]
+proplist = [1,2,3,4]
 edgelist = ['e1','e2']
 headname = 'co_l23'
 g = './co_l23_ddscs.hdf5'
@@ -22,7 +22,7 @@ def sumdata(nprop,edge):
     tmp_filename= headname + '_' +  str(1) + '_' + str(nprop) + '_' + edge
     tmp_data=parse_data(tmp_filename)
     all_data=np.zeros_like(tmp_data)
-    for i in range(1,nb):
+    for i in range(1,nb+1):
         filename = headname + '_' +  str(i) + '_' + str(nprop) + '_' + edge
         print filename
         each_data=parse_data(filename) 
@@ -39,11 +39,12 @@ def contract(propl,edgel):
         for k in edgel:
             m += 1
             print l,m
-            final_data[l-1,m-1,:,:] = sumdata(1,'e1')
+            final_data[l-1,m-1,:,:] = sumdata(j,k)
     return(final_data,tmpsize)
 
 def run():
     final2_data,tmpsize2=contract(proplist,edgelist)
+    print final2_data
     outfh = h5py.File(g, 'w')
     outfh.create_dataset('ddscs', data = final2_data)
     outfh.create_dataset('n_incoming_beams', data = nb)
