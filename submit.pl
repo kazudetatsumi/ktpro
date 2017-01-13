@@ -7,7 +7,7 @@ $listfile="tmplist";
 $machinefile=".machines";
 system "rm .machines";
 system "rm tmplist";
-system "qstat > $listfile";
+system "ssh stern01 qstat > $listfile";
 open(LS,"$listfile");
 chomp($line=<LS>);
 chomp($line=<LS>);
@@ -15,7 +15,7 @@ $i=0;
 while(!eof(LS)){
   chomp($line=<LS>);@values=split(/\ +/,$line);
   $_=$values[-2];
-  if(/mach/){
+  if(/stern/){
   @dateset=split(/\//,$values[-4]);
   @timeset=split(/\:/,$values[-3]);
   $i++;
