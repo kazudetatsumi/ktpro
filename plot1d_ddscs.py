@@ -12,7 +12,7 @@ print tmpsize
 
     
 #plt.figure(figsize=(6,3))
-F = ( cddscs[3,1,:] - cddscs[3,0,:] ) / ( cddscs[0,0,:] + cddscs[0,1,:] )
+F = ( 2*cddscs[3,1,:] - cddscs[3,0,:] ) / ( cddscs[0,0,:] + cddscs[0,1,:] )
 #plt.plot(F,label="tst")
 #plt.show()
 np.savetxt('out.csv',F)
