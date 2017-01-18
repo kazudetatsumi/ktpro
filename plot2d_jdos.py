@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 
-f = '/home/kazu/bsi3n4_m/phono3py_113_fc2_224_sym_monk_shift/log-jdos-g-a'
-jdoshead = '/home/kazu/bsi3n4_m/phono3py_113_fc2_224_sym_monk_shift/jdos-m141432-g'
+f = 'log-jdos-g-k-ts-32pts'
+jdoshead = 'jdos-m282864-g'
 
 def parse_gp(filename):
     data = []
@@ -25,7 +25,7 @@ def parse_gp(filename):
 
 def getjdos(a):
     i = 0
-    tmpfile = jdoshead+str(a[0])+".dat"
+    tmpfile = jdoshead+str(a[0])+"-t300.dat"
     tmpdata = np.loadtxt(tmpfile)
     tmpsize = tmpdata.shape
     ngpsize = a.shape
@@ -35,7 +35,7 @@ def getjdos(a):
     print tmpsize[1]
     jdata = np.zeros((ngp, tmpsize[0], tmpsize[1]))
     for x in np.nditer(a): 
-       infile = jdoshead+str(x)+".dat"
+       infile = jdoshead+str(x)+"-t300.dat"
        print infile
        jdata[i,:,:] = np.loadtxt(infile)
        i += 1
