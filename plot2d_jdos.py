@@ -11,7 +11,9 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 
-f = 'log-jdos-g-k-ts-32pts'
+#f = 'log-jdos-g-k-ts-32pts'
+#jdoshead = 'jdos-m303068-g'
+f = 'log-jdos-g-a-ts-32pts'
 jdoshead = 'jdos-m282864-g'
 
 def parse_gp(filename):
@@ -61,4 +63,6 @@ X, Y = np.meshgrid(x, y)
 plt.figure(figsize=(6,3))
 plt.pcolor(X,Y,Z,vmin=np.min(Z),vmax=np.max(Z),cmap=cm.bwr)
 plt.colorbar(ticks=[np.min(Z),np.max(Z)])
-plt.show()
+#plt.show()
+#plt.savefig("jdos-G-K-t300-11pts.eps")
+plt.savefig("jdos-G-A-t300-33pts.eps")
