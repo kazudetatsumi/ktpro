@@ -30,7 +30,12 @@ def run():
         creat_poscar(i)
     creat_poscar(-1*nmax-2)
     creat_poscar(-1*nmax-4)
+    creat_poscar(nmax+9)
+    creat_poscar(nmax+7)
+    creat_poscar(nmax+5)
     creat_poscar(nmax+4)
+    creat_poscar(nmax+3)
+    creat_poscar(nmax+1)
     creat_poscar(nmax+2)
 
 run()

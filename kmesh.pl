@@ -4,12 +4,13 @@ $bin=$ARGV[0];
 open(IN,"$infile")||die "Cannot open $infile ";
  chomp($line=<IN>); @values=split(/ +/, $line);
  chomp($line=<IN>); @values=split(/ +/, $line);
+    $fac=$values[1];
  chomp($line=<IN>); @values=split(/ +/, $line);
-	$ax=$values[1];$ay=$values[2];$az=$values[3];
+	$ax=$values[1]*$fac;$ay=$values[2]*$fac;$az=$values[3]*$fac;
  chomp($line=<IN>); @values=split(/ +/, $line);
-	$bx=$values[1];$by=$values[2];$bz=$values[3];
+	$bx=$values[1]*$fac;$by=$values[2]*$fac;$bz=$values[3]*$fac;
  chomp($line=<IN>); @values=split(/ +/, $line);
-	$cx=$values[1];$cy=$values[2];$cz=$values[3];
+	$cx=$values[1]*$fac;$cy=$values[2]*$fac;$cz=$values[3]*$fac;
  $volume=$ax*($by*$cz-$bz*$cy)+$ay*($bz*$cx-$bx*$cz)+$az*($bx*$cy-$by*$cx);
  print "[volume]: $volume\n";
  
