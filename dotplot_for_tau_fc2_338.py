@@ -11,7 +11,7 @@ f = h5py.File("kappa-m8820.hdf5")
 
 g = h5py.File("/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/kappa-m121212.hdf5")
 
-h = h5py.File("/home/kazu/asi3n4/phono3py_112_fc2_222_sym_monk_shift/kappa-m8810.hdf5")
+h = h5py.File("/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.hdf5")
 
 gamma=f['gamma'][30,:,:]
 omega=f['frequency'][:,:]
@@ -97,4 +97,4 @@ plt.yticks([0,0.5,1.0,1.5])
 plt.xlabel("Omega. [THz]")
 plt.ylabel("Tau [ns]")
 #plt.show()
-plt.savefig("tau-omega2.eps")
+plt.savefig("tau-omega2_fc2_338.eps")
