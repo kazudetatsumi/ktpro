@@ -36,8 +36,8 @@ def plotset():
    plt.title("tau vs omega")
    plt.legend(loc='upper right')
    plt.xlim(0,12)
-   plt.ylim(0,1.5)
-   plt.yticks([0,0.5,1.0,1.5])
+   plt.ylim(0,0.12)
+   plt.yticks([0,0.03,0.06,0.09,0.12])
    plt.xlabel("Omega. [THz]")
    plt.ylabel("Tau [ns]")
 
@@ -50,15 +50,15 @@ def run():
    plt.figure(figsize=(4,12.5))
 
    plt.subplot(3,1,1)
-   plt.plot(omega1,1/gamma1*0.001,'.',label="beta",markersize=6,c='blue',fillstyle='full')
+   plt.plot(omega1,1/(2*gamma1*2*np.pi)*0.001,'.',label="beta",markersize=6,c='blue',fillstyle='full')
    plotset()
 
    plt.subplot(3,1,2)
-   plt.plot(gomega1,1/ggamma1*0.001,'.',label="gamma",markersize=6,c='green',fillstyle='none')
+   plt.plot(gomega1,1/(2*ggamma1*2*np.pi)*0.001,'.',label="gamma",markersize=6,c='green',fillstyle='none')
    plotset()
 
    plt.subplot(3,1,3)
-   plt.plot(aomega1,1/agamma1*0.001,'.',label="alpha",markersize=6,c='red',fillstyle='none',linewidth=1)
+   plt.plot(aomega1,1/(2*agamma1*2*np.pi)*0.001,'.',label="alpha",markersize=6,c='red',fillstyle='none',linewidth=1)
    plotset()
 
    #plt.show()
