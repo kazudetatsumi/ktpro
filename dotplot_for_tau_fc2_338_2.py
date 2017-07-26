@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 
-f = "kappa-m8820.hdf5"
-g = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/kappa-m121212.hdf5"
+f = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/kappa-m8820.hdf5"
+g = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/kappa-m121212.hdf5"
 h = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.hdf5"
 mytemp = 300
 
