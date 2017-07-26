@@ -8,6 +8,7 @@ from matplotlib import rc
 Temp = 300
 nbins = 100
 y_max = 0.12
+numr = 7
 jdosc1 = np.loadtxt('/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g0-t300.dat',comments='#',dtype='float')
 jdoss1 = np.loadtxt('/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g0-t300.dat',comments='#',dtype='float')
 jdosg1 = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0-t300.dat',comments='#',dtype='float')
@@ -29,6 +30,12 @@ g = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/kappa-m22
 grc = "/home/kazu/asi3n4/gruneisen/gruneisen.hdf5"
 grs = "/home/kazu/bsi3n4_m/gruneisen/gruneisen.hdf5"
 grg = "/home/kazu/gamma-si3n4-unit/gruneisen/gruneisen.hdf5"
+nuc = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.hdf5"
+nus = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/gpjob_m8820_nu/kappa-m8820.hdf5"
+nug = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/gpjob_m121212_nu/kappa-m121212.hdf5"
+apc= "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift//gpjob_m8810_fullpp/kappa-m8810.hdf5"
+aps= "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/gpjob_m8820_fullpp/kappa-m8820.hdf5"
+apg= "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/gpjob_m121212_fullpp/kappa-m121212.hdf5"
 
 
 def parse_kaccum(filename):
@@ -122,9 +129,36 @@ def parse_gamma(filename,temp):
         mode_prop += list(_tau) * w
     x = np.array(freqs)
     y = np.array(mode_prop)
-
-
     return(omega1,gamma1,x,y) 
+
+def parse_gammanu(filename,temp):
+    f = h5py.File(filename,'r')
+    print filename
+    temperature = f["temperature"].value
+    i=0 
+    for t in temperature:
+        if t == temp:
+            tindex=i 
+        i += 1
+    gammau=f["gamma_U"][tindex,]
+    gamman=f["gamma_N"][tindex,]
+    omega=f["frequency"][:,:]
+    weights=f["weight"][:]
+    gammashape=gammau.shape
+    gammau1=gammau.reshape( (gammashape[0]*gammashape[1]) )
+    gamman1=gamman.reshape( (gammashape[0]*gammashape[1]) )
+    omega1=omega.reshape( (gammashape[0]*gammashape[1]) )
+    return(omega1,gammau1,gamman1) 
+
+def parse_avepp(filename):
+    f = h5py.File(filename,'r')
+    avepp=f["ave_pp"][:,:]
+    omega=f["frequency"][:,:]
+    aveppshape=avepp.shape
+    print avepp[10,3]
+    avepp1=avepp.reshape( (aveppshape[0]*aveppshape[1]) )
+    omega1=omega.reshape( (aveppshape[0]*aveppshape[1]) )
+    return(omega1,avepp1) 
 
 def parse_gruneisen(filename):
     f = h5py.File(filename,'r')
@@ -150,7 +184,7 @@ def parse_gruneisen(filename):
 
 
 def eachplot(sn,phase,omega,kaccum,dkaccum):
-   plt.subplot(6,3,sn)
+   plt.subplot(numr,3,sn)
    plt.title("kaccum_for_" + phase)
    plt.plot(omega,kaccum[:,0],label=phase + "_kxx")
    plt.plot(omega,kaccum[:,2],label=phase + "_kzz")
@@ -165,7 +199,7 @@ def eachplot(sn,phase,omega,kaccum,dkaccum):
    #plt.legend(loc='upper left')
 
 def eachplot2(sn,phase,omega,dkaccum):
-   plt.subplot(6,3,sn)
+   plt.subplot(numr,3,sn)
    plt.title("gv_for_" + phase)
    plt.plot(omega,dkaccum[:,0]*10,label=phase + "_dkxx")
    plt.plot(omega,dkaccum[:,2]*10,label=phase + "_dkzz")
@@ -174,7 +208,7 @@ def eachplot2(sn,phase,omega,dkaccum):
    plt.xlim(0,15)
 
 def eachplot3(sn,phase,omega,dos):
-   plt.subplot(6,3,sn)
+   plt.subplot(numr,3,sn)
    plt.title("dos_for_" + phase)
    plt.plot(omega,dos,label=phase + "_dos")
    plt.ylim(0,3)
@@ -182,17 +216,17 @@ def eachplot3(sn,phase,omega,dos):
    plt.xlim(0,15)
 
 def eachplot4(sn,phase,omega,gamma):
-   plt.subplot(6,3,sn)
-   plt.title("scattering_rate_for_" + phase)
-   #plt.scatter(omega,1/(2*gamma*2*np.pi)*0.001,s=0.1,label=phase +"_tau")
-   plt.scatter(omega,gamma,s=0.1,label=phase +"_scattering_rate")
-   #plt.yscale("log")
-   plt.ylim(0.00,0.03)
+   plt.subplot(numr,3,sn)
+   plt.title("lifetime_for_" + phase)
+   plt.scatter(omega,1/(2*gamma*2*np.pi),s=0.1,label=phase +"_tau")
+   #plt.scatter(omega,gamma,s=0.1,label=phase +"_scattering_rate")
+   plt.yscale("log")
+   plt.ylim(1,100)
    #plt.yticks([0,0.04,0.08,0.12])
-   plt.xlim(0,15)
+   plt.xlim(0,35)
 
 def eachplot5(xi, yi, zi, nbins, sn,phase,omega,gamma):
-   plt.subplot(6,3,sn)
+   plt.subplot(numr,3,sn)
    plt.title("tau_for_" + phase)
    #plt.pcolormesh(xi[:,:nbins], yi[:,:nbins], zi[:,:nbins],cmap='OrRd')
    #plt.pcolormesh(xi[:,:nbins], yi[:,:nbins], zi[:,:nbins])
@@ -203,7 +237,7 @@ def eachplot5(xi, yi, zi, nbins, sn,phase,omega,gamma):
    plt.xlim(0,15)
 
 def eachplot6(sn,phase,omega1,dos1,omega2,dos2):
-   plt.subplot(6,3,sn)
+   plt.subplot(numr,3,sn)
    plt.title("jdos_for_" + phase)
    plt.plot(omega1,dos1,label=phase + "_jdos1")
    plt.plot(omega2,dos2,label=phase + "_jdos2")
@@ -212,13 +246,31 @@ def eachplot6(sn,phase,omega1,dos1,omega2,dos2):
    plt.xlim(0,15)
 
 def eachplot7(sn,phase,omega,gruneisen):
-   plt.subplot(6,3,sn)
+   plt.subplot(numr,3,sn)
    plt.title("gruneisen_for_" + phase)
    plt.scatter(omega,gruneisen,s=0.1,label=phase +"_gruneisen")
    #plt.yscale("log")
    plt.ylim(-2.5,2.5)
    #plt.yticks([0,0.04,0.08,0.12])
    plt.xlim(0,15)
+
+def eachplot8(sn,phase,omega,gammau,gamman):
+   plt.subplot(numr,3,sn)
+   plt.title("unscattering_rate_for_" + phase)
+   plt.scatter(omega,gammau,s=0.1,color="red",label=phase +"_uscattering_rate")
+   plt.scatter(omega,gamman,s=0.1,color="blue",label=phase +"_nscattering_rate")
+   plt.ylim(0.00,0.03)
+   plt.xlim(0,15)
+   plt.legend(loc="upper left")
+
+def eachplot9(sn,phase,omega,avepp):
+   plt.subplot(numr,3,sn)
+   plt.title("avepp_for_" + phase)
+   plt.scatter(omega,avepp,s=0.1,label=phase +"_avepp_rate")
+   plt.yscale("log")
+   plt.ylim(0.00000000005,0.0000000040)
+   #plt.yticks([0,0.04,0.08,0.12])
+   plt.xlim(0,35)
 
 def run():
    omegac,kaccumc,dkaccumc=parse_kaccum(gc)
@@ -228,18 +280,21 @@ def run():
    omegags,gvaccums,dgvaccums=parse_gvaccum(ggs)
    omegagg,gvaccumg,dgvaccumg=parse_gvaccum(ggg)
    omegac1,gammac1,xc,yc=parse_gamma(c,Temp)
-   #xci, yci, zci = run_KDE(xc, yc, nbins, y_max)
    omegas1,gammas1,xs,ys=parse_gamma(s,Temp)
-   #xsi, ysi, zsi = run_KDE(xs, ys, nbins, y_max)
    omegag1,gammag1,xg,yg=parse_gamma(g,Temp)
-   #xgi, ygi, zgi = run_KDE(xg, yg, nbins, y_max)
+   omeganus1,gammasu1,gammasn1=parse_gammanu(nus,Temp)
+   omeganug1,gammagu1,gammagn1=parse_gammanu(nug,Temp)
+   omegaaps1,aps1=parse_avepp(aps)
+   ##xci, yci, zci = run_KDE(xc, yc, nbins, y_max)
+   ##xsi, ysi, zsi = run_KDE(xs, ys, nbins, y_max)
+   ##xgi, ygi, zgi = run_KDE(xg, yg, nbins, y_max)
    xc,yc=parse_gruneisen(grc)
    xs,ys=parse_gruneisen(grs)
    xg,yg=parse_gruneisen(grg)
 
 
 
-   plt.figure(figsize=(16,14))
+   plt.figure(figsize=(16,20))
 #   rc('text', usetex=True)
    rc('font', family='serif')
    rc('font', serif='Times New Roman')
@@ -252,10 +307,16 @@ def run():
    eachplot(5,"beta",omegas,kaccums,dkaccums)
    eachplot(6,"gamma",omegag,kaccumg,dkaccumg)
    eachplot4(7,"alpha",omegac1,gammac1)
-   #eachplot5(xci,yci,zci,nbins,7,"alpha",omegac1,gammac1)
    eachplot4(8,"beta",omegas1,gammas1)
-   #eachplot5(xsi,ysi,zsi,nbins,8,"beta",omegas1,gammas1)
    eachplot4(9,"gamma",omegag1,gammag1)
+   #eachplot4(10,"alpha",omegac1,gammac1)
+   #eachplot4(11,"betau",omeganus1,gammasu1)
+   #eachplot4(12,"gamman",omeganug1,gammagu1)
+   #eachplot4(13,"alpha",omegac1,gammac1)
+   #eachplot4(14,"betan",omeganus1,gammasn1)
+   #eachplot4(15,"gamman",omeganug1,gammagn1)
+   #eachplot8(11,"beta",omeganus1,gammasu1,gammasn1)
+   #eachplot8(12,"gamma",omeganug1,gammagu1,gammagn1)
    #eachplot5(xgi,ygi,zgi,nbins,9,"gamma",omegag1,gammag1)
    eachplot2(10,"alpha",omegagc,dgvaccumc)
    eachplot2(11,"beta",omegags,dgvaccums)
@@ -266,8 +327,11 @@ def run():
    eachplot7(16,"alpha",xc,yc)
    eachplot7(17,"beta",xs,ys)
    eachplot7(18,"gamma",xg,yg)
+   eachplot9(19,"beta",omegaaps1,aps1)
+   eachplot9(20,"beta",omegaaps1,aps1)
+   eachplot9(21,"beta",omegaaps1,aps1)
    plt.tight_layout()
-   #plt.savefig("dkaccum_dgvaccum_alphabeta_plot.eps")
+   #plt.savefig("tst_plot.pdf")
 
 run()
 plt.show()
