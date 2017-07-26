@@ -26,7 +26,7 @@ ggs = '/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/gvaccum.dat
 ggg = '/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/gvaccum.dat'
 c = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.hdf5"
 s = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/kappa-m8820.hdf5"
-g = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/kappa-m222222.hdf5"
+g = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/kappa-m121212.hdf5"
 grc = "/home/kazu/asi3n4/gruneisen/gruneisen.hdf5"
 grs = "/home/kazu/bsi3n4_m/gruneisen/gruneisen.hdf5"
 grg = "/home/kazu/gamma-si3n4-unit/gruneisen/gruneisen.hdf5"
@@ -221,9 +221,9 @@ def eachplot4(sn,phase,omega,gamma):
    plt.scatter(omega,1/(2*gamma*2*np.pi),s=0.1,label=phase +"_tau")
    #plt.scatter(omega,gamma,s=0.1,label=phase +"_scattering_rate")
    plt.yscale("log")
-   plt.ylim(1,100)
+   plt.ylim(2,100)
    #plt.yticks([0,0.04,0.08,0.12])
-   plt.xlim(0,35)
+   plt.xlim(0,15)
 
 def eachplot5(xi, yi, zi, nbins, sn,phase,omega,gamma):
    plt.subplot(numr,3,sn)
@@ -268,9 +268,9 @@ def eachplot9(sn,phase,omega,avepp):
    plt.title("avepp_for_" + phase)
    plt.scatter(omega,avepp,s=0.1,label=phase +"_avepp_rate")
    plt.yscale("log")
-   plt.ylim(0.00000000005,0.0000000040)
+   plt.ylim(0.0000000020,0.00000000004)
    #plt.yticks([0,0.04,0.08,0.12])
-   plt.xlim(0,35)
+   plt.xlim(0,15)
 
 def run():
    omegac,kaccumc,dkaccumc=parse_kaccum(gc)
@@ -285,6 +285,7 @@ def run():
    omeganus1,gammasu1,gammasn1=parse_gammanu(nus,Temp)
    omeganug1,gammagu1,gammagn1=parse_gammanu(nug,Temp)
    omegaaps1,aps1=parse_avepp(aps)
+   omegaapg1,apg1=parse_avepp(apg)
    ##xci, yci, zci = run_KDE(xc, yc, nbins, y_max)
    ##xsi, ysi, zsi = run_KDE(xs, ys, nbins, y_max)
    ##xgi, ygi, zgi = run_KDE(xg, yg, nbins, y_max)
@@ -329,7 +330,7 @@ def run():
    eachplot7(18,"gamma",xg,yg)
    eachplot9(19,"beta",omegaaps1,aps1)
    eachplot9(20,"beta",omegaaps1,aps1)
-   eachplot9(21,"beta",omegaaps1,aps1)
+   eachplot9(21,"gamma",omegaapg1,apg1)
    plt.tight_layout()
    #plt.savefig("tst_plot.pdf")
 
