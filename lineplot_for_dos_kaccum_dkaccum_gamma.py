@@ -8,7 +8,7 @@ from matplotlib import rc
 Temp = 300
 nbins = 100
 y_max = 0.12
-numr = 7
+numr = 8
 jdosc1 = np.loadtxt('/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g0-t300.dat',comments='#',dtype='float')
 jdoss1 = np.loadtxt('/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g0-t300.dat',comments='#',dtype='float')
 jdosg1 = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0-t300.dat',comments='#',dtype='float')
@@ -36,6 +36,9 @@ nug = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/g
 apc= "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift//gpjob_m8810_fullpp/kappa-m8810.hdf5"
 aps= "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/gpjob_m8820_fullpp/kappa-m8820.hdf5"
 apg= "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/gpjob_m121212_fullpp/kappa-m121212.hdf5"
+cjc= "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.const_ave1.hdf5"
+cjs= "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/kappa-m8820.const_ave1.hdf5"
+cjg= "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/kappa-m121212.const_ave1.hdf5"
 
 
 def parse_kaccum(filename):
@@ -91,7 +94,7 @@ def parse_gvaccum(filename):
     omega = np.array(data)[:,0]
     return (omega,gvaccum,dgvaccum)    
  
-def parse_gamma(filename,temp):
+def parse_gammamesh(filename,temp):
     f = h5py.File(filename,'r')
     temperature = f["temperature"].value
     i=0 
@@ -102,9 +105,8 @@ def parse_gamma(filename,temp):
     gamma=f["gamma"][tindex,]
     omega=f["frequency"][:,:]
     weights=f["weight"][:]
-    gammashape=gamma.shape
-    gamma1=gamma.reshape( (gammashape[0]*gammashape[1]) )
-    omega1=omega.reshape( (gammashape[0]*gammashape[1]) )
+    gamma1=gamma.ravel()
+    omega1=omega.ravel()
     dgamma=[]
     domega=[]
     j=0 
@@ -131,6 +133,21 @@ def parse_gamma(filename,temp):
     y = np.array(mode_prop)
     return(omega1,gamma1,x,y) 
 
+def parse_gamma(filename,temp):
+    f = h5py.File(filename,'r')
+    temperature = f["temperature"].value
+    i=0 
+    for t in temperature:
+        if t == temp:
+            tindex=i 
+        i += 1
+    gamma=f["gamma"][tindex,]
+    omega=f["frequency"][:,:]
+    weights=f["weight"][:]
+    gamma1=gamma.ravel()
+    omega1=omega.ravel()
+    return(omega1,gamma1) 
+
 def parse_gammanu(filename,temp):
     f = h5py.File(filename,'r')
     print filename
@@ -144,21 +161,16 @@ def parse_gammanu(filename,temp):
     gamman=f["gamma_N"][tindex,]
     omega=f["frequency"][:,:]
     weights=f["weight"][:]
-    gammashape=gammau.shape
-    gammau1=gammau.reshape( (gammashape[0]*gammashape[1]) )
-    gamman1=gamman.reshape( (gammashape[0]*gammashape[1]) )
-    omega1=omega.reshape( (gammashape[0]*gammashape[1]) )
+    gammau1=gammau.ravel()
+    gamman1=gamman.ravel()
+    omega1=omega.ravel()
     return(omega1,gammau1,gamman1) 
 
 def parse_avepp(filename):
     f = h5py.File(filename,'r')
-    avepp=f["ave_pp"][:,:]
-    omega=f["frequency"][:,:]
-    aveppshape=avepp.shape
-    print avepp[10,3]
-    avepp1=avepp.reshape( (aveppshape[0]*aveppshape[1]) )
-    omega1=omega.reshape( (aveppshape[0]*aveppshape[1]) )
-    return(omega1,avepp1) 
+    avepp=f["ave_pp"][:,:].ravel()
+    omega=f["frequency"][:,:].ravel()
+    return(omega,avepp) 
 
 def parse_gruneisen(filename):
     f = h5py.File(filename,'r')
@@ -238,7 +250,7 @@ def eachplot5(xi, yi, zi, nbins, sn,phase,omega,gamma):
 
 def eachplot6(sn,phase,omega1,dos1,omega2,dos2):
    plt.subplot(numr,3,sn)
-   plt.title("jdos_for_" + phase)
+   plt.title("wjdos_for_" + phase)
    plt.plot(omega1,dos1,label=phase + "_jdos1")
    plt.plot(omega2,dos2,label=phase + "_jdos2")
    plt.ylim(0,10)
@@ -266,9 +278,18 @@ def eachplot8(sn,phase,omega,gammau,gamman):
 def eachplot9(sn,phase,omega,avepp):
    plt.subplot(numr,3,sn)
    plt.title("avepp_for_" + phase)
-   plt.scatter(omega,avepp,s=0.1,label=phase +"_avepp_rate")
+   plt.scatter(omega,avepp,s=0.1,label=phase +"_avepp")
    plt.yscale("log")
    plt.ylim(0.0000000020,0.00000000004)
+   #plt.yticks([0,0.04,0.08,0.12])
+   plt.xlim(0,15)
+
+def eachplot10(sn,phase,omega,gamma):
+   plt.subplot(numr,3,sn)
+   plt.title("wjdos-dots_for_" + phase)
+   plt.scatter(omega,gamma,s=0.1,label=phase +"_wjdos-dots")
+   #plt.yscale("log")
+   plt.ylim(0.,1.6*10**8)
    #plt.yticks([0,0.04,0.08,0.12])
    plt.xlim(0,15)
 
@@ -279,9 +300,9 @@ def run():
    omegagc,gvaccumc,dgvaccumc=parse_gvaccum(ggc)
    omegags,gvaccums,dgvaccums=parse_gvaccum(ggs)
    omegagg,gvaccumg,dgvaccumg=parse_gvaccum(ggg)
-   omegac1,gammac1,xc,yc=parse_gamma(c,Temp)
-   omegas1,gammas1,xs,ys=parse_gamma(s,Temp)
-   omegag1,gammag1,xg,yg=parse_gamma(g,Temp)
+   omegac1,gammac1=parse_gamma(c,Temp)
+   omegas1,gammas1=parse_gamma(s,Temp)
+   omegag1,gammag1=parse_gamma(g,Temp)
    omeganus1,gammasu1,gammasn1=parse_gammanu(nus,Temp)
    omeganug1,gammagu1,gammagn1=parse_gammanu(nug,Temp)
    omegaaps1,aps1=parse_avepp(aps)
@@ -292,10 +313,13 @@ def run():
    xc,yc=parse_gruneisen(grc)
    xs,ys=parse_gruneisen(grs)
    xg,yg=parse_gruneisen(grg)
+   omegacjc1,gammacjc1=parse_gamma(cjc,Temp)
+   omegacjs1,gammacjs1=parse_gamma(cjs,Temp)
+   omegacjg1,gammacjg1=parse_gamma(cjg,Temp)
 
 
 
-   plt.figure(figsize=(16,20))
+   plt.figure(figsize=(16,16))
 #   rc('text', usetex=True)
    rc('font', family='serif')
    rc('font', serif='Times New Roman')
@@ -331,8 +355,11 @@ def run():
    eachplot9(19,"beta",omegaaps1,aps1)
    eachplot9(20,"beta",omegaaps1,aps1)
    eachplot9(21,"gamma",omegaapg1,apg1)
+   eachplot10(22,"alpha",omegacjc1,gammacjc1/4)
+   eachplot10(23,"beta",omegacjs1,gammacjs1)
+   eachplot10(24,"gamma",omegacjg1,gammacjg1)
    plt.tight_layout()
-   #plt.savefig("tst_plot.pdf")
+   plt.savefig("tst_plot.pdf")
 
 run()
-plt.show()
+#plt.show()
