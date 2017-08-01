@@ -6,13 +6,13 @@ from scipy import stats
 from matplotlib import rc
 
 Temp = 300
-nbins = 50
-y_max = 0.12
+nbins = 300
+#y_max = 0.12
 numr = 7
 max_freq = 15
 jdosc1 = np.loadtxt('/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g0-t300.dat',comments='#',dtype='float')
 jdoss1 = np.loadtxt('/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g0-t300.dat',comments='#',dtype='float')
-jdosg1 = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0-t300.dat',comments='#',dtype='float')
+jdosg1 = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0-t300.dat',comments='#',dtype='float') 
 jdosc2 = np.loadtxt('/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g1673-t300.dat',comments='#',dtype='float')
 jdoss2 = np.loadtxt('/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g3241-t300.dat',comments='#',dtype='float')
 jdosg2 = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g5577-t300.dat',comments='#',dtype='float')
@@ -80,11 +80,12 @@ def run_KDE(x, y, nbins, y_max):
     return xi, yi, zi
 
 
-def run_KDE2(x, y, nbins):
+def run_KDE2(x, y, nbins, y_max=None):
     x_min = 0
     x_max = np.rint(x.max() * 1.0)
     y_min = 0
-    y_max = np.rint(y.max() * 1.0)
+    if y_max is None:
+        y_max = np.rint(y.max() * 1.0)
     values = np.vstack([x, y])
     kernel = stats.gaussian_kde(values)
 
@@ -110,45 +111,6 @@ def parse_gvaccum(filename):
     omega = np.array(data)[:,0]
     return (omega,gvaccum,dgvaccum)    
  
-def parse_gammamesh(filename,temp):
-    f = h5py.File(filename,'r')
-    temperature = f["temperature"].value
-    i=0 
-    for t in temperature:
-        if t == temp:
-            tindex=i 
-        i += 1
-    gamma=f["gamma"][tindex,]
-    omega=f["frequency"][:,:]
-    weights=f["weight"][:]
-    gamma1=gamma.ravel()
-    omega1=omega.ravel()
-    dgamma=[]
-    domega=[]
-    j=0 
-    for i in omega1:
-        if i <= 12: 
-            dgamma.append(gamma1[j])
-            domega.append(i)
-        j=j+1
-    print np.average(dgamma),np.std(dgamma)
-
-    freqs = []
-    mode_prop = []
-    mode_weights = []
-    for w, freq, g in zip(weights, omega, gamma):
-        tau = 1.0 / np.where(g > 0, g, -1) / (2 * 2 * np.pi) 
-        
-        condition = tau > 0
-        _tau = np.extract(condition, tau)
-        _freq = np.extract(condition, freq)
-
-        freqs += list(_freq) * w
-        mode_prop += list(_tau) * w
-    x = np.array(freqs)
-    y = np.array(mode_prop)
-    return(omega1,gamma1,x,y) 
-
 
 def parse_gamma(filename,temp,frag):
     freqs = []
@@ -210,7 +172,7 @@ def parse_gammanu(filename,temp):
     omega1=omega.ravel()
     return(omega1,gammau1,gamman1) 
 
-def parse_avepp(filename):
+def parse_avepp(filename,frag):
     freqs = []
     mode_prop = []
     f = h5py.File(filename,'r')
@@ -224,7 +186,11 @@ def parse_avepp(filename):
         mode_prop += list(_ap)
     avepp1=np.array(mode_prop).ravel()
     omega1=np.array(freqs).ravel()
-    return(omega1,avepp1)
+    if frag == 1:
+        omeganz1,aveppnz1=remove_zero(omega1,avepp1)
+    else:
+        omeganz1,aveppnz1=omega1,avepp1
+    return(omeganz1,aveppnz1)
 
 
 def parse_gruneisen(filename):
@@ -337,24 +303,27 @@ def run():
    omegag1,gammag1=parse_gamma(g,Temp,1)
    omeganus1,gammasu1,gammasn1=parse_gammanu(nus,Temp)
    omeganug1,gammagu1,gammagn1=parse_gammanu(nug,Temp)
-   omegaapc1,apc1=parse_avepp(apc)
-   omegaaps1,aps1=parse_avepp(aps)
-   omegaapg1,apg1=parse_avepp(apg)
-   ##xci, yci, zci = run_KDE(xc, yc, nbins, y_max)
-   ##xsi, ysi, zsi = run_KDE(xs, ys, nbins, y_max)
-   ##xgi, ygi, zgi = run_KDE(xg, yg, nbins, y_max)
-   xci, yci, zci = run_KDE2(omegac1,1/(2*gammac1*2*np.pi), nbins)
-   xsi, ysi, zsi = run_KDE2(omegas1,1/(2*gammas1*2*np.pi), nbins)
-   xgi, ygi, zgi = run_KDE2(omegag1,1/(2*gammag1*2*np.pi), nbins)
-   #xapci, yapci, zapci = run_KDE2(omegaapc1,apc1, nbins)
-   #xapsi, yapsi, zapsi = run_KDE2(omegaaps1,aps1, nbins)
-   #xapgi, yapgi, zapgi = run_KDE2(omegaapg1,apg1, nbins)
-   xc,yc=parse_gruneisen(grc)
-   xs,ys=parse_gruneisen(grs)
-   xg,yg=parse_gruneisen(grg)
+   omegaapc1,apc1=parse_avepp(apc,0)
+   omegaaps1,aps1=parse_avepp(aps,0)
+   omegaapg1,apg1=parse_avepp(apg,0)
+   #xci, yci, zci = run_KDE2(omegac1,1/(2*gammac1*2*np.pi), nbins)
+   #xsi, ysi, zsi = run_KDE2(omegas1,1/(2*gammas1*2*np.pi), nbins)
+   #xgi, ygi, zgi = run_KDE2(omegag1,1/(2*gammag1*2*np.pi), nbins)
+   #xapci, yapci, zapci = run_KDE2(omegaapc1,apc1*4*10**(11), nbins, 1.5*10**(2))
+   #xapsi, yapsi, zapsi = run_KDE2(omegaaps1,aps1*10**(11), nbins, 1.5*10**(2))
+   #xapgi, yapgi, zapgi = run_KDE2(omegaapg1,apg1*10**(11), nbins, 1.5*10**(2))
+   #xc,yc=parse_gruneisen(grc)
+   #xs,ys=parse_gruneisen(grs)
+   #xg,yg=parse_gruneisen(grg)
    omegacjc1,gammacjc1=parse_gamma(cjc,Temp,0)
    omegacjs1,gammacjs1=parse_gamma(cjs,Temp,0)
    omegacjg1,gammacjg1=parse_gamma(cjg,Temp,0)
+   #xcjci, ycjci, zcjci = run_KDE2(omegacjc1,gammacjc1/4, nbins, 1.6*10**(8))
+   #xcjsi, ycjsi, zcjsi = run_KDE2(omegacjs1,gammacjs1, nbins, 1.6*10**(8))
+   #xcjgi, ycjgi, zcjgi = run_KDE2(omegacjg1,gammacjg1, nbins, 1.6*10**(8))
+   #xcjapci, ycjapci, zcjapci = run_KDE2(omegacjc1,gammacjc1*apc1*10**3, nbins, 1.0*10**2)
+   #xcjapsi, ycjapsi, zcjapsi = run_KDE2(omegacjs1,gammacjs1*aps1*10**3, nbins, 1.0*10**2)
+   #xcjapgi, ycjapgi, zcjapgi = run_KDE2(omegacjg1,gammacjg1*apg1*10**3, nbins, 1.0*10**2)
 
 
 
@@ -370,9 +339,6 @@ def run():
    eachplot(4,"alpha",omegac,kaccumc,dkaccumc)
    eachplot(5,"beta",omegas,kaccums,dkaccums)
    eachplot(6,"gamma",omegag,kaccumg,dkaccumg)
-   #eachplot12(7,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,15,2,100,"lifetime")
-   #eachplot12(8,"beta",omegas1,1/(2*gammas1*2*np.pi),0,15,2,100,"lifetime")
-   #eachplot12(9,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,15,2,100,"lifetime")
    #eachplot4(10,"alpha",omegac1,gammac1)
    #eachplot4(11,"betau",omeganus1,gammasu1)
    #eachplot4(12,"gamman",omeganug1,gammagu1)
@@ -381,12 +347,15 @@ def run():
    #eachplot4(15,"gamman",omeganug1,gammagn1)
    #eachplot8(11,"beta",omeganus1,gammasu1,gammasn1)
    #eachplot8(12,"gamma",omeganug1,gammagu1,gammagn1)
-   eachplot5(xci,yci,zci,nbins,7,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,15,2,100,"tau")
-   eachplot5(xsi,ysi,zsi,nbins,8,"beta",omegas1,1/(2*gammas1*2*np.pi),0,15,2,100,"tau")
-   eachplot5(xgi,ygi,zgi,nbins,9,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,15,2,100,"tau")
-   eachplot2(10,"alpha",omegagc,dgvaccumc)
-   eachplot2(11,"beta",omegags,dgvaccums)
-   eachplot2(12,"gamma",omegagg,dgvaccumg)
+   #eachplot5(xci,yci,zci,nbins,7,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,15,2,100,"tau")
+   #eachplot5(xsi,ysi,zsi,nbins,8,"beta",omegas1,1/(2*gammas1*2*np.pi),0,15,2,100,"tau")
+   #eachplot5(xgi,ygi,zgi,nbins,9,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,15,2,100,"tau")
+   eachplot2(7,"alpha",omegagc,dgvaccumc)
+   eachplot2(8,"beta",omegags,dgvaccums)
+   eachplot2(9,"gamma",omegagg,dgvaccumg)
+   eachplot12(10,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,15,2,100,"lifetime")
+   eachplot12(11,"beta",omegas1,1/(2*gammas1*2*np.pi),0,15,2,100,"lifetime")
+   eachplot12(12,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,15,2,100,"lifetime")
    #eachplot6(13,"alpha",jdosc1[:,0],(jdosc1[:,1]+jdosc1[:,2])/16,jdosc2[:,0],(jdosc2[:,1]+jdosc2[:,2])/16)
    #eachplot6(14,"beta",jdoss1[:,0],(jdoss1[:,1]+jdoss1[:,2])/4,jdoss2[:,0],(jdoss2[:,1]+jdoss2[:,2])/4)
    #eachplot6(15,"gamma",jdosg1[:,0],(jdosg1[:,1]+jdosg1[:,2])/4,jdosg2[:,0],(jdosg2[:,1]+jdosg2[:,2])/4)
@@ -395,13 +364,21 @@ def run():
 #   eachplot12(17,"beta",xs,ys,0,15,-2.5,2.5,"gruneisen")
 #   eachplot12(18,"gamma",xg,yg,0,15,-2.5,2.5,"gruneisen")
    #eachplot9(13,"alpha*4",omegaapc1,apc1*4)
+   #eachplot5(xapci,yapci,zapci,nbins,13,"alpha*4*10**(11)",omegaapc1,apc1*4*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
+   #eachplot5(xapsi,yapsi,zapsi,nbins,14,"beta*10**(11)",omegaaps1,aps1*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
+   #eachplot5(xapgi,yapgi,zapgi,nbins,15,"gamma*10**(11)",omegaapg1,apg1*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
    eachplot12(13,"alpha*4",omegaapc1,apc1*4,0,15,4*10**(-11),1.5*10**(-9),"avepp")
    eachplot12(14,"beta",omegaaps1,aps1,0,15,4*10**(-11),1.5*10**(-9),"avepp")
    eachplot12(15,"gamma",omegaapg1,apg1,0,15,4*10**(-11),1.5*10**(-9),"avepp")
-   #eachplot5(xapgi,yapgi,zapgi,nbins,15,"gamma",omegaapg1,apg1,0,15,4*10**(-11),1.5*10**(-9),"avepp")
+   #eachplot5(xcjci,ycjci,zcjci,nbins,16,"alpha/4",omegacjc1,gammacjc1/4,0,15,10**(7),1.6*10**(8),"wjdos")
+   #eachplot5(xcjsi,ycjsi,zcjsi,nbins,17,"beta",omegacjs1,gammacjs1,0,15,10**(7),1.6*10**(8),"wjdos")
+   #eachplot5(xcjgi,ycjgi,zcjgi,nbins,18,"gamma",omegacjg1,gammacjg1,0,15,10**(7),1.6*10**(8),"wjdos")
    eachplot12(16,"alpha/4",omegacjc1,gammacjc1/4,0,15,10**7,1.6*10**8,"wjdos")
    eachplot12(17,"beta",omegacjs1,gammacjs1,0,15,10**7,1.6*10**8,"wjdos")
    eachplot12(18,"gamma",omegacjg1,gammacjg1,0,15,10**7,1.6*10**8,"wjdos")
+   #eachplot5(xcjapci,ycjapci,zcjapci,nbins,19,"alpha*10**3",omegacjc1,gammacjc1*apc1*10**3,0,15,5*10**(-1),1.0*10**(2),"wjdos*avepp")
+   #eachplot5(xcjapsi,ycjapsi,zcjapsi,nbins,20,"beta*10**3",omegacjs1,gammacjs1*aps1*10**3,0,15,5*10**(-1),1.0*10**(2),"wjdos*avepp")
+   #eachplot5(xcjapgi,ycjapgi,zcjapgi,nbins,21,"gamma*10**3",omegacjg1,gammacjg1*apg1*10**3,0,15,5*10**(-1),1.0*10**(2),"wjdos*avepp")
    eachplot12(19,"alpha",omegacjc1,gammacjc1*apc1,0,15,0.0005,0.1,"wjdos*avepp")
    eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,15,0.0005,0.1,"wjdos*avepp")
    eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,15,0.0005,0.1,"wjdos*avepp")

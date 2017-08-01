@@ -8,7 +8,7 @@ from matplotlib import rc
 Temp = 300
 nbins = 100
 y_max = 0.12
-max_freq = 15
+max_freq = 35
 numr = 3
 c = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m8810.hdf5"
 s = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/kappa-m8820.hdf5"
