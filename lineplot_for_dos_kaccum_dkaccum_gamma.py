@@ -4,42 +4,45 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
-
+homedir = "/home/kazu"
+cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
+sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
+gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
 nbins = 300
 #y_max = 0.12
 numr = 7
 max_freq = 15
-jdosc1 = np.loadtxt('/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g0-t300.dat',comments='#',dtype='float')
-jdoss1 = np.loadtxt('/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g0-t300.dat',comments='#',dtype='float')
-jdosg1 = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0-t300.dat',comments='#',dtype='float') 
-jdosc2 = np.loadtxt('/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g1673-t300.dat',comments='#',dtype='float')
-jdoss2 = np.loadtxt('/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g3241-t300.dat',comments='#',dtype='float')
-jdosg2 = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g5577-t300.dat',comments='#',dtype='float')
-dosc  = np.loadtxt('/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/total_dos_m292935.dat',comments='#',dtype='float')
-doss  = np.loadtxt('/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/total_dos_m292967.dat',comments='#',dtype='float')
-dosg  = np.loadtxt('/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/total_dos.dat',comments='#',dtype='float')
-gc = '/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kaccum.dat'
-gs = '/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/kaccum.dat'
-gg = '/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/kaccum.dat'
-ggc = '/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/gvaccum.dat'
-ggs = '/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/gvaccum.dat'
-ggg = '/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/gvaccum.dat'
-c = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m8810.hdf5"
-s = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/kappa-m8820.hdf5"
-g = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/kappa-m121212.hdf5"
-grc = "/home/kazu/asi3n4/gruneisen/gruneisen.hdf5"
-grs = "/home/kazu/bsi3n4_m/gruneisen/gruneisen.hdf5"
-grg = "/home/kazu/gamma-si3n4-unit/gruneisen/gruneisen.hdf5"
-nuc = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.hdf5"
-nus = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/gpjob_m8820_nu/kappa-m8820.hdf5"
-nug = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/gpjob_m121212_nu/kappa-m121212.hdf5"
-apc= "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/gpjob_m8810_fullpp/kappa-m8810.hdf5"
-aps= "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/gpjob_m8820_fullpp/kappa-m8820.hdf5"
-apg= "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/gpjob_m121212_fullpp/kappa-m121212.hdf5"
-cjc= "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.const_ave1.hdf5"
-cjs= "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/kappa-m8820.const_ave1.hdf5"
-cjg= "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/kappa-m121212.const_ave1.hdf5"
+jdosc1 = np.loadtxt(cdir + 'jdos-m141416-g0-t300.dat',comments='#',dtype='float')
+jdoss1 = np.loadtxt(sdir + 'jdos-m141432-g0-t300.dat',comments='#',dtype='float')
+jdosg1 = np.loadtxt(gdir + 'jdos-m222222-g0-t300.dat',comments='#',dtype='float') 
+jdosc2 = np.loadtxt(cdir + 'jdos-m141416-g1673-t300.dat',comments='#',dtype='float')
+jdoss2 = np.loadtxt(sdir + 'jdos-m141432-g3241-t300.dat',comments='#',dtype='float')
+jdosg2 = np.loadtxt(gdir + 'jdos-m222222-g5577-t300.dat',comments='#',dtype='float')
+dosc  = np.loadtxt(cdir + 'total_dos_m292935.dat',comments='#',dtype='float')
+doss  = np.loadtxt(sdir + 'total_dos_m292967.dat',comments='#',dtype='float')
+dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
+gc = cdir + 'noiso/kaccum.dat'
+gs = sdir + 'noiso/kaccum.dat'
+gg = gdir + 'noiso/kaccum.dat'
+ggc = cdir +  'noiso/gvaccum.dat'
+ggs = sdir + 'noiso/gvaccum.dat'
+ggg = gdir + 'noiso/gvaccum.dat'
+c = cdir + "noiso/kappa-m8810.hdf5"
+s = sdir + "noiso/kappa-m8820.hdf5"
+g = gdir + "noiso/kappa-m121212.hdf5"
+grc = homedir + "/asi3n4/gruneisen/gruneisen.hdf5"
+grs = homedir + "/bsi3n4_m/gruneisen/gruneisen.hdf5"
+grg = homedir + "/gamma-si3n4-unit/gruneisen/gruneisen.hdf5"
+nuc = cdir + "kappa-m8810.hdf5"
+nus = sdir + "noiso/gpjob_m8820_nu/kappa-m8820.hdf5"
+nug = gdir + "noiso/gpjob_m121212_nu/kappa-m121212.hdf5"
+apc= cdir + "gpjob_m8810_fullpp/kappa-m8810.hdf5"
+aps= sdir + "gpjob_m8820_fullpp/kappa-m8820.hdf5"
+apg= gdir + "gpjob_m121212_fullpp/kappa-m121212.hdf5"
+cjc= cdir + "kappa-m8810.const_ave1.hdf5"
+cjs= sdir + "kappa-m8820.const_ave1.hdf5"
+cjg= gdir + "kappa-m121212.const_ave1.hdf5"
 
 
 def parse_kaccum(filename):
