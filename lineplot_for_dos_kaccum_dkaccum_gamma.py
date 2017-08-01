@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
-homedir = "/home/kazu"
+homedir = "/home/kazu/stern"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
@@ -231,7 +231,7 @@ def eachplot(sn,phase,omega,kaccum,dkaccum):
    plt.plot(omega,dkaccum[:,2]*10,label=phase + "_dkzz")
    plt.ylim(0,255)
    plt.yticks([0,100,200])
-   plt.xlim(0,15)
+   plt.xlim(0,max_freq)
    #plt.xscale("log")
    #plt.xlabel("mfp [micro-meter]")
    #plt.ylabel("kaccum [W/m.K]")
@@ -244,7 +244,7 @@ def eachplot2(sn,phase,omega,dkaccum):
    plt.plot(omega,dkaccum[:,2]*10,label=phase + "_dkzz")
    plt.ylim(0,105)
    plt.yticks([0,50,100])
-   plt.xlim(0,15)
+   plt.xlim(0,max_freq)
 
 def eachplot3(sn,phase,omega,dos):
    plt.subplot(numr,3,sn)
@@ -252,7 +252,7 @@ def eachplot3(sn,phase,omega,dos):
    plt.plot(omega,dos,label=phase + "_dos")
    plt.ylim(0,3)
    plt.yticks([0,1,2,3])
-   plt.xlim(0,15)
+   plt.xlim(0,max_freq)
 
 
 def eachplot5(xi, yi, zi, nbins, sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
@@ -356,9 +356,12 @@ def run():
    eachplot2(7,"alpha",omegagc,dgvaccumc)
    eachplot2(8,"beta",omegags,dgvaccums)
    eachplot2(9,"gamma",omegagg,dgvaccumg)
-   eachplot12(10,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,15,2,100,"lifetime")
-   eachplot12(11,"beta",omegas1,1/(2*gammas1*2*np.pi),0,15,2,100,"lifetime")
-   eachplot12(12,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,15,2,100,"lifetime")
+   #eachplot12(10,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,max_freq,2,100,"lifetime")
+   #eachplot12(11,"beta",omegas1,1/(2*gammas1*2*np.pi),0,max_freq,2,100,"lifetime")
+   #eachplot12(12,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,max_freq,2,100,"lifetime")
+   eachplot12(10,"alpha",omegac1,gammac1,0,max_freq,0.0005,0.08,"gamma")
+   eachplot12(11,"beta",omegas1,gammas1,0,max_freq,0.0005,0.08,"gamma")
+   eachplot12(12,"gamma",omegag1,gammag1,0,max_freq,0.0005,0.08,"gamma")
    #eachplot6(13,"alpha",jdosc1[:,0],(jdosc1[:,1]+jdosc1[:,2])/16,jdosc2[:,0],(jdosc2[:,1]+jdosc2[:,2])/16)
    #eachplot6(14,"beta",jdoss1[:,0],(jdoss1[:,1]+jdoss1[:,2])/4,jdoss2[:,0],(jdoss2[:,1]+jdoss2[:,2])/4)
    #eachplot6(15,"gamma",jdosg1[:,0],(jdosg1[:,1]+jdosg1[:,2])/4,jdosg2[:,0],(jdosg2[:,1]+jdosg2[:,2])/4)
@@ -370,21 +373,21 @@ def run():
    #eachplot5(xapci,yapci,zapci,nbins,13,"alpha*4*10**(11)",omegaapc1,apc1*4*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
    #eachplot5(xapsi,yapsi,zapsi,nbins,14,"beta*10**(11)",omegaaps1,aps1*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
    #eachplot5(xapgi,yapgi,zapgi,nbins,15,"gamma*10**(11)",omegaapg1,apg1*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
-   eachplot12(13,"alpha*4",omegaapc1,apc1*4,0,15,4*10**(-11),1.5*10**(-9),"avepp")
-   eachplot12(14,"beta",omegaaps1,aps1,0,15,4*10**(-11),1.5*10**(-9),"avepp")
-   eachplot12(15,"gamma",omegaapg1,apg1,0,15,4*10**(-11),1.5*10**(-9),"avepp")
+   eachplot12(16,"alpha*4",omegaapc1,apc1*4,0,max_freq,4*10**(-11),1.5*10**(-9),"avepp")
+   eachplot12(17,"beta",omegaaps1,aps1,0,max_freq,4*10**(-11),1.5*10**(-9),"avepp")
+   eachplot12(18,"gamma",omegaapg1,apg1,0,max_freq,4*10**(-11),1.5*10**(-9),"avepp")
    #eachplot5(xcjci,ycjci,zcjci,nbins,16,"alpha/4",omegacjc1,gammacjc1/4,0,15,10**(7),1.6*10**(8),"wjdos")
    #eachplot5(xcjsi,ycjsi,zcjsi,nbins,17,"beta",omegacjs1,gammacjs1,0,15,10**(7),1.6*10**(8),"wjdos")
    #eachplot5(xcjgi,ycjgi,zcjgi,nbins,18,"gamma",omegacjg1,gammacjg1,0,15,10**(7),1.6*10**(8),"wjdos")
-   eachplot12(16,"alpha/4",omegacjc1,gammacjc1/4,0,15,10**7,1.6*10**8,"wjdos")
-   eachplot12(17,"beta",omegacjs1,gammacjs1,0,15,10**7,1.6*10**8,"wjdos")
-   eachplot12(18,"gamma",omegacjg1,gammacjg1,0,15,10**7,1.6*10**8,"wjdos")
+   eachplot12(13,"alpha/4",omegacjc1,gammacjc1/4,0,max_freq,10**7,1.6*10**8,"wjdos")
+   eachplot12(14,"beta",omegacjs1,gammacjs1,0,max_freq,10**7,1.6*10**8,"wjdos")
+   eachplot12(15,"gamma",omegacjg1,gammacjg1,0,max_freq,10**7,1.6*10**8,"wjdos")
    #eachplot5(xcjapci,ycjapci,zcjapci,nbins,19,"alpha*10**3",omegacjc1,gammacjc1*apc1*10**3,0,15,5*10**(-1),1.0*10**(2),"wjdos*avepp")
    #eachplot5(xcjapsi,ycjapsi,zcjapsi,nbins,20,"beta*10**3",omegacjs1,gammacjs1*aps1*10**3,0,15,5*10**(-1),1.0*10**(2),"wjdos*avepp")
    #eachplot5(xcjapgi,ycjapgi,zcjapgi,nbins,21,"gamma*10**3",omegacjg1,gammacjg1*apg1*10**3,0,15,5*10**(-1),1.0*10**(2),"wjdos*avepp")
-   eachplot12(19,"alpha",omegacjc1,gammacjc1*apc1,0,15,0.0005,0.1,"wjdos*avepp")
-   eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,15,0.0005,0.1,"wjdos*avepp")
-   eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,15,0.0005,0.1,"wjdos*avepp")
+   eachplot12(19,"alpha",omegacjc1,gammacjc1*apc1,0,max_freq,0.0005,0.1,"wjdos*avepp")
+   eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
+   eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    plt.tight_layout()
    #plt.savefig("tst_plot.pdf")
 

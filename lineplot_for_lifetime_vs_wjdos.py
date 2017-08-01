@@ -8,17 +8,21 @@ from matplotlib import rc
 Temp = 300
 nbins = 100
 y_max = 0.12
-max_freq = 35
+max_freq = 15
 numr = 3
-c = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m8810.hdf5"
-s = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso/kappa-m8820.hdf5"
-g = "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/noiso/kappa-m121212.hdf5"
-apc= "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/gpjob_m8810_fullpp/kappa-m8810.hdf5"
-aps= "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/gpjob_m8820_fullpp/kappa-m8820.hdf5"
-apg= "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/gpjob_m121212_fullpp/kappa-m121212.hdf5"
-cjc= "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/kappa-m8810.const_ave1.hdf5"
-cjs= "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/kappa-m8820.const_ave1.hdf5"
-cjg= "/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/kappa-m121212.const_ave1.hdf5"
+homedir = "/home/kazu/stern/"
+cdir = homedir + "asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
+sdir = homedir + "bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
+gdir = homedir + "gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
+c = cdir + "noiso/kappa-m8810.hdf5"
+s = sdir + "noiso/kappa-m8820.hdf5"
+g = gdir + "noiso/kappa-m121212.hdf5"
+apc= cdir + "gpjob_m8810_fullpp/kappa-m8810.hdf5"
+aps= sdir + "gpjob_m8820_fullpp/kappa-m8820.hdf5"
+apg= gdir + "gpjob_m121212_fullpp/kappa-m121212.hdf5"
+cjc= cdir + "kappa-m8810.const_ave1.hdf5"
+cjs= sdir + "kappa-m8820.const_ave1.hdf5"
+cjg= gdir + "kappa-m121212.const_ave1.hdf5"
 
 
 
