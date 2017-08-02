@@ -11,9 +11,14 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: Si3N4Notes.bib
 Database file #2: Si3N4.bib
+Warning--I didn't find a database entry for "mukhopadhyay"
 control{REVTEX41Control}, control.key{N/A}, control.author{N/A}, control.editor{N/A}, control.title{N/A}, control.pages{N/A}, control.year{N/A}, control.eprint{N/A}, 
 control{apsrev41Control}, control.key{N/A}, control.author{08}, control.editor{1}, control.title{}, control.pages{0}, control.year{1}, control.eprint{N/A}, 
 Warning--jnrlst (dependency: not reversed) set 1
+Name 1 in "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" has a comma at the end for entry minikayev-alpha
+while executing---line 3239 of file apsrev4-1.bst
+Too many commas in name 1 of "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" for entry minikayev-alpha
+while executing---line 3239 of file apsrev4-1.bst
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 merlin.mbs apsrev4-1.bst 2010-07-25 4.21a (PWD, AO, DPC) hacked
 Control: key (0) 
@@ -23,45 +28,61 @@ Control: production of article title (-1) disabled
 Control: page (0) single
 Control: year (1) truncated
 Control: production of eprint (0) enabled
-You've used 5 entries,
+Name 1 in "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" has a comma at the end for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+Too many commas in name 1 of "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+Name 1 in "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" has a comma at the end for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+Too many commas in name 1 of "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+Name 1 in "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" has a comma at the end for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+Too many commas in name 1 of "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+Name 1 in "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" has a comma at the end for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+Too many commas in name 1 of "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" for entry minikayev-alpha
+while executing---line 3445 of file apsrev4-1.bst
+You've used 39 entries,
             5847 wiz_defined-function locations,
-            1628 strings with 15202 characters,
-and the built_in function-call counts, 3847 in all, are:
-= -- 208
-> -- 82
-< -- 51
-+ -- 29
-- -- 35
-* -- 565
-:= -- 359
-add.period$ -- 3
-call.type$ -- 5
-change.case$ -- 12
-chr.to.int$ -- 13
-cite$ -- 5
-duplicate$ -- 393
-empty$ -- 234
-format.name$ -- 39
-if$ -- 704
+            1844 strings with 20806 characters,
+and the built_in function-call counts, 38643 in all, are:
+= -- 2396
+> -- 1067
+< -- 285
++ -- 337
+- -- 273
+* -- 6012
+:= -- 3744
+add.period$ -- 38
+call.type$ -- 39
+change.case$ -- 151
+chr.to.int$ -- 47
+cite$ -- 39
+duplicate$ -- 3632
+empty$ -- 2830
+format.name$ -- 617
+if$ -- 7685
 int.to.chr$ -- 1
-int.to.str$ -- 12
-missing$ -- 63
-newline$ -- 61
-num.names$ -- 9
-pop$ -- 177
+int.to.str$ -- 46
+missing$ -- 482
+newline$ -- 163
+num.names$ -- 111
+pop$ -- 1543
 preamble$ -- 1
-purify$ -- 15
+purify$ -- 185
 quote$ -- 0
-skip$ -- 145
+skip$ -- 1382
 stack$ -- 0
-substring$ -- 106
-swap$ -- 354
-text.length$ -- 8
+substring$ -- 948
+swap$ -- 3436
+text.length$ -- 129
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 53
+type$ -- 545
 warning$ -- 1
-while$ -- 18
+while$ -- 120
 width$ -- 0
-write$ -- 76
-(There was 1 warning)
+write$ -- 348
+(There were 10 error messages)
