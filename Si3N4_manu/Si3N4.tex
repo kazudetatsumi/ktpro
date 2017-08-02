@@ -188,7 +188,7 @@ are examined to find what microscopic property determines the characteristics in
 The LTCs were calculated by solving the linearized Boltzmann
 transport equation (LBTE) within the single-mode RTA.
 %
-\textcolor{red}{We also tried the direct-solution of LBTE35 and shortly
+\textcolor{red}{We also tried the direct-solution of LBTE~\cite{chaput-direct} and shortly
 leave its calculated LTC values in the following section. However the
 difference of LTCs between by the single-mode RTA and by the direct
 solution was found minor for our discussion. Therefore we limited our
@@ -409,19 +409,19 @@ phases.
 The merit of the single-mode RTA is that we can intuitively understand
 the qualitative character of LTC in terms of the relaxation time and
 group velocity. The microscopic understanding of the full solution of
-LBTE is still under the development (Andrea Cepellotti and Nicola
-Marzari Phys. Rev. X 6, 041013 (2016)) and the microscopic picture based
-on collective phonons (R. J. Hardy, Phys. Rev. B 2, 1193 (1970)) will
+LBTE is still under the development~\cite{cepellotti-relaxons}
+and the microscopic picture based
+on collective phonons~\cite{hardy-collective}) will
 require more complicate investigation although it is known that the
 single-mode RTA solution of LBTE underestimates the full solution.~\cite{mukhopadhyay-ltc,ward-ltc}
 
 
-For the $\beta$ phase, we partly adopted a direct solution of LBTE35,
+For the $\beta$ phase, we partly adopted a direct solution of LBTE~\cite{chaput-direct},
 which is one of the methods of LBTE full solutions. Because of the
 larger computational demand for the direct solution, we calculated the
 LTC with the $\mathbf{q}$-point sampling mesh of $10\times 10\times
 26$. The LTC values of the direct solution without the isotope effect
-were 74 and 237 WK-1m-1 for $\kappa_{xx}$ and $\kappa_{zz}$,
+were 74 and 237 WK$^{-1}$m$^{-1}$ for $\kappa_{xx}$ and $\kappa_{zz}$,
 respectively, while the corresponding single-mode RTA values were 74 and
 205 WK$^{-1}$m$^{-1}$. The $\kappa_{zz}$ of the direct solution was 16
 \% larger than that of the single-mode RTA solution. Since the LTC
@@ -450,23 +450,23 @@ our interest.
    $\beta$-Si$_3$N$_4$ & 73 & 198 & 237 & 250\footnotemark[1] & 170\footnotemark[2] & 450\footnotemark[2] & 122\footnotemark[5] & 69\footnotemark[6] & 180\footnotemark[6] \\
    $\gamma$-Si$_3$N$_4$ & 82 & - & 296 & 80\footnotemark[1] & - & - & - & - & - \\
    w-AlN & 218 & 190 & 196 & - & 240\footnotemark[3] & 212\footnotemark[3] & 285\footnotemark[7] & - & -
-   \footnotetext[1]{Ref.17, Slack model}
-   \footnotetext[2]{Ref.16, molecular dynamics (Green-Kubo)}
-   \footnotetext[3]{Ref.23, LBTE full solution.}
-   \footnotetext[4]{Ref.24, thin film.}
-   \footnotetext[5]{Ref.5, poly-crystals.}
-   \footnotetext[6]{Ref.12, single crystalline grains of poly-crystals.}
-   \footnotetext[7]{Ref.36, single-crystal.}
+   \footnotetext[1]{Ref.~\onlinecite{morelli}, Slack model}
+   \footnotetext[2]{Ref.~\onlinecite{hirosaki-md}, molecular dynamics (Green-Kubo)}
+   \footnotetext[3]{Ref.~\onlinecite{phono3py}, LBTE full solution.}
+   \footnotetext[4]{Ref.~\onlinecite{hirai}, thin film.}
+   \footnotetext[5]{Ref.~\onlinecite{hirosaki}, poly-crystals.}
+   \footnotetext[6]{Ref.~\onlinecite{li}, single crystalline grains of poly-crystals.}
+   \footnotetext[7]{Ref.~\onlinecite{slack-aln}, single-crystal.}
   \end{tabular}
  \end{ruledtabular}
 \end{table}
 
 \textcolor{red}{ In Table \ref{table:LTC-exp}, the theoretical LTCs at
-300 K are compared with the previously reported experimental5,24,36 and
-theoretical16,17 values. The present calculation results better agree
+	300 K are compared with the previously reported experimental~\cite{hirosaki,hirai,li,slack-aln} and
+	theoretical~\cite{morelli,hirosaki-md,phono3py} values. The present calculation results better agree
 with the experimental $\kappa$$_{xx}$ and $\kappa$$_{zz}$ of
-$\beta$-Si$_3$N$_4$, compared with the references of the Slack model17
-and MD16 results. The directional averages of the present $\kappa_{ii}$
+$\beta$-Si$_3$N$_4$, compared with the references of the Slack model~\cite{morelli}
+and MD~\cite{hirosaki-md} results. The directional averages of the present $\kappa_{ii}$
 in the $\alpha$, $\beta$, and $\gamma$ phases are 79, 115, and 81
 Wm$^{-1}$K$^{-1}$. The value of the $\gamma$ phase is just as small as
 that of the $\alpha$ phase, although the former phase shows the largest
@@ -480,7 +480,7 @@ It can be seen that the theoretical LTCs of $\beta$-Si$_3$N$_4$ are
 markedly more anisotropic than those of the $\alpha$ phase. The
 theoretical LTCs of $\beta$-Si$_3$N$_4$ are in good agreement with the
 corresponding experimental data for individual grains reported by Li
-{\it et al.}12, indicates that the experimentally reported large
+{\it et al.}~\cite{li}, indicates that the experimentally reported large
 anisotropy in the thermal conductivities of $\beta$-Si$_3$N$_4$ stems
 from the intrinsic properties of the crystal, rather than specific
 defects induced during the sample preparation process. Among the
@@ -523,7 +523,7 @@ high-temperature limit for these phases.
 %
 \textcolor{red}{In Fig.~\ref{fig:Fig1_338}-a, the temperature dependence
 of the experimental data of a chemically vapor-deposited
-$\alpha$-Si$_3$N$_4$ sample24 is deviated from $T^{-1}$ considerably,
+$\alpha$-Si$_3$N$_4$ sample~\cite{hirai} is deviated from $T^{-1}$ considerably,
 intersecting the theoretical curves of the $\kappa$$_{xx}$ and
 $\kappa$$_{zz}$ at 400 and 600 K, respectively. Thus no value of $w$
 adjusts the theoretical LTC to the experimental curve. Assuming the
@@ -541,10 +541,10 @@ present, the reason for the discrepancy between the theoretical and
 experimental behaviors is unclear. Although the crystal structure of the
 experimental sample was characterized as $\alpha$-Si$_3$N$_4$,
 significant lattice defects might exist in the as-deposited sample as
-pointed out by Hirosaki {\it et al.}16, and many of them might be
+pointed out by Hirosaki {\it et al.}~\cite{hirosaki-md}, and many of them might be
 diminished in the high temperature side of the measurement.}
 
-The experimental values of the $\beta$-phase ceramic bulk5 fall well
+The experimental values of the $\beta$-phase ceramic bulk~\cite{hirosaki} fall well
 between the calculated values of $\kappa$$_{xx}$ and $\kappa$$_{zz}$.
 %
 \textcolor{red}{The experimental data are nearly parallel to the
@@ -554,7 +554,7 @@ If we compare the experimental values with $\sum_i \kappa_{ii}/3$, which is
 a simple directional average, the calculation shows slight
 underestimations with respect to the experiment, which can be understood
 from an experimentally tailored microstructure containing large
-$\beta$-Si$_3$N$_4$ grains selectively grown along the c axis5.
+$\beta$-Si$_3$N$_4$ grains selectively grown along the c axis.~\cite{hirosaki}
 
 \textcolor{red}{The theoretical curve adjusted with $w=0.37$ explains
 well the experimental data of the poly-crystal bulk in
@@ -563,7 +563,7 @@ which are grain boundaries, we included $\tau_{\lambda,\text{BS}}$ with
 $L = 1$ $\mu\text{m}$ to further fit the theoretical curve ($w=0.44$) to
 the experimental data. The $L$ value is similar to the average grain
 size (2 $\mu\text{m}$) of the experimental polycrystalline
-sample5. Fig.~\ref{fig:Fig1_338}-b also contains the experimental
+sample~\cite{hirosaki}. Fig.~\ref{fig:Fig1_338}-b also contains the experimental
 $\kappa$$_{xx}$ and $\kappa$$_{zz}$ at room temperature by filled
 squares, which are in-between the theoretical components with and
 without $\tau_{\lambda,\text{BS}}$.}
@@ -573,7 +573,7 @@ without $\tau_{\lambda,\text{BS}}$.}
 by crosses in Fig.~\ref{fig:Fig1_338}. The deviations due to the thermal
 expansions were less than 1 \%. Therefore this effect is negligible for
 the present study. The degree of the differences is similar to the case
-of Si and Ge21.}
+of Si and Ge~\cite{ward-ltc}.}
 
 \subsection{Distributions of phonon frequencies of
   $\alpha$ and $\beta$ phases in Brillouin zones}
@@ -595,7 +595,7 @@ Fig.~\ref{fig:Fig2_ver2_338} shows the $\kappa^\text{c}(\omega)$ of the
 $\beta$ phase along two inequivalent directions and their ratios as an
 indicator of the anisotropic thermal conductivities; isotope effects are
 not considered in this figure. We can clearly see that the phonon modes
-in the frequency range of 0–12 THz contribute significantly to
+in the frequency range of 0--12 THz contribute significantly to
 LTC. Interestingly, in the same frequency range, the anisotropy of
 $\kappa^\text{c}(\omega)$ increases monotonically. Thus, we can focus on
 this frequency range when we investigate the anisotropy of the thermal
@@ -647,15 +647,15 @@ and group velocities of $\alpha$-Si$_3$N$_4$ are fairly isotropic.
 of the three Si$_3$N$_4$ phases.
 Among the four terms in Eq.~(\ref{eq:cum-kappa}), we qualitatively investigate the
 contributions of $v_\lambda$ and DOS to LTC. The entire band
-diagrams and DOSs are almost identical to those reported earlier37,38. However, 
+diagrams and DOSs are almost identical to those reported earlier~\cite{kuwabara,xu}. However, 
 the focused points in the previous works were different from the present
 study. The previous works investigated the entire DOS spectra to
 understand the relative thermodynamic stability among the phases and
 thus did not refer to our noted differences in the phonon states
-responsible for LTC, i.e., those in 0-12 THz.}
+responsible for LTC, i.e., those in 0--12 THz.}
 
 In the band diagram of $\beta$ (Fig.~\ref{fig:Fig4_ver5_338}-b), along
-the $\Gamma$-A path, the acoustic phonon branches highlighted in red
+the $\Gamma$--A path, the acoustic phonon branches highlighted in red
 increase their frequencies almost linearly from the $\Gamma$-point to
 the zone boundary of the A-point around 10 THz. Their gradients are
 large, so the group velocity components along the c axis maintain high
@@ -666,14 +666,14 @@ group velocity components along the $c$ axis.
 In contrast, the corresponding acoustic branches in the $\alpha$ phase
 highlighted in red in Fig.~\ref{fig:Fig4_ver5_338}-a do not increase
 their frequencies as much as those of the $\beta$ phase. This is because
-the $\Gamma$-A path length of the $\alpha$ phase is approximately half
+the $\Gamma$--A path length of the $\alpha$ phase is approximately half
 that of $\beta$.The lattice constant c of $\alpha$is nearly twice that
 of $\beta$, owing to the difference in the stacking manner of the basal
-layers. The frequency maxima along the $\Gamma$-A path are around 7 THz,
-rather close to the maxima along the $\Gamma$-K and $\Gamma$-M paths
+layers. The frequency maxima along the $\Gamma$--A path are around 7 THz,
+rather close to the maxima along the $\Gamma$--K and $\Gamma$--M paths
 (around 5 THz). Moreover, the upper branches highlighted in blue are
-relatively flat, like the upper branches along the $\Gamma$-K and
-$\Gamma$-M paths.
+relatively flat, like the upper branches along the $\Gamma$--K and
+$\Gamma$--M paths.
 
 The total DOS of the $\alpha$ phase shows a distinct peak at ~6 THz, as
 indicated by an arrow, where the phonon branches become dispersionless
@@ -698,11 +698,11 @@ are 14 and 12.5 THz at the L- and X-points. The frequencies of the
 transverse acoustic modes are approximately half the values of the
 longitudinal modes at the L-point and a factor of $1/\sqrt{2}$ smaller
 than the longitudinal modes at the X-point, as in the case of fcc rare
-gas solids39. The roughly constant gradients of the branches are large,
+gas solids~\cite{dove-p30}. The roughly constant gradients of the branches are large,
 reflecting the large elastic constants of the $\gamma$ phase
 %
 \textcolor{red}{as shown in Table \ref{table:LTC-exp}. The DOS in the
-frequency range of 0-5 THz,}
+frequency range of 0--5 THz,}
 %
 where only acoustic modes exist, is thus rather small. By fitting the
 total DOS with a Debye model function, $a_\text{D}\omega^2$, the

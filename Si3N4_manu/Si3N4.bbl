@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{37}%
+\begin{thebibliography}{44}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -306,6 +306,12 @@
   {Singh}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Scientific reports}\ }\textbf {\bibinfo {volume} {6}} (\bibinfo {year}
   {2016})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Chaput}(2013)}]{chaput-direct}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
+  {Chaput}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physical review letters}\ }\textbf {\bibinfo {volume} {110}},\ \bibinfo
+  {pages} {265506} (\bibinfo {year} {2013})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Tamura}(1983)}]{tamura}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.-i.}\ \bibnamefont
@@ -387,7 +393,7 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical review
   letters}\ }\textbf {\bibinfo {volume} {69}},\ \bibinfo {pages} {2799}
   (\bibinfo {year} {1992})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Dove}(1993)}]{dove-p76}%
+\bibitem [{\citenamefont {Dove}(1993{\natexlab{a}})}]{dove-p76}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.~T.}\ \bibnamefont
   {Dove}},\ }\href@noop {} {\emph {\bibinfo {title} {Introduction to lattice
@@ -409,4 +415,58 @@
   {Journal of Physics C: Solid State Physics}\ }\textbf {\bibinfo {volume}
   {18}},\ \bibinfo {pages} {3943} (\bibinfo {year} {1985})}\BibitemShut
   {NoStop}%
+\bibitem [{\citenamefont {Cepellotti}\ and\ \citenamefont
+  {Marzari}(2016)}]{cepellotti-relaxons}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Cepellotti}}\ and\ \bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
+  {Marzari}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physical Review X}\ }\textbf {\bibinfo {volume} {6}},\ \bibinfo {pages}
+  {041013} (\bibinfo {year} {2016})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hardy}(1970)}]{hardy-collective}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.~J.}\ \bibnamefont
+  {Hardy}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physical Review B}\ }\textbf {\bibinfo {volume} {2}},\ \bibinfo {pages}
+  {1193} (\bibinfo {year} {1970})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Slack}\ \emph {et~al.}(1987)\citenamefont {Slack},
+  \citenamefont {Tanzilli}, \citenamefont {Pohl},\ and\ \citenamefont
+  {Vandersande}}]{slack-aln}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {G.~A.}\ \bibnamefont
+  {Slack}}, \bibinfo {author} {\bibfnamefont {R.~A.}\ \bibnamefont {Tanzilli}},
+  \bibinfo {author} {\bibfnamefont {R.}~\bibnamefont {Pohl}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {J.}~\bibnamefont {Vandersande}},\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Journal of Physics and Chemistry
+  of Solids}\ }\textbf {\bibinfo {volume} {48}},\ \bibinfo {pages} {641}
+  (\bibinfo {year} {1987})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Kuwabara}\ \emph {et~al.}(2008)\citenamefont
+  {Kuwabara}, \citenamefont {Matsunaga},\ and\ \citenamefont
+  {Tanaka}}]{kuwabara}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Kuwabara}}, \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Matsunaga}},
+  \ and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
+  B}\ }\textbf {\bibinfo {volume} {78}},\ \bibinfo {pages} {064104} (\bibinfo
+  {year} {2008})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Xu}\ \emph {et~al.}(2011)\citenamefont {Xu},
+  \citenamefont {Dong}, \citenamefont {McMillan}, \citenamefont {Shebanova},\
+  and\ \citenamefont {Salamat}}]{xu}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
+  {Xu}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Dong}}, \bibinfo
+  {author} {\bibfnamefont {P.~F.}\ \bibnamefont {McMillan}}, \bibinfo {author}
+  {\bibfnamefont {O.}~\bibnamefont {Shebanova}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {A.}~\bibnamefont {Salamat}},\ }\href@noop {} {\bibfield
+  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf {\bibinfo
+  {volume} {84}},\ \bibinfo {pages} {014113} (\bibinfo {year}
+  {2011})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Dove}(1993{\natexlab{b}})}]{dove-p30}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.~T.}\ \bibnamefont
+  {Dove}},\ }\href@noop {} {\emph {\bibinfo {title} {Introduction to lattice
+  dynamics}}},\ Vol.~\bibinfo {volume} {4}\ (\bibinfo  {publisher} {Cambridge
+  university press},\ \bibinfo {year} {1993})\ pp.\ \bibinfo {pages}
+  {30--31}\BibitemShut {NoStop}%
 \end{thebibliography}%

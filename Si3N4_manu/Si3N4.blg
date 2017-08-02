@@ -44,45 +44,45 @@ Name 1 in "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" 
 while executing---line 3445 of file apsrev4-1.bst
 Too many commas in name 1 of "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" for entry minikayev-alpha
 while executing---line 3445 of file apsrev4-1.bst
-You've used 39 entries,
+You've used 46 entries,
             5847 wiz_defined-function locations,
-            1844 strings with 20806 characters,
-and the built_in function-call counts, 38643 in all, are:
-= -- 2396
-> -- 1067
-< -- 285
-+ -- 337
-- -- 273
-* -- 6012
-:= -- 3744
-add.period$ -- 38
-call.type$ -- 39
-change.case$ -- 151
-chr.to.int$ -- 47
-cite$ -- 39
-duplicate$ -- 3632
-empty$ -- 2830
-format.name$ -- 617
-if$ -- 7685
-int.to.chr$ -- 1
-int.to.str$ -- 46
-missing$ -- 482
-newline$ -- 163
-num.names$ -- 111
-pop$ -- 1543
+            1878 strings with 21659 characters,
+and the built_in function-call counts, 45284 in all, are:
+= -- 2855
+> -- 1215
+< -- 327
++ -- 388
+- -- 307
+* -- 6982
+:= -- 4417
+add.period$ -- 45
+call.type$ -- 46
+change.case$ -- 181
+chr.to.int$ -- 53
+cite$ -- 46
+duplicate$ -- 4250
+empty$ -- 3344
+format.name$ -- 702
+if$ -- 9025
+int.to.chr$ -- 2
+int.to.str$ -- 53
+missing$ -- 562
+newline$ -- 184
+num.names$ -- 132
+pop$ -- 1805
 preamble$ -- 1
-purify$ -- 185
+purify$ -- 220
 quote$ -- 0
-skip$ -- 1382
+skip$ -- 1638
 stack$ -- 0
-substring$ -- 948
-swap$ -- 3436
-text.length$ -- 129
+substring$ -- 1164
+swap$ -- 3995
+text.length$ -- 148
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 545
+type$ -- 638
 warning$ -- 1
-while$ -- 120
+while$ -- 143
 width$ -- 0
-write$ -- 348
+write$ -- 405
 (There were 10 error messages)
