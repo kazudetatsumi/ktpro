@@ -330,7 +330,7 @@ def run():
 
 
 
-   plt.figure(figsize=(16,16))
+   plt.figure(figsize=(12,16))
 #   rc('text', usetex=True)
    rc('font', family='serif')
    rc('font', serif='Times New Roman')
@@ -389,7 +389,7 @@ def run():
    eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    plt.tight_layout()
-   #plt.savefig("tst_plot.pdf")
+   plt.savefig("tst_plot.eps")
 
 run()
-plt.show()
+#plt.show()
