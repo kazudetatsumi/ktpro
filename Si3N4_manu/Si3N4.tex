@@ -690,19 +690,87 @@ reflecting the large elastic constants of the $\gamma$ phase
 %
 
 \subsection{Linewidth}
-To investigate the microscopic phonon-phonon interaction related to the thermal transport, we analyze the linewidths in Figs. 5-a. The linewidths of $\alpha$- and $\beta$-Si$_3$N$_4$ are similar to each other. They increase with frequency monotonically, with a terrace at 6--8 THz.
-On the other hand, the linewidth of $\gamma$-Si$_3$N$_4$, with a larger scattering, more steeply increases until $\sim$ 7 THz and stops increasing.
-The behavior of the linewidth in $\gamma$-Si$_3$N$_4$ is much different from those in $\alpha$- and $\beta$- Si$_4$N$_4$. Therefore in terms of the lattice thermal conductivities, no single microscopic phonon property characterizes $\gamma$-Si$_3$N$_4$. We can qualitatively conclude that the larger linewidths and group velocities in $\gamma$-Si$_3$N$_4$ neutralize $\kappa^\text{c}$ to the value as small as $\kappa^\text{c}_{xx}$ of $\beta$-Si$_3$N$_4$      
+To investigate the microscopic phonon-phonon interaction related to the thermal
+transport, we analyze the linewidths in Fig.~\ref{fig:Fig5_338_rev}-d.
+The linewidths of $\alpha$- and $\beta$-Si$_3$N$_4$ are similar to each other.
+They increase with frequency monotonically, containing a terrace at 6--8 THz.
+On the other hand, the linewidth of $\gamma$-Si$_3$N$_4$, with a larger
+scattering, more steeply increases until $\sim$ 7 THz and stops increasing.
+The behavior of the linewidth in $\gamma$-Si$_3$N$_4$ is much different from
+those in $\alpha$- and $\beta$-Si$_4$N$_4$.
+Therefore in terms of the lattice thermal conductivities, no single microscopic
+phonon property in Fig.~\ref{fig:Fig5_338_rev} characterizes
+$\gamma$-Si$_3$N$_4$.
+We can qualitatively conclude that the larger linewidths and group velocities in
+$\gamma$-Si$_3$N$_4$ neutralize $\kappa^\text{c}$ to the value as small as
+$\kappa^\text{c}_{xx}$ of $\beta$-Si$_3$N$_4$.
+
+
+The overall shape of the linewidths is consistent with the weighted JDOS in
+Fig.~\ref{fig:Fig5_338_rev}-e. Especially, Similar plateaus to those in the
+linewidths are seen in the weighted JDOS. 
+The vertical fluctuations in Figs.~\ref{fig:Fig5_338_rev}-d become larger in the
+order of $\alpha$-, $\beta$-, and $\gamma$-Si$_3$N$_4$. A similar trend is seen in 
+the behaviors of the average phonon-phonon interaction strengths in
+Fig.~\ref{fig:Fig5_338_rev}-f. 
+The approximated linewidth $\tilde{\Gamma}_\lambda$ in Fig.~\ref{fig:Fig5_338_rev}-g 
+is thus safely consistent with the linewidths. 
+For quantitative comparison, the correlation coefficients between
+\Gamma$_\lambda$ and $N_\lambda$ are 0.97, 0.92, and 0.54 for $\alpha$-, $\beta$-,
+and $\gamma$-Si$_3$N$_4$. 
+Those between \Gamma$_\lambda$ and $P_\lambda$ are 0.94, 0.84, and 0.73.
+Those between \Gamma$_\lambda$ and $\tilde{\Gamma}_\lambda$ are 0.96, 0.92, and
+0.71. 
+
+
 
 
 \begin{figure*}[ht]
  \begin{center}
-  \includegraphics[width=1.00\linewidth]{Fig5_mode_prop_summary.pdf} \caption{(color
-	  online) Microscopic phonon properties of three Si$_3$N$_4$ phases. Derivative of cumulative thermal conductivity $\text{d}\kappa^\text{c}/\text{d}\omega$ (a)
-	  , DOS (b), DOS weighted by squared group velocity $\langle\text{v}^2\rangle$ (c), linewidth $\Gamma$ (d), two factors composing linewidth (scattering phase space $N$ (e) and average phonon-phonon interaction strength $P$ (f) ), and their product $NP$ (g) 
+  \includegraphics[width=0.90\linewidth]{Fig5_mode_prop_summary_nosel.eps}
+  \caption{(color online) Microscopic phonon properties of three Si$_3$N$_4$
+	  phases. Cumulative thermal conductivity $\kappa^\text{c}$ and its derivative
+	  (a), DOS (b), DOS weighted by squared group velocity
+	  $\langle\text{v}^2\rangle$ (c), linewidth $\Gamma$ (d), two factors
+	  composing linewidth (weighted JDOS $N$ (e) and average phonon-phonon
+	  interaction strength $P$ (f) ), and approximated linewidth
+	  $\tilde{\Gamma}$ (g) 
   \label{fig:Fig5_338_rev} }
  \end{center}
 \end{figure*}
+
+% average phonon-phonon interaction strength
+\begin{align}
+ \label{eq:avepp}
+ &P_\lambda = \frac{1}{(3n_a)^2}
+  \sum_{\lambda' \lambda''}
+  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2, 
+\end{align}
+
+% weighted jdos 
+
+\begin{align}
+ \label{eq:wjdos}
+ &N_\lambda = \frac{1}{N}
+  \sum_{\lambda' \lambda''}
+  \Delta(-\mathbf{q}+\mathbf{q}'+\mathbf{q}'') \times \nonumber \\ 
+ &\left\{ (n_{\lambda'} + n_{\lambda''}+1) 
+   \delta(\omega_\lambda-\omega_{\lambda'}-\omega_{\lambda''}) \right.
+   + \nonumber \\ 
+ &\;\;(n_{\lambda'}-n_{\lambda''})
+  \left[\delta(\omega_\lambda +\omega_{\lambda'}-\omega_{\lambda''})
+ \right. 
+ \left. -\left. \delta(\omega_\lambda - \omega_{\lambda'}+\omega_{\lambda''})
+ \right]\right\},
+\end{align}
+
+% tilda Gamma
+\begin{align}
+ \label{eq:tildegamma}
+ &\tilde{\Gamma}_\lambda = \frac{18\pi}{\hbar^2}
+ P_{\lambda}N_{\lambda},
+\end{align}
+
 
 The distributions of the phonon lifetimes are shown in
 Fig.~\ref{fig:Fig5_338_rev}-a. The DOS and cumulative thermal
