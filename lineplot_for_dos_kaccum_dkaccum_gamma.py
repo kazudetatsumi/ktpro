@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
-homedir = "/home/kazu"
+homedir = "/home/kazu/stern"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
@@ -289,7 +289,11 @@ def eachplot8(sn,phase,omega,gammau,gamman):
 def eachplot12(sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
    plt.subplot(numr,3,sn)
    plt.title( title + "_for_" +  phase)
+<<<<<<< HEAD
    plt.scatter(omega,gamma,marker='.',label=phase +"_" + title)
+=======
+   plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
+>>>>>>> 6a81877e405c19a6a5f001a8177755ce4165bdc7
    plt.yscale("log")
    plt.ylim(ymin,ymax)
    plt.xlim(xmin,xmax)

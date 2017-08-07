@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2017.7.20)  3 AUG 2017 20:37
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2017.8.4)  4 AUG 2017 19:03
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -7,7 +7,7 @@ entering extended mode
 (./Si3N4.tex
 LaTeX2e <2011/06/27>
 Babel <3.9h> and hyphenation patterns for 11 languages loaded.
-(/usr/local/share/texmf/tex/latex/revtex/revtex4-1.cls
+(/usr/share/texmf/tex/latex/revtex/revtex4-1.cls
 Document Class: revtex4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
  Copyright (c) 2009 The American Physical Society.
  mailto:revtex@aps.org
@@ -64,7 +64,7 @@ Class revtex4-1 Info: Overriding \@vspace, \@vspacer, \@no@pgbk, \@newline, and 
 
 Class revtex4-1 Warning: No Society specified, using default society aps.
 
-(/usr/local/share/texmf/tex/latex/revtex/aps4-1.rtx
+(/usr/share/texmf/tex/latex/revtex/aps4-1.rtx
 File: aps4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
 Class revtex4-1 Info: RevTeX society APS selected on input line 31.
 )
@@ -74,7 +74,7 @@ Class revtex4-1 Info: APS journal PRB selected on input line 7545.
 
 Class revtex4-1 Warning: No type size specified, using default 10.
 
-(/usr/local/share/texmf/tex/latex/revtex/aps10pt4-1.rtx
+(/usr/share/texmf/tex/latex/revtex/aps10pt4-1.rtx
 File: aps10pt4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
 Class revtex4-1 Info: RevTeX pointsize 10pt selected on input line 30.
 ) (/usr/share/texlive/texmf-dist/tex/latex/textcase/textcase.sty
@@ -155,7 +155,7 @@ LaTeX Info: Redefining \cite on input line 694.
 \c@NAT@ctr=\count106
 )
 Class revtex4-1 Info: Repairing natbib's \BibitemShut on input line 7549.
- (/usr/local/share/texmf/tex/latex/revtex/revsymb4-1.sty
+ (/usr/share/texmf/tex/latex/revtex/revsymb4-1.sty
 Package: revsymb4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
 LaTeX Info: Redefining \frak on input line 95.
 LaTeX Info: Redefining \Bbb on input line 111.
@@ -316,10 +316,10 @@ Package natbib Warning: Citation `mukhopadhyay' on page 2 undefined on input lin
 
 [2] [3]
 Package epstopdf Info: Source file: <Fig1.eps>
-(epstopdf)                    date: 2017-08-02 10:41:24
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 320965 bytes
 (epstopdf)             Output file: <Fig1-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-08-02 10:41:24
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 19651 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig1-eps-converted-to.pdf Fig1.eps>
 (epstopdf)             \includegraphics on input line 493.
@@ -340,10 +340,10 @@ LaTeX Warning: A float is stuck (cannot be placed) on input line 546.
 Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
 
 Package epstopdf Info: Source file: <Fig2.eps>
-(epstopdf)                    date: 2017-08-02 10:41:24
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 523088 bytes
 (epstopdf)             Output file: <Fig2-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-08-02 10:41:24
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 12543 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig2-eps-converted-to.pdf Fig2.eps>
 (epstopdf)             \includegraphics on input line 593.
@@ -354,10 +354,10 @@ File: Fig2-eps-converted-to.pdf Graphic file (type pdf)
 Package pdftex.def Info: Fig2-eps-converted-to.pdf used on input line 593.
 (pdftex.def)             Requested size: 221.3985pt x 130.23445pt.
 Package epstopdf Info: Source file: <Fig3_338_resize2_times.eps>
-(epstopdf)                    date: 2017-08-02 10:41:26
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 27565488 bytes
 (epstopdf)             Output file: <Fig3_338_resize2_times-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-08-02 10:46:44
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 511537 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig3_338_resize2_times-eps-converted-to.pdf Fig3_338_resize2_times.eps>
 (epstopdf)             \includegraphics on input line 606.
@@ -369,10 +369,10 @@ Package pdftex.def Info: Fig3_338_resize2_times-eps-converted-to.pdf used on inp
 (pdftex.def)             Requested size: 458.99689pt x 358.49548pt.
  [5 <./Fig1-eps-converted-to.pdf> <./Fig2-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <Fig4_ver5_338_resize2_woDOS.eps>
-(epstopdf)                    date: 2017-08-02 19:42:54
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 8623832 bytes
 (epstopdf)             Output file: <Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-08-02 19:42:58
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 388911 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf Fig4_ver5_338_resize2_woDOS.eps>
 (epstopdf)             \includegraphics on input line 646.
@@ -392,42 +392,95 @@ LaTeX Warning: A float is stuck (cannot be placed) on input line 672.
 
 Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
 
-<Fig5_mode_prop_summary.pdf, id=97, 597.50786pt x 845.04686pt>
-File: Fig5_mode_prop_summary.pdf Graphic file (type pdf)
- <use Fig5_mode_prop_summary.pdf>
-Package pdftex.def Info: Fig5_mode_prop_summary.pdf used on input line 700.
-(pdftex.def)             Requested size: 510.0pt x 721.28473pt.
+./Si3N4.tex:719: Missing $ inserted.
+<inserted text> 
+                $
+l.719 \Gamma
+            $_\lambda$ and $N_\lambda$ are 0.97, 0.92, and 0.54 for $\alpha$...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
+./Si3N4.tex:719: Missing $ inserted.
+<inserted text> 
+                $
+l.719 \Gamma$_
+              \lambda$ and $N_\lambda$ are 0.97, 0.92, and 0.54 for $\alpha$...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
-LaTeX Warning: Float too large for page by 103.03473pt on input line 705.
+./Si3N4.tex:721: Missing $ inserted.
+<inserted text> 
+                $
+l.721 Those between \Gamma
+                          $_\lambda$ and $P_\lambda$ are 0.94, 0.84, and 0.73.
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
 
+./Si3N4.tex:721: Missing $ inserted.
+<inserted text> 
+                $
+l.721 Those between \Gamma$_
+                            \lambda$ and $P_\lambda$ are 0.94, 0.84, and 0.73.
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+./Si3N4.tex:722: Missing $ inserted.
+<inserted text> 
+                $
+l.722 Those between \Gamma
+                          $_\lambda$ and $\tilde{\Gamma}_\lambda$ are 0.96, ...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+./Si3N4.tex:722: Missing $ inserted.
+<inserted text> 
+                $
+l.722 Those between \Gamma$_
+                            \lambda$ and $\tilde{\Gamma}_\lambda$ are 0.96, ...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+Package epstopdf Info: Source file: <Fig5_mode_prop_summary_nosel.eps>
+(epstopdf)                    date: 2017-08-04 15:44:52
+(epstopdf)                    size: 29757867 bytes
+(epstopdf)             Output file: <Fig5_mode_prop_summary_nosel-eps-converted-to.pdf>
+(epstopdf)                    date: 2017-08-04 15:48:15
+(epstopdf)                    size: 3134675 bytes
+(epstopdf)             Command: <repstopdf --outfile=Fig5_mode_prop_summary_nosel-eps-converted-to.pdf Fig5_mode_prop_summary_nosel.eps>
+(epstopdf)             \includegraphics on input line 730.
+Package epstopdf Info: Output file is already uptodate.
+<Fig5_mode_prop_summary_nosel-eps-converted-to.pdf, id=97, 555.07375pt x 521.95pt>
+File: Fig5_mode_prop_summary_nosel-eps-converted-to.pdf Graphic file (type pdf)
+ <use Fig5_mode_prop_summary_nosel-eps-converted-to.pdf>
+Package pdftex.def Info: Fig5_mode_prop_summary_nosel-eps-converted-to.pdf used on input line 730.
+(pdftex.def)             Requested size: 458.99689pt x 431.60959pt.
 Missing character: There is no Ô in font cmr10!
 Missing character: There is no Ä in font cmr10!
 Missing character: There is no † in font cmr10!
 Missing character: There is no Ô in font cmr10!
 Missing character: There is no Å in font cmr10!
 Missing character: There is no ∑ in font cmr10!
+ [7 <./Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <Fig6_338_beta.eps>
-(epstopdf)                    date: 2017-08-02 10:41:27
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 515646 bytes
 (epstopdf)             Output file: <Fig6_338_beta-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-08-02 10:41:27
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 23553 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig6_338_beta-eps-converted-to.pdf Fig6_338_beta.eps>
-(epstopdf)             \includegraphics on input line 753.
+(epstopdf)             \includegraphics on input line 821.
 Package epstopdf Info: Output file is already uptodate.
-<Fig6_338_beta-eps-converted-to.pdf, id=98, 324.21124pt x 278.03876pt>
+ <Fig6_338_beta-eps-converted-to.pdf, id=175, 324.21124pt x 278.03876pt>
 File: Fig6_338_beta-eps-converted-to.pdf Graphic file (type pdf)
  <use Fig6_338_beta-eps-converted-to.pdf>
-Package pdftex.def Info: Fig6_338_beta-eps-converted-to.pdf used on input line 753.
+Package pdftex.def Info: Fig6_338_beta-eps-converted-to.pdf used on input line 821.
 (pdftex.def)             Requested size: 196.80075pt x 168.7761pt.
- [7 <./Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>]
+ [8 <./Fig5_mode_prop_summary_nosel-eps-converted-to.pdf>]
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 770.
+LaTeX Warning: A float is stuck (cannot be placed) on input line 838.
 
-[8 <./Fig5_mode_prop_summary.pdf>]
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 770.
+LaTeX Warning: A float is stuck (cannot be placed) on input line 838.
 
 
 Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
@@ -436,32 +489,32 @@ Missing character: There is no ‚ in font cmr10!
 Missing character: There is no Ä in font cmr10!
 Missing character: There is no ô in font cmr10!
 Package epstopdf Info: Source file: <Fig7.eps>
-(epstopdf)                    date: 2017-08-02 10:41:27
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 733858 bytes
 (epstopdf)             Output file: <Fig7-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-08-02 10:41:27
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 42247 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig7-eps-converted-to.pdf Fig7.eps>
-(epstopdf)             \includegraphics on input line 783.
+(epstopdf)             \includegraphics on input line 851.
 Package epstopdf Info: Output file is already uptodate.
 <Fig7-eps-converted-to.pdf, id=191, 261.97874pt x 397.485pt>
 File: Fig7-eps-converted-to.pdf Graphic file (type pdf)
  <use Fig7-eps-converted-to.pdf>
-Package pdftex.def Info: Fig7-eps-converted-to.pdf used on input line 783.
+Package pdftex.def Info: Fig7-eps-converted-to.pdf used on input line 851.
 (pdftex.def)             Requested size: 246.0pt x 373.25385pt.
 Package epstopdf Info: Source file: <S1.eps>
-(epstopdf)                    date: 2017-08-02 10:41:28
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 681606 bytes
 (epstopdf)             Output file: <S1-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-08-02 10:46:45
+(epstopdf)                    date: 2017-08-04 10:36:13
 (epstopdf)                    size: 22714 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 822.
+(epstopdf)             \includegraphics on input line 890.
 Package epstopdf Info: Output file is already uptodate.
  <S1-eps-converted-to.pdf, id=192, 393.47pt x 392.46625pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 822.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 890.
 (pdftex.def)             Requested size: 196.80075pt x 196.29851pt.
  (./Si3N4.bbl
 Overfull \vbox (7.65248pt too high) has occurred while \output is active []
@@ -509,18 +562,18 @@ Package natbib Warning: There were undefined citations.
 
 [10 <./S1-eps-converted-to.pdf>] (./Si3N4.aux) ) 
 Here is how much of TeX's memory you used:
- 4918 strings out of 494756
- 65501 string characters out of 6175150
- 172800 words of memory out of 5000000
- 8147 multiletter control sequences out of 15000+600000
+ 4921 strings out of 494756
+ 65580 string characters out of 6175151
+ 172836 words of memory out of 5000000
+ 8150 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  80 hyphenation exceptions out of 8191
  38i,15n,30p,653b,452s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Si3N4.pdf (10 pages, 5442956 bytes).
+Output written on Si3N4.pdf (10 pages, 4421763 bytes).
 PDF statistics:
  301 PDF objects out of 1000 (max. 8388607)
- 162 compressed objects within 2 object streams
+ 161 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  41 words of extra memory for PDF output out of 10000 (max. 10000000)
 
