@@ -289,7 +289,7 @@ def eachplot8(sn,phase,omega,gammau,gamman):
 def eachplot12(sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
    plt.subplot(numr,3,sn)
    plt.title( title + "_for_" +  phase)
-   plt.scatter(omega,gamma,s=0.1,label=phase +"_" + title)
+   plt.scatter(omega,gamma,marker='.',label=phase +"_" + title)
    plt.yscale("log")
    plt.ylim(ymin,ymax)
    plt.xlim(xmin,xmax)
@@ -389,7 +389,7 @@ def run():
    eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    plt.tight_layout()
-   plt.savefig("tst_plot.eps")
+   #plt.savefig("tst_plot.eps")
 
 run()
-#plt.show()
+plt.show()
