@@ -690,47 +690,6 @@ reflecting the large elastic constants of the $\gamma$ phase
 %
 
 \subsection{Linewidth}
-To investigate the microscopic phonon-phonon interaction related to the thermal
-transport, we analyze the linewidths in Fig.~\ref{fig:Fig5_338_rev}-d.
-The linewidths of $\alpha$- and $\beta$-Si$_3$N$_4$ are similar to each other.
-They increase with frequency monotonically, containing a terrace at 6--8 THz.
-On the other hand, the linewidth of $\gamma$-Si$_3$N$_4$, with a larger
-scattering, more steeply increases until $\sim$ 7 THz and stops increasing.
-The behavior of the linewidth in $\gamma$-Si$_3$N$_4$ is much different from
-those in $\alpha$- and $\beta$-Si$_4$N$_4$.
-Therefore in terms of the lattice thermal conductivities, no single microscopic
-phonon property in Fig.~\ref{fig:Fig5_338_rev} characterizes
-$\gamma$-Si$_3$N$_4$.
-We can qualitatively conclude that the larger linewidths and group velocities in
-$\gamma$-Si$_3$N$_4$ neutralize $\kappa^\text{c}$ to the value as small as
-$\kappa^\text{c}_{xx}$ of $\beta$-Si$_3$N$_4$.
-
-
-The frequency dependences of the linewidths for all the Si$_3$N$_4$ phases can
-be explained in terms of the phase space available for three phonon scattering
-processes in the same frequency range. In Fig.~\ref{fig:Fig5_338_rev}-e we show
-the phase space by the weighted joint density of states, 
-
-eq.wjdos.
-
-, where similar plateaus at 6--8 THz for $\alpha$- and $\beta$-Si$_3$N$_4$ and above
-$\sim$ 7 THz for $\gamma$-Si$_3$N$_4$ are found. 
-Moreover, the calculated linewidths vary more widely in the order of $\alpha$-, $\beta$-, and
-$\gamma$-Si$_3$N$_4$. $P_\lambda$, the average phonon-phonon interaction
-strengths in Fig.~\ref{fig:Fig5_338_rev}-f vary more largely in the same order.
-The approximated linewidths, $\tilde{\Gamma}_\lambda$ in
-Fig.~\ref{fig:Fig5_338_rev}-g, composed of the products of $N_\lambda$ and
-$P_\lambda$, show similar frequency-dependences to the linewidths as well. 
-For quantitative comparison, the correlation coefficients between the vertical
-axes of Figs.~\ref{fig:Fig5_338_rev}-(d,e), (d,f) and (d,g) are (0.94, 0.84,
-and 0.73 for $\alpha$-, $\beta$-, and 
-$\gamma$-Si$_3$N$_4$), (0.97, 0.92 and 0.54) and (0.96, 0.92 and 0.71)
-respectively. 
-
-
-
-
-
 \begin{figure*}[ht]
  \begin{center}
   \includegraphics[width=0.90\linewidth]{Fig5_mode_prop_summary_nosel.eps}
@@ -744,14 +703,26 @@ respectively.
   \label{fig:Fig5_338_rev} }
  \end{center}
 \end{figure*}
+To investigate the microscopic phonon-phonon interaction related to the thermal
+transport, we analyze the linewidths in Fig.~\ref{fig:Fig5_338_rev}-d.
+The linewidths of $\alpha$- and $\beta$-Si$_3$N$_4$ are similar to each other.
+They increase with frequency monotonically, containing a terrace at 6--8 THz.
+On the other hand, the linewidth of $\gamma$-Si$_3$N$_4$, with a larger
+scattering, more steeply increases until $\sim$ 7 THz and stops increasing.
+The behavior of the linewidths in $\gamma$-Si$_3$N$_4$ is much different from
+those in $\alpha$- and $\beta$-Si$_4$N$_4$.
+Therefore in terms of the lattice thermal conductivities, no single microscopic
+phonon property in Fig.~\ref{fig:Fig5_338_rev} characterizes
+$\gamma$-Si$_3$N$_4$.
+We can qualitatively conclude that the larger linewidths and group velocities
+result in $\kappa^\text{c}$ to the value as small as $\kappa^\text{c}_{xx}$ of
+$\beta$-Si$_3$N$_4$.
 
-% average phonon-phonon interaction strength
-\begin{align}
- \label{eq:avepp}
- &P_\lambda = \frac{1}{(3n_a)^2}
-  \sum_{\lambda' \lambda''}
-  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2, 
-\end{align}
+
+The frequency dependences of the linewidths for all the Si$_3$N$_4$ phases can
+be explained in terms of the phase space available for three phonon scattering
+processes in the same frequency range. In Fig.~\ref{fig:Fig5_338_rev}-e we show
+the phase space by the weighted joint density of states $N_\lambda$, 
 
 % weighted jdos 
 
@@ -769,13 +740,66 @@ respectively.
  \left. -\left. \delta(\omega_\lambda - \omega_{\lambda'}+\omega_{\lambda''})
  \right]\right\},
 \end{align}
+where similar plateaus as in  the linewidths are found  at 6--8 THz for 
+$\alpha$- and $\beta$-Si$_3$N$_4$ and above $\sim$ 7 THz for $\gamma$-Si$_3$N$_4$. 
+Additionally, the anharmonicity of the phonon modes in the same frequency range
+as the linewidths is shown by the average phonon-phonon interaction strength
+$P_\lambda$ in Fig.~\ref{fig:Fig5_338_rev}-f, 
 
-% tilda Gamma
+% average phonon-phonon interaction strength
+\begin{align}
+ \label{eq:avepp}
+ &P_\lambda = \frac{1}{(3n_a)^2}
+  \sum_{\lambda' \lambda''}
+  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2. 
+\end{align}
+The linewidths scatter more in the order of $\alpha$-, $\beta$-, and
+$\gamma$-Si$_3$N$_4$.
+$P_\lambda$ values scatter more in the same order. 
+We can see that the overall shape of frequcency-dependence of the linewidths is
+originated from the phase space represented by $N_\lambda$, while the scatter in
+the linewidth values comes from the anharmonicity as measured by $P_\lambda$.
+The approximated linewidths $\tilde{\Gamma}_\lambda$ in
+Fig.~\ref{fig:Fig5_338_rev}-g, composed of the products of $N_\lambda$ and
+$P_\lambda$, 
+% tilde Gamma
 \begin{align}
  \label{eq:tildegamma}
  &\tilde{\Gamma}_\lambda = \frac{18\pi}{\hbar^2}
  P_{\lambda}N_{\lambda},
 \end{align}
+show similar frequency-dependences to the linewidths as well. 
+For quantitative comparison, the correlation coefficients between the vertical
+axes of Figs.~\ref{fig:Fig5_338_rev}-(d,e), (d,f) and (d,g) are (0.97, 0.92,
+and 0.54 for $\alpha$-, $\beta$-, and 
+$\gamma$-Si$_3$N$_4$, respectively), (0.94, 0.84 and 0.73) and (0.96, 0.92 and
+0.71), respectively. Although the values for $\gamma$-Si$_3$N$_4$ are much lower
+than the other two polymorphs, the behavior of the linewidths in the present
+systems are well characterized by the phase space and anharmonicity. 
+
+Besides the degrees of the scatter in $P_\lambda$ or $\Gamma_\lambda$ are
+different between $\alpha$- and $\beta$-Si$_3$N$_4$, their weighted joint
+density of states are very similar. Thus the phonon lifetimes make small
+differences in their thermal conductivities. 
+We re-analyze the anisotropy in their thermal conductivities by the density of
+states weighted by the square of group velocity components along $i$ = $x$ and
+$z$,
+defined by 
+% gv weighted dos
+
+\begin{align}
+ \label{eq:v2dos}
+ \langle\text{v}^2_i(\omega)\rangle = \frac{1}{N_\mathbf{q}\Omega}
+ \int_0^\omega \sum_\lambda
+ \text{v}_{\lambda,i}^2\delta(\omega'-\omega)d\omega'.
+\end{align}
+The relative intensities of $\langle\text{v}^2_z\rangle$ and
+$\langle\text{v}^2_x\rangle$ for $\alpha$- and $\beta$-Si$_3$N$_4$ resembles
+the corresponding intensities of $d\kappa^\text{c}_{zz}/d\omega$ and
+$d\kappa^\text{c}_{xx}/d\omega$. 
+
+
+
 
 
 The distributions of the phonon lifetimes are shown in
