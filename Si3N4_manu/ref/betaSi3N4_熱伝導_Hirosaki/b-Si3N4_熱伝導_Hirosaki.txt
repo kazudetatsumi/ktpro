@@ -1,0 +1,15 @@
+# Digitized by GSYS2.4.7
+# Date =  29.Jun.2016,  16:23:3
+# Number of data = 6
+# set xrange[300.0, 1700.0]
+# set yrange[0.0, 122.0] 
+# MD5Fig : 02f8f424a996bf3c32a6dd5629745f78
+# Axis_X : 3fbc330f8ce1987c3fe9f81ae6b4ff903fed90216bec810b3fe9d2ad65516f41
+# Axis_Y : 3fbc330f8ce1987c3fe9f81ae6b4ff903fbb9fd390ec113d3fc69661f2677f58
+#    x          y    
+ 3.000E+02  1.219E+02
+ 4.983E+02  7.909E+01
+ 7.019E+02  5.504E+01
+ 8.995E+02  4.197E+01
+ 1.101E+03  3.186E+01
+ 1.298E+03  2.845E+01
