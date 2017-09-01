@@ -8,7 +8,7 @@ from matplotlib import rc
 Temp = 300
 nbins = 100
 y_max = 0.12
-max_freq = 15
+max_freq = 12
 numr = 3
 homedir = "/home/kazu/"
 cdir = homedir + "asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
@@ -91,6 +91,8 @@ def eachplot12(sn,phase,gamma,mode_prop,xmin,xmax,ymin,ymax,title):
    gnz, pnz = remove_zero(gamma,mode_prop) 
    pnz2, gnz2 = remove_zero(pnz,gnz) 
    print np.corrcoef(gnz2,pnz2)[0,1],phase,title
+   print np.average(gnz2),phase,title
+   print np.average(pnz2),phase,title
    #plt.scatter(gamma,mode_prop,s=3)
    plt.scatter(gnz2,pnz2,s=0.1)
    plt.xscale("log")

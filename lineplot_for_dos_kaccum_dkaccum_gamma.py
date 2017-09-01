@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
-homedir = "/home/kazu/stern"
+homedir = "/home/kazu/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
@@ -13,6 +13,7 @@ nbins = 300
 #y_max = 0.12
 numr = 7
 max_freq = 15
+fs = 9
 jdosc1 = np.loadtxt(cdir + 'jdos-m141416-g0-t300.dat',comments='#',dtype='float')
 jdoss1 = np.loadtxt(sdir + 'jdos-m141432-g0-t300.dat',comments='#',dtype='float')
 jdosg1 = np.loadtxt(gdir + 'jdos-m222222-g0-t300.dat',comments='#',dtype='float') 
@@ -289,14 +290,25 @@ def eachplot8(sn,phase,omega,gammau,gamman):
 def eachplot12(sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
    plt.subplot(numr,3,sn)
    plt.title( title + "_for_" +  phase)
-<<<<<<< HEAD
-   plt.scatter(omega,gamma,marker='.',label=phase +"_" + title)
-=======
    plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
->>>>>>> 6a81877e405c19a6a5f001a8177755ce4165bdc7
+   omega_a,gamma_a=sortomega(omega,gamma)
+   plt.plot(omega_a,gamma_a,'r')
    plt.yscale("log")
    plt.ylim(ymin,ymax)
    plt.xlim(xmin,xmax)
+
+
+def sortomega(x,y):
+    data = np.c_[x,y]
+    datas = np.array(sorted(data, key=lambda x:x[0]))
+    b = np.ones(fs)/float(fs)
+    a = datas[:,1]
+    data_ave = np.convolve(a,b,'valid')
+    ds = datas.shape
+    print ds
+    print data_ave.shape
+    cs = (fs-1)/2
+    return datas[cs:ds[0]-cs,0],data_ave 
 
 def run():
    omegac,kaccumc,dkaccumc=parse_kaccum(gc)
@@ -363,9 +375,9 @@ def run():
    #eachplot12(10,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,max_freq,2,100,"lifetime")
    #eachplot12(11,"beta",omegas1,1/(2*gammas1*2*np.pi),0,max_freq,2,100,"lifetime")
    #eachplot12(12,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,max_freq,2,100,"lifetime")
-   eachplot12(10,"alpha",omegac1,gammac1,0,max_freq,0.0005,0.08,"gamma")
-   eachplot12(11,"beta",omegas1,gammas1,0,max_freq,0.0005,0.08,"gamma")
-   eachplot12(12,"gamma",omegag1,gammag1,0,max_freq,0.0005,0.08,"gamma")
+   eachplot12(10,"alpha",omegac1,gammac1,0,max_freq,0.0005,0.10,"gamma")
+   eachplot12(11,"beta",omegas1,gammas1,0,max_freq,0.0005,0.10,"gamma")
+   eachplot12(12,"gamma",omegag1,gammag1,0,max_freq,0.0005,0.10,"gamma")
    #eachplot6(13,"alpha",jdosc1[:,0],(jdosc1[:,1]+jdosc1[:,2])/16,jdosc2[:,0],(jdosc2[:,1]+jdosc2[:,2])/16)
    #eachplot6(14,"beta",jdoss1[:,0],(jdoss1[:,1]+jdoss1[:,2])/4,jdoss2[:,0],(jdoss2[:,1]+jdoss2[:,2])/4)
    #eachplot6(15,"gamma",jdosg1[:,0],(jdosg1[:,1]+jdosg1[:,2])/4,jdosg2[:,0],(jdosg2[:,1]+jdosg2[:,2])/4)
