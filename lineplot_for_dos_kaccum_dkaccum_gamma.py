@@ -29,8 +29,10 @@ gg = gdir + 'noiso/kaccum.dat'
 ggc = cdir +  'noiso/gvaccum.dat'
 ggs = sdir + 'noiso/gvaccum.dat'
 ggg = gdir + 'noiso/gvaccum.dat'
-c = cdir + "noiso/kappa-m8810.hdf5"
-s = sdir + "noiso/kappa-m8820.hdf5"
+#c = cdir + "noiso/kappa-m8810.hdf5"
+c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+#s = sdir + "noiso/kappa-m8820.hdf5"
+s = sdir + "noiso/kappa-m141432.noiso.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
 grc = homedir + "/asi3n4/gruneisen/gruneisen.hdf5"
 grs = homedir + "/bsi3n4_m/gruneisen/gruneisen.hdf5"
@@ -292,7 +294,8 @@ def eachplot12(sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
    plt.title( title + "_for_" +  phase)
    plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
    omega_a,gamma_a=sortomega(omega,gamma)
-   plt.plot(omega_a,gamma_a,'r')
+   print omega_a.shape,gamma_a.shape
+   #plt.plot(omega_a,gamma_a,'r')
    plt.yscale("log")
    plt.ylim(ymin,ymax)
    plt.xlim(xmin,xmax)
@@ -303,12 +306,13 @@ def sortomega(x,y):
     datas = np.array(sorted(data, key=lambda x:x[0]))
     b = np.ones(fs)/float(fs)
     a = datas[:,1]
-    data_ave = np.convolve(a,b,'valid')
+    data_ave = np.convolve(a,b,'same')
     ds = datas.shape
     print ds
     print data_ave.shape
     cs = (fs-1)/2
-    return datas[cs:ds[0]-cs,0],data_ave 
+    #return datas[cs:ds[0]-cs,0],data_ave 
+    return datas[:,0],data_ave 
 
 def run():
    omegac,kaccumc,dkaccumc=parse_kaccum(gc)
@@ -317,9 +321,9 @@ def run():
    omegagc,gvaccumc,dgvaccumc=parse_gvaccum(ggc)
    omegags,gvaccums,dgvaccums=parse_gvaccum(ggs)
    omegagg,gvaccumg,dgvaccumg=parse_gvaccum(ggg)
-   omegac1,gammac1=parse_gamma(c,Temp,1)
-   omegas1,gammas1=parse_gamma(s,Temp,1)
-   omegag1,gammag1=parse_gamma(g,Temp,1)
+   omegac1,gammac1=parse_gamma(c,Temp,0)
+   omegas1,gammas1=parse_gamma(s,Temp,0)
+   omegag1,gammag1=parse_gamma(g,Temp,0)
    omeganus1,gammasu1,gammasn1=parse_gammanu(nus,Temp)
    omeganug1,gammagu1,gammagn1=parse_gammanu(nug,Temp)
    omegaapc1,apc1=parse_avepp(apc,0)
@@ -405,6 +409,54 @@ def run():
    eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    plt.tight_layout()
+   plt.figure(figsize=(12,16))
+   plt.subplot(4,1,1)
+   omegaapc1_s,apc1_s=sortomega(omegaapc1,apc1)
+   omegaaps1_s,aps1_s=sortomega(omegaaps1,aps1)
+   omegaapg1_s,apg1_s=sortomega(omegaapg1,apg1)
+   plt.plot(omegaapc1_s,apc1_s*4,label="avepp_alpha")
+   plt.plot(omegaaps1_s,aps1_s,label="avepp_beta")
+   plt.plot(omegaapg1_s,apg1_s,label="avepp_gamma")
+   #plt.yscale("log")
+   plt.xlim(0,15)
+   plt.ylim(2*10**(-11),1.5*10**(-9))
+   plt.yscale("log")
+   plt.legend(loc='lower right')
+   plt.subplot(4,1,2)
+   omegacjc1_s,gammacjc1_s=sortomega(omegacjc1,gammacjc1)
+   omegacjs1_s,gammacjs1_s=sortomega(omegacjs1,gammacjs1)
+   omegacjg1_s,gammacjg1_s=sortomega(omegacjg1,gammacjg1)
+   plt.plot(omegacjc1_s,gammacjc1_s/4,label="wjdos_alpha")
+   plt.plot(omegacjs1_s,gammacjs1_s,label="wjdos_beta")
+   plt.plot(omegacjg1_s,gammacjg1_s,label="wjdos_gamma")
+   plt.legend(loc='lower right')
+   plt.xlim(0,15)
+   plt.ylim(3.5*10**6,1.6*10**8)
+   plt.yscale("log")
+   plt.subplot(4,1,3)
+   omegacjapc1_s,gammacjapc1_s=sortomega(omegacjc1,gammacjc1*apc1)
+   omegacjaps1_s,gammacjaps1_s=sortomega(omegacjs1,gammacjs1*aps1)
+   omegacjapg1_s,gammacjapg1_s=sortomega(omegacjg1,gammacjg1*apg1)
+   plt.plot(omegacjapc1_s,gammacjapc1_s,label="avepp*wjdos_alpha")
+   plt.plot(omegacjaps1_s,gammacjaps1_s,label="avepp*wjdos_beta")
+   plt.plot(omegacjapg1_s,gammacjapg1_s,label="avepp*wjdos_gamma")
+   plt.legend(loc='lower right')
+   plt.xlim(0,15)
+   plt.ylim(0.0001,0.070)
+   plt.yscale("log")
+   plt.subplot(4,1,4)
+   omegac1_s,gammac1_s=sortomega(omegac1,gammac1)
+   omegas1_s,gammas1_s=sortomega(omegas1,gammas1)
+   omegag1_s,gammag1_s=sortomega(omegag1,gammag1)
+   plt.plot(omegac1_s,gammac1_s,label="gamma_alpha")
+   plt.plot(omegas1_s,gammas1_s,label="gamma_beta")
+   plt.plot(omegag1_s,gammag1_s,label="gamma_gamma")
+   plt.legend(loc='lower right')
+   plt.xlim(0,15)
+   plt.ylim(0.0001,0.025)
+   plt.yscale("log")
+
+
    #plt.savefig("tst_plot.eps")
 
 run()
