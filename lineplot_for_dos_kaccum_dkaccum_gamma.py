@@ -30,9 +30,11 @@ ggc = cdir +  'noiso/gvaccum.dat'
 ggs = sdir + 'noiso/gvaccum.dat'
 ggg = gdir + 'noiso/gvaccum.dat'
 #c = cdir + "noiso/kappa-m8810.hdf5"
-c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+#c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+c = cdir + "noiso/kappa-m141416_nu.hdf5"
 #s = sdir + "noiso/kappa-m8820.hdf5"
-s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+#s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+s = sdir + "noiso/kappa-m141432_nu.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
 grc = homedir + "/asi3n4/gruneisen/gruneisen.hdf5"
 grs = homedir + "/bsi3n4_m/gruneisen/gruneisen.hdf5"
@@ -132,7 +134,9 @@ def parse_gamma(filename,temp,frag):
     omega=f["frequency"][:,:]
 
     for freq, g in zip(omega, gamma):
-        condition = freq < max_freq
+        #condition = freq < max_freq
+        freq_s = sorted(freq)
+        condition = freq_s[0] == freq
         _freq = np.extract(condition, freq)
         _g = np.extract(condition, g)
         freqs += list(_freq)
@@ -144,6 +148,51 @@ def parse_gamma(filename,temp,frag):
     else:
         omeganz1,gammanz1=omega1,gamma1
     return(omeganz1,gammanz1)
+
+def parse_gammanu(filename,temp,frag):
+    freqs = []
+    mode_prop = []
+    mode_propu = []
+    mode_propn= []
+    f = h5py.File(filename,'r')
+    print filename
+    temperature = f["temperature"].value
+    i=0 
+    for t in temperature:
+        if t == temp:
+            tindex=i 
+        i += 1
+    gamma=f["gamma"][tindex,]
+    gammau=f["gamma_U"][tindex,]
+    gamman=f["gamma_N"][tindex,]
+    omega=f["frequency"][:,:]
+    qpoint = f["qpoint"]
+    print omega.shape,"omegashape"
+    print gamma.shape,"gammashape"
+    print gammau.shape,"gammaushape"
+    for freq, g, gu, gn in zip(omega, gamma, gammau, gamman):
+        #condition = freq < max_freq
+        freq_s = sorted(freq)
+        #print freq_s[0:3]
+        condition = freq_s[0] == freq
+        _freq = np.extract(condition, freq)
+        _g = np.extract(condition, g)
+        _gu = np.extract(condition, gu)
+        _gn = np.extract(condition, gn)
+        #if _gu / (_gu + _gn ) > 0.5:
+        freqs += list(_freq)
+        mode_prop += list(_g)
+        mode_propu += list(_gu)
+        mode_propn += list(_gn)
+    omega1=np.array(freqs).ravel()
+    gamma1=np.array(mode_prop).ravel()
+    #gammau1=np.array(mode_propu).ravel()
+    #gamman1=np.array(mode_propn).ravel()
+    if frag == 1:
+        omeganz1,gammanz1=remove_zero(omega1,gamma1)
+    else:
+        omeganz1,gammanz1=omega1,gamma1
+    return(omeganz1,gammanz1) 
 
 def remove_zero(omega,gamma):
     gs = []
@@ -160,23 +209,6 @@ def remove_zero(omega,gamma):
 
 
 
-def parse_gammanu(filename,temp):
-    f = h5py.File(filename,'r')
-    print filename
-    temperature = f["temperature"].value
-    i=0 
-    for t in temperature:
-        if t == temp:
-            tindex=i 
-        i += 1
-    gammau=f["gamma_U"][tindex,]
-    gamman=f["gamma_N"][tindex,]
-    omega=f["frequency"][:,:]
-    weights=f["weight"][:]
-    gammau1=gammau.ravel()
-    gamman1=gamman.ravel()
-    omega1=omega.ravel()
-    return(omega1,gammau1,gamman1) 
 
 def parse_avepp(filename,frag):
     freqs = []
@@ -185,7 +217,9 @@ def parse_avepp(filename,frag):
     avepp=f["ave_pp"][:,:]
     omega=f["frequency"][:,:]
     for freq, ap in zip(omega, avepp):
-        condition = freq < max_freq
+        #condition = freq < max_freq
+        freq_s = sorted(freq)
+        condition = freq_s[0] == freq
         _freq = np.extract(condition, freq)
         _ap = np.extract(condition, ap)
         freqs += list(_freq)
@@ -322,10 +356,11 @@ def run():
    omegags,gvaccums,dgvaccums=parse_gvaccum(ggs)
    omegagg,gvaccumg,dgvaccumg=parse_gvaccum(ggg)
    omegac1,gammac1=parse_gamma(c,Temp,0)
-   omegas1,gammas1=parse_gamma(s,Temp,0)
+   #omegas1,gammas1=parse_gamma(s,Temp,0)
+   omegas1,gammas1=parse_gammanu(s,Temp,0)
    omegag1,gammag1=parse_gamma(g,Temp,0)
-   omeganus1,gammasu1,gammasn1=parse_gammanu(nus,Temp)
-   omeganug1,gammagu1,gammagn1=parse_gammanu(nug,Temp)
+   #omeganus1,gammasu1,gammasn1=parse_gammanu(nus,Temp)
+   #omeganug1,gammagu1,gammagn1=parse_gammanu(nug,Temp)
    omegaapc1,apc1=parse_avepp(apc,0)
    omegaaps1,aps1=parse_avepp(aps,0)
    omegaapg1,apg1=parse_avepp(apg,0)
@@ -453,7 +488,7 @@ def run():
    plt.plot(omegag1_s,gammag1_s,label="gamma_gamma")
    plt.legend(loc='lower right')
    plt.xlim(0,15)
-   plt.ylim(0.0001,0.025)
+   #plt.ylim(0.0001,0.025)
    plt.yscale("log")
 
 
