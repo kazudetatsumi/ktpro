@@ -12,7 +12,7 @@ Temp = 300
 nbins = 300
 #y_max = 0.12
 numr = 7
-max_freq = 15
+max_freq = 35
 fs = 9
 jdosc1 = np.loadtxt(cdir + 'jdos-m141416-g0-t300.dat',comments='#',dtype='float')
 jdoss1 = np.loadtxt(sdir + 'jdos-m141432-g0-t300.dat',comments='#',dtype='float')
@@ -134,9 +134,9 @@ def parse_gamma(filename,temp,frag):
     omega=f["frequency"][:,:]
 
     for freq, g in zip(omega, gamma):
-        #condition = freq < max_freq
+        condition = freq < max_freq
         freq_s = sorted(freq)
-        condition = freq_s[0] == freq
+        #condition = freq_s[0] == freq
         _freq = np.extract(condition, freq)
         _g = np.extract(condition, g)
         freqs += list(_freq)
@@ -171,10 +171,10 @@ def parse_gammanu(filename,temp,frag):
     print gamma.shape,"gammashape"
     print gammau.shape,"gammaushape"
     for freq, g, gu, gn in zip(omega, gamma, gammau, gamman):
-        #condition = freq < max_freq
+        condition = freq < max_freq
         freq_s = sorted(freq)
         #print freq_s[0:3]
-        condition = freq_s[0] == freq
+        #condition = freq_s[2] == freq
         _freq = np.extract(condition, freq)
         _g = np.extract(condition, g)
         _gu = np.extract(condition, gu)
@@ -217,9 +217,9 @@ def parse_avepp(filename,frag):
     avepp=f["ave_pp"][:,:]
     omega=f["frequency"][:,:]
     for freq, ap in zip(omega, avepp):
-        #condition = freq < max_freq
+        condition = freq < max_freq
         freq_s = sorted(freq)
-        condition = freq_s[0] == freq
+        #condition = freq_s[0] == freq
         _freq = np.extract(condition, freq)
         _ap = np.extract(condition, ap)
         freqs += list(_freq)
@@ -428,9 +428,9 @@ def run():
    #eachplot5(xapci,yapci,zapci,nbins,13,"alpha*4*10**(11)",omegaapc1,apc1*4*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
    #eachplot5(xapsi,yapsi,zapsi,nbins,14,"beta*10**(11)",omegaaps1,aps1*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
    #eachplot5(xapgi,yapgi,zapgi,nbins,15,"gamma*10**(11)",omegaapg1,apg1*10**11,0,15,4*10**(0),1.5*10**(2),"avepp")
-   eachplot12(16,"alpha*4",omegaapc1,apc1*4,0,max_freq,4*10**(-11),1.5*10**(-9),"avepp")
-   eachplot12(17,"beta",omegaaps1,aps1,0,max_freq,4*10**(-11),1.5*10**(-9),"avepp")
-   eachplot12(18,"gamma",omegaapg1,apg1,0,max_freq,4*10**(-11),1.5*10**(-9),"avepp")
+   eachplot12(16,"alpha*4",omegaapc1,apc1*4,0,max_freq,4*10**(-11),1.5*10**(-8),"avepp")
+   eachplot12(17,"beta",omegaaps1,aps1,0,max_freq,4*10**(-11),1.5*10**(-8),"avepp")
+   eachplot12(18,"gamma",omegaapg1,apg1,0,max_freq,4*10**(-11),1.5*10**(-8),"avepp")
    #eachplot5(xcjci,ycjci,zcjci,nbins,16,"alpha/4",omegacjc1,gammacjc1/4,0,15,10**(7),1.6*10**(8),"wjdos")
    #eachplot5(xcjsi,ycjsi,zcjsi,nbins,17,"beta",omegacjs1,gammacjs1,0,15,10**(7),1.6*10**(8),"wjdos")
    #eachplot5(xcjgi,ycjgi,zcjgi,nbins,18,"gamma",omegacjg1,gammacjg1,0,15,10**(7),1.6*10**(8),"wjdos")

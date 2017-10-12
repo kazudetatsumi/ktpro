@@ -107,6 +107,22 @@ def modelkaccum3(file_gaccum, file_kappa):
     return (omegak, modelkaccum3)
 
 
+def modelkaccum4(file_kappa, file_gamma):
+    gamma_data = parse_gamma(file_gamma,Temp,1)
+    gamma_datasma = sma(gamma_data)
+    modekappa,gamma_org,omega = parse_modekappa(file_kappa,Temp)
+
+    sum_m=np.zeros(6)
+
+
+    for freq, mk, go in zip(omega, modekappa, gamma_org): 
+        for f, m, g in zip(freq, mk, go):
+            if g > 0:
+               gsma = getNearestOmegaGamma(gamma_datasma,f)
+               sum_m +=  m*g/gsma
+    #print sum_m
+    return (sum_m)
+
 def getNearestOmegaGamma(data, num):
     idx = np.abs(np.asarray(data[:,0]) - num).argmin()
     return data[idx,1] 
@@ -141,6 +157,21 @@ def parse_gamma(filename,temp,frag):
     #return(omeganz1,gammanz1)
     return(data_sorted)
 
+
+def parse_modekappa(filename,temp):
+    freqs = []
+    mode_prop = []
+    f = h5py.File(filename,'r')
+    temperature = f["temperature"].value
+    i=0
+    for t in temperature:
+        if t == temp:
+            tindex=i
+        i += 1
+    mk=f["mode_kappa"][tindex,]
+    gm=f["gamma"][tindex,]
+    omega=f["frequency"][:,:]
+    return(mk,gm,omega)
 
 def remove_zero(omega,gamma):
     gs = []
@@ -182,11 +213,17 @@ def run():
     omega3c,modelkaccum3c=modelkaccum3(fc,c)
     omega3s,modelkaccum3s=modelkaccum3(fs,c)
     omega3g,modelkaccum3g=modelkaccum3(fg,c)
+    modelkaccum4c=modelkaccum4(c,c)
+    modelkaccum4s=modelkaccum4(s,c)
+    modelkaccum4g=modelkaccum4(g,c)
     print modelkaccum3c[modelkaccum3c.shape[0]-1,0]
     print modelkaccum3c[modelkaccum3c.shape[0]-1,2]
     print modelkaccum3s[modelkaccum3s.shape[0]-1,0]
     print modelkaccum3s[modelkaccum3s.shape[0]-1,2]
     print modelkaccum3g[modelkaccum3g.shape[0]-1,0]
+    print modelkaccum4c
+    print modelkaccum4s
+    print modelkaccum4g
 
 
 
