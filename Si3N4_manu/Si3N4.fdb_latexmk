@@ -1,5 +1,5 @@
 # Fdb version 3
-["bibtex Si3N4"] 1502332169 "Si3N4.aux" "Si3N4.bbl" "Si3N4" 1502343076
+["bibtex Si3N4"] 1502332169 "Si3N4.aux" "Si3N4.bbl" "Si3N4" 1502353770
   "/usr/share/texmf/bibtex/bst/revtex/apsrev4-1.bst" 1281387665 71518 fec93f06df0c073f83d2330456bd19c2 ""
   "Si3N4.aux" 1502332169 10381 51f578654916a3ff3508c0fbdbc1a07a ""
   "Si3N4.bcf" 0 -1 0 ""
@@ -8,7 +8,7 @@
   (generated)
   "Si3N4.bbl"
   "Si3N4.blg"
-["pdflatex"] 1502332169 "Si3N4.tex" "Si3N4.pdf" "Si3N4" 1502343076
+["pdflatex"] 1502332169 "Si3N4.tex" "Si3N4.pdf" "Si3N4" 1502353770
   "/etc/texmf/web2c/texmf.cnf" 1501811247 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1272929888 3287 e6b82fe08f5336d4d5ebc73fb1152e87 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
@@ -147,22 +147,22 @@
   "Si3N4.bbl" 1502332169 28121 d684c51f169efa3fc1196fbdb618c0e1 "bibtex Si3N4"
   "Si3N4.tex" 1502332168 50256 08cb8f55d46b1103eb808122085659e6 ""
   (generated)
-  "Si3N4.pdf"
-  "Fig5_mode_prop_summary-eps-converted-to.pdf"
+  "S1-eps-converted-to.pdf"
   "Fig3_338_resize2_times-eps-converted-to.pdf"
-  "Fig1-eps-converted-to.pdf"
-  "Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf"
-  "Si3N4Notes.bib"
-  "Fig5_mode_prop_summary_nosel-eps-converted-to.pdf"
-  "Fig4_ver5_338_resize_woDOS-eps-converted-to.pdf"
-  "Fig2-eps-converted-to.pdf"
+  "Si3N4.pdf"
   "Fig2_ver2_338-eps-converted-to.pdf"
+  "Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf"
+  "Fig5_338_rev-eps-converted-to.pdf"
+  "Si3N4.aux"
+  "Fig5_mode_prop_summary-eps-converted-to.pdf"
+  "Fig5_mode_prop_summary_nosel-eps-converted-to.pdf"
+  "Fig6_338_beta-eps-converted-to.pdf"
+  "Fig1-eps-converted-to.pdf"
+  "Fig2-eps-converted-to.pdf"
+  "Fig3_338-eps-converted-to.pdf"
+  "Fig4_ver5_338_resize_woDOS-eps-converted-to.pdf"
   "Fig7-eps-converted-to.pdf"
   "Si3N4.log"
-  "FiG1_338-eps-converted-to.pdf"
+  "Si3N4Notes.bib"
   "Fig4_ver5_338-eps-converted-to.pdf"
-  "Fig3_338-eps-converted-to.pdf"
-  "Si3N4.aux"
-  "Fig5_338_rev-eps-converted-to.pdf"
-  "S1-eps-converted-to.pdf"
-  "Fig6_338_beta-eps-converted-to.pdf"
+  "FiG1_338-eps-converted-to.pdf"
