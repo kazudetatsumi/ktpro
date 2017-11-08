@@ -55,11 +55,13 @@ def expand_lattice(posa, elea, atomid,nlat):
 
 def count_bondlength(expos, exele, exid, pos, ele, atomid, lat, el):
     data = []
+    cartdata = []
     for e1 in el:
         for e2 in el:
             #tmpdata = [e1,e2]
             print e1, e2
             tmpdata = []
+            tmpcartdispos = []
             for pos1, ele1, id1 in zip(pos, ele, atomid):
                 for pos2, ele2, id2 in zip(expos, exele, exid):
                     if ele1 == e1 and ele2 == e2:
@@ -70,20 +72,37 @@ def count_bondlength(expos, exele, exid, pos, ele, atomid, lat, el):
                            if ele1 == ele2 and pos2[0] >= 0 and pos2[0] <= 1  and pos2[1] >= 0 and pos2[1] <= 1 and pos2[2] >= 0 and pos2[2] <= 1:
                               if id2 > id1:
                                  tmpdata.append(length)
+                                 tmpcartdispos.append(cartdispos)
                            else:
                               tmpdata.append(length) 
+                              tmpcartdispos.append(cartdispos)
             data.append(tmpdata)
-    return data
+            cartdata.append(tmpcartdispos)
+    return data,cartdata
 
 def rdf(data):
-    f = np.zeros(2000)
+    f = np.zeros(200)
     for dist in data:
-        for i in range(0,2000):
-            x = i * 0.01
+        for i in range(1,200):
+            x = i * 0.1
             expa = (x - dist)**2 / (2 * sigma**2)
-            f[i] += 1/(2*sigma)**0.5 * math.exp(-1.0*expa) 
+            f[i] += 1/(2*sigma)**0.5 * math.exp(-1.0*expa) / x**2 
     return f 
-    
+
+def stereo(cartposdata,rmin,rmax):
+    stereodata=[]
+    for cartpos in cartposdata:
+        tmpvec = np.array(cartpos)
+        length = np.linalg.norm(tmpvec)
+        if length >= rmin and length <= rmax:
+           tmpvec = tmpvec / length 
+           if tmpvec[2] < 0:
+              tmpvec = tmpvec * (-1.0)
+           tmpvec[2] = tmpvec[2] + 1.0
+           tmpvec = tmpvec * 2 / tmpvec[2]
+           stereodata.append(tmpvec)
+    return np.array(stereodata)
+ 
 
 def matching(data):
     array = []
@@ -127,12 +146,15 @@ def histgram(distdata):
 def caserun(filename,numlat):
     lattice, element, numatom, posatom, eleatom, atomid = parse_poscar(filename)
     exposatom, exeleatom, exatomid = expand_lattice(posatom,eleatom, atomid, numlat) 
-    distdata = count_bondlength(exposatom, exeleatom, exatomid, posatom, eleatom, atomid, lattice, element)
-    distdataSiSi = matching(distdata[0])
-    distdataSiN = matching(distdata[1])
-    distdataNN = matching(distdata[3])
+    distdata, cartposdata = count_bondlength(exposatom, exeleatom, exatomid, posatom, eleatom, atomid, lattice, element)
+    #distdataSiSi = matching(distdata[0])
+    #distdataSiN = matching(distdata[1])
+    #distdataNN = matching(distdata[3])
+    stereoSiSi  = stereo(cartposdata[0],4.1,4.3) 
     rdfSiSi = rdf(distdata[0])
-    print np.sum(rdfSiSi)
+    rdfSiN = rdf(distdata[1])
+    rdfNN = rdf(distdata[3])
+    #print np.sum(rdfSiSi)
 
     #print np.shape(distdataSiSi)
     #plt.subplot(6,1,3*(plotid-1)+1)
@@ -142,13 +164,16 @@ def caserun(filename,numlat):
     #plt.subplot(6,1,3*(plotid-1)+3)
     #plt.plot(distdataNN[:,0],distdataNN[:,1]/z,label="N-N")
     #plt.legend(loc='upper left')
-    return(distdata,distdataSiSi, distdataSiN, distdataNN) 
+    #return(distdata,distdataSiSi, distdataSiN, distdataNN) 
+    return(distdata,stereoSiSi,rdfSiSi,rdfSiN,rdfNN) 
 
 def run():
 
-    call,cSiSi, cSiN, cNN = caserun(ccar,[2,2,3])
-    sall,sSiSi, sSiN, sNN = caserun(scar,[2,2,6])
-    x,sySiN = histgram(sSiN)
+    #call,cSiSi, cSiN, cNN = caserun(ccar,[2,2,3])
+    #sall,sSiSi, sSiN, sNN = caserun(scar,[2,2,6])
+    #call,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3])
+    sall,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6])
+    #x,sySiN = histgram(sSiN)
     #print sySiN
     #plt.plot(cSiN[:,0],cSiN[:,1]/2,label="cSiN")
     #plt.plot(sSiN[:,0],sSiN[:,1],label="sSiN")
@@ -157,21 +182,32 @@ def run():
     #plt.scatter(cNN[:,0],cNN[:,1]/2,label="cNN")
     #plt.scatter(sNN[:,0],sNN[:,1],label="sNN")
     #plt.bar(x,sySiN)
+    rdfx = 0.1*np.arange(200)
     plt.figure(figsize=(6,9))
     plt.subplot(3,1,1)
-    plt.hist(call[0],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_SiSi")
-    plt.hist(sall[0],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiSi")
-    plt.legend(loc='upper left')
+    #plt.plot(rdfx,crdfSiSi/2,label="alpha_SiSi")
+    plt.plot(rdfx,srdfSiSi,label="beta_SiSi")
+    #plt.hist(call[0],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_SiSi")
+    #plt.hist(sall[0],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiSi")
+    plt.legend(loc='upper right')
     plt.subplot(3,1,2)
-    plt.hist(call[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_SiN")
-    plt.hist(sall[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiN")
-    plt.legend(loc='upper left')
+    #plt.plot(rdfx,crdfSiN/2,label="alpha_SiN")
+    plt.plot(rdfx,srdfSiN,label="beta_SiN")
+    #plt.hist(call[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_SiN")
+    #plt.hist(sall[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiN")
+    plt.legend(loc='upper right')
     plt.subplot(3,1,3)
-    plt.hist(call[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_NN")
-    plt.hist(sall[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_NN")
-    plt.legend(loc='upper left')
+    #plt.plot(rdfx,crdfNN/2,label="alpha_NN")
+    plt.plot(rdfx,srdfNN,label="beta_NN")
+    #plt.hist(call[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_NN")
+    #plt.hist(sall[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_NN")
+    plt.legend(loc='upper right')
     plt.figure(figsize=(6,6))
-    plt.bar(x,sySiN, width=0.17)
+    #plt.bar(x,sySiN, width=0.17)
+    #plt.scatter(cstereoSiSi[:,0],cstereoSiSi[:,1],label="alpha_SiSi")
+    plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
+    plt.legend(loc='upper right')
+    #plt.plot(srdf)
 
     #print cSiN[0:5,:]
     #print sSiN[0:5,:]
