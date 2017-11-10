@@ -12,7 +12,7 @@ Temp = 300
 nbins = 300
 #y_max = 0.12
 numr = 7
-max_freq = 35
+max_freq = 15
 fs = 9
 jdosc1 = np.loadtxt(cdir + 'jdos-m141416-g0-t300.dat',comments='#',dtype='float')
 jdoss1 = np.loadtxt(sdir + 'jdos-m141432-g0-t300.dat',comments='#',dtype='float')
