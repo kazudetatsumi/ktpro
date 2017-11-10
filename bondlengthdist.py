@@ -191,8 +191,8 @@ def run():
 
     #call,cSiSi, cSiN, cNN = caserun(ccar,[2,2,3])
     #sall,sSiSi, sSiN, sNN = caserun(scar,[2,2,6])
-    call,cardfSiSi,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3],2.1,3.10)
-    sall,sardfSiSi,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6],2.1,3.10)
+    call,cardfSiSi,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3],7.1,9.10)
+    sall,sardfSiSi,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6],7.1,9.10)
     #x,sySiN = histgram(sSiN)
     #print sySiN
     #plt.plot(cSiN[:,0],cSiN[:,1]/2,label="cSiN")
@@ -225,11 +225,11 @@ def run():
     plt.legend(loc='upper right')
     plt.figure(figsize=(6,6))
     #plt.bar(x,sySiN, width=0.17)
-    #plt.scatter(cstereoSiSi[:,0],cstereoSiSi[:,1],label="alpha_SiSi")
-    #plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
+    plt.scatter(cstereoSiSi[:,0],cstereoSiSi[:,1],label="alpha_SiSi")
+    plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
     #plt.legend(loc='upper right')
-    plt.plot(ardfx,cardfSiSi/2)
-    plt.plot(ardfx,sardfSiSi)
+    #plt.plot(ardfx,cardfSiSi/2)
+    #plt.plot(ardfx,sardfSiSi)
     #plt.plot(srdf)
 
     #print cSiN[0:5,:]
