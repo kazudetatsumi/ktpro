@@ -6,7 +6,8 @@ import math
 max_length = 20
 tolerance = 0.0001
 nbins = 50
-sigma = 0.05
+sigma = 0.10
+asigma = 0.05
 
 ccar = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/POSCAR"
 scar = "/home/kazu//bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/POSCAR"
@@ -102,7 +103,24 @@ def stereo(cartposdata,rmin,rmax):
            tmpvec = tmpvec * 2 / tmpvec[2]
            stereodata.append(tmpvec)
     return np.array(stereodata)
- 
+
+def rdfangle(cartposdata,rmin,rmax):
+    f = np.zeros(400)
+    for cartpos in cartposdata:
+        tmpvec = np.array(cartpos)
+        length = np.linalg.norm(tmpvec)
+        if length >= rmin and length <= rmax:
+           print length
+           tmpvec = tmpvec / length 
+           if tmpvec[2] < 0:
+              tmpvec = tmpvec * (-1.0)
+           angle = math.acos(tmpvec[2])
+           #print angle
+           for i in range(0,400):
+               x = (i-200) * math.pi / 200.0
+               expa = (x - angle)**2 / (2 * asigma**2)
+               f[i] += 1/(2*asigma)**0.5 * math.exp(-1.0*expa) 
+    return f
 
 def matching(data):
     array = []
@@ -143,17 +161,19 @@ def histgram(distdata):
 
 
 
-def caserun(filename,numlat):
+def caserun(filename,numlat,rmin,rmax):
     lattice, element, numatom, posatom, eleatom, atomid = parse_poscar(filename)
     exposatom, exeleatom, exatomid = expand_lattice(posatom,eleatom, atomid, numlat) 
     distdata, cartposdata = count_bondlength(exposatom, exeleatom, exatomid, posatom, eleatom, atomid, lattice, element)
     #distdataSiSi = matching(distdata[0])
     #distdataSiN = matching(distdata[1])
     #distdataNN = matching(distdata[3])
-    stereoSiSi  = stereo(cartposdata[0],4.1,4.3) 
+    stereoSiSi  = stereo(cartposdata[0],rmin,rmax) 
     rdfSiSi = rdf(distdata[0])
     rdfSiN = rdf(distdata[1])
     rdfNN = rdf(distdata[3])
+    ardfSiSi = rdfangle(cartposdata[0],rmin,rmax)
+    
     #print np.sum(rdfSiSi)
 
     #print np.shape(distdataSiSi)
@@ -165,14 +185,14 @@ def caserun(filename,numlat):
     #plt.plot(distdataNN[:,0],distdataNN[:,1]/z,label="N-N")
     #plt.legend(loc='upper left')
     #return(distdata,distdataSiSi, distdataSiN, distdataNN) 
-    return(distdata,stereoSiSi,rdfSiSi,rdfSiN,rdfNN) 
+    return(distdata,ardfSiSi,stereoSiSi,rdfSiSi,rdfSiN,rdfNN) 
 
 def run():
 
     #call,cSiSi, cSiN, cNN = caserun(ccar,[2,2,3])
     #sall,sSiSi, sSiN, sNN = caserun(scar,[2,2,6])
-    #call,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3])
-    sall,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6])
+    call,cardfSiSi,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3],2.1,3.10)
+    sall,sardfSiSi,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6],2.1,3.10)
     #x,sySiN = histgram(sSiN)
     #print sySiN
     #plt.plot(cSiN[:,0],cSiN[:,1]/2,label="cSiN")
@@ -182,22 +202,23 @@ def run():
     #plt.scatter(cNN[:,0],cNN[:,1]/2,label="cNN")
     #plt.scatter(sNN[:,0],sNN[:,1],label="sNN")
     #plt.bar(x,sySiN)
-    rdfx = 0.1*np.arange(200)
+    rdfx = 0.1*np.arange(0,200)
+    ardfx = math.pi*np.arange(-200,200) / 200.0 / math.pi * 180 
     plt.figure(figsize=(6,9))
     plt.subplot(3,1,1)
-    #plt.plot(rdfx,crdfSiSi/2,label="alpha_SiSi")
+    plt.plot(rdfx,crdfSiSi/2,label="alpha_SiSi")
     plt.plot(rdfx,srdfSiSi,label="beta_SiSi")
     #plt.hist(call[0],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_SiSi")
     #plt.hist(sall[0],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiSi")
     plt.legend(loc='upper right')
     plt.subplot(3,1,2)
-    #plt.plot(rdfx,crdfSiN/2,label="alpha_SiN")
+    plt.plot(rdfx,crdfSiN/2,label="alpha_SiN")
     plt.plot(rdfx,srdfSiN,label="beta_SiN")
     #plt.hist(call[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_SiN")
     #plt.hist(sall[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiN")
     plt.legend(loc='upper right')
     plt.subplot(3,1,3)
-    #plt.plot(rdfx,crdfNN/2,label="alpha_NN")
+    plt.plot(rdfx,crdfNN/2,label="alpha_NN")
     plt.plot(rdfx,srdfNN,label="beta_NN")
     #plt.hist(call[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_NN")
     #plt.hist(sall[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_NN")
@@ -205,8 +226,10 @@ def run():
     plt.figure(figsize=(6,6))
     #plt.bar(x,sySiN, width=0.17)
     #plt.scatter(cstereoSiSi[:,0],cstereoSiSi[:,1],label="alpha_SiSi")
-    plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
-    plt.legend(loc='upper right')
+    #plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
+    #plt.legend(loc='upper right')
+    plt.plot(ardfx,cardfSiSi/2)
+    plt.plot(ardfx,sardfSiSi)
     #plt.plot(srdf)
 
     #print cSiN[0:5,:]
