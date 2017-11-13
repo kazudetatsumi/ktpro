@@ -3,13 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 homedir = "/home/kazu/"
+cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 Temp = 300
-nbins = 300
-#y_max = 0.12
 max_freq = 15
 fs = 9
+c = cdir + "noiso/kappa-m141416.noiso.hdf5"
 s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+cv = cdir + "qpoints.hdf5"
 sv = sdir + "qpoints.hdf5"
 
 
@@ -79,29 +80,42 @@ def project_eigenvec(edata):
     return(ampdata)
 
 def select_mode(omega,gamma,sqamp):
+    freqs = []
+    gammas = []
+    sqamps = []
     for f, g, s in zip(omega,gamma,sqamp):
-        condition = f < max_freq
+        condition = f < max_freq 
         _f = np.extract(condition,f)
         _g = np.extract(condition,g)
         _s = np.extract(condition,s)
-        f1 = np.array(_f).ravel()
-        g1 = np.array(_g).ravel()
-        s1 = np.array(_s).ravel()
+        freqs += list(_f)
+        gammas += list(_g)
+        sqamps += list(_s)
+    f1 = np.array(freqs).ravel()
+    g1 = np.array(gammas).ravel()
+    s1 = np.array(sqamps).ravel()
     return(f1,g1,s1)
 
-def run():
-    omegak,gammak,qpointk=parse_gamma(s,Temp)
-    omegaq,eigenvecq,qpointq=parse_eigenvec(sv)
+def caserun(casefile,vcasefile,n,phase):
+    omegak,gammak,qpointk=parse_gamma(casefile,Temp)
+    omegaq,eigenvecq,qpointq=parse_eigenvec(vcasefile)
     check(omegak,omegaq)
     check(qpointk,qpointq)
     sqamp=project_eigenvec(eigenvecq) 
-    #print sqamp[0,:]
-    #print sqamp.shape
-    print omegak.shape
-    print gammak.shape
-    print sqamp.shape
     omega1d,gamma1d,sqamp1d=select_mode(omegak,gammak,sqamp)
+    plt.subplot(2,1,n)
+    plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=2, label=phase)
+    plt.yscale("log")
+    plt.ylim(0.0005,0.10)
+    plt.xlabel('omega / THz')
+    plt.ylabel('gamma')
+    plt.legend()
+    plt.colorbar(label='sum of squares of eigenvector_x_y_components')
+
+def run():
     plt.figure(figsize=(12,12))
-    plt.scatter(sqamp1d,gamma1d)
+    caserun(c,cv,1,"alpha")
+    caserun(s,sv,2,"beta")
+
 run()
 plt.show()
