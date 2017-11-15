@@ -7,7 +7,7 @@ max_length = 20
 tolerance = 0.0001
 nbins = 50
 sigma = 0.10
-asigma = 0.05
+asigma = 0.005
 
 ccar = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/POSCAR"
 scar = "/home/kazu//bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/POSCAR"
@@ -191,8 +191,8 @@ def run():
 
     #call,cSiSi, cSiN, cNN = caserun(ccar,[2,2,3])
     #sall,sSiSi, sSiN, sNN = caserun(scar,[2,2,6])
-    call,cardfSiSi,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3],7.1,9.10)
-    sall,sardfSiSi,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6],7.1,9.10)
+    call,cardfSiSi,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3],2.0,20)
+    sall,sardfSiSi,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6],2.0,20)
     #x,sySiN = histgram(sSiN)
     #print sySiN
     #plt.plot(cSiN[:,0],cSiN[:,1]/2,label="cSiN")
@@ -225,11 +225,12 @@ def run():
     plt.legend(loc='upper right')
     plt.figure(figsize=(6,6))
     #plt.bar(x,sySiN, width=0.17)
-    plt.scatter(cstereoSiSi[:,0],cstereoSiSi[:,1],label="alpha_SiSi")
-    plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
+    #plt.scatter(cstereoSiSi[:,0],cstereoSiSi[:,1],label="alpha_SiSi")
+    #plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
     #plt.legend(loc='upper right')
-    #plt.plot(ardfx,cardfSiSi/2)
-    #plt.plot(ardfx,sardfSiSi)
+    plt.plot(ardfx,cardfSiSi/2,label="alpha_NN")
+    plt.plot(ardfx,sardfSiSi,label="beta_NN")
+    plt.legend(loc='upper right')
     #plt.plot(srdf)
 
     #print cSiN[0:5,:]
