@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
+import math
 homedir = "/home/kazu/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
@@ -138,6 +139,20 @@ def caserun(casefile,vcasefile,n,phase):
     plt.colorbar(label='sum of squares of eigenvector component along q')
     plt.subplot(2,2,n+2)
     plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase)
+    if phase == "beta":
+        x = 0.1*np.arange(0,50)
+        y = 0.001*np.exp(0.16*(x-0.5)) 
+        plt.plot(x,y)
+        n_up = 0
+        n_dn = 1
+        for omega,gamma in zip(omega1d,gamma1d):
+            if gamma >=  0.001*math.exp(0.16*(omega-0.5)):
+                    n_up += 1
+            else:
+                    n_dn += 1
+        print "num of up states:",n_up
+        print "num of dn states:",n_dn
+
     plt.yscale("log")
     plt.ylim(0.0005,0.0050)
     plt.xlabel('omega / THz')
