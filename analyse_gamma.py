@@ -6,13 +6,16 @@ import math
 homedir = "/home/kazu/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
+gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
 max_freq = 5
 fs = 9
 c = cdir + "noiso/kappa-m141416.noiso.hdf5"
 s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+g = gdir + "noiso/kappa-m121212.hdf5"
 cv = cdir + "qpoints.hdf5"
 sv = sdir + "qpoints.hdf5"
+gv = gdir + "qpoints.hdf5"
 
 
 def parse_gamma(filename,temp):
@@ -129,7 +132,7 @@ def caserun(casefile,vcasefile,n,phase):
     sqamp=project_eigenvec(eigenvecq) 
     longiamp=trans(qpointq,eigenvecq)
     omega1d,gamma1d,sqamp1d,longiamp1d=select_mode(omegak,gammak,sqamp,longiamp)
-    plt.subplot(2,2,n)
+    plt.subplot(3,2,n)
     plt.scatter(omega1d,gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase)
     plt.yscale("log")
     plt.ylim(0.0005,0.0050)
@@ -137,7 +140,7 @@ def caserun(casefile,vcasefile,n,phase):
     plt.ylabel('gamma')
     plt.legend()
     plt.colorbar(label='sum of squares of eigenvector component along q')
-    plt.subplot(2,2,n+2)
+    plt.subplot(3,2,n+2)
     plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase)
     if phase == "beta":
         x = 0.1*np.arange(0,50)
@@ -165,6 +168,7 @@ def run():
     plt.figure(figsize=(12,12))
     caserun(c,cv,1,"alpha")
     caserun(s,sv,2,"beta")
+    caserun(g,gv,3,"gamma")
 
 run()
 plt.show()

@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import math
 
 max_length = 20
-tolerance = 0.0001
+tolerance = 0.000000001
 nbins = 50
 sigma = 0.10
-asigma = 0.005
+asigma = 0.01
 
 ccar = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/POSCAR"
 scar = "/home/kazu//bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/POSCAR"
@@ -104,22 +104,13 @@ def stereo(cartposdata,rmin,rmax):
            stereodata.append(tmpvec)
     return np.array(stereodata)
 
-def rdfangle(cartposdata,rmin,rmax):
+def rdfangle(data):
     f = np.zeros(400)
-    for cartpos in cartposdata:
-        tmpvec = np.array(cartpos)
-        length = np.linalg.norm(tmpvec)
-        if length >= rmin and length <= rmax:
-           print length
-           tmpvec = tmpvec / length 
-           if tmpvec[2] < 0:
-              tmpvec = tmpvec * (-1.0)
-           angle = math.acos(tmpvec[2])
-           #print angle
-           for i in range(0,400):
-               x = (i-200) * math.pi / 200.0
-               expa = (x - angle)**2 / (2 * asigma**2)
-               f[i] += 1/(2*asigma)**0.5 * math.exp(-1.0*expa) 
+    for angle,icount in zip(data[:,0],data[:,1]):
+        for i in range(0,400):
+            x = (i-200) * math.pi / 200.0
+            expa = (x - angle)**2 / (2 * asigma**2)
+            f[i] += 1/(2*asigma)**0.5 * math.exp(-1.0*expa)*icount 
     return f
 
 def matching(data):
@@ -149,20 +140,43 @@ def matching(data):
     distdata_sorted = np.array(sorted(distdata, key=lambda distnz1:distnz1[0]))
     return distdata_sorted
 
+def theta(cartposdata, rmin,rmax):
+    theta = []
+    phi = []
+    for cartpos in cartposdata:
+        tmpvec = np.array(cartpos)
+        length = np.linalg.norm(tmpvec)
+        if length >= rmin and length <= rmax:
+           tmpvec = tmpvec / length
+           if tmpvec[2] < 0:
+              tmpvec = tmpvec * (-1.0)
+           theta.append(math.acos(tmpvec[2]))
+           if tmpvec[0]**2 + tmpvec[1]**2 > 0:
+              phi.append(math.acos(tmpvec[0]/(tmpvec[0]**2+tmpvec[1]**2)**0.5))
+    return theta,phi 
+
 
 
 def caserun(filename,numlat,rmin,rmax):
     lattice, element, numatom, posatom, eleatom, atomid = parse_poscar(filename)
     exposatom, exeleatom, exatomid = expand_lattice(posatom,eleatom, atomid, numlat) 
-    distdata, thetadata, cartposdata = count_bondlength(exposatom, exeleatom, exatomid, posatom, eleatom, atomid, lattice, element)
-    return(distdata) 
+    distdata,  cartposdata = count_bondlength(exposatom, exeleatom, exatomid, posatom, eleatom, atomid, lattice, element)
+    thetaSiSi,phiSiSi = theta(cartposdata[0],rmin,rmax)
+    thetadataSiSi = matching(thetaSiSi)
+    phidataSiSi = matching(phiSiSi)
+    print thetadataSiSi.shape
+    print phidataSiSi.shape
+    rdfSiSi = rdf(distdata[0])
+    rdfthetaSiSi = rdfangle(thetadataSiSi) 
+    rdfphiSiSi = rdfangle(phidataSiSi) 
+    return(distdata,rdfSiSi,rdfthetaSiSi,rdfphiSiSi) 
 
 def run():
 
     #call,cSiSi, cSiN, cNN = caserun(ccar,[2,2,3])
     #sall,sSiSi, sSiN, sNN = caserun(scar,[2,2,6])
-    call,cardfSiSi,cstereoSiSi,crdfSiSi,crdfSiN,crdfNN = caserun(ccar,[2,2,3],2.0,20)
-    sall,sardfSiSi,sstereoSiSi,srdfSiSi,srdfSiN,srdfNN = caserun(scar,[2,2,6],2.0,20)
+    call,crdfSiSi,crdfthetaSiSi,crdfphiSiSi = caserun(ccar,[2,2,3],2.0,20)
+    sall,srdfSiSi,srdfthetaSiSi,srdfphiSiSi = caserun(scar,[2,2,6],2.0,20)
     #plt.plot(cSiN[:,0],cSiN[:,1]/2,label="cSiN")
     #plt.plot(sSiN[:,0],sSiN[:,1],label="sSiN")
     #plt.plot(cSiSi[:,0],cSiSi[:,1]/2,label="cSiSi")
@@ -180,25 +194,30 @@ def run():
     #plt.hist(sall[0],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiSi")
     plt.legend(loc='upper right')
     plt.subplot(3,1,2)
-    plt.plot(rdfx,crdfSiN/2,label="alpha_SiN")
-    plt.plot(rdfx,srdfSiN,label="beta_SiN")
+    #plt.plot(rdfx,crdfSiN/2,label="alpha_SiN")
+    #plt.plot(rdfx,srdfSiN,label="beta_SiN")
     #plt.hist(call[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_SiN")
     #plt.hist(sall[1],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_SiN")
     plt.legend(loc='upper right')
     plt.subplot(3,1,3)
-    plt.plot(rdfx,crdfNN/2,label="alpha_NN")
-    plt.plot(rdfx,srdfNN,label="beta_NN")
+    #plt.plot(rdfx,crdfNN/2,label="alpha_NN")
+    #plt.plot(rdfx,srdfNN,label="beta_NN")
     #plt.hist(call[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="alpha_NN")
     #plt.hist(sall[3],bins=nbins,normed=True,histtype='step',rwidth=0.5,label="beta_NN")
     plt.legend(loc='upper right')
-    plt.figure(figsize=(6,6))
+    #plt.figure(figsize=(6,6))
+    #plt.subplot(2,1,1)
     #plt.bar(x,sySiN, width=0.17)
     #plt.scatter(cstereoSiSi[:,0],cstereoSiSi[:,1],label="alpha_SiSi")
     #plt.scatter(sstereoSiSi[:,0],sstereoSiSi[:,1],label="beta_SiSi")
     #plt.legend(loc='upper right')
-    plt.plot(ardfx,cardfSiSi/2,label="alpha_NN")
-    plt.plot(ardfx,sardfSiSi,label="beta_NN")
-    plt.legend(loc='upper right')
+    #plt.plot(ardfx,crdfthetaSiSi/2,label="alpha_SiSi_theta")
+    #plt.plot(ardfx,srdfthetaSiSi,label="beta_SiSi_theta")
+    #plt.legend(loc='upper left')
+    #plt.subplot(2,1,2)
+    #plt.plot(ardfx,crdfphiSiSi/2,label="alpha_SiSi_phi")
+    #plt.plot(ardfx,srdfphiSiSi,label="beta_SiSi_phi")
+    #plt.legend(loc='upper left')
     #plt.plot(srdf)
 
     #print cSiN[0:5,:]

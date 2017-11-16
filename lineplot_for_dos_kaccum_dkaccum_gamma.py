@@ -12,7 +12,7 @@ Temp = 300
 nbins = 300
 #y_max = 0.12
 numr = 7
-max_freq = 15
+max_freq = 33
 fs = 9
 jdosc1 = np.loadtxt(cdir + 'jdos-m141416-g0-t300.dat',comments='#',dtype='float')
 jdoss1 = np.loadtxt(sdir + 'jdos-m141432-g0-t300.dat',comments='#',dtype='float')
@@ -287,8 +287,8 @@ def eachplot3(sn,phase,omega,dos):
    plt.subplot(numr,3,sn)
    plt.title("dos_for_" + phase)
    plt.plot(omega,dos,label=phase + "_dos")
-   plt.ylim(0,3)
-   plt.yticks([0,1,2,3])
+   plt.ylim(0,7)
+   plt.yticks([0,2,4,6])
    plt.xlim(0,max_freq)
 
 
@@ -414,9 +414,9 @@ def run():
    #eachplot12(10,"alpha",omegac1,1/(2*gammac1*2*np.pi),0,max_freq,2,100,"lifetime")
    #eachplot12(11,"beta",omegas1,1/(2*gammas1*2*np.pi),0,max_freq,2,100,"lifetime")
    #eachplot12(12,"gamma",omegag1,1/(2*gammag1*2*np.pi),0,max_freq,2,100,"lifetime")
-   eachplot12(10,"alpha",omegac1,gammac1,0,max_freq,0.0005,0.10,"gamma")
-   eachplot12(11,"beta",omegas1,gammas1,0,max_freq,0.0005,0.10,"gamma")
-   eachplot12(12,"gamma",omegag1,gammag1,0,max_freq,0.0005,0.10,"gamma")
+   eachplot12(10,"alpha",omegac1,gammac1,0,max_freq,0.0005,0.35,"gamma")
+   eachplot12(11,"beta",omegas1,gammas1,0,max_freq,0.0005,0.35,"gamma")
+   eachplot12(12,"gamma",omegag1,gammag1,0,max_freq,0.0005,0.35,"gamma")
    #eachplot6(13,"alpha",jdosc1[:,0],(jdosc1[:,1]+jdosc1[:,2])/16,jdosc2[:,0],(jdosc2[:,1]+jdosc2[:,2])/16)
    #eachplot6(14,"beta",jdoss1[:,0],(jdoss1[:,1]+jdoss1[:,2])/4,jdoss2[:,0],(jdoss2[:,1]+jdoss2[:,2])/4)
    #eachplot6(15,"gamma",jdosg1[:,0],(jdosg1[:,1]+jdosg1[:,2])/4,jdosg2[:,0],(jdosg2[:,1]+jdosg2[:,2])/4)
