@@ -93,12 +93,9 @@ def trans(qpoint,edata):
                longi = 0
                for k in range(0,datasize[1]):
                    if k % 3 == 0:
-                      longi += abs(edata[i,k,j]*qpoint[i,0]/norm)**2
-                   if k % 3 == 1:
-                      longi += abs(edata[i,k,j]*qpoint[i,1]/norm)**2
-                   if k % 3 == 2:
-                      longi += abs(edata[i,k,j]*qpoint[i,2]/norm)**2
+                      longi += (abs(edata[i,k,j]*qpoint[i,0] + edata[i,k+1,j]*qpoint[i,1] + edata[i,k+2,j]*qpoint[i,2])/norm)**2
                longidata[i,j]=longi
+               print longi
     return(longidata)
 
     
@@ -132,7 +129,7 @@ def caserun(casefile,vcasefile,n,phase):
     sqamp=project_eigenvec(eigenvecq) 
     longiamp=trans(qpointq,eigenvecq)
     omega1d,gamma1d,sqamp1d,longiamp1d=select_mode(omegak,gammak,sqamp,longiamp)
-    plt.subplot(3,2,n)
+    plt.subplot(2,2,n)
     plt.scatter(omega1d,gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase)
     plt.yscale("log")
     plt.ylim(0.0005,0.0050)
@@ -140,7 +137,7 @@ def caserun(casefile,vcasefile,n,phase):
     plt.ylabel('gamma')
     plt.legend()
     plt.colorbar(label='sum of squares of eigenvector component along q')
-    plt.subplot(3,2,n+2)
+    plt.subplot(2,2,n+2)
     plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase)
     if phase == "beta":
         x = 0.1*np.arange(0,50)
@@ -168,7 +165,7 @@ def run():
     plt.figure(figsize=(12,12))
     caserun(c,cv,1,"alpha")
     caserun(s,sv,2,"beta")
-    caserun(g,gv,3,"gamma")
+    #caserun(g,gv,3,"gamma")
 
 run()
 plt.show()
