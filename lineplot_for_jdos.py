@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize
 
-homedir = "/home/kazu/"
+homedir = "/home/kazu/stern/"
 cdata=np.loadtxt(homedir + '/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g0.dat',comments='#',dtype='float')
 sdata=np.loadtxt(homedir + '/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g0.dat',comments='#',dtype='float')
 gdata=np.loadtxt(homedir + '/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0.dat',comments='#',dtype='float')
