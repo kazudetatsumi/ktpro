@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 import math
-homedir = "/home/kazu/"
+homedir = "/home/kazu/stern/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
