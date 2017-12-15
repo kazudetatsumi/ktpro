@@ -11,7 +11,6 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: Si3N4Notes.bib
 Database file #2: Si3N4.bib
-Warning--I didn't find a database entry for "mukhopadhyay"
 control{REVTEX41Control}, control.key{N/A}, control.author{N/A}, control.editor{N/A}, control.title{N/A}, control.pages{N/A}, control.year{N/A}, control.eprint{N/A}, 
 control{apsrev41Control}, control.key{N/A}, control.author{08}, control.editor{1}, control.title{}, control.pages{0}, control.year{1}, control.eprint{N/A}, 
 Warning--jnrlst (dependency: not reversed) set 1
@@ -44,45 +43,45 @@ Name 1 in "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" 
 while executing---line 3445 of file apsrev4-1.bst
 Too many commas in name 1 of "R. Minikayev, W. Paszkowicz, P. Piszora, M. Knapp, and C. B{\"a}htz" for entry minikayev-alpha
 while executing---line 3445 of file apsrev4-1.bst
-You've used 46 entries,
+You've used 43 entries,
             5847 wiz_defined-function locations,
-            1878 strings with 21659 characters,
-and the built_in function-call counts, 45284 in all, are:
-= -- 2855
-> -- 1215
-< -- 327
-+ -- 388
-- -- 307
-* -- 6982
-:= -- 4417
-add.period$ -- 45
-call.type$ -- 46
-change.case$ -- 181
-chr.to.int$ -- 53
-cite$ -- 46
-duplicate$ -- 4250
-empty$ -- 3344
-format.name$ -- 702
-if$ -- 9025
+            1862 strings with 21181 characters,
+and the built_in function-call counts, 42153 in all, are:
+= -- 2652
+> -- 1130
+< -- 307
++ -- 362
+- -- 287
+* -- 6497
+:= -- 4114
+add.period$ -- 42
+call.type$ -- 43
+change.case$ -- 169
+chr.to.int$ -- 50
+cite$ -- 43
+duplicate$ -- 3966
+empty$ -- 3110
+format.name$ -- 651
+if$ -- 8391
 int.to.chr$ -- 2
-int.to.str$ -- 53
-missing$ -- 562
-newline$ -- 184
-num.names$ -- 132
-pop$ -- 1805
+int.to.str$ -- 50
+missing$ -- 525
+newline$ -- 175
+num.names$ -- 123
+pop$ -- 1686
 preamble$ -- 1
-purify$ -- 220
+purify$ -- 205
 quote$ -- 0
-skip$ -- 1638
+skip$ -- 1520
 stack$ -- 0
-substring$ -- 1164
-swap$ -- 3995
-text.length$ -- 148
+substring$ -- 1068
+swap$ -- 3725
+text.length$ -- 138
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 638
+type$ -- 595
 warning$ -- 1
-while$ -- 143
+while$ -- 134
 width$ -- 0
-write$ -- 405
+write$ -- 381
 (There were 10 error messages)
