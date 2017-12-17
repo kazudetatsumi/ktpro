@@ -1,9 +1,15 @@
 # Fdb version 3
-["pdflatex"] 1513317017 "tst.tex" "tst.pdf" "tst" 1513317018
+["pdflatex"] 1513484318 "tst.tex" "tst.pdf" "tst" 1513484319
+  "/etc/texmf/web2c/texmf.cnf" 1461753079 475 c0e671620eb5563b2130f56340a5fde8 ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/share/texlive/texmf-dist/tex/latex/base/minimal.cls" 1254151887 2028 a218fa4d45e39fff1443d6a3d32ba3d7 ""
-  "tst.aux" 1513316893 8 a94a2480d3289e625eea47cd1b285758 ""
-  "tst.tex" 1512374713 1487 41e2b444adf28a2b78aecedf317c6930 ""
+  "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1392645748 31083 1dfd8bf685ce0009c40532fedf8a7c53 ""
+  "/usr/share/texmf/web2c/texmf.cnf" 1392645748 31083 1dfd8bf685ce0009c40532fedf8a7c53 ""
+  "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1461753143 78459 a972f6b4faf70bd8a6db2cb03d01456e ""
+  "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1461753141 722335 d768a49beb70c9ed447b792540a6cee5 ""
+  "tst.aux" 1513484319 8 a94a2480d3289e625eea47cd1b285758 ""
+  "tst.tex" 1512471468 1487 41e2b444adf28a2b78aecedf317c6930 ""
   (generated)
-  "tst.aux"
   "tst.log"
+  "tst.aux"
   "tst.pdf"
