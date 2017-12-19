@@ -129,7 +129,10 @@ def caserun(casefile,vcasefile,n,phase):
     longiamp=trans(qpointq,eigenvecq)
     omega1d,gamma1d,sqamp1d,longiamp1d=select_mode(omegak,gammak,sqamp,longiamp)
     plt.subplot(2,2,n)
-    plt.scatter(omega1d,gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase)
+    plt.scatter(omega1d,gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.tick_params(which='both',tickdir='in')
+    plt.rcParams['ytick.right'] = True
+    plt.rcParams['xtick.top'] = True
     plt.yscale("log")
     plt.ylim(0.0005,0.0050)
     plt.xlabel('omega / THz')
@@ -137,7 +140,10 @@ def caserun(casefile,vcasefile,n,phase):
     plt.legend()
     plt.colorbar(label='sum of squares of eigenvector component along q')
     plt.subplot(2,2,n+2)
-    plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase)
+    plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.tick_params(which='both',tickdir='in')
+    plt.rcParams['ytick.right'] = True
+    plt.rcParams['xtick.top'] = True
     if phase == "beta":
         x = 0.1*np.arange(0,50)
         y = 0.001*np.exp(0.16*(x-0.5)) 
