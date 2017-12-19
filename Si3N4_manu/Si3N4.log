@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.15)  19 DEC 2017 10:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.15)  19 DEC 2017 17:59
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -432,20 +432,60 @@ Missing character: There is no ‰ in font cmr10!
 Missing character: There is no Î in font cmr10!
 Missing character: There is no » in font cmr10!
 [6 <./Fig2_small-eps-converted-to.pdf>]
+Package epstopdf Info: Source file: <figure_jdoss.eps>
+(epstopdf)                    date: 2017-12-19 15:54:38
+(epstopdf)                    size: 720976 bytes
+(epstopdf)             Output file: <figure_jdoss-eps-converted-to.pdf>
+(epstopdf)                    date: 2017-12-19 15:54:41
+(epstopdf)                    size: 44937 bytes
+(epstopdf)             Command: <repstopdf --outfile=figure_jdoss-eps-converted-to.pdf figure_jdoss.eps>
+(epstopdf)             \includegraphics on input line 653.
+Package epstopdf Info: Output file is already uptodate.
+ <figure_jdoss-eps-converted-to.pdf, id=322, 250.9375pt x 278.03876pt>
+File: figure_jdoss-eps-converted-to.pdf Graphic file (type pdf)
+ <use figure_jdoss-eps-converted-to.pdf>
+Package pdftex.def Info: figure_jdoss-eps-converted-to.pdf used on input line 653.
+(pdftex.def)             Requested size: 221.3985pt x 245.32396pt.
 
-./Si3N4.tex:653: LaTeX Error: Bad math environment delimiter.
+
+./Si3N4.tex:666: LaTeX Error: Bad math environment delimiter.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.653 $\math
+l.666 $\math
             {D_2(\mathbf{q},\omega)}$,
 Your command was ignored.
 Type  I <command> <return>  to replace it with another command,
 or  <return>  to continue without it.
 
 [7 <./figurex_dos_jdos_kc-eps-converted-to.pdf>]
+
+LaTeX Warning: A float is stuck (cannot be placed) on input line 720.
+
+
+LaTeX Warning: A float is stuck (cannot be placed) on input line 720.
+
+
+Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
+
+Package epstopdf Info: Source file: <figure_analyze_gamma3.eps>
+(epstopdf)                    date: 2017-12-19 17:59:27
+(epstopdf)                    size: 2498427 bytes
+(epstopdf)             Output file: <figure_analyze_gamma3-eps-converted-to.pdf>
+(epstopdf)             Command: <repstopdf --outfile=figure_analyze_gamma3-eps-converted-to.pdf figure_analyze_gamma3.eps>
+(epstopdf)             \includegraphics on input line 724.
+runsystem(repstopdf --outfile=figure_analyze_gamma3-eps-converted-to.pdf figure_analyze_gamma3.eps)...executed safely (allowed).
+
+Package epstopdf Info: Result file: <figure_analyze_gamma3-eps-converted-to.pdf>
+(epstopdf)                    date: 2017-12-19 17:59:32
+(epstopdf)                    size: 308023 bytes.
+<figure_analyze_gamma3-eps-converted-to.pdf, id=339, 244.915pt x 201.75375pt>
+File: figure_analyze_gamma3-eps-converted-to.pdf Graphic file (type pdf)
+ <use figure_analyze_gamma3-eps-converted-to.pdf>
+Package pdftex.def Info: figure_analyze_gamma3-eps-converted-to.pdf used on input line 724.
+(pdftex.def)             Requested size: 246.0pt x 202.65216pt.
 Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)                    date: 2017-12-01 12:54:33
 (epstopdf)                    size: 681606 bytes
@@ -453,14 +493,14 @@ Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)                    date: 2017-12-01 12:54:33
 (epstopdf)                    size: 22714 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 724.
+(epstopdf)             \includegraphics on input line 750.
 Package epstopdf Info: Output file is already uptodate.
- <S1-eps-converted-to.pdf, id=338, 393.47pt x 392.46625pt>
+ <S1-eps-converted-to.pdf, id=340, 393.47pt x 392.46625pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 724.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 750.
 (pdftex.def)             Requested size: 196.80075pt x 196.29851pt.
- (./Si3N4.bbl
+ (./Si3N4.bbl [8 <./figure_jdoss-eps-converted-to.pdf> <./figure_analyze_gamma3-eps-converted-to.pdf> <./S1-eps-converted-to.pdf>]
 Underfull \hbox (badness 2653) in paragraph at lines 220--226
  []\OT1/cmr/m/n/9 K. Watari, L. Pot-tier, B. Li, D. Fournier,  and
  []
@@ -470,7 +510,7 @@ Underfull \hbox (badness 2837) in paragraph at lines 220--226
  \OT1/cmr/m/n/9 M. Toriyama, Ce-ramic Trans-ac-tions(USA) \OT1/cmr/bx/n/9 118\OT1/cmr/m/n/9 , 341
  []
 
-[8 <./S1-eps-converted-to.pdf>]
+
 Underfull \hbox (badness 2158) in paragraph at lines 343--348
  []\OT1/cmr/m/n/9 M. T. Dove, |   [], Vol. 4
  []
@@ -484,20 +524,24 @@ Underfull \hbox (badness 2158) in paragraph at lines 438--442
  []\OT1/cmr/m/n/9 M. T. Dove, |   [], Vol. 4
  []
 
-) [9] (./Si3N4.aux) ) 
+) [9] (./Si3N4.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right .
+
+ ) 
 Here is how much of TeX's memory you used:
- 4911 strings out of 494953
- 65325 string characters out of 6180976
- 147333 words of memory out of 5000000
- 8085 multiletter control sequences out of 15000+600000
+ 4923 strings out of 494953
+ 65731 string characters out of 6180976
+ 169469 words of memory out of 5000000
+ 8095 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  38i,15n,28p,653b,451s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Si3N4.pdf (9 pages, 7530884 bytes).
+Output written on Si3N4.pdf (9 pages, 7876620 bytes).
 PDF statistics:
- 433 PDF objects out of 1000 (max. 8388607)
- 155 compressed objects within 2 object streams
+ 460 PDF objects out of 1000 (max. 8388607)
+ 174 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 31 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
 
