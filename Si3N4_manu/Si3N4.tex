@@ -317,8 +317,8 @@ second-order IFCs. The constant atomic displacement distance was set to
 0.03 \AA. Table \ref{table:LTC} shows the calculated LTC values for
 several different choices of supercell sizes, indicating that our
 calculated LTCs are reasonably converging with respect to the supercell
-sizes. \textcolor{blue}{Non-analytical term correction[ref-nac] was applied to the second-order 
-force constants to take into account the long range Coulomb forces present in ionic crystals.[ref-nac-impl]}
+sizes. \textcolor{blue}{Non-analytical term correction~\cite{wang} was applied to the second-order 
+force constants to take into account the long range Coulomb forces present in ionic crystals.~\cite{phono3py}}
 
 Uniform $\mathbf{k}$-point sampling meshes of $4\times 4\times 2$,
 $4\times 4\times 3$, and $3\times 3\times 3$ were used for the
@@ -669,7 +669,7 @@ have similar impacts on the linewidths of these phases.
 \begin{figure}[ht]
  \centering
   \includegraphics[width=0.9\linewidth]{figure_jdoss.eps} \caption{(color
-	  online) \textcolor{blue}{JDOS of $\alpha$- and $\gamma$-Si$_3$N$_4$ at several different $\mathbf q$ points.
+	  online) \textcolor{blue}{JDOS of $\alpha$- and $\gamma$-Si$_3$N$_4$ at different $\mathbf q$ points.
   The first and and forth rows are JDOS at the same $\Gamma$-point but calculated with the polarization for non-analytic term correction set along $c^*$ and $b^*$, respectively.} \label{fig:Fig6_338} }
  \centering
 \end{figure}
@@ -690,16 +690,15 @@ where
 								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}) .
 \end{eqnarray*}
 
-Fig.~\ref{fig:Fig6_338} shows the JDOS at three different $\mathbf{q}$ points.
+Fig.~\ref{fig:Fig6_338} shows the frequency-dependences of JDOS at different $\mathbf{q}$ points on $\Gamma$--A and $\Gamma$-K paths.
 Eq.~(\ref{eq:linewidth}) includes Bose-Einstein functions for the involved
-phonon modes and JDOS can be weighted with them as done in ref. SciRep and
-Togo, however we omit them for simplicity.  With the weights, the absolute
+phonon modes and JDOS can be weighted with them as done in ref.~\onlinecite{mukhopadhyay-ltc,phono3py}, however we omit them for simplicity. With the weights, the absolute
 values are affected but the weighted JDOS of the $\alpha$ and $\beta$ phases
 are still similar. At the low frequency region responsible for the LTCs, among
 the two terms of $D_2^{(1)}$ and $D_2^{(2)}$ in Eq.~(\ref{eq:jdos}), dominant
 is $D_2^{(2)}$ which corresponds to the half part ($\omega \geq  0$) of the
 auto-correlation function of DOS. The DOS of the $\alpha$ and $\beta$ phases in
-Fig. x-a commonly show the frequency gap.  The auto-correlation functions,
+Fig.~\ref{fig:Fig5_338_rev}-a commonly show the frequency gap.  The auto-correlation functions,
 $D_2^{(2)}$, reflect this DOS feature, dropping suddenly around 0 THz and
 showing a small shoulder around 7 THz, which corresponds to the width of the
 gap. Moreover $D_2^{(2)}$ shows a broad peak around 18 THz, which corresponds
