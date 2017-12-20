@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2016.4.27)  20 DEC 2017 16:07
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2016.4.27)  20 DEC 2017 17:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -326,10 +326,6 @@ Underfull \hbox (badness 1472) in paragraph at lines 107--118
  []
 
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str-eps-converted-to.pdf>] [2] [3]
-Missing character: There is no Î in font cmr10!
-Missing character: There is no ± in font cmr10!
-Missing character: There is no Î in font cmr10!
-Missing character: There is no º in font cmr10!
 Package epstopdf Info: Source file: <Fig1.eps>
 (epstopdf)                    date: 2017-12-05 19:57:44
 (epstopdf)                    size: 320965 bytes
@@ -429,9 +425,6 @@ File: figure_dos_jdos_kc-eps-converted-to.pdf Graphic file (type pdf)
  <use figure_dos_jdos_kc-eps-converted-to.pdf>
 Package pdftex.def Info: figure_dos_jdos_kc-eps-converted-to.pdf used on input line 594.
 (pdftex.def)             Requested size: 458.99689pt x 239.75815pt.
-Missing character: There is no ï in font cmr10!
-Missing character: There is no ¼ in font cmr10!
-Missing character: There is no Ž in font cmr10!
 
 
 ./Si3N4.tex:625: LaTeX Error: Bad math environment delimiter.
@@ -440,11 +433,20 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.625 weighted DOS with $\math
-                              {v}_{\lambda,z}$ in $\beta$-Si$_3$N$_4$, criti...
+l.625 weighted DOS of $\math
+                            {v}_{\lambda,z}^2}$ in $\beta$-Si$_3$N$_4$, crit...
 Your command was ignored.
 Type  I <command> <return>  to replace it with another command,
 or  <return>  to continue without it.
+
+./Si3N4.tex:625: Extra }, or forgotten $.
+l.625 weighted DOS of $\math{v}_{\lambda,z}^2}
+                                              $ in $\beta$-Si$_3$N$_4$, crit...
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
 
 [6 <./Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf> <./Fig2_small-eps-converted-to.pdf>]
 ./Si3N4.tex:662: Extra alignment tab has been changed to \cr.
@@ -560,13 +562,13 @@ Underfull \hbox (badness 2158) in paragraph at lines 452--456
 Here is how much of TeX's memory you used:
  4912 strings out of 495028
  65561 string characters out of 6181497
- 166951 words of memory out of 5000000
+ 165957 words of memory out of 5000000
  8009 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  38i,15n,28p,653b,451s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Si3N4.pdf (9 pages, 7879546 bytes).
+Output written on Si3N4.pdf (9 pages, 7879739 bytes).
 PDF statistics:
  460 PDF objects out of 1000 (max. 8388607)
  174 compressed objects within 2 object streams
