@@ -317,7 +317,8 @@ second-order IFCs. The constant atomic displacement distance was set to
 0.03 \AA. Table \ref{table:LTC} shows the calculated LTC values for
 several different choices of supercell sizes, indicating that our
 calculated LTCs are reasonably converging with respect to the supercell
-sizes.
+sizes. \textcolor{blue}{Non-analytical term correction[ref-nac] was applied to the second-order 
+force constants to take into account the long range Coulomb forces present in ionic crystals.[ref-nac-impl]}
 
 Uniform $\mathbf{k}$-point sampling meshes of $4\times 4\times 2$,
 $4\times 4\times 3$, and $3\times 3\times 3$ were used for the
@@ -561,7 +562,7 @@ as shown in Table \ref{table:LTC-exp}.
 \subsection{$\omega_\lambda$ counter map on reciprocal plane}
 
 \begin{figure}[ht]
- \centering
+ \centerins
   \includegraphics[width=\linewidth]{Fig2_small.eps} \caption{(color
   online) Contour maps of phonon frequency (THz) on the $b^*$-$c^*$
   planes of Brillouin-zones. The maps for the four lowest-frequency
@@ -590,14 +591,10 @@ oriented along the $c$ axis.
 \subsection{Frequency-dependences of $\boldsymbol{\kappa}^\text{c}$, $\mathbf{v}$$_\lambda$ and $\Gamma_\lambda$}
 \begin{figure*}[ht]
  \begin{center}
-  \includegraphics[width=0.9\linewidth]{figurex_dos_jdos_kc.eps}
+  \includegraphics[width=0.9\linewidth]{figure_dos_jdos_kc.eps}
   \caption{(color online) Microscopic phonon properties of three Si$_3$N$_4$
-	  phases. Cumulative thermal conductivity $\kappa^\text{c}$ and its derivative
-	  (a), DOS (b), DOS weighted by squared group velocity
-	  $\langle\text{v}^2\rangle$ (c), linewidth $\Gamma$ (d), two factors
-	  composing linewidth (weighted joint density of states $N$ (e) and average phonon-phonon
-	  interaction strength $P$ (f) ), and approximated linewidth
-	  $\tilde{\Gamma}$ (g) 
+	  phases. Cumulative thermal conductivity $\mathbf{\kappa}^\text{c}$ and its derivative
+	  (a), DOS (b), weighted DOS with $v_{\lambda,i}^2$ (c) and linewidth $\Gamma_\lambda$ (d).
   \label{fig:Fig5_338_rev} }
  \end{center}
 \end{figure*}
@@ -641,18 +638,19 @@ interaction strength $\Phi_{-\lambda\lambda'\lambda''}$ in
 Eq.~(\ref{eq:linewidth}) for the linewidths partly contains the selection rules
 (momentum conservation)~\cite{phono3py}, we examine
 $\Phi_{-\lambda\lambda'\lambda''}$ and the whole selection rules (momentum and
-energy conservation), one by one.  In Table. xx,
-$\Phi_{-\lambda\lambda'\lambda''}$ are compared as the averages over the $\omega_\lambda$
-frequency ranges between 0 and 15 THz and 0 and 35 THz. The values of the
-$\alpha$ and $\beta$ phases are very close to each other, indicating that
-$\Phi_{-\lambda\lambda'\lambda''}$ have similar impacts on the linewidths of
-these phases . 
+energy conservation), one by one. 
+In Table.~\ref{table:aveavepp}, \textcolor{blue}{the magnituds of
+$\Phi_{-\lambda\lambda'\lambda''}$ are compared as the averages over the
+$\omega_\lambda$ frequency ranges between 0--15 and 0--35 THz and over all
+$\lambda'$ and $\lambda''$.} The values of the $\alpha$ and $\beta$ phases are
+very close to each other, indicating that $\Phi_{-\lambda\lambda'\lambda''}$
+have similar impacts on the linewidths of these phases. 
 
 \begin{table}[ht]
- \caption{\label{table:aveavepp} Calculated lattice thermal conductivities
- (LTC) of $\alpha$-, $\beta$-, and $\gamma$-Si$_3$N$_4$
- (WK$^{-1}$m$^{-1}$) at 300 K with respect to several combinations of
- supercell sizes.}
+	\caption{\label{table:aveavepp} \textcolor{blue}{Averages of
+	$\Phi_{-\lambda\lambda'\lambda''}$ over frequency ranges of
+	$\omega_\lambda$ (0--15 and 0--35 THz) and all ($\lambda'$,$\lambda'$). The
+	values are in units of 10$^{-10}$ eV$^2$f.u.$^{-1}$.}}
  \begin{ruledtabular}
   \begin{tabular}{cccc}
 	  \multirow{2}{*}{Frequency Range (THz)}
@@ -671,12 +669,8 @@ these phases .
 \begin{figure}[ht]
  \centering
   \includegraphics[width=0.9\linewidth]{figure_jdoss.eps} \caption{(color
-  online) Contour maps of phonon frequency (THz) on the $b^*$-$c^*$
-  planes of Brillouin-zones. The maps for the four lowest-frequency
-  phonon states are shown. The frequency landscapes are formed by simply
-  connecting the frequencies of the same band indices, assigned by
-  ascending order of frequency at the respective q
-  points. \label{fig:Fig6_338} }
+	  online) \textcolor{blue}{JDOS of $\alpha$- and $\gamma$-Si$_3$N$_4$ at several different $\mathbf q$ points.
+  The first and and forth rows are JDOS at the same $\Gamma$-point but calculated with the polarization for non-analytic term correction set along $c^*$ and $b^*$, respectively.} \label{fig:Fig6_338} }
  \centering
 \end{figure}
 
@@ -745,12 +739,9 @@ modes along the $a$-$b$ plane and out of the $a$-$b$ plane.
 \begin{figure}[ht]
  \centering
   \includegraphics[width=\linewidth]{figure_analyze_gamma3.eps} \caption{(color
-  online) Contour maps of phonon frequency (THz) on the $b^*$-$c^*$
-  planes of Brillouin-zones. The maps for the four lowest-frequency
-  phonon states are shown. The frequency landscapes are formed by simply
-  connecting the frequencies of the same band indices, assigned by
-  ascending order of frequency at the respective q
-  points. \label{fig:Fig7_338} }
+	  online) \textcolor{blue}{Distribution of linewidths $\omega_\lambda$ $\leq$ 5 THz
+		  with colormaps with respect to strengths of eigenvector compornents along $\mathbf q$ (a)
+		  and on $a$-$b$ plane (b).} \label{fig:Fig7_338}} 
  \centering
 \end{figure}
 
