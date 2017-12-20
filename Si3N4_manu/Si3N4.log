@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2016.4.27)  20 DEC 2017 17:31
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2017.12.5)  20 DEC 2017 19:26
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -302,10 +302,10 @@ LaTeX Font Info:    Try loading font information for U+rsfs on input line 38.
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
 Package epstopdf Info: Source file: <Fig1_crystal_str.eps>
-(epstopdf)                    date: 2017-12-17 13:11:38
+(epstopdf)                    date: 2017-12-15 14:38:03
 (epstopdf)                    size: 11597516 bytes
 (epstopdf)             Output file: <Fig1_crystal_str-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-17 13:11:38
+(epstopdf)                    date: 2017-12-15 15:33:29
 (epstopdf)                    size: 367439 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig1_crystal_str-eps-converted-to.pdf Fig1_crystal_str.eps>
 (epstopdf)             \includegraphics on input line 97.
@@ -327,10 +327,10 @@ Underfull \hbox (badness 1472) in paragraph at lines 107--118
 
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str-eps-converted-to.pdf>] [2] [3]
 Package epstopdf Info: Source file: <Fig1.eps>
-(epstopdf)                    date: 2017-12-05 19:57:44
+(epstopdf)                    date: 2017-12-04 17:05:04
 (epstopdf)                    size: 320965 bytes
 (epstopdf)             Output file: <Fig1-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-05 19:57:44
+(epstopdf)                    date: 2017-12-04 17:05:04
 (epstopdf)                    size: 19651 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig1-eps-converted-to.pdf Fig1.eps>
 (epstopdf)             \includegraphics on input line 457.
@@ -351,10 +351,10 @@ LaTeX Warning: A float is stuck (cannot be placed) on input line 502.
 Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
 
 Package epstopdf Info: Source file: <Fig4_ver5_338_resize2_woDOS.eps>
-(epstopdf)                    date: 2017-12-05 19:57:46
+(epstopdf)                    date: 2017-12-04 17:05:08
 (epstopdf)                    size: 8623832 bytes
 (epstopdf)             Output file: <Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-17 13:11:38
+(epstopdf)                    date: 2017-12-15 15:26:14
 (epstopdf)                    size: 388911 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf Fig4_ver5_338_resize2_woDOS.eps>
 (epstopdf)             \includegraphics on input line 528.
@@ -388,10 +388,10 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
 Package epstopdf Info: Source file: <Fig2_small.eps>
-(epstopdf)                    date: 2017-12-19 00:57:34
+(epstopdf)                    date: 2017-12-19 10:27:16
 (epstopdf)                    size: 3818319 bytes
 (epstopdf)             Output file: <Fig2_small-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-20 15:37:06
+(epstopdf)                    date: 2017-12-20 19:24:19
 (epstopdf)                    size: 178598 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig2_small-eps-converted-to.pdf Fig2_small.eps>
 (epstopdf)             \includegraphics on input line 566.
@@ -412,10 +412,10 @@ LaTeX Warning: A float is stuck (cannot be placed) on input line 575.
 Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
 
 Package epstopdf Info: Source file: <figure_dos_jdos_kc.eps>
-(epstopdf)                    date: 2017-12-20 15:36:03
+(epstopdf)                    date: 2017-12-20 13:45:53
 (epstopdf)                    size: 29493996 bytes
 (epstopdf)             Output file: <figure_dos_jdos_kc-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-20 15:37:28
+(epstopdf)                    date: 2017-12-20 19:24:20
 (epstopdf)                    size: 6271027 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_dos_jdos_kc-eps-converted-to.pdf figure_dos_jdos_kc.eps>
 (epstopdf)             \includegraphics on input line 594.
@@ -468,10 +468,10 @@ in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
 Package epstopdf Info: Source file: <figure_jdoss.eps>
-(epstopdf)                    date: 2017-12-20 15:36:03
+(epstopdf)                    date: 2017-12-19 15:51:56
 (epstopdf)                    size: 720976 bytes
 (epstopdf)             Output file: <figure_jdoss-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-20 15:36:03
+(epstopdf)                    date: 2017-12-19 18:43:36
 (epstopdf)                    size: 44937 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_jdoss-eps-converted-to.pdf figure_jdoss.eps>
 (epstopdf)             \includegraphics on input line 671.
@@ -497,10 +497,10 @@ or  <return>  to continue without it.
 
 [7 <./figure_dos_jdos_kc-eps-converted-to.pdf> <./figure_jdoss-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figure_analyze_gamma3.eps>
-(epstopdf)                    date: 2017-12-20 15:36:02
+(epstopdf)                    date: 2017-12-19 18:02:39
 (epstopdf)                    size: 2498431 bytes
 (epstopdf)             Output file: <figure_analyze_gamma3-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-20 15:36:02
+(epstopdf)                    date: 2017-12-19 18:43:36
 (epstopdf)                    size: 308021 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_analyze_gamma3-eps-converted-to.pdf figure_analyze_gamma3.eps>
 (epstopdf)             \includegraphics on input line 740.
@@ -511,10 +511,10 @@ File: figure_analyze_gamma3-eps-converted-to.pdf Graphic file (type pdf)
 Package pdftex.def Info: figure_analyze_gamma3-eps-converted-to.pdf used on input line 740.
 (pdftex.def)             Requested size: 246.0pt x 202.65216pt.
 Package epstopdf Info: Source file: <S1.eps>
-(epstopdf)                    date: 2017-12-05 19:57:47
+(epstopdf)                    date: 2017-12-04 17:05:10
 (epstopdf)                    size: 681606 bytes
 (epstopdf)             Output file: <S1-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-05 19:57:47
+(epstopdf)                    date: 2017-12-04 17:05:10
 (epstopdf)                    size: 22714 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
 (epstopdf)             \includegraphics on input line 763.
