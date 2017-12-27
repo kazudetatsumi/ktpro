@@ -65,12 +65,12 @@ $\gamma$-Si$_3$N$_4$ are twice shorter than those of $\beta$-Si$_3$N$_4$.
 Several nitride insulators exhibiting good thermal conductivities are important
 for heat sink materials used at elevated temperatures. Wurtzite-type w-AlN,
 which has an Adamantine (diamond-like) crystal structure, was noted by Slack
-{\it et al.}~\cite{slack} as a superior thermal conductor over 100 WK$^{-1}$m$^{-1}$.
+{\it et al.}~\cite{slack} as a superior thermal conductor over 100 Wm$^{-1}$K$^{-1}$.
 Si$_3$N$_4$ has been more recently recognized as one of the good thermally
 conductive insulators. Remarkable advances in ceramic technologies related to
 the densification of the sintered body and microstructural control have pushed
 the thermal conductivities of polycrystalline of Si$_3$N$_4$ ceramics up to 177
-WK$^{-1}$m$^{-1}$.~\cite{zhou,hirao,watari,hirosaki} Since Si$_3$N$_4$ ceramics
+Wm$^{-1}$K$^{-1}$.~\cite{zhou,hirao,watari,hirosaki} Since Si$_3$N$_4$ ceramics
 also exhibit high mechanical strength at elevated temperatures, they are
 regarded as ideal for use in various applications, such as engine components,
 gas turbines, and heat sink substrates of power semiconductor devices.
@@ -82,10 +82,10 @@ respectively.~\cite{zhou,hirosaki,riley} Their crystal structures are commonly
 formed by stacking of basal layers of SiN$_4$ tetrahedra.  The stacking manners
 in $\alpha$ and $\beta$-Si$_3$N$_4$ are as ABCDABCD.. and ABAB.., respectively.
 This difference is depicted in Fig.~\ref{fig:Fig1_cryst} from the principal
-axis direction.  The CD layers are related to AB by the c glide operation,
+axis direction.  The CD layers are related to AB by the $c$ glide operation,
 ~\cite{hampshire} along which the unit cell periodicity of the $\alpha$ phase
 is approximately two times longer than that of the $\beta$ phase, with lattice
-constants of c = 5.62~\cite{yashima} and 2.91~\cite{boulay} \AA, respectively.
+constants of $c$ = 5.62~\cite{yashima} and 2.91~\cite{boulay} \AA, respectively.
 In addition to these phases, a cubic spinel phase ($\gamma$-Si$_3$N$_4$) can be
 formed upon compression and in-situ heating.~\cite{zerr,zhang} The reported
 transition pressures were scattered from 10 to 36 GPa depending on the
@@ -102,6 +102,7 @@ quenched to atmospheric pressure and room temperature.
   \label{fig:Fig1_cryst} 
  \end{center}
 \end{figure}
+
 By using high-resolution thermoreflectance microscopy, Li {\it et
 al.}~\cite{li} reported that the thermal conductivities of individual
 rod-shaped $\beta$-Si$_3$N$_4$ grains in a ceramic were 69 and 180
@@ -109,7 +110,7 @@ Wm$^{-1}$K$^{-1}$ along the $a$ and $c$ axes, respectively, and thus suggested
 the large anisotropy in thermal conductivity.  Takahashi {\it et al.}
 ~\cite{takahashi} have recently developed a technique whereby
 $\beta$-Si$_3$N$_4$ grains are coated with graphene of relatively high magnetic
-susceptibility, enabling them to align their $c$ axes along the external
+susceptibility, enabling them to align their $c$ axis along the external
 magnetic field.  Based on this technique, it has been proposed that the
 textural structure of rod-shaped $\beta$-Si$_3$N$_4$ grains would increase
 their thermal conductivity to a level matching or exceeding that of w-AlN. 
@@ -126,20 +127,19 @@ conductivities (LTCs) $\kappa$$_{xx}$ and $\kappa$$_{zz}$ of
 $\alpha$-Si$_3$N$_4$ to be 105 and 225 Wm$^{-1}$K$^{-1}$, and those of
 $\beta$-Si$_3$N$_4$ to be 170 and 450 Wm$^{-1}$K$^{-1}$, respectively, by
 applying the Green-Kubo formulation to the molecular dynamics (MD) method with
-the interatomic potentials proposed by Vashishta {\it et al.} The ratio of the
-LTCs in the $\beta$ phase along the $a$ and $c$ axes agreed well with the
-experimental results obtained by Li {\it et al.} The MD results suggest that
-the different stacking orders in $\alpha$- and $\beta$-Si$_3$N$_4$ alter much
-their LTC, although the recent LTC calculation using first principles
+the interatomic potentials proposed by Vashishta {\it et al.} Although the
+absolute values wre more tan two times larger, the ratio of the LTCs in the
+$\beta$ phase along the $a$ and $c$ axes agreed well with the experimental
+results obtained by Li {\it et al.} Moreover, the MD results suggest that the
+different stacking orders in $\alpha$- and $\beta$-Si$_3$N$_4$ alter much their
+LTC. On the other hand, the recent LTC calculation using first principles
 interatomic force constants (IFCs) has shown that in many polymorphs of the
-wurtzite and zincblende structures, which differ in terms of the stacking order
-of the densest atom planes as ABAB.. and ABCABC.., the stacking orders merely
-alter the LTCs.~\cite{phono3py} \textcolor{blue}{The dependences of the LTC on
-	the stacking manners in $\alpha$- and $\beta$-Si$_3$N$_4$ should be
-inspected at the same theoretical level.} Moreover, the absolute values in the
-MD results were more than two times larger than the experimental results.  The
-MD results For $\gamma$-Si$_3$N$_4$, its thermal conductivity has not been
-experimentally reported; it has been estimated only by the Slack
+wurtzite and zincblende structures, which have different stacking orders of the
+densest atom planes as ABAB.. and ABCABC.., these orders merely alter the
+LTCs.~\cite{phono3py} \textcolor{blue}{The dependences of the LTC on the
+stacking manners in $\alpha$- and $\beta$-Si$_3$N$_4$ should be examined by
+the same method.} For $\gamma$-Si$_3$N$_4$, its thermal conductivity has not
+been experimentally reported; it has been estimated only by the Slack
 model.~\cite{morelli} In short, while the thermal conductivity of
 polycrystalline $\beta$-Si$_3$N$_4$ has been significantly
 improved~\cite{zhou,hirao,watari,hirosaki}, our basic knowledge of, for
@@ -152,7 +152,9 @@ methodology section, we examine the validity of the present LTC results first.
 Then we investigate the characteristics in the LTCs in detail.
 
 \section{Computational procedures}
+
 \subsection{Lattice thermal conductivity calculation}
+
 The LTCs were calculated by solving the linearized Boltzmann transport equation
 (LBTE) within the single-mode relaxation time approximation (single-mode RTA).
 We also tried the direct-solution of LBTE~\cite{chaput-direct} and shortly
@@ -236,6 +238,7 @@ the cumulative thermal conductivity:
 \end{align}
 
 \subsection{Computational details}
+
 The IFCs were calculated using the first-principles projector
 augmented wave method~\cite{paw} (VASP code~\cite{vasp-1996,vasp-1995,
 vasp-1999}). The generalized gradient approximation (GGA) parameterized by
@@ -310,17 +313,20 @@ study.
 \end{table}
 
 Supercell and finite difference approaches were used to calculate the
-IFCs.~\cite{wei-supercell} The $1\times 1\times2$, $1\times 1\times3$, and $1\times
-1\times1$ supercells of the conventional unit cells were adopted for the
-third-order IFCs of the $\alpha$, $\beta$, and $\gamma$ phases,
+IFCs.~\cite{wei-supercell} The $1\times 1\times2$, $1\times 1\times3$, and
+$1\times 1\times1$ supercells of the conventional unit cells were adopted for
+the third-order IFCs of the $\alpha$, $\beta$, and $\gamma$ phases,
 respectively, while the larger supercells $3\times 3\times4$, $3\times
-3\times8$ and $2\times 2\times2$ were adopted for the respective
-second-order IFCs. The constant atomic displacement distance was set to
-0.03 \AA. Table \ref{table:LTC} shows the calculated LTC values for
-several different choices of supercell sizes, indicating that our
-calculated LTCs are reasonably converging with respect to the supercell
-sizes. \textcolor{blue}{Non-analytical term correction~\cite{wang} was applied to the second-order 
-force constants to take into account the long range Coulomb forces present in ionic crystals.}
+3\times8$ and $2\times 2\times2$ were adopted for the respective second-order
+IFCs.  The constant atomic displacement distance was set to 0.03 \AA.  Table
+\ref{table:LTC} shows the calculated LTC values for several different choices
+of supercell sizes, indicating that our calculated LTCs are reasonably
+converging with respect to the supercell sizes. 
+
+\textcolor{blue}{Non-analytical
+term correction~\cite{wang} was applied to the second-order IFC to take
+into account the long range Coulomb forces present in ionic crystals. For the correction,
+Born effective charges were calculated by using the present band method.}
 
 Uniform $\mathbf{k}$-point sampling meshes of $4\times 4\times 2$,
 $4\times 4\times 3$, and $3\times 3\times 3$ were used for the
@@ -367,6 +373,7 @@ microscopic values are also varied smoothly with the pressure and those at 0
 GPa are meaningful to compare with the $\alpha$ and $\beta$ phases.
 
 \subsection{Direct solution of LBTE}
+
 The merit of the single-mode RTA is that we can intuitively understand the
 qualitative character of LTC in terms of the relaxation time and group
 velocity. The microscopic understanding of the full solution of LBTE is still
@@ -375,20 +382,20 @@ based on collective phonons~\cite{hardy-collective} will require more
 complicated investigation although it is known that the single-mode RTA solution
 of LBTE underestimates the full solution.~\cite{mukhopadhyay-ltc,ward-ltc}
 
-
 For the $\alpha$ and $\beta$ phases, we partly adopted a direct solution of
 LBTE~\cite{chaput-direct}, which is one of the methods of LBTE full solutions.
 The LTC values of the direct solution without the isotope effect were  69 and
-102 WK$^{-1}$m$^{-1}$ for $\kappa_{xx}$ and $\kappa_{zz}$  of the $\alpha$ phase
-and 76 and 238 for those of the $\beta$ phase, respectively, while the
-corresponding single-mode RTA values were 70 and 102 WK$^{-1}$m$^{-1}$ for the
-$\alpha$ phase and 76 and 210 WK$^{-1}$m$^{-1}$ for the $\beta$ phase. The
+102 Wm$^{-1}$K$^{-1}$ for $\kappa_{xx}$ and $\kappa_{zz}$  of the $\alpha$ phase
+and 76 and 238 Wm$^{-1}$K$^{-1}$ for those of the $\beta$ phase, respectively, while the
+corresponding single-mode RTA values were 70 and 102 Wm$^{-1}$K$^{-1}$ for the
+$\alpha$ phase and 76 and 210 Wm$^{-1}$K$^{-1}$ for the $\beta$ phase. The
 $\kappa_{zz}$ of the direct solution in the $\beta$ phase was 13 \% larger than
 that of the single-mode RTA solution. Since the LTC difference between the LBTE
 solutions is not significant, we expect the physics on LTC is well
 understood within RTA in the current level of our interest.
 
 \section{Results and discussion}
+
 \subsection{Lattice thermal conductivities}
 
 \begin{table}[ht]
@@ -424,14 +431,14 @@ In Table \ref{table:LTC-exp}, the theoretical LTCs at 300 K are compared with
 the previously reported experimental~\cite{hirosaki,hirai,li,slack-aln} and
 theoretical~\cite{morelli,hirosaki-md,phono3py} values. The present calculation
 results better agree with the experimental $\kappa_{xx}$ and $\kappa_{zz}$ of
-$\beta$-Si$_3$N$_4$, compared
-with the references of the Slack model~\cite{morelli} and MD~\cite{hirosaki-md}
-results. The directional averages of the present $\kappa_{ii}$ in the $\alpha$, $\beta$,
-and $\gamma$ phases are 79, 115, and 81 Wm$^{-1}$K$^{-1}$. The value of the
-$\gamma$ phase is just as small as that of the $\alpha$ phase, although the
-former phase shows the largest bulk modulus ($B$) in Table \ref{table:LTC-exp}.
-It is generally known that simple models through Debye temperature can provide
-only their rough estimations.
+$\beta$-Si$_3$N$_4$, compared with the references of the Slack
+model~\cite{morelli} and MD~\cite{hirosaki-md} results. The directional
+averages of the present $\kappa_{ii}$ in the $\alpha$, $\beta$, and $\gamma$
+phases are 79, 115, and 81 Wm$^{-1}$K$^{-1}$. The value of the $\gamma$ phase
+is just as small as that of the $\alpha$ phase, although the former phase shows
+the largest bulk modulus ($B$) in Table \ref{table:LTC-exp}.  It is generally
+known that simple models through Debye temperature can provide only their rough
+estimations.
 
 It can be seen that the theoretical LTCs of $\beta$-Si$_3$N$_4$ are markedly
 more anisotropic than those of the $\alpha$ phase. The theoretical LTCs of
@@ -490,7 +497,7 @@ present, the reason for the discrepancy between the theoretical and
 experimental behaviors is unclear.  Although the crystal structure of the
 experimental sample was characterized as $\alpha$-Si$_3$N$_4$, significant
 lattice defects might exist in the as-deposited sample as pointed out by
-Hirosaki {\it et al.}~\cite{hirosaki-md} and \textcolor{blue}{the simple boundary
+Hirosaki {\it et al.}~\cite{hirosaki-md} and \textcolor{blue}{the simple phonon boundary
 scattering model might fail to describe their effects.} The
 experimental values of the $\beta$ phase ceramic bulk~\cite{hirosaki} in
 Fig.~\ref{fig:Fig1_338}-b fall well between the calculated values of
@@ -507,23 +514,24 @@ data of the poly-crystal bulk in Fig.~\ref{fig:Fig1_338}-b.  For the effects of
 lattice defects most of which are grain boundaries, we included
 $\tau_{\lambda,\text{BS}}$ with $L = 1$ $\mu\text{m}$ to further fit the
 theoretical curve ($w=0.44$) to the experimental data.  The $L$ value is
-similar to the average grain size (2 $\mu\text{m}$)~\cite{hirosaki} of the experimental
-polycrystalline sample. 
-Fig.~\ref{fig:Fig1_338}-b also contains the experimental $\kappa$$_{xx}$ and
-$\kappa$$_{zz}$ at room temperature by filled squares, which are in-between the
-theoretical components with and without $\tau_{\lambda,\text{BS}}$.
-The LTC values with the equilibrium lattice volumes ($V_\text{eq}$) at 300,
-600, 900, 1200 and 1500 K within QHA are plotted by crosses in
-Fig.~\ref{fig:Fig1_338}-b.  The deviations due to the thermal expansions were
-less than 1 \%. Therefore this effect is negligible for the present study.  The
-degree of the differences is similar to the case of Si and Ge~\cite{ward-ltc}.
+similar to the average grain size (2 $\mu\text{m}$)~\cite{hirosaki} of the
+experimental polycrystalline sample.  Fig.~\ref{fig:Fig1_338}-b also contains
+the experimental $\kappa$$_{xx}$ and $\kappa$$_{zz}$ at room temperature by
+filled squares, which are in-between the theoretical components with and
+without $\tau_{\lambda,\text{BS}}$.  The LTC values with the equilibrium
+lattice volumes ($V_\text{eq}$) at 300, 600, 900, 1200 and 1500 K within QHA
+are plotted by crosses in Fig.~\ref{fig:Fig1_338}-b.  The deviations due to the
+thermal expansions were less than 1 \%. Therefore this effect is negligible for
+the present study.  The degree of the differences is similar to the case of Si
+and Ge~\cite{ward-ltc}.
 
 \subsection{Dispersion curves}
+
 Figure \ref{fig:Fig4_ver5_338} shows the phonon band diagrams of the three
-Si$_3$N$_4$ phases. The entire band diagrams are almost identical to those reported
-earlier~\cite{kuwabara,xu}. However, here we focus on the group velocities on
-high-symmetry paths for the entire frequency range. This has not been
-investigated by the previous works.
+Si$_3$N$_4$ phases. The entire band diagrams are almost identical to those
+reported earlier~\cite{kuwabara,xu}. However, here we focus on the group
+velocities on high-symmetry paths for the entire frequency range. This has not
+been investigated by the previous works.
 
 \begin{figure}[ht]
  \begin{center}
@@ -533,32 +541,31 @@ investigated by the previous works.
  \end{center}
 \end{figure}
 
-The acoustic branches in the $\alpha$ phase highlighted in red 
-in Fig.~\ref{fig:Fig4_ver5_338}-a do not increase their frequencies much more
-than those along the other paths, $\Gamma$--K or $\Gamma$--M. The frequency maxima along the
-$\Gamma$--A path are around 7 THz, rather close to the maxima along the
-$\Gamma$--K and $\Gamma$--M
-paths (around 5 THz). The upper branches along the $\Gamma$--A path are also as flat
-as the upper branches along the $\Gamma$--K and $\Gamma$--M paths.
-In contrast, in the band diagram of the $\beta$ phase
-(Fig.~\ref{fig:Fig4_ver5_338}-b), the acoustic phonon branches highlighted in
-red along the $\Gamma$--A path increase their frequencies almost linearly from the
-$\Gamma$-point to the A-point and reach around 10 THz, along which the group velocity
-component $v_{\lambda,z}$ maintains high values. This difference is because the
-$\Gamma$--A path
-length of the $\beta$ phase is approximately twice that of $\alpha$; the lattice constant $c$
-of $\beta$ is nearly half that of $\alpha$, owing to the difference in the stacking manner
-of the basal layers. Normally, optical branches are flat; however, the upper
-branches along the $\Gamma$--A path also have significantly large $\math{v}_{\lambda,z}$.
-In Fig.~\ref{fig:Fig4_ver5_338}-c for the $\gamma$ phase, the acoustic phonon
-branches highlighted in red show significant linear dispersions 
-The frequencies of the longitudinal acoustic modes are 14 and 12.5 THz
-at the L-- and X--points. The frequencies of the transverse acoustic modes are
-approximately half the values of the longitudinal modes at the L--point and a
-factor of $1/\sqrt{2}$ smaller than the longitudinal modes at the X-point, as in the
-case of fcc rare gas solids~\cite{dove-p30}. The roughly constant gradients of
-the branches are large, reflecting the large elastic constants of the $\gamma$ phase
-as shown in Table \ref{table:LTC-exp}.
+The acoustic branches in the $\alpha$ phase highlighted in red in
+Fig.~\ref{fig:Fig4_ver5_338}-a do not increase their frequencies much more than
+those along the other paths, $\Gamma$--K or $\Gamma$--M. The frequency maxima
+along the $\Gamma$--A path are around 7 THz, rather close to the maxima along
+the $\Gamma$--K and $\Gamma$--M paths (around 5 THz). The upper branches along
+the $\Gamma$--A path are also as flat as the upper branches along the
+$\Gamma$--K and $\Gamma$--M paths.  In contrast, in the band diagram of the
+$\beta$ phase (Fig.~\ref{fig:Fig4_ver5_338}-b), the acoustic phonon branches
+highlighted in red along the $\Gamma$--A path increase their frequencies almost
+linearly from the $\Gamma$-point to the A-point and reach around 10 THz, along
+which the group velocity component $v_{\lambda,z}$ maintains high values. This
+difference is because the $\Gamma$--A path length of the $\beta$ phase is
+approximately twice that of $\alpha$; the lattice constant $c$ of $\beta$ is
+nearly half that of $\alpha$, owing to the difference in the stacking manner of
+the basal layers. Normally, optical branches are flat; however, the upper
+branches along the $\Gamma$--A path also have significantly large
+${v}_{\lambda,z}$.  In Fig.~\ref{fig:Fig4_ver5_338}-c for the $\gamma$
+phase, the acoustic phonon branches highlighted in red show significant linear
+dispersions. The frequencies of the longitudinal acoustic modes are 14 and 12.5
+THz at the L-- and X--points. The frequencies of the transverse acoustic modes
+are approximately half the values of the longitudinal modes at the L--point and
+a factor of $1/\sqrt{2}$ smaller than the longitudinal modes at the X-point, as
+in the case of fcc rare gas solids~\cite{dove-p30}. The roughly constant
+gradients of the branches are large, reflecting the large elastic constants of
+the $\gamma$ phase as shown in Table \ref{table:LTC-exp}.
 
 \subsection{$\omega_\lambda$ counter map on reciprocal plane}
 
@@ -574,22 +581,23 @@ as shown in Table \ref{table:LTC-exp}.
  \centering
 \end{figure}
 
-The cross-sections of the phonon frequency distributions on the $b^*$-$c^*$
-planes in the first Brillouin-zones are shown in Fig.~\ref{fig:Fig3_338}. 
-The cross-sections of other planes containing the $c^*$ axis did not differ
-much from Fig.~\ref{fig:Fig3_338}; thus, we focus on the results for the
-$b^*$-$c^*$ planes as representative of all such planes. We show only the
-frequencies of four modes from the lowest frequency because they contribute
-significantly to LTC.
+In another point of view on the group velocities, Fig.~\ref{fig:Fig3_338} shows
+the cross-sections of the phonon frequency distributions on the $b^*$-$c^*$
+planes in the first Brillouin-zones.  The cross-sections of other planes
+containing the $c^*$ axis did not differ much from Fig.~\ref{fig:Fig3_338};
+thus, we focus on the results for the $b^*$-$c^*$ planes as representative of
+all such planes. We show only the frequencies of four modes from the lowest
+frequency because they contribute significantly to LTC.
 Fig.~\ref{fig:Fig3_338}-a shows that the frequency distributions and group
-velocities of $\alpha$-Si$_3$N$_4$ are fairly isotropic. 
-On the other hand, in Fig.~\ref{fig:Fig3_338}-b of the $\beta$ phase, the
-iso-frequency lines in $0.06 \le q_{c^*} \le 0.12$ (\AA$^{-1}$) are rather
-parallel to the $q_{b^*}$ axis, indicating that the four modes of the $\beta$ phase,
-in a significantly large part of the Brillouin zone, have group velocities
-oriented along the $c$ axis.
+velocities of $\alpha$-Si$_3$N$_4$ are fairly isotropic.  On the other hand, in
+Fig.~\ref{fig:Fig3_338}-b of the $\beta$ phase, the iso-frequency lines in
+$0.06 \le q_{c^*} \le 0.12$ (\AA$^{-1}$) are rather parallel to the $q_{b^*}$
+axis, indicating that the four modes of the $\beta$ phase, in a significantly
+large part of the Brillouin zone, have group velocities oriented along the $c$
+axis.
 
 \subsection{Frequency-dependences of $\boldsymbol{\kappa}^\text{c}$, $\mathbf{v}$$_\lambda$ and $\Gamma_\lambda$}
+
 \begin{figure*}[ht]
  \begin{center}
   \includegraphics[width=0.9\linewidth]{figure_dos_jdos_kc.eps}
@@ -599,6 +607,7 @@ oriented along the $c$ axis.
   \label{fig:Fig5_338_rev} }
  \end{center}
 \end{figure*}
+
 The microscopic phonon properties we have seen in the previous sections are
 located in specific paths or planes in the Brillouin zone. In order to more
 rigorously inspect the LTCs, we examine  phonon properties taken over the
@@ -620,7 +629,7 @@ indicating that the low frequency optical phonons should contribute to these
 components significantly.  Therefore $\kappa^c$ in the $\gamma$ phase resembles
 closely to $\kappa_{xx}^c$ in the $\beta$ phase, but the respective phonon
 properties are much different. In the frequency range responsible for the LTC,
-the weighted DOS in the $\gamma$ phase exceeds that with $v_{\lambda,z}^2$ in
+the weighted DOS in the $\gamma$ phase exceeds that with $v_{\lambda,x}^2$ in
 the $\beta$ phase, while the linewidths are twice larger.
 
 In Figs.~\ref{fig:Fig5_338_rev}-b and c, the directional differences in the
@@ -634,23 +643,26 @@ distributions between the $\alpha$ and $\beta$ phases, which let the group
 velocities alone play the critical role on the different degrees of the
 anisotropy in the LTCs. Since it is curious that the linewidths are similar
 between these phases although their group velocities have marked differences,
-we investigate this similarity further. Previously, Lindsay {\it et al.} have pointed
-out a significant correlation between LTC and phase space available for the
-three-phonon scattering according to the selection rules due to the momentum and energy conservation for three-phonon processes. More recently Togo {\it et
-al.} have shown that the frequency profiles of the imaginary part of self-energy
+we investigate this similarity further. Previously, Lindsay {\it et al.} have
+pointed out a significant positive correlation between LTC and phase space
+available for the three-phonon scattering according to the selection rules due
+to the momentum and energy conservation for the three-phonon
+processes.~\cite{Lindsay} More recently Togo {\it et al.} have shown that the
+frequency profiles of the imaginary part of self-energy
 $\Gamma_{\lambda}(\omega)$, where $\Gamma_{\lambda}$($\omega_{\lambda}$)=
 $\Gamma_{\lambda}$, are characterized by the three phonon selection
 rules.~\cite{phono3py} In Eq.~(\ref{eq:linewidth}) of the linewidths,
-$\Phi_{-\lambda\lambda'\lambda''}$ partly contains the selection rule due to the momentum
-conservation.~\cite{Wallace} In the present study, we examine the impacts on the
-linewidths of $\Phi_{-\lambda\lambda'\lambda''}$ and the whole selection rules,  one by one.
+$\Phi_{-\lambda\lambda'\lambda''}$ partly contains the selection rule due to
+the momentum conservation.~\cite{Wallace} In the present study, we examine the
+impacts on the linewidths of $\Phi_{-\lambda\lambda'\lambda''}$ and the whole
+selection rules, one by one.
 
 In Table.~\ref{table:aveavepp}, \textcolor{blue}{the magnituds of
 $\Phi_{-\lambda\lambda'\lambda''}$ are compared as the averages over the
 $\omega_\lambda$ frequency ranges between 0--15 and 0--35 THz and over all
 $\lambda'$ and $\lambda''$.} The values of the $\alpha$ and $\beta$ phases are
 very close to each other, indicating that $\Phi_{-\lambda\lambda'\lambda''}$
-have similar impacts on the linewidths of these phases. 
+have similar impacts. 
 
 \begin{table}[ht]
 	\caption{\label{table:aveavepp} \textcolor{blue}{Averages of
@@ -683,7 +695,7 @@ have similar impacts on the linewidths of these phases.
 
 In order to analyze the impacts of the selection rules on
 the linewidths, we employ the joint density of states (JDOS)
-$\math{D_2($\mathbf{q}$,\omega)}$,
+${D_2(\mathbf{q},\omega)}$,
 \begin{align}
  \label{eq:jdos}
  &D_2(\mathbf{q},\omega) = D_2^{(1)}(\mathbf{q},\omega) +  D_2^{(2)}(\mathbf{q},\omega)
@@ -698,7 +710,7 @@ where
 \textcolor{blue}{with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice vector and otherwize zero.}
 
 Fig.~\ref{fig:Fig6_338} shows the frequency-dependences of JDOS at different
-$\mathbf{q}$ points on the $\Gamma$--A and $\Gamma$-K paths.
+$\mathbf{q}$-points on the $\Gamma$--A and $\Gamma$-K paths, which show very slight $\mathbf{q}$-point dependence.
 Eq.~(\ref{eq:linewidth}) includes Bose-Einstein functions for the involved
 phonon modes and JDOS can be weighted with them as done in
 refs.~\onlinecite{mukhopadhyay-ltc,phono3py}, however we omit them for
@@ -707,7 +719,7 @@ JDOS of the $\alpha$ and $\beta$ phases are still similar. At the low frequency
 region responsible for the LTCs, among the two terms of $D_2^{(1)}$ and
 $D_2^{(2)}$ in Eq.~(\ref{eq:jdos}), dominant is $D_2^{(2)}$ which basically
 corresponds to the half part ($\omega \geq  0$) of the auto-correlation
-function of DOS, which for the $\alpha$ and $\beta$ phases, commonly show the
+function of DOS, which, for the $\alpha$ and $\beta$ phases, commonly show the
 frequency gap (Fig.~\ref{fig:Fig5_338_rev}-a).  $D_2^{(2)}$ curves reflect this
 DOS feature, dropping suddenly around 0 THz and showing a small shoulder around
 5 THz, which corresponds to the width of the gap. Moreover $D_2^{(2)}$ shows a
@@ -741,7 +753,7 @@ easily scattered in the $\beta$ phase, no matter whether they are longitudinal
 or transverse. For the panel of $\beta$-Si$_3$N$_4$ in
 Fig.~\ref{fig:Fig7_338}-b, a straight line can divide the phonon modes into the
 two groups. The numbers of the phonon modes in the upper and lower parts are
-357 and 126, whose ratio is reasonable as the population ratio of the vibration
+357 and 126, whose ratio is rational as the population ratio of the vibration
 modes along and out of the $a$-$b$ plane.
 
 
@@ -761,6 +773,34 @@ modes along and out of the $a$-$b$ plane.
 % \int_0^\omega \sum_\lambda
 % \text{v}_{\lambda,i}^2\delta(\omega'-\omega)d\omega'.
 %\end{align}
+
+\section{Summary}
+
+In the present study, we investigate the lattice thermal conductivities of the
+three Si$_3$N$_4$ phases, by using the lattice dynamics based on the {\it
+ab-initio} interatomic force constants. The main remarks are as follows:
+
+1) In the $\alpha$- and $\beta$-Si$_3$N$_4$, whose crystal structures are
+characterized by the stacking manners of the basal layers, which alter the
+LTCs. In $\alpha$-Si$_3$N$_4$, the LTC tensors are rather isotropic, while
+$\kappa$$_{zz}$ of the $\beta$ phase is much larger than the others, showing
+remarkable anisotropy in the LTC tensor. 
+
+2) In the $\alpha$ phase, the acoustic mode phonons below 6 THz are the main
+heat carriers, while in the $\beta$ phase, the phonons below 12 THz contribute
+to the thermal conductivity. Their group velocities are significantly different
+between the phases; their linewidths are basically similar due to the similar
+impacts of the phonon-phonon interaction strengths and selection rules.
+Therefore the difference in the group velocities alone qualitatively explains
+the difference of anisotropy.
+
+3) In the $\gamma$ phase, the frequency distribution of the phonon mode
+contributions to LTC is found to be similar to that for $\kappa$$_{xx}$ of
+$\beta$-Si$_3$N$_4$ but the respective phonon properties are much different:
+The group velocities in the $\gamma$ phase are in between the group velocity
+components along $x$ and $z$ in the $\beta$ phase, while the phonon scattering
+lifetimes are twice shorter than those of $\beta$-Si$_3$N$_4$.
+
 \section*{ACKNOWLEDGMENTS}
 The present work was partly supported by Grants-in-Aid for Scientific
 Research of MEXT, Japan (Grant No. 15K14108 and ESISM (Elements Strategy
@@ -774,7 +814,5 @@ Initiative for Structural Materials) of Kyoto University).
   Pressure dependence of LTC of $\gamma$-Si$_3$N$_4$.  \label{fig:S1} }
  \end{center}
 \end{figure}
-
-
 \bibliography{Si3N4}
 \end{document}
