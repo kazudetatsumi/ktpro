@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{44}%
+\begin{thebibliography}{46}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -163,6 +163,24 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Journal of
   materials research}\ }\textbf {\bibinfo {volume} {21}},\ \bibinfo {pages}
   {41} (\bibinfo {year} {2006})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Xu}\ \emph {et~al.}(2011)\citenamefont {Xu},
+  \citenamefont {Dong}, \citenamefont {McMillan}, \citenamefont {Shebanova},\
+  and\ \citenamefont {Salamat}}]{xu}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
+  {Xu}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Dong}}, \bibinfo
+  {author} {\bibfnamefont {P.~F.}\ \bibnamefont {McMillan}}, \bibinfo {author}
+  {\bibfnamefont {O.}~\bibnamefont {Shebanova}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {A.}~\bibnamefont {Salamat}},\ }\href@noop {} {\bibfield
+  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf {\bibinfo
+  {volume} {84}},\ \bibinfo {pages} {014113} (\bibinfo {year}
+  {2011})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hahn}(2011)}]{inttableA}%
+  \BibitemOpen
+  \bibinfo {editor} {\bibfnamefont {T.}~\bibnamefont {Hahn}},\ ed.,\ \href@noop
+  {} {\emph {\bibinfo {title} {International tables for crystallography}}},\
+  Vol.~\bibinfo {volume} {A}\ (\bibinfo  {publisher} {John Wiley \& Sons,
+  Inc.},\ \bibinfo {year} {2011})\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Li}\ \emph {et~al.}(1999)\citenamefont {Li},
   \citenamefont {Pottier}, \citenamefont {Roger}, \citenamefont {Fournier},
   \citenamefont {Watari},\ and\ \citenamefont {Hirao}}]{li}%
@@ -233,6 +251,19 @@
   {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
   {\bibinfo {volume} {65}},\ \bibinfo {pages} {134110} (\bibinfo {year}
   {2002})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Vashishta}\ \emph {et~al.}(1996)\citenamefont
+  {Vashishta}, \citenamefont {Kalia}, \citenamefont {Nakano},\ and\
+  \citenamefont {Ebbs{\"o}}}]{vashishta}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
+  {Vashishta}}, \bibinfo {author} {\bibfnamefont {R.~K.}\ \bibnamefont
+  {Kalia}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Nakano}}, \
+  and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Ebbs{\"o}}},\
+  }\href@noop {} {\emph {\bibinfo {title} {Amorphous Insulators and
+  Semiconductor}}},\ edited by\ \bibinfo {editor} {\bibfnamefont {M.~F.}\
+  \bibnamefont {Thorpe}}\ and\ \bibinfo {editor} {\bibfnamefont {M.~I.}\
+  \bibnamefont {Mitkova}}\ (\bibinfo  {publisher} {Kluwer},\ \bibinfo {year}
+  {1996})\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Togo}\ \emph {et~al.}(2015)\citenamefont {Togo},
   \citenamefont {Chaput},\ and\ \citenamefont {Tanaka}}]{phono3py}%
   \BibitemOpen
@@ -437,18 +468,6 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
   B}\ }\textbf {\bibinfo {volume} {78}},\ \bibinfo {pages} {064104} (\bibinfo
   {year} {2008})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Xu}\ \emph {et~al.}(2011)\citenamefont {Xu},
-  \citenamefont {Dong}, \citenamefont {McMillan}, \citenamefont {Shebanova},\
-  and\ \citenamefont {Salamat}}]{xu}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
-  {Xu}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Dong}}, \bibinfo
-  {author} {\bibfnamefont {P.~F.}\ \bibnamefont {McMillan}}, \bibinfo {author}
-  {\bibfnamefont {O.}~\bibnamefont {Shebanova}}, \ and\ \bibinfo {author}
-  {\bibfnamefont {A.}~\bibnamefont {Salamat}},\ }\href@noop {} {\bibfield
-  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf {\bibinfo
-  {volume} {84}},\ \bibinfo {pages} {014113} (\bibinfo {year}
-  {2011})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Dove}(1993{\natexlab{b}})}]{dove-p30}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.~T.}\ \bibnamefont
