@@ -285,7 +285,7 @@ study.
    & $1\times 1\times 2$ (56) & $2\times
    2\times 3$ (336) & 69 &   97 \\ 
    & $1\times 1\times 2$ (56) & $3\times
-   3\times 4$ (1008) & 69 &   99 \\ 
+   3\times 4$ (1008) & \textcolor{blue}{68} &  \textcolor{blue}{100} \\ 
    \hline
    \multirow{5}{*}{$\beta$}
    & $1\times 1\times 2$ (28) & $1\times
@@ -297,15 +297,15 @@ study.
    & $1\times 1\times 3$ (42) & $2\times
    2\times 5$ (280) & 72 &  197 \\ 
    & $1\times 1\times 3$ (42) & $3\times
-   3\times 8$ (1008) & 73 &  198 \\ 
+   3\times 8$ (1008) & \textcolor{blue}{73} & \textcolor{blue}{199} \\ 
    \hline
    \multirow{3}{*}{$\gamma$}
    & $1\times 1\times 1$ (56) & $1\times
-   1\times 1$ (56) & \multicolumn{2}{c}{75} \\ 
+   1\times 1$ (56) & \multicolumn{2}{c}{\textcolor{blue}{72}} \\ 
    & $1\times 1\times 1$ (56) & $2\times
-   2\times 2$ (448) & \multicolumn{2}{c}{81} \\ 
+   2\times 2$ (448) & \multicolumn{2}{c}{\textcolor{blue}{77}} \\ 
    & $1\times 1\times 1$ (56) & $3\times
-   3\times 3$ (56) & \multicolumn{2}{c}{82} \\ 
+   3\times 3$ (56) & \multicolumn{2}{c}{\textcolor{blue}{79}} \\ 
   \end{tabular}
  \end{ruledtabular}
 \end{table}
@@ -398,8 +398,8 @@ understood within RTA in the current level of our interest.
 
 \begin{table}[ht]
  \caption{\label{table:LTC-exp} Calculated thermal conductivities of
- $\alpha$-Si$_3$N$_4$ (trigonal), $\beta$-Si$_3$N$_4$ (trigonal),
- $\gamma$-Si$_3$N$_4$ (cubic), and wurtzite-type AlN (hexagonal) at 300
+ $\alpha$-Si$_3$N$_4$ (trigonal), $\beta$-Si$_3$N$_4$ (trigonal), and
+ $\gamma$-Si$_3$N$_4$ (cubic) at 300
  K, compared with the experimental data. Theoretical bulk moduli $B$ in
  units of GPa, calculated by the authors by using the present band
  method, are presented in the fourth column.}
@@ -410,17 +410,14 @@ understood within RTA in the current level of our interest.
    \cline{2-10}
    & $\kappa_{xx}$ & $\kappa_{zz}$ & $B$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ \\
    \hline
-   $\alpha$-Si$_3$N$_4$ & 69 & 99 & 224 & 70\footnotemark[1] & 105\footnotemark[2] & 225\footnotemark[2] & 59\footnotemark[4] & - & -  \\
-   $\beta$-Si$_3$N$_4$ & 73 & 198 & 237 & 250\footnotemark[1] & 170\footnotemark[2] & 450\footnotemark[2] & 122\footnotemark[5] & 69\footnotemark[6] & 180\footnotemark[6] \\
-   $\gamma$-Si$_3$N$_4$ & 82 & - & 296 & 80\footnotemark[1] & - & - & - & - & - \\
-   w-AlN & 218 & 190 & 196 & - & 240\footnotemark[3] & 212\footnotemark[3] & 285\footnotemark[7] & - & -
-   \footnotetext[1]{Ref.~\onlinecite{morelli}, Slack model}
-   \footnotetext[2]{Ref.~\onlinecite{hirosaki-md}, molecular dynamics (Green-Kubo)}
-   \footnotetext[3]{Ref.~\onlinecite{phono3py}, LBTE full solution.}
+   $\alpha$-Si$_3$N$_4$ & \textcolor{blue}{68} & \textcolor{blue}{100} & 224 & 70\footnotemark[1] & 105\footnotemark[2] & 225\footnotemark[2] & 59\footnotemark[4] & - & -  \\
+   $\beta$-Si$_3$N$_4$ & \textcolor{blue}{73} & \textcolor{blue}{199} & 237 & 250\footnotemark[1] & 170\footnotemark[2] & 450\footnotemark[2] & 122\footnotemark[5] & 69\footnotemark[6] & 180\footnotemark[6] \\
+   $\gamma$-Si$_3$N$_4$ & \textcolor{blue}{77} & - & 296 & 80\footnotemark[1] & - & - & - & - & - 
+   \footnotetext[1]{Ref.~\onlinecite{morelli}, Slack model.}
+   \footnotetext[2]{Ref.~\onlinecite{hirosaki-md}, molecular dynamics (Green-Kubo).}
    \footnotetext[4]{Ref.~\onlinecite{hirai}, thin film.}
    \footnotetext[5]{Ref.~\onlinecite{hirosaki}, poly-crystals.}
    \footnotetext[6]{Ref.~\onlinecite{li}, single crystalline grains of poly-crystals.}
-   \footnotetext[7]{Ref.~\onlinecite{slack-aln}, single-crystal.}
   \end{tabular}
  \end{ruledtabular}
 \end{table}
@@ -445,9 +442,6 @@ data for individual grains reported by Li {\it et al.}~\cite{li}, indicating
 that the experimentally reported large anisotropy in the thermal conductivities
 of $\beta$-Si$_3$N$_4$ stems from the intrinsic properties of the crystal,
 rather than specific defects induced during the sample preparation process.
-Among the nitrides studied, the theoretical $\kappa_{zz}$ of $\beta$-Si$_3$N$_4$ 
-(194 Wm$^{-1}$K$^{-1}$) is the closest to the level of 
-high-thermal-conductivity AlN. 
 
 Fig.~\ref{fig:Fig1_338} shows the theoretical LTCs of the $\alpha$  and $\beta$
 phases as a function of $T$, in comparison with the reference experimental
