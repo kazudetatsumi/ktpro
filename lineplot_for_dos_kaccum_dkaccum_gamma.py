@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
+#plt.style.use('classic')
+plt.rcParams['font.family'] = 'Times New Roman'
 homedir = "/home/kazu/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
@@ -23,17 +25,23 @@ jdosg2 = np.loadtxt(gdir + 'jdos-m222222-g5577-t300.dat',comments='#',dtype='flo
 dosc  = np.loadtxt(cdir + 'total_dos_m292935.dat',comments='#',dtype='float')
 doss  = np.loadtxt(sdir + 'total_dos_m292967.dat',comments='#',dtype='float')
 dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
-gc = cdir + 'noiso/kaccum.dat'
-gs = sdir + 'noiso/kaccum.dat'
+#gc = cdir + 'noiso/kaccum.dat'
+gc = cdir + 'noiso/kaccum_m101014.dat'
+#gs = sdir + 'noiso/kaccum.dat'
+gs = sdir + 'noiso/kaccum_m101026.dat'
 gg = gdir + 'noiso/kaccum.dat'
-ggc = cdir +  'noiso/gvaccum.dat'
-ggs = sdir + 'noiso/gvaccum.dat'
+#ggc = cdir +  'noiso/gvaccum.dat'
+ggc = cdir +  'noiso/gvaccum_m101014.dat'
+#ggs = sdir + 'noiso/gvaccum.dat'
+ggs = sdir + 'noiso/gvaccum_m101026.dat'
 ggg = gdir + 'noiso/gvaccum.dat'
 #c = cdir + "noiso/kappa-m8810.hdf5"
-c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+#c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+c = cdir + "noiso/kappa-m101014.noiso.hdf5"
 #c = cdir + "noiso/kappa-m141416_nu.hdf5"
 #s = sdir + "noiso/kappa-m8820.hdf5"
-s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+#s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+s = sdir + "noiso/kappa-m101026.noiso.hdf5"
 #s = sdir + "noiso/kappa-m141432_nu.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
 grc = homedir + "/asi3n4/gruneisen/gruneisen.hdf5"
@@ -324,15 +332,18 @@ def eachplot8(sn,phase,omega,gammau,gamman):
    plt.legend(loc="upper left")
 
 def eachplot12(sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
-   plt.subplot(numr,3,sn)
-   plt.title( title + "_for_" +  phase)
-   plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
-   omega_a,gamma_a=sortomega(omega,gamma)
-   print omega_a.shape,gamma_a.shape
-   #plt.plot(omega_a,gamma_a,'r')
-   plt.yscale("log")
-   plt.ylim(ymin,ymax)
-   plt.xlim(xmin,xmax)
+   #with plt.style.context('classic'):
+       #rc('font', family='serif')
+       #rc('font', serif='Times New Roman')
+       plt.subplot(numr,3,sn)
+       plt.title( title + "_for_" +  phase)
+       plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
+       omega_a,gamma_a=sortomega(omega,gamma)
+       print omega_a.shape,gamma_a.shape
+       #plt.plot(omega_a,gamma_a,'r')
+       plt.yscale("log")
+       plt.ylim(ymin,ymax)
+       plt.xlim(xmin,xmax)
 
 
 def sortomega(x,y):
@@ -385,10 +396,10 @@ def run():
 
 
 
-   plt.figure(figsize=(12,16))
-#   rc('text', usetex=True)
-   rc('font', family='serif')
-   rc('font', serif='Times New Roman')
+   plt.figure(figsize=(11,15.375))
+   #rc('text', usetex=True)
+   #rc('font', family='serif')
+   #rc('font', serif='Times New Roman')
    plt.rcParams['pdf.fonttype'] = 42
 
    eachplot3(1,"alpha",dosc[:,0],dosc[:,1]/4)
