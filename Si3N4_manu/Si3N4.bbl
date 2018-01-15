@@ -389,6 +389,13 @@
   dynamics}}},\ Vol.~\bibinfo {volume} {4}\ (\bibinfo  {publisher} {Cambridge
   university press},\ \bibinfo {year} {1993})\ pp.\ \bibinfo {pages}
   {76--77}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Ward}\ and\ \citenamefont {Broido}(2010)}]{ward-ltc}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Ward}}\ and\ \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Broido}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
+  B}\ }\textbf {\bibinfo {volume} {81}},\ \bibinfo {pages} {085205} (\bibinfo
+  {year} {2010})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Minikayev}\ \emph {et~al.}(2007)\citenamefont
   {Minikayev}, \citenamefont {Paszkowicz}, \citenamefont {Piszora},
   \citenamefont {Knapp},\ and\ \citenamefont {B{\"a}htz}}]{minikayev-alpha}%
@@ -431,13 +438,6 @@
   {Singh}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Scientific reports}\ }\textbf {\bibinfo {volume} {6}} (\bibinfo {year}
   {2016})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Ward}\ and\ \citenamefont {Broido}(2010)}]{ward-ltc}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
-  {Ward}}\ and\ \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Broido}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
-  B}\ }\textbf {\bibinfo {volume} {81}},\ \bibinfo {pages} {085205} (\bibinfo
-  {year} {2010})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Hirai}\ \emph {et~al.}(1978)\citenamefont {Hirai},
   \citenamefont {Hayashi},\ and\ \citenamefont {Niihara}}]{hirai}%
   \BibitemOpen

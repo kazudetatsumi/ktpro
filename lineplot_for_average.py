@@ -18,6 +18,7 @@ s = sdir + "noiso/kappa-m8820.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
 apc= cdir + "gpjob_m8810_fullpp/kappa-m8810.hdf5"
 aps= sdir + "gpjob_m8820_fullpp/kappa-m8820.hdf5"
+#aps= sdir + "gpjob_m101026_fullpp/kappa-m101026.hdf5"
 apg= gdir + "gpjob_m121212_fullpp/kappa-m121212.hdf5"
 cjc= cdir + "kappa-m8810.const_ave1.hdf5"
 cjs= sdir + "kappa-m8820.const_ave1.hdf5"
@@ -94,26 +95,26 @@ def run():
       omegacjc1,gammacjc1=parse_gamma(cjc,Temp,max_freq)
       omegacjs1,gammacjs1=parse_gamma(cjs,Temp,max_freq)
       omegacjg1,gammacjg1=parse_gamma(cjg,Temp,max_freq)
-      cc = np.append(cc, np.corrcoef(gammac1,apc1*gammacjc1)[0,1])
-      cs = np.append(cs,np.corrcoef(gammas1,aps1*gammacjs1)[0,1])
-      cg = np.append(cg,np.corrcoef(gammag1,apg1*gammacjg1)[0,1])
+      #cc = np.append(cc, np.corrcoef(gammac1,apc1*gammacjc1)[0,1])
+      #cs = np.append(cs,np.corrcoef(gammas1,aps1*gammacjs1)[0,1])
+      #cg = np.append(cg,np.corrcoef(gammag1,apg1*gammacjg1)[0,1])
       agc = np.append(agc,np.average(gammac1))
       ags = np.append(ags,np.average(gammas1))
       agg = np.append(agg,np.average(gammag1))
       aac = np.append(aac,np.average(apc1))
       aas = np.append(aas,np.average(aps1))
       aag = np.append(aag,np.average(apg1))
-      aagc = np.append(aagc,np.average(apc1*gammacjc1))
-      aags = np.append(aags,np.average(aps1*gammacjs1))
-      aagg = np.append(aagg,np.average(apg1*gammacjg1))
+      #aagc = np.append(aagc,np.average(apc1*gammacjc1))
+      #aags = np.append(aags,np.average(aps1*gammacjs1))
+      #aagg = np.append(aagg,np.average(apg1*gammacjg1))
       x = np.append(x,max_freq)
    #gas=np.c_[gammas1,aps1]
    #print gas.shape
    plt.figure(figsize=(16,16))
    plt.subplot(3,1,1)
-   plt.plot(x,cc,label="cc_alpha")
-   plt.plot(x,cs,label="cc_beta")
-   plt.plot(x,cg,label="cc_gamma")
+   #plt.plot(x,cc,label="cc_alpha")
+   #plt.plot(x,cs,label="cc_beta")
+   #plt.plot(x,cg,label="cc_gamma")
    plt.legend(loc="lower right")
    plt.subplot(3,1,2)
    plt.plot(x,aac*4,label="ap_alpha")

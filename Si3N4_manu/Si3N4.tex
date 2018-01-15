@@ -115,33 +115,33 @@ textural structure of rod-shaped $\beta$-Si$_3$N$_4$ grains would increase
 their thermal conductivity to a level matching or exceeding that of w-AlN. 
 
 Although the fabrication of millimeter-sized $\beta$-Si$_3$N$_4$ single
-crystals has been reported,~\cite{yamamoto} the thermal conductivity of 
-an isolated single crystal of any Si$_3$N$_4$ phase has not yet been experimentally
-determined.  It was proposed that the anisotropy in the
-thermal conductivity of $\beta$-Si$_3$N$_4$ phase grains may not stem from the
+crystals has been reported,~\cite{yamamoto} the thermal conductivity of an
+isolated single crystal of any Si$_3$N$_4$ phase has not yet been
+experimentally determined.  It was proposed that the anisotropy in the thermal
+conductivity of $\beta$-Si$_3$N$_4$ phase grains may not stem from the
 intrinsic crystal properties, but rather, from the selective removal of crystal
-defects along the $c$ axis of the grains.~\cite{watari-trans} Theoretically, Hirosaki {\it et
-al.}~\cite{hirosaki-md} estimated the room-temperature lattice thermal
-conductivities (LTCs) $\kappa$$_{xx}$ and $\kappa$$_{zz}$ of
+defects along the $c$ axis of the grains.~\cite{watari-trans} Theoretically,
+Hirosaki {\it et al.}~\cite{hirosaki-md} estimated the room-temperature lattice
+thermal conductivities (LTCs) $\kappa$$_{xx}$ and $\kappa$$_{zz}$ of
 $\alpha$-Si$_3$N$_4$ to be 105 and 225 Wm$^{-1}$K$^{-1}$, and those of
 $\beta$-Si$_3$N$_4$ to be 170 and 450 Wm$^{-1}$K$^{-1}$, respectively, by
 applying the Green-Kubo formulation to the molecular dynamics (MD) method with
-the interatomic potentials proposed by Vashishta {\it et al.}~\cite{vashishta} Although the
-absolute values wre more tan two times larger, the ratio of the LTCs in the
-$\beta$ phase along the $a$ and $c$ axes agreed well with the experimental
-results obtained by Li {\it et al.}~\cite{li} Moreover, the MD results suggest that the
-different stacking orders beween $\alpha$- and $\beta$-Si$_3$N$_4$ alter their
-LTC largely. On the other hand, the recent LTC calculation based on first principles calculation and Boltzman transport theory
-has shown that in many polymorphs of the
-wurtzite and zincblende structures, which have different stacking orders of the
-densest atom planes as ABAB.. and ABCABC.., these orders merely alter the
-LTCs.~\cite{phono3py} \textcolor{blue}{It is interesting to investigate it using this approach for
-$\alpha$- and $\beta$-Si$_3$N$_4$. } 
+the interatomic potentials proposed by Vashishta {\it et al.}~\cite{vashishta}
+Although the absolute values wre more tan two times larger, the ratio of the
+LTCs in the $\beta$ phase along the $a$ and $c$ axes agreed well with the
+experimental results obtained by Li {\it et al.}~\cite{li} Moreover, the MD
+results suggest that the different stacking orders beween $\alpha$- and
+$\beta$-Si$_3$N$_4$ alter their LTC largely. On the other hand, the recent LTC
+calculation based on first principles calculation and Boltzman transport theory
+has shown that in many polymorphs of the wurtzite and zincblende structures,
+which have different stacking orders of the densest atom planes as ABAB.. and
+ABCABC.., these orders merely alter the LTCs.~\cite{phono3py} It is interesting
+to investigate it using this approach for $\alpha$- and $\beta$-Si$_3$N$_4$. 
 
 In addition to these phases, a cubic spinel phase ($\gamma$-Si$_3$N$_4$) can be
 formed upon compression and in-situ heating.~\cite{zerr,zhang} The reported
 transition pressures were scattered from 10 to 36 GPa depending on the
-experimental conditions.  The produced $\gamma$ phase can be experimentally
+experimental conditions.~\cite{xu}  The produced $\gamma$ phase can be experimentally
 quenched to atmospheric pressure and room temperature.  Its thermal
 conductivity has not been experimentally reported; it has been estimated only
 by the Slack model.~\cite{morelli} 
@@ -339,12 +339,17 @@ sampling meshes of $10\times 10\times 14$, $10\times 10\times 26$, and
 $12\times 12\times 12$ were used to calculate the LTCs in Eq.~(\ref{eq:kappa})
 for the $\alpha$, $\beta$, and $\gamma$ phases.
 
-To compare the calculated LTC with the experimental data measured at
-finite temperatures, the experimentally measured lattice parameters may 
-be preferred in case that they are known. We examined LTC of
-$\beta$-Si$_3$N$_4$ at the equilibrium volumes ($V_\text{eq}(T)$) within the
-quasi-harmonic approximation (QHA).~\cite{dove-p76} Except for this, the LTC values
-were calculated with the equilibrium volume at 0 K ($V_\text{eq}(T=0)$).
+To compare the calculated LTC with the experimental data measured at finite
+temperatures, the experimentally measured lattice parameters may be preferred
+in case that they are known. \textcolor{blue}{We examined LTC of $\beta$-Si$_3$N$_4$ at the
+equilibrium volumes at 300, 600, 900, 1200 and 1500 K within the quasi-harmonic
+approximation (QHA).~\cite{dove-p76} The LTC values with the equilibrium
+lattice volumes within QHA were found to be deviated by less than 1 \% due to
+the thermal expansions. The degree of the differences due to the thermal
+expansions is similar to the case of Si and Ge~\cite{ward-ltc}. For the present
+study, this effect is negligible and the LTC values calculated with the
+equilibrium volume at 0 K are hereafter shown.}
+
 
 We calculated volumetric thermal expansion coefficients and compared them with
 the reported experimental values so as to check the validity of the present
@@ -456,15 +461,12 @@ experimental data.
 \begin{figure}[ht]
  \begin{center}
   \includegraphics[width=0.90\linewidth]{Fig1_m1010.eps} \caption{(color
-  online) \textcolor{red}{Temperature dependence of LTC for $\alpha$-
-  and $\beta$-Si$_3$N$_4$. The LTC calculated with the fixed volume
-  optimized at 0 K are shown by the solid curves. For
-  $\beta$-Si$_3$N$_4$, the LTC with the boundary scattering effect are
-  shown by broken curves. The LTC calculated with the equilibrium
-  volumes at the temperatures are shown by crosses. Theoretical LTC for
+  online) Temperature dependence of LTC for $\alpha$-
+  and $\beta$-Si$_3$N$_4$. For $\beta$-Si$_3$N$_4$, the LTC with the boundary scattering effect are
+  shown by broken curves. Theoretical LTC for
   the bulk $\beta$-Si$_3$N$_4$ sample are also shown to be compared with
-  the experimental LTC (filled circles) of the bulk sample.}
-  \label{fig:Fig1_338} }
+  the experimental data of the bulk sample.}
+  \label{fig:Fig1_338}
  \end{center}
 \end{figure}
 
@@ -504,17 +506,13 @@ axis.~\cite{hirosaki}
 The theoretical curve adjusted with $w=\textcolor{blue}{0.44}$ explains well the experimental
 data of the poly-crystal bulk in Fig.~\ref{fig:Fig1_338}-b.  For the effects of
 lattice defects most of which are grain boundaries, we included
-$\tau_{\lambda,\text{BS}}$ with $L = 1$ $\mu\text{m}$ to further fit the
+$\tau_{\lambda,\text{BS}}$ with $L = \textcolor{blue}{0.6}$ $\mu\text{m}$ to further fit the
 theoretical curve ($w=\textcolor{blue}{0.33}$) to the experimental data.  The $L$ value is
 \textcolor{blue}{slightly smaller than} the average grain size (2 $\mu\text{m}$)~\cite{hirosaki} of the
 experimental polycrystalline sample.  Fig.~\ref{fig:Fig1_338}-b also contains
 the experimental $\kappa$$_{xx}$ and $\kappa$$_{zz}$ at room temperature by
 filled squares, which are in-between the theoretical components with and
-without $\tau_{\lambda,\text{BS}}$.  The LTC values with the equilibrium
-lattice volumes ($V_\text{eq}$) at 300, 600, 900, 1200 and 1500 K within QHA
-\textcolor{blue}{were found to be deviated by less than 1 \% due to the thermal expansions.} Therefore this effect is negligible for
-the present study.  The degree of the differences is similar to the case of Si
-and Ge~\cite{ward-ltc}.
+without $\tau_{\lambda,\text{BS}}$. 
 
 \subsection{Dispersion curves}
 
