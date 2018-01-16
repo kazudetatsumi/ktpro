@@ -1,4 +1,4 @@
-This is BibTeX, Version 0.99d (TeX Live 2013/Debian)
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Si3N4.aux
 The style file: apsrev4-1.bst
@@ -23,45 +23,45 @@ Control: production of article title (-1) disabled
 Control: page (0) single
 Control: year (1) truncated
 Control: production of eprint (0) enabled
-You've used 48 entries,
+You've used 47 entries,
             5847 wiz_defined-function locations,
-            1884 strings with 21600 characters,
-and the built_in function-call counts, 47313 in all, are:
-= -- 2948
-> -- 1286
-< -- 340
-+ -- 410
-- -- 325
-* -- 7323
-:= -- 4616
-add.period$ -- 47
-call.type$ -- 48
-change.case$ -- 193
-chr.to.int$ -- 55
-cite$ -- 48
-duplicate$ -- 4458
-empty$ -- 3518
-format.name$ -- 741
-if$ -- 9424
+            1878 strings with 21466 characters,
+and the built_in function-call counts, 46236 in all, are:
+= -- 2883
+> -- 1253
+< -- 333
++ -- 398
+- -- 317
+* -- 7149
+:= -- 4514
+add.period$ -- 46
+call.type$ -- 47
+change.case$ -- 189
+chr.to.int$ -- 54
+cite$ -- 47
+duplicate$ -- 4358
+empty$ -- 3439
+format.name$ -- 722
+if$ -- 9209
 int.to.chr$ -- 2
-int.to.str$ -- 55
-missing$ -- 583
-newline$ -- 190
-num.names$ -- 140
-pop$ -- 1891
+int.to.str$ -- 54
+missing$ -- 570
+newline$ -- 187
+num.names$ -- 137
+pop$ -- 1849
 preamble$ -- 1
-purify$ -- 230
+purify$ -- 225
 quote$ -- 0
-skip$ -- 1691
+skip$ -- 1655
 stack$ -- 0
-substring$ -- 1171
-swap$ -- 4173
-text.length$ -- 160
+substring$ -- 1146
+swap$ -- 4076
+text.length$ -- 156
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 667
+type$ -- 652
 warning$ -- 1
-while$ -- 147
+while$ -- 144
 width$ -- 0
-write$ -- 421
+write$ -- 413
 (There was 1 warning)
