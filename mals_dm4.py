@@ -11,7 +11,6 @@ est=int(round((375-175)*2.5))
 efi=int(round((650-225)*2.5))
 numcom=2
 maxcycle=2000
-sumress=[]
 
 
 def get_3ddata(filename):
@@ -28,38 +27,44 @@ def get_3ddata(filename):
     np_array = np.reshape(np_array, (ZDim, YDim, XDim))
     return(np_array)
 
+def mals(data,n,mc):
+    srs=[]
+    dim = data.shape
+    xdim = dim[2]
+    ydim = dim[1]
+    ddim = [dim[0],dim[2]*dim[1]]
+    X = np.reshape(data,ddim)
+    b = np.random.rand(n,ddim[1])
+    a = np.dot( np.dot( x, b.T ), np.linalg.inv( np.dot( b, b.T ) ) )
+    nn = 0
+    while nn < mc:
+        for i in range(0,n):
+            a[:,i] = a[:,i] / np.linalg.norm(a[:,i])
+        a = np.where( a > 0, a, 0)
+        wb = np.eye(numcom)*math.exp(-(float(nn/100)))
+        b = np.dot( np.linalg.inv( np.dot( a.T, a) + wb ),  np.dot( a.T, x ) + np.dot( wb, b )  )
+        b = np.where( b > 0, b, 0)
+        wa = np.eye(numcom)*math.exp(-(float(nn/100)))
+        a = np.dot(  np.dot( x, b.T ) + np.dot( a, wa ), np.linalg.inv( np.dot( b, b.T ) + wa )  )
+        r = x - np.dot(a,b)
+        sr = np.linalg.norm(r)
+        srs.append(sr)
+        if nn > 1:
+            print srs[nn-1] - sr
+        nn = nn+1
+    print sr
+    return(a,b,srs)
+
+def plotter(s):
+    plt.plot(s[:,0])
+    plt.plot(s[:,1])
+    plt.show()
+
+
 def run():
     ximage = get_3ddata(f)
     ximage2 = ximage[est:efi,:,:]
-    dim = ximage2.shape
-    xdim = dim[2]
-    ydim = dim[1]
-    ddim = [dim[0],dim[1]*dim[2]]
-    xdat = np.reshape(ximage2,ddim)
-    bdat = np.random.rand(numcom,ddim[1])
-    print np.dot( np.dot( xdat, bdat.T ), np.dot( bdat, bdat.T ) ).shape
-    adat = np.dot( np.dot( xdat, bdat.T ), np.linalg.inv( np.dot( bdat, bdat.T ) ) )
-
-    
-    nn=0
-    while nn < maxcycle:
-        for i in range(0,numcom):
-            adat[:,i] = adat[:,i] / np.linalg.norm(adat[:,i])
-        adat = np.where( adat > 0, adat, 0)
-        wb = np.eye(numcom)*math.exp(-(float(nn/100)))
-        bdat = np.dot( np.linalg.inv( np.dot( adat.T, adat) + wb ),  np.dot( adat.T, xdat ) + np.dot( wb, bdat )  )
-        bdat = np.where( bdat > 0, bdat, 0)
-        wa = np.eye(numcom)*math.exp(-(float(nn/100)))
-        adat = np.dot(  np.dot( xdat, bdat.T ) + np.dot( adat, wa ), np.linalg.inv( np.dot( bdat, bdat.T ) + wa )  )
-        res = xdat - np.dot(adat,bdat)
-        sumres = np.linalg.norm(res)
-        sumress.append(sumres)
-        if nn > 1:
-            print sumress[nn-1] - sumres
-        nn = nn+1
-    print sumres
-    plt.plot(adat[:,0])
-    plt.plot(adat[:,1])
-    plt.show()
+    adat,bdat,sumress = mals(ximage2,numcom,maxcycle)
+    plotter(adat)
 
 run()
