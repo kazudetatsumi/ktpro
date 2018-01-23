@@ -15,10 +15,11 @@ efi=int(round((650-225)*2.5))
 #est=int(round((375-175)))
 #efi=int(round((650-225)))
 numcom=2
-maxcycle=10
-datanum=21
+maxcycle=100
+datanum=5
 #datanum=args[1]
-IsAligned='false'
+IsAligned='true'
+Is3ddata='true'
 #IsAligned=args[2]
 
 if IsAligned == 'true':
@@ -61,11 +62,20 @@ def get_2ddata(filename):
     return(np_array)
 
 
-def mals(data,n,mc):
+def get_1ddata(filename):
+    dm4data = dm4reader.DM4File.open(filename)
+    tags = dm4data.read_directory()
+    image_data_tag = tags.named_subdirs['ImageList'].unnamed_subdirs[1].named_subdirs['ImageData']
+    image_tag = image_data_tag.named_tags['Data']
+
+    XDim = dm4data.read_tag_data(image_data_tag.named_subdirs['Dimensions'].unnamed_tags[0])
+
+    np_array = np.array(dm4data.read_tag_data(image_tag))
+    return(np_array)
+
+def mals3d(data,n,mc):
     srs=[]
     dim = data.shape
-    xdim = dim[2]
-    ydim = dim[1]
     ddim = [dim[0],dim[2]*dim[1]]
     x = np.reshape(data,ddim)
     b = np.random.rand(n,ddim[1])
@@ -91,6 +101,32 @@ def mals(data,n,mc):
     b2d = np.reshape(b,[n,dim[1],dim[2]])
     print b2d.shape
     return(a,b2d,srs)
+
+def mals2d(data,n,mc):
+    srs=[]
+    ddim = data.shape
+    x = data
+    b = np.random.rand(n,ddim[1])
+    a = np.dot( np.dot( x, b.T ), np.linalg.inv( np.dot( b, b.T ) ) )
+    nn = 0
+    while nn < mc:
+        for i in range(0,n):
+            a[:,i] = a[:,i] / np.linalg.norm(a[:,i])
+        a = np.where( a > 0, a, 0)
+        wb = np.eye(numcom)*math.exp(-(float(nn/100)))
+        b = np.dot( np.linalg.inv( np.dot( a.T, a) + wb ),  np.dot( a.T, x ) + np.dot( wb, b )  )
+        b = np.where( b > 0, b, 0)
+        wa = np.eye(numcom)*math.exp(-(float(nn/100)))
+        a = np.dot(  np.dot( x, b.T ) + np.dot( a, wa ), np.linalg.inv( np.dot( b, b.T ) + wa )  )
+        r = x - np.dot(a,b)
+        sr = np.linalg.norm(r)
+        #print sr
+        srs.append(sr)
+        if nn > maxcycle*0.2:
+            print srs[nn-1] - sr
+        nn = nn+1
+    print sr
+    return(a,b,srs)
 
 def plotter(s):
     n=numcom
@@ -127,6 +163,19 @@ def plotter2d(c,a):
     #plt.imshow(c[1,:,:], cmap = cm.gray, interpolation = 'none',label="comp. #2")
     #plt.title("map of comp. #2")
     
+def plotter1d(c,a):
+    n=numcom
+    for i in range(0,n):
+       plt.subplot2grid((4,n+3),(0,i+2),rowspan=1, colspan=1)
+       labelname="comp. #"+str(i)
+       plt.plot(c[i,:], label="comp. #"+str(i))
+       plt.title("map of comp. #"+str(i))
+       plt.tick_params(labelbottom='off',bottom='false',labelleft='off',left='false')
+    plt.subplot2grid((4,n+3),(0,n+2),rowspan=1, colspan=1)
+    plt.plot(a, label="adf")
+    plt.tick_params(labelbottom='off',bottom='false',labelleft='off',left='false')
+    plt.title("ADF image")
+    
 def plotteradfsurvey(tifname,n):
     n=numcom
     adfimage=plt.imread(tifname)
@@ -137,23 +186,33 @@ def plotteradfsurvey(tifname,n):
     plt.subplot2grid((4,n+3),(1,2),rowspan=3, colspan=3)
     #plt.subplot(1,n+2,n+2)
     plt.imshow(adfimage)
-    #plt.subplots_adjust(bottom=0.1,top=0.82,wspace=0.1)
-    plt.subplots_adjust(top=0.95,hspace=0.01,wspace=0.01)
+    if Is3ddata == 'true':
+       plt.subplots_adjust(top=0.95,hspace=0.01,wspace=0.01)
+    else:
+       plt.subplots_adjust(top=0.93,hspace=0.10,wspace=0.01)
     plt.tick_params(labelbottom='off',bottom='false',labelleft='off',left='false')
     plt.title("ADF survey image")
     
 
 
 def run():
-    ximage = get_3ddata(f)
-    ximage2 = ximage[est:efi,:,:]
-    adat,bdat,sumress = mals(ximage2,numcom,maxcycle)
-    adfimage = get_2ddata(h)
     plt.figure(figsize=(2.5*(numcom+3),2.5*4))
     plt.rcParams['font.family'] = 'Times New Roman'
     plt.suptitle(outname)
-    plotter(adat)
-    plotter2d(bdat,adfimage)
+    if Is3ddata == 'true':
+        ximage = get_3ddata(f)
+        ximage2 = ximage[est:efi,:,:]
+        adat,bdat,sumress = mals3d(ximage2,numcom,maxcycle)
+        adfimage = get_2ddata(h)
+        plotter(adat)
+        plotter2d(bdat,adfimage)
+    else:
+        ximage = get_2ddata(f).T
+        ximage2 = ximage[est:efi,:]
+        adat,bdat,sumress = mals2d(ximage2,numcom,maxcycle)
+        adfimage = get_1ddata(h)
+        plotter(adat)
+        plotter1d(bdat,adfimage)
     plotteradfsurvey(g,numcom)
     #plt.show()
     plt.savefig(outname+".eps")
