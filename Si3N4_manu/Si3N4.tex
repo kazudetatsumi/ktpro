@@ -232,8 +232,12 @@ the cumulative thermal conductivity:
  \boldsymbol{\kappa}^\text{c}(\omega) = \frac{1}{N_\mathbf{q}\Omega}
  \int_0^\omega \sum_\lambda
  \tau_\lambda(T) \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda
- c_\lambda(T) \delta(\omega'-\omega)d\omega'.
+ c_\lambda(T) \delta(\omega'-\omega)d\omega',
 \end{align}
+and its derivative $\frac{\partial
+\boldsymbol{\kappa}^\text{c}(\omega)}{\partial \omega}$ to see the phonon mode
+contributions to the LTC.
+
 
 \subsection{Computational details}
 
@@ -256,7 +260,7 @@ volume optimized at 0 K and 0 GPa within the local density approximation
 $\beta$-Si$_3$N$_4$, 3 \% smaller than the volume with GGA, which is a typical
 volume contraction of LDA. In our test using $\beta$-Si$_3$N$_4$ at 0 K and 0
 GPa, the LTC calculated with LDA was larger by 2.6 \% than that with GGA. For
-our discussion, these difference is enough small, therefore the impact of
+our discussion, this difference is enough small, therefore the impact of
 choice of exchange correlation potential is considered to be minor in our
 study.
 
@@ -321,10 +325,10 @@ IFCs.  The constant atomic displacement distance was set to 0.03 \AA.  Table
 of supercell sizes, indicating that our calculated LTCs are reasonably
 converging with respect to the supercell sizes. 
 
-\textcolor{blue}{Non-analytical
-term correction~\cite{wang} was applied to the second-order IFC to take
-into account the long range Coulomb forces present in ionic crystals. For the correction,
-Born effective charges were calculated by using the present band method.}
+\textcolor{blue}{Non-analytical term correction~\cite{wang} was applied to the
+second-order IFC to take into account the long range Coulomb forces present in
+ionic crystals. For the correction, Born effective charges were calculated by
+using the density functional perturbation theory (DFPT).}
 
 Uniform $\mathbf{k}$-point sampling meshes of $4\times 4\times 2$,
 $4\times 4\times 3$, and $3\times 3\times 3$ were used for the
@@ -355,37 +359,39 @@ We calculated volumetric thermal expansion coefficients and compared them with
 the reported experimental values so as to check the validity of the present
 calculation, because the thermal expansion is originated from the anharmonicity
 of the interatomic potential as well as lattice thermal conduction. The
-calculated values are 4.31 and 4.19 ($10^{-6}$ K$^{-1}$) at 300 K for the
-$\alpha$ and $\beta$ phases, while the experimental values were 3.75 and 3.55
-($10^{-6}$ K$^{-1}$)~\cite{minikayev-alpha}. The present calculation reproduced
-the experimental tendency where the $\alpha$ phase has a slightly larger
-thermal expansion coefficient than the $\beta$ phase, supporting that the
-present calculations enable us to qualitatively compare the LTC values of the
-Si$_3$N$_4$ phases.
+calculated values are 4.31$\times 10^{-6}$ and 4.19$\times 10^{-6}$ K$^{-1}$ at
+300 K for the $\alpha$ and $\beta$ phases, while the experimental values were
+3.75 and 3.55 ($10^{-6}$ K$^{-1}$)~\cite{minikayev-alpha}. The present
+calculation reproduced the experimental tendency where the $\alpha$ phase has a
+slightly larger thermal expansion coefficient than the $\beta$ phase,
+supporting that the present calculations enable us to qualitatively compare the
+LTC values of the Si$_3$N$_4$ phases.
 
 In order to compare the microscopic phonon properties among the three phases at
 the same conditions, those results calculated at 0 GPa are shown and discussed.
 For the $\gamma$ phase, this means that we assume the condition of virtually
-quenched $\gamma$ phase at 0 GPa from the high pressure. To examine this, we
+quenched $\gamma$ phase at 0 GPa from the high pressure. To examine the
+analytical continuity of the properties with respect to pressures, we
 calculated LTC of $\gamma$ phase at 10, 20, and 40 GPa as shown in
 Fig.~\ref{fig:S1}, where the phenomenological behaviour of linear dependence of
 LTC with respect to pressure with the calculated slope of 2.89
 Wm$^{-1}$K$^{-1}$GPa$^{-1}$ was reproduced as similar to
-ref.~\onlinecite{andersson-pressure}. By this result, we consider that the
-microscopic values are also varied smoothly with the pressure and those at 0
-GPa are meaningful to compare with the $\alpha$ and $\beta$ phases.
+Ref.~\onlinecite{andersson-pressure}. By this, we consider that the microscopic
+values are also varied smoothly with the pressure and those at 0 GPa are
+valuable to compare with the $\alpha$ and $\beta$ phases.
 
 \subsection{Direct solution of LBTE}
 
-The merit of the single-mode RTA is that we can intuitively understand the
-qualitative character of LTC in terms of the relaxation time and group
-velocity. The microscopic understanding of the full solution of LBTE is still
-under the development~\cite{cepellotti-relaxons} and the microscopic picture
-based on collective phonons~\cite{hardy-collective} will require more
-complicated investigation although it is known that the single-mode RTA solution
-of LBTE underestimates the full solution.~\cite{mukhopadhyay-ltc,ward-ltc}
+The merit to employ the single-mode RTA for thermal conductivity calculation is
+the closed form, by which we can intuitively understand the qualitative
+character of LTC in terms of the relaxation time and group velocity. The
+microscopic understanding of the full solution of LBTE is still under the
+development~\cite{cepellotti-relaxons} and the microscopic picture based on
+collective phonons~\cite{hardy-collective} will require more complicated
+investigation although it is known that the single-mode RTA solution of LBTE
+often underestimates the full solution.~\cite{mukhopadhyay-ltc,ward-ltc}
 
-For the $\alpha$ and $\beta$ phases, we partly adopted a direct solution of
+For the $\alpha$ and $\beta$ phases, we adopted a direct solution of
 LBTE~\cite{chaput-direct}, which is one of the methods of LBTE full solutions.
 The LTC values of the direct solution without the isotope effect were  69 and
 102 Wm$^{-1}$K$^{-1}$ for $\kappa_{xx}$ and $\kappa_{zz}$  of the $\alpha$ phase
