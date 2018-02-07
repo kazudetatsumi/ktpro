@@ -394,14 +394,15 @@ often underestimates the full solution.~\cite{mukhopadhyay-ltc,ward-ltc}
 For the $\alpha$ and $\beta$ phases, we adopted a direct solution of
 LBTE~\cite{chaput-direct}, which is one of the methods of LBTE full solutions.
 The LTC values of the direct solution without the isotope effect were  69 and
-102 Wm$^{-1}$K$^{-1}$ for $\kappa_{xx}$ and $\kappa_{zz}$  of the $\alpha$ phase
-and 76 and 238 Wm$^{-1}$K$^{-1}$ for those of the $\beta$ phase, respectively, while the
-corresponding single-mode RTA values were 70 and 102 Wm$^{-1}$K$^{-1}$ for the
-$\alpha$ phase and 76 and 210 Wm$^{-1}$K$^{-1}$ for the $\beta$ phase. The
-$\kappa_{zz}$ of the direct solution in the $\beta$ phase was 13 \% larger than
-that of the single-mode RTA solution. Since the LTC difference between the LBTE
-solutions is not significant, we expect the physics on LTC is well
-understood within RTA in the current level of our interest.
+102 Wm$^{-1}$K$^{-1}$ for $\kappa_{xx}$ and $\kappa_{zz}$  of the $\alpha$
+phase and 76 and 238 Wm$^{-1}$K$^{-1}$ for those of the $\beta$ phase,
+respectively, while the corresponding single-mode RTA values were 70 and 102
+Wm$^{-1}$K$^{-1}$ for the $\alpha$ phase and 76 and 210 Wm$^{-1}$K$^{-1}$ for
+the $\beta$ phase. The $\kappa_{zz}$ of the direct solution in the $\beta$
+phase was 13 \% larger than that of the single-mode RTA solution. Since the LTC
+difference between the LBTE solutions is not significant, we expect the physics
+on LTC is well understood within RTA in the current level of our interest.
+\textcolor {red} {Therefore, the present study discusses the physics using the results of RTA.}
 
 \section{Results and discussion}
 
@@ -436,19 +437,17 @@ understood within RTA in the current level of our interest.
 In Table \ref{table:LTC-exp}, the theoretical LTCs at 300 K are compared with
 the previously reported experimental~\cite{hirosaki,hirai,li} and
 theoretical~\cite{morelli,hirosaki-md,phono3py} values. The present calculation
-results better agree with the experimental $\kappa_{xx}$ and $\kappa_{zz}$ of
+results agree better with the experimental $\kappa_{xx}$ and $\kappa_{zz}$ of
 $\beta$-Si$_3$N$_4$, compared with the references of the Slack
 model~\cite{morelli} and MD~\cite{hirosaki-md} results. The directional
 averages of the present $\kappa_{ii}$ in the $\alpha$, $\beta$, and $\gamma$
 phases are 79, 115, and 81 Wm$^{-1}$K$^{-1}$. The value of the $\gamma$ phase
-is just as small as that of the $\alpha$ phase, although the former phase shows
-the largest bulk modulus ($B$) in Table \ref{table:LTC-exp}.  It is generally
-known that simple models through Debye temperature can provide only their rough
-estimations.
+is similar to that of the $\alpha$ phase, in spite of comparatively large difference in their 
+bulk modulus ($B$) that is also shown in Table \ref{table:LTC-exp}. 
 
-It can be seen that the theoretical LTCs of $\beta$-Si$_3$N$_4$ are markedly
-more anisotropic than those of the $\alpha$ phase. The theoretical LTCs of
-$\beta$-Si$_3$N$_4$ are in good agreement with the corresponding experimental
+It can be seen that the theoretical LTC of $\beta$-Si$_3$N$_4$ is markedly
+more anisotropic than those of the $\alpha$ phase. The theoretical LTC of
+$\beta$-Si$_3$N$_4$ is in good agreement with the corresponding experimental
 data for individual grains reported by Li {\it et al.}~\cite{li}, indicating
 that the experimentally reported large anisotropy in the thermal conductivities
 of $\beta$-Si$_3$N$_4$ stems from the intrinsic properties of the crystal,
@@ -456,13 +455,25 @@ rather than specific defects induced during the sample preparation process.
 
 Fig.~\ref{fig:Fig1_338} shows the theoretical LTCs of the $\alpha$  and $\beta$
 phases as a function of $T$, in comparison with the reference experimental
-data~\cite{hirosaki,hirai,li}, which were measured from the polycrystalline samples. The data of the
-polycrystalline bulk samples cannot be directly compared with the theoretical
-LTC tensors because the microstructures of the bulk samples affect the thermal
-conductivities.  We calculate theoretical LTC values of the polycrystalline
-bulk sample as $\kappa = w\kappa_{xx} + (1-w) \kappa_{zz}$, with an adjustable
-parameter $w$ between 0 and 1 for the least square differences from the
-experimental data.
+data~\cite{hirosaki,hirai,li}, which were measured with the polycrystalline
+samples. The values of the polycrystalline bulk samples are unable to directly
+compare with these theoretical LTC tensors because the microstructures of the
+bulk samples largely affect the thermal conductivities.  \textcolor {red}{\sout
+{We calculate theoretical LTC values of the polycrystalline bulk sample as
+$\kappa = w\kappa_{xx} + (1-w) \kappa_{zz}$, with an adjustable parameter
+$w$ between 0 and 1 for the least square differences from the experimental
+data.}} \textcolor {blue} {As one of the microstructure effects, the thermal
+conductivity  can be decreased due to the phonon scattering at lattice defects
+in the polycrystalline sample. Another one of the microstructure effects is
+that the thermal conductivity is deviated from the directional average of
+$\kappa_{ii}$ due to the anisotropic shape of the constituent crystal grains.
+To consider the latter, we optimize a parameter $w$, to represent the weight of
+$\kappa_{xx}$ and approximate theoretical LTC of the polycrystalline bulk
+sample as $\kappa = w\kappa_{xx} + (1-w) \kappa_{zz}$. The parameter $w$ was
+adjusted between 0 and 1 to result in the least square difference between the
+theoretical and experimental LTC values. If we adopt the simple boundary
+scattering model, both the parameter $L$ and $w$ were optimized for the least
+square fit.}
 
 \begin{figure}[ht]
  \begin{center}
@@ -476,8 +487,8 @@ experimental data.
  \end{center}
 \end{figure}
 
-The temperature dependence of the theoretical LTC, induced by
-$\tau_{\lambda\text{,ph-ph}}$, is close to $T^{-1}$ because 300 K is high
+\textcolor {blue}{The theoretical LTC without the simple phonon boundary
+scattering model is nearly inversely proportional to $T$} because 300 K is high
 enough to approximate the linewidth in Eq.~(\ref{eq:linewidth}) by a
 high-temperature limit for these phases.  In Fig.~\ref{fig:Fig1_338}-a, the
 temperature dependence of the experimental data of a chemically vapor-deposited
@@ -488,17 +499,16 @@ experimental curve.  The full solution of LBTE would negligibly cure the
 disagreement.  Including the simple phonon lifetime of boundary scattering,
 $\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$, into the total phonon
 lifetime according to Matthiessen's rule, could not explain the discrepancy as
-well.  $\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$ with $L$ = \textcolor{blue}{0.6}
-$\mu\text{m}$, which was much smaller than the experimental grain size 10
-$\mu\text{m}$, decreases the room-temperature theoretical $\kappa$$_{xx}$ and
-$\kappa$$_{zz}$ values toward the experimental values, but severely
-underestimated the experimental values at the high temperature side.  At
-present, the reason for the discrepancy between the theoretical and
-experimental behaviors is unclear.  Although the crystal structure of the
-experimental sample was characterized as $\alpha$-Si$_3$N$_4$, significant
-lattice defects might exist in the as-deposited sample as pointed out by
-Hirosaki {\it et al.}~\cite{hirosaki-md} and \textcolor{blue}{the simple phonon boundary
-scattering model might fail to describe their effects.} The
+well.  \textcolor {blue}{A $L$ value of 0.6 $\mu\text{m}$, which was much
+smaller than the experimental grain size 10 $\mu\text{m}$,} decreases the
+room-temperature theoretical $\kappa$$_{xx}$ and $\kappa$$_{zz}$ values toward
+the experimental values, but severely underestimated the experimental values at
+the high temperature side.  At present, the reason for the discrepancy between
+the theoretical and experimental behaviors is unclear.  Although the crystal
+structure of the experimental sample was characterized as $\alpha$-Si$_3$N$_4$,
+significant lattice defects might exist in the as-deposited sample as pointed
+out by Hirosaki {\it et al.}~\cite{hirosaki-md} and \textcolor{blue}{the simple
+phonon boundary scattering model might fail to describe their effects.} The
 experimental values of the $\beta$ phase ceramic bulk~\cite{hirosaki} in
 Fig.~\ref{fig:Fig1_338}-b fall well between the calculated values of
 $\kappa$$_{xx}$ and  $\kappa$$_{zz}$, being nearly parallel to the theoretical
