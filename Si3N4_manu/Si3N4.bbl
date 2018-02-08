@@ -138,43 +138,6 @@
   {journal} {\bibinfo  {journal} {Acta Crystallographica Section B: Structural
   Science}\ }\textbf {\bibinfo {volume} {60}},\ \bibinfo {pages} {388}
   (\bibinfo {year} {2004})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Zerr}\ \emph {et~al.}(1999)\citenamefont {Zerr},
-  \citenamefont {Miehe}, \citenamefont {Serghiou}, \citenamefont {Schwarz},
-  \citenamefont {Kroke}, \citenamefont {Riedel}, \citenamefont {Fue\ss},
-  \citenamefont {Kroll},\ and\ \citenamefont {Boehler}}]{zerr}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
-  {Zerr}}, \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Miehe}},
-  \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Serghiou}}, \bibinfo
-  {author} {\bibfnamefont {M.}~\bibnamefont {Schwarz}}, \bibinfo {author}
-  {\bibfnamefont {E.}~\bibnamefont {Kroke}}, \bibinfo {author} {\bibfnamefont
-  {R.}~\bibnamefont {Riedel}}, \bibinfo {author} {\bibfnamefont
-  {H.}~\bibnamefont {Fue\ss}}, \bibinfo {author} {\bibfnamefont
-  {P.}~\bibnamefont {Kroll}}, \ and\ \bibinfo {author} {\bibfnamefont
-  {R.}~\bibnamefont {Boehler}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo
-   {journal} {Nature}\ }\textbf {\bibinfo {volume} {400}},\ \bibinfo {pages}
-  {340} (\bibinfo {year} {1999})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Zhang}\ \emph {et~al.}(2006)\citenamefont {Zhang},
-  \citenamefont {Navrotsky},\ and\ \citenamefont {Sekine}}]{zhang}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Y.}~\bibnamefont
-  {Zhang}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Navrotsky}}, \
-  and\ \bibinfo {author} {\bibfnamefont {T.}~\bibnamefont {Sekine}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Journal of
-  materials research}\ }\textbf {\bibinfo {volume} {21}},\ \bibinfo {pages}
-  {41} (\bibinfo {year} {2006})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Xu}\ \emph {et~al.}(2011)\citenamefont {Xu},
-  \citenamefont {Dong}, \citenamefont {McMillan}, \citenamefont {Shebanova},\
-  and\ \citenamefont {Salamat}}]{xu}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
-  {Xu}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Dong}}, \bibinfo
-  {author} {\bibfnamefont {P.~F.}\ \bibnamefont {McMillan}}, \bibinfo {author}
-  {\bibfnamefont {O.}~\bibnamefont {Shebanova}}, \ and\ \bibinfo {author}
-  {\bibfnamefont {A.}~\bibnamefont {Salamat}},\ }\href@noop {} {\bibfield
-  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf {\bibinfo
-  {volume} {84}},\ \bibinfo {pages} {014113} (\bibinfo {year}
-  {2011})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Hahn}(2011)}]{inttableA}%
   \BibitemOpen
   \bibinfo {editor} {\bibfnamefont {T.}~\bibnamefont {Hahn}},\ ed.,\ \href@noop
@@ -273,6 +236,43 @@
   {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
   {\bibinfo {volume} {91}},\ \bibinfo {pages} {094306} (\bibinfo {year}
   {2015})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Zerr}\ \emph {et~al.}(1999)\citenamefont {Zerr},
+  \citenamefont {Miehe}, \citenamefont {Serghiou}, \citenamefont {Schwarz},
+  \citenamefont {Kroke}, \citenamefont {Riedel}, \citenamefont {Fue\ss},
+  \citenamefont {Kroll},\ and\ \citenamefont {Boehler}}]{zerr}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Zerr}}, \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Miehe}},
+  \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Serghiou}}, \bibinfo
+  {author} {\bibfnamefont {M.}~\bibnamefont {Schwarz}}, \bibinfo {author}
+  {\bibfnamefont {E.}~\bibnamefont {Kroke}}, \bibinfo {author} {\bibfnamefont
+  {R.}~\bibnamefont {Riedel}}, \bibinfo {author} {\bibfnamefont
+  {H.}~\bibnamefont {Fue\ss}}, \bibinfo {author} {\bibfnamefont
+  {P.}~\bibnamefont {Kroll}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {R.}~\bibnamefont {Boehler}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo
+   {journal} {Nature}\ }\textbf {\bibinfo {volume} {400}},\ \bibinfo {pages}
+  {340} (\bibinfo {year} {1999})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Zhang}\ \emph {et~al.}(2006)\citenamefont {Zhang},
+  \citenamefont {Navrotsky},\ and\ \citenamefont {Sekine}}]{zhang}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Y.}~\bibnamefont
+  {Zhang}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Navrotsky}}, \
+  and\ \bibinfo {author} {\bibfnamefont {T.}~\bibnamefont {Sekine}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Journal of
+  materials research}\ }\textbf {\bibinfo {volume} {21}},\ \bibinfo {pages}
+  {41} (\bibinfo {year} {2006})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Xu}\ \emph {et~al.}(2011)\citenamefont {Xu},
+  \citenamefont {Dong}, \citenamefont {McMillan}, \citenamefont {Shebanova},\
+  and\ \citenamefont {Salamat}}]{xu}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
+  {Xu}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Dong}}, \bibinfo
+  {author} {\bibfnamefont {P.~F.}\ \bibnamefont {McMillan}}, \bibinfo {author}
+  {\bibfnamefont {O.}~\bibnamefont {Shebanova}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {A.}~\bibnamefont {Salamat}},\ }\href@noop {} {\bibfield
+  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf {\bibinfo
+  {volume} {84}},\ \bibinfo {pages} {014113} (\bibinfo {year}
+  {2011})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Morelli}\ and\ \citenamefont
   {Heremans}(2002)}]{morelli}%
   \BibitemOpen
