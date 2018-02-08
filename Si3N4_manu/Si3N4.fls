@@ -45,6 +45,10 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/dvipdfmx-def/dvipdfmx.def
 INPUT /usr/share/texlive/texmf-dist/tex/latex/dvipdfmx-def/dvipdfmx.def
+INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/tools/bm.sty
@@ -57,10 +61,6 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
 INPUT /usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
-INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
-INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
-INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
-INPUT /usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
 INPUT /usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty
 INPUT /usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty
 INPUT /usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map
@@ -176,8 +176,6 @@ INPUT ./Fig1_m1010.eps
 INPUT ./Fig1_m1010-eps-converted-to.pdf
 INPUT ./Fig1_m1010-eps-converted-to.pdf
 INPUT ./Fig1_m1010.eps
-INPUT ./Fig1_m1010-eps-converted-to.pdf
-INPUT ./Fig1_m1010-eps-converted-to.pdf
 INPUT ./Fig1_m1010-eps-converted-to.pdf
 INPUT ./Fig1_m1010-eps-converted-to.pdf
 INPUT ./Fig1_m1010-eps-converted-to.pdf
