@@ -144,6 +144,27 @@
   {} {\emph {\bibinfo {title} {International tables for crystallography}}},\
   Vol.~\bibinfo {volume} {A}\ (\bibinfo  {publisher} {John Wiley \& Sons,
   Inc.},\ \bibinfo {year} {2011})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hirai}\ \emph {et~al.}(1978)\citenamefont {Hirai},
+  \citenamefont {Hayashi},\ and\ \citenamefont {Niihara}}]{hirai}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Hirai}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Hayashi}}, \
+  and\ \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Niihara}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {AM. CERAM. SOC.
+  BULL. Am. Ceram. Soc. Bull.}\ }\textbf {\bibinfo {volume} {57}},\ \bibinfo
+  {pages} {1126} (\bibinfo {year} {1978})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hirosaki}\ \emph {et~al.}(2002)\citenamefont
+  {Hirosaki}, \citenamefont {Ogata}, \citenamefont {Kocer}, \citenamefont
+  {Kitagawa},\ and\ \citenamefont {Nakamura}}]{hirosaki-md}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
+  {Hirosaki}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Ogata}},
+  \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Kocer}}, \bibinfo
+  {author} {\bibfnamefont {H.}~\bibnamefont {Kitagawa}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {Y.}~\bibnamefont {Nakamura}},\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
+  {\bibinfo {volume} {65}},\ \bibinfo {pages} {134110} (\bibinfo {year}
+  {2002})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Li}\ \emph {et~al.}(1999)\citenamefont {Li},
   \citenamefont {Pottier}, \citenamefont {Roger}, \citenamefont {Fournier},
   \citenamefont {Watari},\ and\ \citenamefont {Hirao}}]{li}%
@@ -157,18 +178,6 @@
   {journal} {\bibinfo  {journal} {Journal of the european ceramic society}\
   }\textbf {\bibinfo {volume} {19}},\ \bibinfo {pages} {1631} (\bibinfo {year}
   {1999})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Hirosaki}\ \emph {et~al.}(2002)\citenamefont
-  {Hirosaki}, \citenamefont {Ogata}, \citenamefont {Kocer}, \citenamefont
-  {Kitagawa},\ and\ \citenamefont {Nakamura}}]{hirosaki-md}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
-  {Hirosaki}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Ogata}},
-  \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Kocer}}, \bibinfo
-  {author} {\bibfnamefont {H.}~\bibnamefont {Kitagawa}}, \ and\ \bibinfo
-  {author} {\bibfnamefont {Y.}~\bibnamefont {Nakamura}},\ }\href@noop {}
-  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
-  {\bibinfo {volume} {65}},\ \bibinfo {pages} {134110} (\bibinfo {year}
-  {2002})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Vashishta}\ \emph {et~al.}(1996)\citenamefont
   {Vashishta}, \citenamefont {Kalia}, \citenamefont {Nakano},\ and\
   \citenamefont {Ebbs{\"o}}}]{vashishta}%
@@ -393,15 +402,6 @@
   {Singh}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Scientific reports}\ }\textbf {\bibinfo {volume} {6}} (\bibinfo {year}
   {2016})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Hirai}\ \emph {et~al.}(1978)\citenamefont {Hirai},
-  \citenamefont {Hayashi},\ and\ \citenamefont {Niihara}}]{hirai}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
-  {Hirai}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Hayashi}}, \
-  and\ \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Niihara}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {AM. CERAM. SOC.
-  BULL. Am. Ceram. Soc. Bull.}\ }\textbf {\bibinfo {volume} {57}},\ \bibinfo
-  {pages} {1126} (\bibinfo {year} {1978})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Kuwabara}\ \emph {et~al.}(2008)\citenamefont
   {Kuwabara}, \citenamefont {Matsunaga},\ and\ \citenamefont
   {Tanaka}}]{kuwabara}%

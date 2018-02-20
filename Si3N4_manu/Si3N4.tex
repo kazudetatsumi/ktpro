@@ -63,7 +63,7 @@ Several nitride insulators are known to exhibit high thermal conductivities and
 are important for heat transfer materials at elevated temperatures. For
 example, Slack {\it et al.}~\cite{slack} reported that wurtzite-type w-AlN has
 thermal conductivity of $\gg$  100 Wm$^{-1}$K$^{-1}$. \textcolor{blue}{Si$_3$N$_4$ has become
-another promising thermal conductive insulator as its thremal conductivity has
+another promising thermal conductive insulator as its thermal conductivity has
 been improved up to 177 Wm$^{-1}$K$^{-1}$ by using the advanced ceramic
 technologies related to the densification and microstructure
 control.~\cite{zhou,hirao-rev,watari,hirosaki}} Since the Si$_3$N$_4$ ceramics also
@@ -75,8 +75,8 @@ semiconductor devices.
 At atmospheric pressure, Si$_3$N$_4$ exists in one of two phases, $\alpha$ and
 $\beta$, which are generally considered as low- and high-temperature phases,
 respectively.~\cite{zhou,hirosaki,riley} \textcolor {blue}{Their crystal structures belong to the
-	space groups of $P31c$~\cite{yashima} and $P6_3/m$~\cite{boulay}, respectively. These structures are formed by
-different stacking of equivalent basal layer structures originated by SiN$_4$
+	space groups of P31c and P6$_3$/m, respectively.~\cite{yashima,boulay} These structures have 
+different stacking orders of equivalent basal layer structures originated by SiN$_4$
 tetrahedra.~\cite{hampshire} In Fig.\ref{fig:Fig1_cryst}  these layer structures are depicted from
 the principal direction, as A, B, C, and D in the $\alpha$ phase and A and B in
 the $\beta$ phase. The stacking manners in $\alpha$ and $\beta$-Si$_3$N$_4$ are
@@ -96,15 +96,11 @@ approximately two times longer than that of the $\beta$ phase.}
  \end{center}
 \end{figure}
 
-\textcolor{red}{Most of the thermal condnductivity measurements on Si3N4 were peformed on the
-bulk polycrystalline samples.  The results were affected by the contained
-lattice defects, impurities, shapes and oriantations of the crystal grains.  Thus
-the thermal conductivity derived from an "ideal" crystal or a perfect crystal
-without defects, which serves as a guideline for the further material design, was not estabilished.}
-
-\textcolor{red}{To compensate the uncertaintity on the thermal conductivity,}
+\textcolor{red}{The reported values~\cite{zhou,hirao-rev,watari,hirosaki,hirai} of the thermal conductivity of the Si$_3$N$_4$ polymophs were measured on pollycrystalline bulk samples. These values were significantly affected by the contained
+	lattice defects, impurities, shapes and orientations of the constituent crystal grains; the thermal conductivity intrinsic to a defect-free single crystal has not been established.~\cite{hirosaki-md} 
+To access to the intrinsic thermal conductivity,}
 Li {\it et al.}~\cite{li} applied high-resolution thermoreflectance
-microscopy to a single $\beta$-Si$_3$N$_4$ grain in a ceramic sample. The analyzed thermal concuctivity 
+microscopy to a single $\beta$-Si$_3$N$_4$ grain in a ceramic sample. The analyzed thermal connectivity 
 was 69 and 180 Wm$^{-1}$K$^{-1}$ along the $a$ and $c$ axes, respectively. We consider the anisotropy of $\kappa_{zz}/\kappa_{xx}\sim 3$ is
 relatively large.  
 Theoretically, Hirosaki {\it et al.}~\cite{hirosaki-md} estimated the room-temperature lattice
@@ -115,19 +111,20 @@ They calculated $\kappa$$_{xx}$ and $\kappa$$_{zz}$ of
 $\alpha$-Si$_3$N$_4$ as 105 and 225 Wm$^{-1}$K$^{-1}$, and those of
 $\beta$-Si$_3$N$_4$ as 170 and 450 Wm$^{-1}$K$^{-1}$, respectively.
 The ratio $\kappa_{zz}/\kappa_{xx}$ in $\beta$-Si$_3$N$_4$ agreed well with the experimental results 
-obtained by Li {\it et al.}~\cite{li}: The absolute values overestimated the experimental by more than two times. 
+obtained by Li {\it et al.}~\cite{li}: The $\kappa_{ii}$ values overestimated the experimental by more than two times. 
 
-The MD results presented that the different stacking orders beween $\alpha$-
-and $\beta$-Si$_3$N$_4$ altered their LTC largely.
-On the other hand, the LTC calculation
-based on first principles calculation and Boltzman transport theory was recently reported on 
-many polymorphs of the wurtzite and zincblende structures. These structures have
-different stacking orders of the densest atom planes as ABAB.. and ABCABC...
-The different stacking orders in this case merely altered the LTCs.~\cite{phono3py} \textcolor{blue}{The
-unaltered behavior was also observed for the phonon linewidth distribution and
-phonon density of states.~\cite{phono3py} In Si$_3$N$_4$, correlation
-between the LTCs and phonon properties is unknown.  It is interesting
-to tackle this point using the same approach for $\alpha$- and $\beta$-Si$_3$N$_4$.}
+The MD results presented that the different stacking orders between $\alpha$-
+and $\beta$-Si$_3$N$_4$ altered their LTC largely.  On the other hand, LTCs of
+many polymorphs of the wurtzite and zincblende structures were  recently
+calculated based on first principles calculation and Boltzman transport theory.
+These structures have different stacking orders of the densest atom planes as
+ABAB.. and ABCABC...  The different stacking orders in this case merely altered
+the LTCs.~\cite{phono3py} \textcolor{blue}{Similar behaviors were also
+calculated for the phonon linewidth distribution and phonon density of
+states.~\cite{phono3py} In Si$_3$N$_4$, correlation between the LTCs and phonon
+properties has not been clarified.  It is interesting to investigate it using
+the same approach as in Ref.\onlinecite{phono3py} for $\alpha$- and
+$\beta$-Si$_3$N$_4$.}
 
 In addition to the $\alpha$ and $\beta$ phases, a cubic spinel phase ($\gamma$-Si$_3$N$_4$) is known to form
 upon compression and in-situ heating.~\cite{zerr,zhang} The reported
@@ -146,8 +143,7 @@ present LTC results first.  In this section we compare the thermal
 properties calculated by the present method with the available experimental
 data and theoretical results.  Then we investigate the
 characteristics in the LTCs in detail on the basis of microscopic phonon
-properties related to phonon band structures and three-phonon scattering
-processes.}
+properties related to phonon band structures and linewidths.}
 
 \section{Computational procedures}
 
@@ -631,7 +627,7 @@ components significantly.
 
 ~\textcolor{blue}{$\kappa^c$ in the $\gamma$ phase resembles closely to
 $\kappa_{xx}^c$ in the $\beta$ phase, although the linewidths of the
-$\gamma$ phase are twice larger than those of the the $\beta$ phase.
+$\gamma$ phase are twice larger than those of the $\beta$ phase.
 Because of the large differences in the crystal structure and the phonon
 properties in Figs. 5-a,c,d of the $\gamma$ phase from the $\alpha$ and $\beta$
 phases, we hereafter focus on the comparison between the latter two phases.} 
@@ -662,7 +658,7 @@ the momentum conservation.~\cite{Wallace} In the present study, we examine the
 impacts on the linewidths of $\Phi_{-\lambda\lambda'\lambda''}$ and the whole
 selection rules, one by one.
 
-In Table.~\ref{table:aveavepp}, \textcolor{blue}{the magnituds of
+In Table.~\ref{table:aveavepp}, \textcolor{blue}{the magnitudes of
 $\Phi_{-\lambda\lambda'\lambda''}$ are compared as the averages over the
 $\omega_\lambda$ frequency ranges between 0--15 and 0--35 THz and over all
 $\lambda'$ and $\lambda''$.} The values of the $\alpha$ and $\beta$ phases are
@@ -693,7 +689,7 @@ have similar impacts.
  \centering
   \includegraphics[width=0.9\linewidth]{figure_jdoss.eps} \caption{(color
 	  online) \textcolor{blue}{JDOS of $\alpha$- and $\gamma$-Si$_3$N$_4$ at different $\mathbf q$ points.
-  The first and and forth rows are JDOS at the same $\Gamma$-point but calculated with the polarization for non-analytic term correction set along $c^*$ and $b^*$, respectively.} \label{fig:Fig6_338} }
+  The first and forth rows are JDOS at the same $\Gamma$-point but calculated with the polarization for non-analytic term correction set along $c^*$ and $b^*$, respectively.} \label{fig:Fig6_338} }
  \centering
 \end{figure}
 
@@ -712,7 +708,7 @@ where
 	D_2^{(2)} & = & \frac{1}{N} \sum_{\lambda'\lambda''}\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
 								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
 \end{eqnarray*}
-\textcolor{blue}{with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice vector and otherwize zero.}
+\textcolor{blue}{with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice vector and otherwise zero.}
 
 Fig.~\ref{fig:Fig6_338} shows the frequency-dependences of JDOS at different
 $\mathbf{q}$-points on the $\Gamma$--A and $\Gamma$-K paths, which show very slight $\mathbf{q}$-point dependence.
@@ -766,7 +762,7 @@ modes along and out of the $a$-$b$ plane.
  \centering
   \includegraphics[width=\linewidth]{figure_analyze_gamma3_m1010_print.eps} \caption{(color
 	  online) \textcolor{blue}{Distribution of linewidths $\omega_\lambda$ $\leq$ 5 THz
-		  with colormaps with respect to strengths of eigenvector compornents along $\mathbf q$ (a)
+		  with colormaps with respect to strengths of eigenvector components along $\mathbf q$ (a)
 		  and on $a$-$b$ plane (b).} \label{fig:Fig7_338}} 
  \centering
 \end{figure}
@@ -801,7 +797,7 @@ the difference of anisotropy.
 
 ~\textcolor{blue}{3) In the $\gamma$ phase, the frequency distribution of the
 phonon mode contributions to LTC is found to be similar to that for
-$\kappa$$_{xx}$ of $\beta$-Si$_3$N$_4$ although the respecive phonon properties 
+$\kappa$$_{xx}$ of $\beta$-Si$_3$N$_4$ although the respective phonon properties 
 (group velocities and linewidths) are much different from those of the other phases}
 
 \section*{ACKNOWLEDGMENTS}
