@@ -334,27 +334,33 @@ sampling meshes of $10\times 10\times 14$, $10\times 10\times 26$, and
 $12\times 12\times 12$ were used to calculate the LTCs in Eq.~(\ref{eq:kappa})
 for the $\alpha$, $\beta$, and $\gamma$ phases.
 
-\textcolor {blue}{We examined the effect of thermal expansion on the 
-LTC values calculated within the quasi-harmonic approximation (QHA)~\cite{dove-p76}.
-The crystal structure of $\beta$-Si$_3$N$_4$ at the minimum Helmholtz free energy was calculated for
-a finite temperature and 0 GPa.
-Then LTC for the temperature was calculated using this crystal structure.
-This LTC was compared with the LTC for the same temperature but calculated with the crystal structure optimized for  0 K and 0 GPa.
-As the finite temperature set as 300, 600, 900, 1200, and 1500 K, the relative differences between the LTCs with the two structures were found less than 1 \%, similar to the case of Si and Ge~\cite{ward-ltc}. For the present study,
-these differences are negligible and the LTCs calculated with the latter structure are adopted.}
+\textcolor {blue}{We examined the effect of thermal expansion on the LTCs
+by calculating them with the crystal structures optimized for several finite
+temperatures within the quasi-harmonic approximation (QHA)~\cite{dove-p76}.
+Each of the crystal structure was obtained for one of the finite temperatures
+and 0 GPa by optimizing the lattice volume so as to show a minimum in the
+Helmholtz free energy. The LTC of the optimized structure was calculated for
+the finite temperature.  This LTC was differed from the LTC for the finite
+temperature, calculated using the crystal structure optimized for 0 K and 0
+GPa. We consider that this difference is caused by the thermal expansion of the
+lattice volume. For $\beta$-Si$_3$N$_4$, across the finite temperatures of  300, 600, 900, 1200, and
+1500 K, the relative differences between the LTCs of the two structures were
+found less than 1 \%, similar to the case of Si and Ge~\cite{ward-ltc}. For the
+present study, these differences are negligible and we adopt the LTCs of the
+crystal structure optimized for 0 K and 0 GPa.}
 
 
-We calculated volumetric thermal expansion coefficients and compared them with
-the reported experimental values so as to check the validity of the present
-calculation, because the thermal expansion is originated from the anharmonicity
-of the interatomic potential as well as lattice thermal conduction. The
-calculated values are 4.31$\times 10^{-6}$ and 4.19$\times 10^{-6}$ K$^{-1}$ at
-300 K for the $\alpha$ and $\beta$ phases, while the experimental values were
-3.75 and 3.55 ($10^{-6}$ K$^{-1}$)~\cite{minikayev-alpha}. The present
-calculation reproduced the experimental tendency where the $\alpha$ phase has a
-slightly larger thermal expansion coefficient than the $\beta$ phase,
-supporting that the present calculations enable us to qualitatively compare the
-LTC values of the Si$_3$N$_4$ phases.
+We calculated the volumetric thermal expansion coefficients and compared them
+with the reported experimental values so as to check the validity of the
+present LTC calculation, because the thermal expansion is originated from the
+anharmonicity of the interatomic potential as well as LTC. The calculated
+values are 4.31$\times 10^{-6}$ and 4.19$\times 10^{-6}$ K$^{-1}$ at 300 K for
+the $\alpha$ and $\beta$ phases, while the experimental values were 3.75 and
+3.55 ($10^{-6}$ K$^{-1}$)~\cite{minikayev-alpha}. The present calculation
+reproduced the experimental tendency where the $\alpha$ phase has a slightly
+larger thermal expansion coefficient than the $\beta$ phase, supporting that
+the present calculations enable us to qualitatively compare the LTC values of
+the Si$_3$N$_4$ phases.
 
 In order to compare the microscopic phonon properties among the three phases at
 the same conditions, those results calculated at 0 GPa are shown and discussed.
@@ -391,7 +397,8 @@ the $\beta$ phase. The $\kappa_{zz}$ of the direct solution in the $\beta$
 phase was 13 \% larger than that of the single-mode RTA solution. Since the LTC
 difference between the LBTE solutions is not significant, we expect the physics
 on LTC is well understood within RTA in the current level of our interest.
-\textcolor {red} {Therefore, the present study discusses the physics using the results of RTA.}
+\textcolor {red} {Therefore, we discuss the qualitative character of the LTC
+using the single-mode RTA solution.}
 
 \section{Results and discussion}
 
@@ -404,61 +411,77 @@ on LTC is well understood within RTA in the current level of our interest.
  K, compared with the experimental data. Theoretical bulk moduli $B$ in
  units of GPa, calculated by the authors by using the present band
  method, are presented in the fourth column.}
- \begin{ruledtabular}
-  \begin{tabular}{cccccccccc}
+% \begin{ruledtabular}
+%  \begin{tabular}{cccccccccc}
+%   & \multicolumn{3}{c}{This work} & \multicolumn{3}{c}{\textcolor{red}{Ref. Theo.}}
+%   & \multicolumn{3}{c}{Ref. Expt.} \\
+%   \cline{2-10}
+%   & $\kappa_{xx}$ & $\kappa_{zz}$ & $B$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ \\
+%   \hline
+%   $\alpha$-Si$_3$N$_4$ & \textcolor{blue}{68} & \textcolor{blue}{100} & 224 & 70\footnotemark[1] & 105\footnotemark[2] & 225\footnotemark[2] & 59\footnotemark[4] & - & -  \\
+%   $\beta$-Si$_3$N$_4$ & \textcolor{blue}{73} & \textcolor{blue}{199} & 237 & 250\footnotemark[1] & 170\footnotemark[2] & 450\footnotemark[2] & 122\footnotemark[5] & 69\footnotemark[6] & 180\footnotemark[6] \\
+%   $\gamma$-Si$_3$N$_4$ & \textcolor{blue}{77} & - & 296 & 80\footnotemark[1] & - & - & - & - & - 
+%   \footnotetext[1]{Ref.~\onlinecite{morelli}, Slack model.}
+%   \footnotetext[2]{Ref.~\onlinecite{hirosaki-md}, molecular dynamics (Green-Kubo).}
+%   \footnotetext[4]{Ref.~\onlinecite{hirai}, thin film.}
+%   \footnotetext[5]{Ref.~\onlinecite{hirosaki}, poly-crystals.}
+%   \footnotetext[6]{Ref.~\onlinecite{li}, single crystalline grains of poly-crystals.}
+%  \end{tabular}
+% \end{ruledtabular}
+%\end{table}
+
+\begin{ruledtabular}
+ \begin{tabular}{ccccccccc}
    & \multicolumn{3}{c}{This work} & \multicolumn{3}{c}{\textcolor{red}{Ref. Theo.}}
-   & \multicolumn{3}{c}{Ref. Expt.} \\
-   \cline{2-10}
-   & $\kappa_{xx}$ & $\kappa_{zz}$ & $B$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ \\
+   & \multicolumn{2}{c}{Ref. Expt.} \\
+   \cline{2-9}
+   & $\kappa_{xx}$ & $\kappa_{zz}$ & $B$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ & $\kappa_{xx}$ & $\kappa_{zz}$ \\
    \hline
-   $\alpha$-Si$_3$N$_4$ & \textcolor{blue}{68} & \textcolor{blue}{100} & 224 & 70\footnotemark[1] & 105\footnotemark[2] & 225\footnotemark[2] & 59\footnotemark[4] & - & -  \\
-   $\beta$-Si$_3$N$_4$ & \textcolor{blue}{73} & \textcolor{blue}{199} & 237 & 250\footnotemark[1] & 170\footnotemark[2] & 450\footnotemark[2] & 122\footnotemark[5] & 69\footnotemark[6] & 180\footnotemark[6] \\
-   $\gamma$-Si$_3$N$_4$ & \textcolor{blue}{77} & - & 296 & 80\footnotemark[1] & - & - & - & - & - 
+   $\alpha$-Si$_3$N$_4$ & \textcolor{blue}{68} & \textcolor{blue}{100} & 224 & 70\footnotemark[1] & 105\footnotemark[2] & 225\footnotemark[2] & - & -  \\
+   $\beta$-Si$_3$N$_4$ & \textcolor{blue}{73} & \textcolor{blue}{199} & 237 & 250\footnotemark[1] & 170\footnotemark[2] & 450\footnotemark[2] & 69\footnotemark[3] & 180\footnotemark[3] \\
+   $\gamma$-Si$_3$N$_4$ & \textcolor{blue}{77} & - & 296 & 80\footnotemark[1] & - & - & - & - 
    \footnotetext[1]{Ref.~\onlinecite{morelli}, Slack model.}
    \footnotetext[2]{Ref.~\onlinecite{hirosaki-md}, molecular dynamics (Green-Kubo).}
-   \footnotetext[4]{Ref.~\onlinecite{hirai}, thin film.}
-   \footnotetext[5]{Ref.~\onlinecite{hirosaki}, poly-crystals.}
-   \footnotetext[6]{Ref.~\onlinecite{li}, single crystalline grains of poly-crystals.}
+   \footnotetext[3]{Ref.~\onlinecite{li}, single crystalline grains of poly-crystals.}
   \end{tabular}
  \end{ruledtabular}
 \end{table}
 
-In Table \ref{table:LTC-exp}, the theoretical LTC values at 300 K are compared with
-the previously reported experimental~\cite{hirosaki,hirai,li} and
-theoretical~\cite{morelli,hirosaki-md,phono3py} values. The present calculation
-results agree better with the experimental $\kappa_{xx}$ and $\kappa_{zz}$ of
-$\beta$-Si$_3$N$_4$, compared with the references of the Slack
-model~\cite{morelli} and MD~\cite{hirosaki-md} results. The directional
-averages of the present $\kappa_{ii}$ in the $\alpha$, $\beta$, and $\gamma$
-phases are 79, 115, and 81 Wm$^{-1}$K$^{-1}$. The value of the $\gamma$ phase
-is similar to that of the $\alpha$ phase, in spite of comparatively large difference in their 
-bulk modulus ($B$) that is also shown in Table \ref{table:LTC-exp}. 
+Table \ref{table:LTC-exp} shows the present theoretical LTC values at 300 K.
+The LTCs of $\beta$-Si$_3$N$_4$ are markedly more anisotropic than those of
+$\alpha$-Si$_3$N$_4$.  The directional averages of our LTCs are 79, 115,  and
+77 Wm$^{-1}$K$^{-1}$ for the $\alpha$, $\beta$, $\gamma$ phases, respectively.
+The value of the $\gamma$ phase is similar to that of the $\alpha$ phase,
+in spite of comparatively large difference between the bulk moduli ($B$) that
+are also shown in Table \ref{table:LTC-exp}.   
 
-It can be seen that the theoretical LTC of $\beta$-Si$_3$N$_4$ is markedly
-more anisotropic than those of the $\alpha$ phase. The theoretical LTC of
-$\beta$-Si$_3$N$_4$ is in good agreement with the corresponding experimental
-data for individual grains reported by Li {\it et al.}~\cite{li}, indicating
-that the experimentally reported large anisotropy in the thermal conductivities
-of $\beta$-Si$_3$N$_4$ stems from the intrinsic properties of the crystal,
-rather than specific defects induced during the sample preparation process.
+Table \ref{table:LTC-exp} also shows the previously reported
+experimental~\cite{li} and theoretical~\cite{hirosaki-md} $\kappa_{ii}$ for the
+references. The LTCs of the Slack model are calculated by Morelli {\it et al.}~\cite{morelli} and these values 
+are also shown as $\kappa$ in Table \ref{table:LTC-exp}.
+Among the comparisons of the theoretical results to the experimental, our $\kappa_{ii}$ agrees better with the experimental, than that of the
+MD~\cite{hirosaki-md}. Our directional average (115 Wm$^{-1}$K$^{-1}$) agrees
+better with the experimental directional average of 106 Wm$^{-1}$K$^{-1}$, than
+the result of the Slack model.
 
 Fig.~\ref{fig:Fig1_338} shows the theoretical LTCs of the $\alpha$  and $\beta$
-phases as a function of $T$, in comparison with the reference experimental
-data~\cite{hirosaki,hirai,li}, which were measured with the polycrystalline
-samples. The values of the polycrystalline bulk samples are unable to directly
-compare with these theoretical LTC tensors because the microstructures of the
-bulk samples largely affect the thermal conductivities:  \textcolor {blue} {The
-thermal conductivity can be decreased due to the phonon scattering at
-lattice defects in the polycrystalline sample. Moreover, the thermal
-conductivity can be deviated from $\sum_i \kappa_{ii}/3$, a simple
-directional average of $\kappa_{ii},$ because inequivalent weights can be
-supposed on the $\kappa_{ii}$ terms  according to the shapes of the
-constituent crystal grains.  We represented these inequivalent weights by a
-parameter $0\le{w}\le{1}$ and approximated theoretical LTC of the polycrystalline bulk
-sample as $\kappa = w\kappa_{xx} + (1-w) \kappa_{zz}$. The parameter 
-was adjusted to result in the least square difference
-between the theoretical and experimental LTC values. If we adopt the simple
-boundary scattering model, both the parameters $L$ and $w$ were optimized
+phases as a function of $T$, together with the reference experimental
+data~\cite{hirosaki,hirai,li}. The thermal conductivities over a series of
+temperatures were only reported on the polycrystalline bulk samples.  These
+bulk thermal conductivities cannot be directly compare with these theoretical
+LTC tensors because the microstructures of the bulk samples largely affect the
+thermal conductivities:  \textcolor {blue} { The thermal conductivity can be
+deviated from $\sum_i \kappa_{ii}/3$, a simple directional average of
+$\kappa_{ii},$ because inequivalent weights can be supposed on the
+$\kappa_{ii}$ terms  according to the shapes of the constituent crystal
+grains.  We represented these inequivalent weights by a parameter
+$0\le{w}\le{1}$ and approximated theoretical LTC of the polycrystalline
+bulk sample as $\kappa = w\kappa_{xx} + (1-w) \kappa_{zz}$. The parameter
+was adjusted to result in the least square difference between the
+theoretical and experimental LTC values.  Moreover, the thermal
+conductivity can be decreased due to the phonon scattering at lattice
+defects in the polycrystalline sample.  We consider this by the simple boundary
+scattering model. In this case both the parameters $L$ and $w$ are optimized
 for the least square fit.}
 
 \begin{figure}[ht]
