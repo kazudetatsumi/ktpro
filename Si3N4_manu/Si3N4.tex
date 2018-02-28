@@ -191,12 +191,12 @@ $\lambda$, $n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$ is
 the Bose-Einstein distribution at temperature $T$, and
 $\Phi_{\lambda\lambda'\lambda''}$ denotes the three-phonon-scattering strength.
 $\Phi_{\lambda\lambda'\lambda''}$ was obtained by usual coordinate
-transformation of third-order IFCs from direct space to phonon
-space.~\cite{phono3py} The second- and third-order real-space IFCs
+transformation of third-order force constants from direct space to phonon
+space.~\cite{phono3py} The second- and third-order real-space force constants
 were obtained from the {\it ab-initio} calculation, whose details are written in the
 next section.
 
-In order to compare the more realistic results of the calculated LTC with the
+In order to compare the more realistic results of the calculated $\boldsymbol{\kappa}$ with the
 experimental data, the isotopic scattering effect due to the natural isotope
 distribution was taken into account according to the second-order perturbation
 theory.~\cite{tamura} With the relaxation times of the phonon-phonon scattering
@@ -204,10 +204,6 @@ and isotopic scattering, $\tau_{\lambda,\text{ph-ph}}$ and
 $\tau_{\lambda,\text{iso}}$, the total relaxation time for a phonon mode was
 assumed to be $1/\tau_{\lambda} = 1/\tau_{\lambda,\text{ph-ph}} +
 1/\tau_{\lambda,\text{iso}}$, according to Matthiessen's rule.
-
-These LTCs were calculated with the phonon-phonon interaction calculation code
-PHONO3PY,~\cite{phono3py} while the harmonic phonon states were analyzed with
-the phonon calculation code PHONOPY.~\cite{phonopy} 
 
 The available experimental thermal conductivity data of the Si$_3$N$_4$ system
 have been measured on the polycrystalline samples and not measured from any
@@ -219,9 +215,9 @@ scattering model, where $\mathbf{v}_\lambda =
 \nabla_{\mathbf{q}}\omega_\lambda$ is the group velocity and $L$ a
 parameter regarding to the boundary mean free path. We consider
 $\tau_{\lambda,\text{bs}}$ as a variable parameter and included it to
-LTCs according to Matthiessen's rule.
+$\boldsymbol{\kappa}$ according to Matthiessen's rule.
 
-The closed form of the LTC tensors within RTA were obtained via
+The closed form of $\boldsymbol{\kappa}$ within RTA was obtained via
 \begin{align}
  \label{eq:kappa}
  \boldsymbol{\kappa}(T) = \frac{1}{N_\mathbf{q}\Omega} \sum_\lambda
@@ -229,7 +225,7 @@ The closed form of the LTC tensors within RTA were obtained via
 \end{align}
 where $N_\mathbf{q}$ is the number of
 $\mathbf{q}$-points, $\Omega$ is the unit cell volume, and $c_\lambda$
-is the mode heat capacity. To analyze the LTC in detail, we calculate
+is the mode heat capacity. To analyze $\boldsymbol{\kappa}$ in detail, we calculate
 the cumulative thermal conductivity:
 \begin{align}
  \label{eq:cum-kappa}
@@ -240,17 +236,20 @@ the cumulative thermal conductivity:
 \end{align}
 and its derivative $\frac{\partial
 \boldsymbol{\kappa}^\text{c}(\omega)}{\partial \omega}$ to see the phonon mode
-contributions to the LTC.
+contributions to $\boldsymbol{\kappa}$.
 
+The lattice thermal conductivities were calculated with the phonon-phonon interaction calculation code
+PHONO3PY~\cite{phono3py}, while the harmonic phonon states were analyzed with
+the phonon calculation code PHONOPY~\cite{phonopy}.
 
 \subsection{Computational details}
 
-The IFCs were calculated using the first-principles projector
+The force constants were calculated using the first-principles projector
 augmented wave method~\cite{paw} (VASP code~\cite{vasp-1996,vasp-1995,
 vasp-1999}). The generalized gradient approximation (GGA) parameterized by
 Perdew, Burke, and Ernzerhof~\cite{pbe} was used for the exchange correlation
 potential. A plane wave energy cutoff of 500 eV was employed. The crystal
-structures were optimized until the convergence in the residual forces acting
+structures were optimized until the residual forces acting
 on the constituent atoms was less than $10^{-6}$ eV/\AA. The structural
 optimization was firstly performed for a temperature of 0 K and 0 GPa. Here the
 temperature and pressure were considered only for the electronic system and the
@@ -259,17 +258,17 @@ parameters were $a=7.808$ \AA~ and $c=5.659$ \AA~ for the $\alpha$ phase,
 $a=7.660$ \AA~ and $c=2.925$ \AA~ for the $\beta$ phase, and $a=7.787$ \AA~
 for the $\gamma$ phase, which agree with the experimental
 data~\cite{yashima,boulay,paszkowicz} within +0.7 \% errors. The lattice
-volume calculated within the local density approximation
+volume optimized within the local density approximation
 (LDA)~\cite{lda} for the exchange correlation potential was, for
 $\beta$-Si$_3$N$_4$, 3 \% smaller than within GGA, which is a typical
-volume contraction of LDA. The LTC calculated within LDA was larger by 2.6 \% than within GGA. For
+volume contraction of LDA. The $\boldsymbol{\kappa}$ calculated within LDA was larger by 2.6 \% than within GGA. For
 our discussion, this difference is enough small, therefore the impact of
 choice of exchange correlation potential is considered to be minor in our
 study.
 
 \begin{table}[ht]
 	\caption{\label{table:LTC} Calculated lattice thermal conductivities 
- (LTC) of $\alpha$-, $\beta$-, and $\gamma$-Si$_3$N$_4$
+ of $\alpha$-, $\beta$-, and $\gamma$-Si$_3$N$_4$
  (WK$^{-1}$m$^{-1}$) at 300 K with respect to several combinations of
  supercell sizes.}
  \begin{ruledtabular}
@@ -278,7 +277,7 @@ study.
    & \multicolumn{2}{c}{Supercell (\# of atoms)} &
    \multicolumn{2}{c}{LTC} \\
    \cline{2-5}
-   & $3^\text{rd}$ FC & $2^\text{nd}$ FC & $xx$ & $zz$ \\
+   & $3^\text{rd}$ force constants & $2^\text{nd}$ force constants & $xx$ & $zz$ \\
    \hline
    \multirow{6}{*}{$\alpha$}
    & $1\times 1\times 1$ (28) & $1\times
@@ -318,70 +317,72 @@ study.
 \end{table}
 
 Supercell and finite difference approaches were used to calculate the
-IFCs.~\cite{wei-supercell} The supercells were $1\times 1\times2$, $1\times
+force constants.~\cite{wei-supercell} The supercells were $1\times 1\times2$, $1\times
 1\times3$, and $1\times 1\times1$ supercells of the conventional unit cells for
-the calculation of the third-order IFCs in $\alpha$, $\beta$, and
+the calculation of the third-order force constants in $\alpha$, $\beta$, and
 $\gamma$-Si$_3$N$_4$, respectively; they were $3\times 3\times4$, $3\times
-3\times8$ and $2\times 2\times2$ for the second-order IFCs.  The length of the
+3\times8$ and $2\times 2\times2$ for the second-order force constants.  The length of the
 induced atomic displacement was set to 0.03 \AA.  Table \ref{table:LTC} shows
-the calculated LTC values for several different sets of the supercells,
-indicating that our calculated LTCs are reasonably converging with respect to
+the $\boldsymbol{\kappa}$  calculated with several different sets of the supercells,
+indicating that our calculated $\boldsymbol{\kappa}$ is reasonably converging with respect to
 the size of the supercells. 
 
 \textcolor{blue}{Non-analytical term correction~\cite{wang} was applied to the
-second-order IFC to take into account the long range Coulomb forces present in
+second-order force  constants to take into account the long range Coulomb forces present in
 ionic crystals. For the correction, Born effective charges were calculated by
 using the density functional perturbation theory (DFPT).}\textcolor{red}{Ref!}
 
 Uniform $\mathbf{k}$-point sampling meshes of $4\times 4\times 2$,
 $4\times 4\times 3$, and $3\times 3\times 3$ were used for the
-third-order IFCs of the $\alpha$, $\beta$, and $\gamma$ phases. For the
+third-order force constants of the $\alpha$, $\beta$, and $\gamma$ phases. For the
 $\alpha$ and $\beta$ phases the center of the $a^*$-$b^*$ plane was sampled
 while the center on the $c^*$-axis was not. For the
 $\gamma$ phase, non-$\Gamma$ center mesh was used. For the second-order
-IFC, the $\Gamma$-point was only sampled for the $\alpha$ and $\beta$
+force constants, the $\Gamma$-point was only sampled for the $\alpha$ and $\beta$
 phase and the only one $\mathbf{k}=(0.5, 0.5, 0.5)$ point was
 sampled for the $\gamma$ phase. The $\mathbf{q}$-point
 sampling meshes of $10\times 10\times 14$, $10\times 10\times 26$, and
-$12\times 12\times 12$ were used to calculate the LTCs in Eq.~(\ref{eq:kappa})
+$12\times 12\times 12$ were used to calculate $\boldsymbol{\kappa}$ in Eq.~(\ref{eq:kappa})
 for the $\alpha$, $\beta$, and $\gamma$ phases.
 
-\textcolor {blue}{We examined the effect of thermal expansion on the LTCs
-by calculating them with the crystal structures optimized for several finite
-temperatures within the quasi-harmonic approximation (QHA)~\cite{dove-p76}.
-Each of the crystal structure was obtained for one of the finite temperatures
-and 0 GPa by optimizing the lattice volume so as to show a minimum in the
-Helmholtz free energy. The LTC of the optimized structure was calculated for
-the finite temperature.  This LTC was differed from the LTC for the finite
-temperature, calculated using the crystal structure optimized for 0 K and 0
-GPa. We consider that this difference is caused by the thermal expansion of the
-lattice volume. For $\beta$-Si$_3$N$_4$, across the finite temperatures of  300, 600, 900, 1200, and
-1500 K, the relative differences between the LTCs of the two structures were
-found less than 1 \%, similar to the case of Si and Ge~\cite{ward-ltc}. For the
-present study, these differences are negligible and we adopt the LTCs of the
-crystal structure optimized for 0 K and 0 GPa.}
+\textcolor {blue}{We examined the effect of thermal expansion on
+$\boldsymbol{\kappa}$ by calculating them with the crystal structures
+optimized for several finite temperatures within the quasi-harmonic
+approximation (QHA)~\cite{dove-p76}.  The structure was optimized for a
+temperature and 0 GPa so as to show a minimum Helmholtz free energy.
+$\boldsymbol{\kappa}$ for the temperature was calculated with the optimized
+structure.  This $\boldsymbol{\kappa}$ was differed from the one for the
+temperature, calculated with the structure optimized for 0 K and 0 GPa. We
+consider that this difference is caused by the thermal expansion of the
+lattice. For $\beta$-Si$_3$N$_4$ and the temperatures of 300, 600, 900,
+1200, and 1500 K, the differences in $\boldsymbol{\kappa}$ between the two
+structures were found less than 1 \%, similar to the case of Si and
+Ge~\cite{ward-ltc}. For the present study, these differences are negligible
+and we adopt the $\boldsymbol{\kappa}$ calculated with the structure
+optimized for 0 K and 0 GPa.}
 
 
 We calculated the volumetric thermal expansion coefficients and compared them
 with the reported experimental values so as to check the validity of the
-present LTC calculation, because the thermal expansion is originated from the
-anharmonicity of the interatomic potential as well as LTC. The calculated
-values are 4.31$\times 10^{-6}$ and 4.19$\times 10^{-6}$ K$^{-1}$ at 300 K for
-the $\alpha$ and $\beta$ phases, while the experimental values were 3.75 and
-3.55 ($10^{-6}$ K$^{-1}$)~\cite{minikayev-alpha}. The present calculation
-reproduced the experimental tendency where the $\alpha$ phase has a slightly
-larger thermal expansion coefficient than the $\beta$ phase, supporting that
-the present calculations enable us to qualitatively compare the LTC values of
-the Si$_3$N$_4$ phases.
+present thermal conductivity calculation, because the thermal expansion is
+originated from the anharmonicity of the interatomic potential as well as
+$\boldsymbol{\kappa}$. The calculated values of the $\alpha$ and $\beta$ phases
+are 4.31$\times 10^{-6}$ and 4.19$\times 10^{-6}$ K$^{-1}$ for 300 K , while
+the experimental values were 3.75 and 3.55 ($10^{-6}$
+K$^{-1}$)~\cite{minikayev-alpha}. The present calculation reproduced the
+experimental tendency where the $\alpha$ phase has a slightly larger thermal
+expansion coefficient than the $\beta$ phase, supporting that the present
+calculations enable us to qualitatively compare the calculated
+$\boldsymbol{\kappa}$ of the Si$_3$N$_4$ phases.
 
 In order to compare the microscopic phonon properties among the three phases at
 the same conditions, those results calculated at 0 GPa are shown and discussed.
 For the $\gamma$ phase, this means that we assume the condition of virtually
 quenched $\gamma$ phase at 0 GPa from the high pressure. To examine the
 analytical continuity of the properties with respect to pressures, we
-calculated LTC of $\gamma$ phase at 10, 20, and 40 GPa as shown in
+calculated $\boldsymbol{\kappa}$ of $\gamma$ phase at 10, 20, and 40 GPa as shown in
 Fig.~\ref{fig:S1}, where the phenomenological behaviour of linear dependence of
-LTC with respect to pressure with the calculated slope of 2.89
+$\boldsymbol{\kappa}$ with respect to pressure with the calculated slope of 2.89
 Wm$^{-1}$K$^{-1}$GPa$^{-1}$ was reproduced as similar to
 Ref.~\onlinecite{andersson-pressure}. By this, we consider that the microscopic
 values are also varied smoothly with the pressure and those at 0 GPa are
@@ -391,7 +392,7 @@ valuable to compare with the $\alpha$ and $\beta$ phases.
 
 The merit to employ the single-mode RTA for thermal conductivity calculation is
 the closed form, by which we can intuitively understand the qualitative
-character of LTC in terms of the relaxation time and group velocity. The
+character of $\boldsymbol{\kappa}$ in terms of the relaxation time and group velocity. The
 microscopic understanding of the full solution of LBTE is still under the
 development~\cite{cepellotti-relaxons} and the microscopic picture based on
 collective phonons~\cite{hardy-collective} will require more complicated
@@ -400,17 +401,17 @@ often underestimates the full solution.~\cite{mukhopadhyay-ltc,ward-ltc}
 
 For the $\alpha$ and $\beta$ phases, we adopted a direct solution of
 LBTE~\cite{chaput-direct}, which is one of the methods of LBTE full solutions.
-The LTC values of the direct solution without the isotope effect were  69 and
-102 Wm$^{-1}$K$^{-1}$ for $\kappa_{xx}$ and $\kappa_{zz}$  of the $\alpha$
-phase and 76 and 238 Wm$^{-1}$K$^{-1}$ for those of the $\beta$ phase,
-respectively, while the corresponding single-mode RTA values were 70 and 102
-Wm$^{-1}$K$^{-1}$ for the $\alpha$ phase and 76 and 210 Wm$^{-1}$K$^{-1}$ for
-the $\beta$ phase. The $\kappa_{zz}$ of the direct solution in the $\beta$
-phase was 13 \% larger than that of the single-mode RTA solution. Since the LTC
-difference between the LBTE solutions is not significant, we expect the physics
-on LTC is well understood within RTA in the current level of our interest.
-\textcolor {red} {Therefore, we discuss the qualitative character of the LTC
-using the single-mode RTA solution.}
+Its $\kappa_{xx}$ and $\kappa_{zz}$ without the isotope effect were 69 and 102
+Wm$^{-1}$K$^{-1}$ for  the $\alpha$ phase and 76 and 238 Wm$^{-1}$K$^{-1}$ for
+those of the $\beta$ phase, respectively, while the corresponding single-mode
+RTA values were 70 and 102 Wm$^{-1}$K$^{-1}$ for the $\alpha$ phase and 76 and
+210 Wm$^{-1}$K$^{-1}$ for the $\beta$ phase. The $\kappa_{zz}$ of the direct
+solution in the $\beta$ phase was 13 \% larger than that of the single-mode RTA
+solution. Since the differences in $\boldsymbol{\kappa}$ between the LBTE
+solutions are not significant, we expect the physics on those lattice thermal
+conductivities is well understood within RTA in the current level of our
+interest.  \textcolor {red} {Therefore, we discuss the results of  
+the thermal conductivities calculated using the single-mode RTA solution.}
 
 \section{Results and discussion}
 
@@ -459,9 +460,9 @@ using the single-mode RTA solution.}
  \end{ruledtabular}
 \end{table}
 
-Table \ref{table:LTC-exp} shows the present theoretical LTC values at 300 K.
-The LTCs of $\beta$-Si$_3$N$_4$ are markedly more anisotropic than those of
-$\alpha$-Si$_3$N$_4$.  The directional averages of our LTCs are 79, 115,  and
+Table \ref{table:LTC-exp} shows the present theoretical $\boldsymbol{\kappa}$ values at 300 K.
+The $\kappa_{ii}$ of $\beta$-Si$_3$N$_4$ are markedly more anisotropic than those of
+$\alpha$-Si$_3$N$_4$.  The directional averages $\sum_i \kappa_{ii}/3$  are 79, 115,  and
 77 Wm$^{-1}$K$^{-1}$ for the $\alpha$, $\beta$, $\gamma$ phases, respectively.
 The value of the $\gamma$ phase is similar to that of the $\alpha$ phase,
 in spite of comparatively large difference between the bulk moduli ($B$) that
@@ -469,32 +470,28 @@ are also shown in Table \ref{table:LTC-exp}.
 
 Table \ref{table:LTC-exp} also shows the previously reported
 experimental~\cite{li} and theoretical~\cite{hirosaki-md} $\kappa_{ii}$ for the
-references. The LTCs of the Slack model are calculated by Morelli {\it et al.}~\cite{morelli} and these values 
-are also shown as $\kappa$ in Table \ref{table:LTC-exp}.
-Among the comparisons of the theoretical results to the experimental, our $\kappa_{ii}$ agrees better with the experimental, than that of the
-MD~\cite{hirosaki-md}. Our directional average (115 Wm$^{-1}$K$^{-1}$) agrees
-better with the experimental directional average of 106 Wm$^{-1}$K$^{-1}$, than
-the result of the Slack model.
+references. For the $\beta$ phase, our $\kappa_{ii}$ agrees better with the
+experimental, than that of the molecular calculation~\cite{hirosaki-md} does.
+The Slack model was employed by Morelli {\it et al.}~\cite{morelli}. Their
+results are shown as $\kappa$ in Table \ref{table:LTC-exp}.  For the $\beta$
+phase, our directional average agrees better with the experimental $\sum_i
+\kappa_{ii}/3$, compared with the $\kappa$ in the Slack model.
 
-Fig.~\ref{fig:Fig1_338} shows the theoretical LTCs of the $\alpha$  and $\beta$
-phases as a function of $T$, together with the reference experimental
-data~\cite{hirosaki,hirai,li}. The thermal conductivities over a series of
+Fig.~\ref{fig:Fig1_338} shows the theoretical $\kappa_{ii}$ of the $\alpha$ and
+$\beta$ phases as a function of $T$, together with the reference experimental
+data~\cite{hirosaki,hirai,li}. The thermal conductivities for a series of
 temperatures were only reported on the polycrystalline bulk samples.  These
-bulk thermal conductivities cannot be directly compare with these theoretical
-LTC tensors because the microstructures of the bulk samples largely affect the
-thermal conductivities:  \textcolor {blue} { The thermal conductivity can be
-deviated from $\sum_i \kappa_{ii}/3$, a simple directional average of
-$\kappa_{ii},$ because inequivalent weights can be supposed on the
-$\kappa_{ii}$ terms  according to the shapes of the constituent crystal
-grains.  We represented these inequivalent weights by a parameter
-$0\le{w}\le{1}$ and approximated theoretical LTC of the polycrystalline
-bulk sample as $\kappa = w\kappa_{xx} + (1-w) \kappa_{zz}$. The parameter
-was adjusted to result in the least square difference between the
-theoretical and experimental LTC values.  Moreover, the thermal
-conductivity can be decreased due to the phonon scattering at lattice
-defects in the polycrystalline sample.  We consider this by the simple boundary
-scattering model. In this case both the parameters $L$ and $w$ are optimized
-for the least square fit.}
+bulk thermal conductivities cannot be directly compare with the calculated
+$\boldsymbol{\kappa}$ because the microstructures of the bulk samples largely
+affected the thermal conductivities:  \textcolor {blue} { For largely anisotropic
+$\kappa_{ii}$, the thermal conductivities were deviated from the simple
+directional average of the $\kappa_{ii}$, depending on the shapes
+of the constituent crystal grains.  We took into account this effect by
+using a parameter $0\le{w}\le{1}$ and fitting $w\kappa_{xx} + (1-w) \kappa_{zz}$ 
+to the experimental $\kappa$ by the least squares method.
+We also considered the effect of the contained lattice defects by
+$\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$. Both the $L$
+and $w$ were freed for the least squares. }
 
 \begin{figure}[ht]
  \begin{center}
@@ -508,14 +505,14 @@ for the least square fit.}
  \end{center}
 \end{figure}
 
-\textcolor {blue}{The theoretical LTC without the simple phonon boundary
-scattering model is nearly inversely proportional to $T$ because $n_\lambda$
+\textcolor {blue}{In Fig.~\ref{fig:Fig1_338}, the $\kappa_{ii}$ calculated without $\tau_{\lambda,\text{bs}}$ 
+is nearly inversely proportional to $T$ because $n_\lambda$
 in Eq.~(\ref{eq:linewidth}) can be reduced to $\exp(-\hbar\omega_\lambda/\mathrm{k_B}T)$.} In
 Fig.~\ref{fig:Fig1_338}-a, the
 temperature dependence of the experimental data of a chemically vapor-deposited
 $\alpha$-Si$_3$N$_4$ sample~\cite{hirai} is deviated from inverse proportion
-considerably, intersecting the theoretical curves of the $\kappa$$_{xx}$ and
-$\kappa$$_{zz}$.  Thus no value of $w$ adjusts the theoretical LTC to the
+considerably, intersecting the theoretical curves. 
+Thus no value of $w$ adjusts the theoretical LTC to the
 experimental curve.  The full solution of LBTE would negligibly cure the
 disagreement.  Including the simple phonon lifetime of boundary scattering,
 $\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$, into the total phonon
