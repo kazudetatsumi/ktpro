@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import scipy.optimize
 
 homedir = "/home/kazu/"
-cdata=np.loadtxt(homedir + '/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g0.dat',comments='#',dtype='float')
-sdata=np.loadtxt(homedir + '/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g0.dat',comments='#',dtype='float')
-gdata=np.loadtxt(homedir + '/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0.dat',comments='#',dtype='float')
+cdata=np.loadtxt(homedir + '/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos-m141416-g0-t300.dat',comments='#',dtype='float')
+sdata=np.loadtxt(homedir + '/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/jdos-m141432-g0-t300.dat',comments='#',dtype='float')
+gdata=np.loadtxt(homedir + '/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/jdos-m222222-g0-t300.dat',comments='#',dtype='float')
 cdosdata=np.loadtxt(homedir + '/asi3n4/phono3py_112_fc2_334_sym_monk_shift/total_dos_m141416.dat',comments='#',dtype='float')
 sdosdata=np.loadtxt(homedir + '/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/total_dos_m141432.dat',comments='#',dtype='float')
 gdosdata=np.loadtxt(homedir + '/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/total_dos.dat',comments='#',dtype='float')
