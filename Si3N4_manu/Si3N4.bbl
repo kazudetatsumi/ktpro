@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{40}%
+\begin{thebibliography}{42}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -346,6 +346,27 @@
   {Z.}~\bibnamefont {Liu}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo
   {journal} {J. Phys.: Condens. Matter}\ }\textbf {\bibinfo {volume} {22}},\
   \bibinfo {pages} {202201} (\bibinfo {year} {2010})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Gajdo\v{s}}\ \emph {et~al.}(2006)\citenamefont
+  {Gajdo\v{s}}, \citenamefont {Hummer}, \citenamefont {Kresse}, \citenamefont
+  {Furthm{\"u}ller},\ and\ \citenamefont {F}}]{vasp-lepsiron}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Gajdo\v{s}}}, \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Hummer}},
+  \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Kresse}}, \bibinfo
+  {author} {\bibfnamefont {J.}~\bibnamefont {Furthm{\"u}ller}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {B.}~\bibnamefont {F}},\ }\href@noop {} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. B}\ }\textbf {\bibinfo {volume}
+  {73}},\ \bibinfo {pages} {045112} (\bibinfo {year} {2006})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Wu}\ \emph {et~al.}(2005)\citenamefont {Wu},
+  \citenamefont {Vanderbilt},\ and\ \citenamefont {Hamann}}]{lepsiron}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {X.}~\bibnamefont
+  {Wu}}, \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Vanderbilt}}, \
+  and\ \bibinfo {author} {\bibfnamefont {D.~R.}\ \bibnamefont {Hamann}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. B}\
+  }\textbf {\bibinfo {volume} {72}},\ \bibinfo {pages} {035105} (\bibinfo
+  {year} {2005})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Dove}(1993)}]{dove-p76}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.~T.}\ \bibnamefont
