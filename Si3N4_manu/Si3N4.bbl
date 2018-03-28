@@ -245,6 +245,13 @@
   {Heremans}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Applied physics letters}\ }\textbf {\bibinfo {volume} {81}},\ \bibinfo
   {pages} {5126} (\bibinfo {year} {2002})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Togo}\ and\ \citenamefont {Tanaka}(2015)}]{phonopy}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Togo}}\ and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Scripta
+  Materialia}\ }\textbf {\bibinfo {volume} {108}},\ \bibinfo {pages} {1}
+  (\bibinfo {year} {2015})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Chaput}(2013)}]{chaput-direct}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
@@ -257,13 +264,6 @@
   {Tamura}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Physical Review B}\ }\textbf {\bibinfo {volume} {27}},\ \bibinfo {pages}
   {858} (\bibinfo {year} {1983})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Togo}\ and\ \citenamefont {Tanaka}(2015)}]{phonopy}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
-  {Togo}}\ and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Scripta
-  Materialia}\ }\textbf {\bibinfo {volume} {108}},\ \bibinfo {pages} {1}
-  (\bibinfo {year} {2015})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Bl{\"o}chl}(1994)}]{paw}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.~E.}\ \bibnamefont
