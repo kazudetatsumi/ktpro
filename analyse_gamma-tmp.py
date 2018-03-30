@@ -8,7 +8,7 @@ cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
-max_freq = 5
+max_freq = 10
 fs = 9
 #c = cdir + "noiso/kappa-m141416.noiso.hdf5"
 c = cdir + "noiso/kappa-m101014.noiso.hdf5"
@@ -131,42 +131,27 @@ def caserun(casefile,vcasefile,n,phase):
     longiamp=trans(qpointq,eigenvecq)
     omega1d,gamma1d,sqamp1d,longiamp1d=select_mode(omegak,gammak,sqamp,longiamp)
     plt.subplot(2,2,n)
-    plt.scatter(omega1d,gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.scatter(longiamp1d,gamma1d,linewidth=0.01,s=5, label=phase )
     plt.tick_params(which='both',tickdir='in')
     #plt.rcParams['ytick.right'] = True
     #plt.rcParams['xtick.top'] = True
     plt.yscale("log")
-    plt.ylim(0.0005,0.0050)
-    plt.xlabel('omega / THz')
+    plt.ylim(0.0005,0.0080)
+    plt.xlabel('longiamp')
     plt.ylabel('gamma')
     #plt.legend()
-    plt.colorbar(label='sum of squares of eigenvector component along q')
     plt.subplot(2,2,n+2)
     #plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
-    plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.scatter(sqamp1d,gamma1d,linewidth=0.01,s=5, label=phase,)
     plt.tick_params(which='both',tickdir='in')
     #plt.rcParams['ytick.right'] = True
     #plt.rcParams['xtick.top'] = True
-    if phase == "beta":
-        x = 0.1*np.arange(0,50)
-        y = 0.001*np.exp(0.16*(x-0.5)) 
-        plt.plot(x,y)
-        n_up = 0
-        n_dn = 1
-        for omega,gamma in zip(omega1d,gamma1d):
-            if gamma >=  0.001*math.exp(0.16*(omega-0.5)):
-                    n_up += 1
-            else:
-                    n_dn += 1
-        print "num of up states:",n_up
-        print "num of dn states:",n_dn
 
     plt.yscale("log")
-    plt.ylim(0.0005,0.0050)
-    plt.xlabel('omega / THz')
+    plt.ylim(0.0005,0.0080)
+    plt.xlabel('sqamp')
     plt.ylabel('gamma')
     #plt.legend()
-    plt.colorbar(label='sum of squares of eigenvector x_y_component')
 
 
 def run():
