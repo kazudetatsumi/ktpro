@@ -285,10 +285,10 @@ def eachplot(sn,phase,omega,kaccum,dkaccum):
 def eachplot2(sn,phase,omega,dkaccum):
    plt.subplot(numr,3,sn)
    plt.title("gv_for_" + phase)
-   plt.plot(omega,dkaccum[:,0]*10,label=phase + "_dkxx")
-   plt.plot(omega,dkaccum[:,2]*10,label=phase + "_dkzz")
-   plt.ylim(0,105)
-   plt.yticks([0,50,100])
+   plt.plot(omega,dkaccum[:,0],label=phase + "_dkxx")
+   plt.plot(omega,dkaccum[:,2],label=phase + "_dkzz")
+   plt.ylim(0,10.5)
+   plt.yticks([0,5,10])
    plt.xlim(0,max_freq)
 
 def eachplot3(sn,phase,omega,dos):
