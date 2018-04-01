@@ -1,12 +1,12 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2016.4.27)  17 DEC 2017 13:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2018.3.31)  31 MAR 2018 11:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **tst.tex
 (./tst.tex
-LaTeX2e <2011/06/27>
-Babel <3.9h> and hyphenation patterns for 2 languages loaded.
-(/usr/share/texlive/texmf-dist/tex/latex/base/minimal.cls
+LaTeX2e <2017/01/01> patch level 3
+Babel <3.10> and hyphenation patterns for 3 language(s) loaded.
+(/usr/share/texmf-dist/tex/latex/base/minimal.cls
 Document Class: minimal 2001/05/25 Standard LaTeX minimal class
 ) (./tst.aux)
 \openout1 = `tst.aux'.
@@ -103,16 +103,16 @@ ld!Hello World!Hello World!Hello World!Hello
 
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./tst.aux) ) 
 Here is how much of TeX's memory you used:
- 19 strings out of 495028
- 339 string characters out of 6181497
- 46944 words of memory out of 5000000
- 3319 multiletter control sequences out of 15000+600000
+ 19 strings out of 494939
+ 317 string characters out of 6181378
+ 46513 words of memory out of 5000000
+ 3409 multiletter control sequences out of 15000+600000
  3640 words of font info for 14 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  14i,4n,10p,123b,92s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
-Output written on tst.pdf (1 page, 11848 bytes).
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
+Output written on tst.pdf (1 page, 11837 bytes).
 PDF statistics:
  12 PDF objects out of 1000 (max. 8388607)
  7 compressed objects within 1 object stream
