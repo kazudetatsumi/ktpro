@@ -24,6 +24,10 @@ apg= gdir + "gpjob_m121212_fullpp/kappa-m121212.hdf5"
 #cjc= cdir + "kappa-m8810.const_ave1.hdf5"
 #cjs= sdir + "kappa-m8820.const_ave1.hdf5"
 #cjg= gdir + "kappa-m121212.const_ave1.hdf5"
+cz=4
+sz=2
+gz=2
+
 
 
 
@@ -118,11 +122,11 @@ def run():
    #plt.plot(x,cg,label="cc_gamma")
    plt.legend(loc="lower right")
    #plt.subplot(3,1,2)
-   plt.plot(x,aac*4,label="ap_alpha")
-   plt.plot(x,aas,label="ap_beta")
-   plt.plot(x,aag,label="ap_gamma")
-   print x[130],aac[130]*4,aas[130],aag[130]
-   print x[329],aac[329]*4,aas[329],aag[329]
+   plt.plot(x,aac*cz**2,label="ap_alpha")
+   plt.plot(x,aas*sz**2,label="ap_beta")
+   plt.plot(x,aag*gz**2,label="ap_gamma")
+   print x[130],aac[130]*cz**2,aas[130]*sz**2,aag[130]*gz**2
+   print x[329],aac[329]*cz**2,aas[329]*sz**2,aag[329]*gz**2
    plt.legend(loc="upper right")
    #eachplot12(1,"alpha",x,cc,0.001,0.03,0.00000000005,0.0000000010,"avepp")
 #   eachplot12(2,"beta",gammas1,aps1,0.001,np.max(gammas1),0.00000000005,np.max(aps1),"avepp")

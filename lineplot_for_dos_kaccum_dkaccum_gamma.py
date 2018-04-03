@@ -56,6 +56,9 @@ apg= gdir + "gpjob_m121212_fullpp/kappa-m121212.hdf5"
 cjc= cdir + "kappa-m8810.const_ave1.hdf5"
 cjs= sdir + "kappa-m8820.const_ave1.hdf5"
 cjg= gdir + "kappa-m121212.const_ave1.hdf5"
+cv=298.78
+sv=148.60
+gv=472.14/4
 
 
 def parse_kaccum(filename):
@@ -295,8 +298,8 @@ def eachplot3(sn,phase,omega,dos):
    plt.subplot(numr,3,sn)
    plt.title("dos_for_" + phase)
    plt.plot(omega,dos,label=phase + "_dos")
-   plt.ylim(0,7)
-   plt.yticks([0,2,4,6])
+   plt.ylim(0,0.1)
+   plt.yticks([0,0.05,0.1])
    plt.xlim(0,max_freq)
 
 
@@ -402,9 +405,9 @@ def run():
    #rc('font', serif='Times New Roman')
    plt.rcParams['pdf.fonttype'] = 42
 
-   eachplot3(1,"alpha",dosc[:,0],dosc[:,1]/4)
-   eachplot3(2,"beta",doss[:,0],doss[:,1]/2)
-   eachplot3(3,"gamma",dosg[:,0],dosg[:,1]/2)
+   eachplot3(1,"alpha",dosc[:,0],dosc[:,1]/cv)
+   eachplot3(2,"beta",doss[:,0],doss[:,1]/sv)
+   eachplot3(3,"gamma",dosg[:,0],dosg[:,1]/gv)
    eachplot(4,"alpha",omegac,kaccumc,dkaccumc)
    eachplot(5,"beta",omegas,kaccums,dkaccums)
    eachplot(6,"gamma",omegag,kaccumg,dkaccumg)
