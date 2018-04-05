@@ -127,6 +127,8 @@ def run():
    plt.plot(x,aag*gz**2,label="ap_gamma")
    print x[130],aac[130]*cz**2,aas[130]*sz**2,aag[130]*gz**2
    print x[329],aac[329]*cz**2,aas[329]*sz**2,aag[329]*gz**2
+   print x[100],aac[100]*cz**2,aas[100]*sz**2,aag[100]*gz**2
+   print x[280],aac[280]*cz**2,aas[280]*sz**2,aag[280]*gz**2
    plt.legend(loc="upper right")
    #eachplot12(1,"alpha",x,cc,0.001,0.03,0.00000000005,0.0000000010,"avepp")
 #   eachplot12(2,"beta",gammas1,aps1,0.001,np.max(gammas1),0.00000000005,np.max(aps1),"avepp")
