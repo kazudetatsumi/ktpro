@@ -44,10 +44,9 @@ def assign_no(data):
            origd = d[3]
            gid += 1
        values=d[0].split()
-       qz=values[4]
+       qz=float(values[4])
        values=d[2].split()
-       omega=values[1]
-       print omega
+       omega=float(values[1])
        data_assigned.append((qz,omega,gid))
    return(data_assigned)
 
