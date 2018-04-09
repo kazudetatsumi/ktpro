@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 from operator import itemgetter, attrgetter
 import matplotlib.pyplot as plt
+import numpy as np
 
 dirname="/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/"
+#dirname="/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
+inifile_no=1
+finfile_no=4
 
 
 def sortirreps(fname):
@@ -39,16 +43,61 @@ def sortirreps(fname):
 def assign_no(data):
    data_assigned=[]
    origd=data[0][3]
+   values=[]
+   values=origd.replace("[","").replace("]","").replace(",","").split()
+   i=0
+   mag=[]
+   ph=[]
+   for v in values[1:]:
+      if i % 2 == 0:
+          mag.append(v)
+      else:
+          ph.append(v)
+      i+=1
+   origmag=mag
+   origph=ph
    gid=0
    for d in data:
-       if d[3] != origd: 
-           origd = d[3]
+       values=[]
+       mag=[]
+       ph=[]
+       i=0
+       values=d[3].replace("[","").replace("]","").replace(",","").split()
+       for v in values[1:]:
+           if i % 2 == 0:
+               mag.append(v)
+           else:
+               ph.append(v)
+           i+=1
+
+       #if d[3] != origd: 
+       if mag != origmag:                        
+           origmag = mag
+           origph  = ph
            gid += 1
+       else:
+           difffound = 0
+           for om,op,p in zip(origmag,origph,ph):
+               if op !=p and om != "0":
+                   difffound +=1
+           if difffound > 0:
+               #print origmag
+               #print mag
+               #print origph
+               #print ph
+               #print gid
+               origmag = mag
+               origph  = ph
+               gid += 1
+
        values=d[0].split()
        qz=float(values[4])
+       qy=float(values[3][:-1])
        values=d[2].split()
        omega=float(values[1])
-       data_assigned.append((qz,omega,gid))
+       #print gid, d[3]
+       data_assigned.append((qy,qz,omega,gid))
+       data_assigned.append((qy,qz,omega,gid))
    return(data_assigned)
 
 
@@ -59,16 +108,21 @@ def run():
    freqs=[]
    qs=[]
    gids=[]
-   for i in [1,2,3,4]:
+   for i in range(inifile_no,finfile_no+1):
       filename=dirname+"/irreps-"+str(i)+".yaml"
       alldata.extend(sortirreps(filename))
    for d in alldata:
-      freqs.append(d[0])
-      qs.append(d[1])
-      gids.append(d[2])
-   plt.figure(figsize=(12,12))
-   plt.scatter(freqs,qs,c=gids,marker='x',s=15, cmap='jet')
-   plt.xlim(0,0.5)
+         print d
+      #if d[2] == 2:
+         qs.append(d[1])
+         freqs.append(d[2])
+         gids.append(d[3])
+   freqall=np.array(freqs)
+   qsall=np.array(qs)
+   gidsall=np.array(gids)
+   plt.figure(figsize=(6,12))
+   plt.scatter(qs,freqs,c=gids,marker='x',linewidth=0.4,s=15, cmap='jet')
+   plt.xlim(0.5,0.0)
    
    
 
