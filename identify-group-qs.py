@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from operator import itemgetter, attrgetter
+import matplotlib.pyplot as plt
 
 dirname="/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/"
 
@@ -50,14 +51,26 @@ def assign_no(data):
        data_assigned.append((qz,omega,gid))
    return(data_assigned)
 
+
+
+
 def run():
    alldata=[]
+   freqs=[]
+   qs=[]
+   gids=[]
    for i in [1,2,3,4]:
       filename=dirname+"/irreps-"+str(i)+".yaml"
       alldata.extend(sortirreps(filename))
    for d in alldata:
-      print d
-
-    
+      freqs.append(d[0])
+      qs.append(d[1])
+      gids.append(d[2])
+   plt.figure(figsize=(12,12))
+   plt.scatter(freqs,qs,c=gids,marker='x',s=15, cmap='jet')
+   plt.xlim(0,0.5)
+   
+   
 
 run()
+plt.show()
