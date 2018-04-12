@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #dirname="/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/"
-#dirname="/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
-dirname="/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift"
+dirname="/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
+#dirname="/home/kazu/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift"
 inifile_no=1
 finfile_no=4
 
@@ -96,7 +96,7 @@ def assign_no(data):
        qy=float(values[3][:-1])
        values=d[2].split()
        omega=float(values[1])
-       #print gid, d[3]
+       #print d[2], d[3]
        data_assigned.append((qy,qz,omega,gid))
        data_assigned.append((qy,qz,omega,gid))
    return(data_assigned)
@@ -115,7 +115,7 @@ def run():
    for d in alldata:
          print d
       #if d[2] == 2:
-         qs.append(d[0])
+         qs.append(d[1])
          freqs.append(d[2])
          gids.append(d[3])
    freqall=np.array(freqs)
@@ -123,7 +123,7 @@ def run():
    gidsall=np.array(gids)
    plt.figure(figsize=(6,12))
    plt.scatter(qs,freqs,c=gids,marker='x',linewidth=0.4,s=15, cmap='jet')
-   plt.xlim(0.25000,0.375)
+   plt.xlim(0.000,0.50)
    
    
 
