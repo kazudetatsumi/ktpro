@@ -98,6 +98,18 @@
   {journal} {\bibinfo  {journal} {Journal of the Ceramic Society of Japan}\
   }\textbf {\bibinfo {volume} {104}},\ \bibinfo {pages} {49} (\bibinfo {year}
   {1996})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hirosaki}\ \emph {et~al.}(2002)\citenamefont
+  {Hirosaki}, \citenamefont {Ogata}, \citenamefont {Kocer}, \citenamefont
+  {Kitagawa},\ and\ \citenamefont {Nakamura}}]{hirosaki-md}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
+  {Hirosaki}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Ogata}},
+  \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Kocer}}, \bibinfo
+  {author} {\bibfnamefont {H.}~\bibnamefont {Kitagawa}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {Y.}~\bibnamefont {Nakamura}},\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
+  {\bibinfo {volume} {65}},\ \bibinfo {pages} {134110} (\bibinfo {year}
+  {2002})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Riley}(2000)}]{riley}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {F.~L.}\ \bibnamefont
@@ -153,18 +165,6 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {AM. CERAM. SOC.
   BULL. Am. Ceram. Soc. Bull.}\ }\textbf {\bibinfo {volume} {57}},\ \bibinfo
   {pages} {1126} (\bibinfo {year} {1978})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Hirosaki}\ \emph {et~al.}(2002)\citenamefont
-  {Hirosaki}, \citenamefont {Ogata}, \citenamefont {Kocer}, \citenamefont
-  {Kitagawa},\ and\ \citenamefont {Nakamura}}]{hirosaki-md}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
-  {Hirosaki}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Ogata}},
-  \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Kocer}}, \bibinfo
-  {author} {\bibfnamefont {H.}~\bibnamefont {Kitagawa}}, \ and\ \bibinfo
-  {author} {\bibfnamefont {Y.}~\bibnamefont {Nakamura}},\ }\href@noop {}
-  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
-  {\bibinfo {volume} {65}},\ \bibinfo {pages} {134110} (\bibinfo {year}
-  {2002})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Li}\ \emph {et~al.}(1999)\citenamefont {Li},
   \citenamefont {Pottier}, \citenamefont {Roger}, \citenamefont {Fournier},
   \citenamefont {Watari},\ and\ \citenamefont {Hirao}}]{li}%
