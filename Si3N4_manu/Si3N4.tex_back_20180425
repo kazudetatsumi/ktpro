@@ -360,14 +360,11 @@ In addition, we calculated the volumetric thermal expansion coefficients. Their
 comparison with the experimental coefficients is useful to validate the present
 thermal conductivity calculation, because the thermal expansion is originated
 from the anharmonicity of the interatomic potential as well as
-$\boldsymbol{\kappa}$. The calculated coefficients of the $\alpha$, $\beta$, and
-$\gamma$ phases
-were 4.31$\times 10^{-6}$,  4.19$\times 10^{-6}$ K$^{-1}$, and 1.13$\times
-10^{-5}$ for 300 K,
-while the experimental values\cite{minikayev-alpha, gamma-expand} are 3.75$\times 10^{-6}$
-, 3.55$\times 10^{-6}$ K$^{-1}$, and 9.48$\times 10^{-6}$ K$^{-1}$. The
-calculation systematically overestimated the experimental values, but
-reproduced the experimental tendencies, including that the $\alpha$ phase has a slightly larger thermal
+$\boldsymbol{\kappa}$. The calculated coefficients of the $\alpha$ and $\beta$
+phases were 4.31$\times 10^{-6}$ and 4.19$\times 10^{-6}$ K$^{-1}$ for 300 K,
+while the experimental values\cite{minikayev-alpha} are 3.75$\times 10^{-6}$
+and 3.55$\times 10^{-6}$ K$^{-1}$. The calculation reproduced the
+experimental tendency that the $\alpha$ phase has a slightly larger thermal
 expansion coefficient than the $\beta$ phase. This supports that the present
 calculation enables us to qualitatively compare the calculated
 $\boldsymbol{\kappa}$ among the Si$_3$N$_4$ phases.
