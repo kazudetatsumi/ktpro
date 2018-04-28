@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.2)  28 APR 2018 18:58
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.2)  29 APR 2018 00:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -301,10 +301,10 @@ LaTeX Font Info:    Try loading font information for U+rsfs on input line 38.
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
 Package epstopdf Info: Source file: <Fig1_crystal_str2.eps>
-(epstopdf)                    date: 2017-12-28 12:27:30
+(epstopdf)                    date: 2018-03-29 17:12:08
 (epstopdf)                    size: 4101351 bytes
 (epstopdf)             Output file: <Fig1_crystal_str2-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-28 17:05:16
+(epstopdf)                    date: 2018-03-29 17:12:08
 (epstopdf)                    size: 154944 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig1_crystal_str2-eps-converted-to.pdf Fig1_crystal_str2.eps>
 (epstopdf)             \includegraphics on input line 88.
@@ -462,12 +462,7 @@ File: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw-eps-converted-to.pdf Graphic fil
  <use figure_dos_jdos_kc_m1010_dos_wo_arrows_bw-eps-converted-to.pdf>
 Package pdftex.def Info: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw-eps-converted-to.pdf used on input line 635.
 (pdftex.def)             Requested size: 458.99689pt x 241.62398pt.
- [6 <./Fig2_small-eps-converted-to.pdf>]
-Underfull \hbox (badness 2343) in paragraph at lines 689--705
-[]\OT1/cmr/m/n/10 Comparing be-tween the $\OML/cmm/m/it/10 $ \OT1/cmr/m/n/10 and $\OML/cmm/m/it/10 ^^L$ \OT1/cmr/m/n/10 phases, their
- []
-
-[7 <./figure_dos_jdos_kc_m1010_dos_wo_arrows_bw-eps-converted-to.pdf>]
+ [6 <./Fig2_small-eps-converted-to.pdf>] [7 <./figure_dos_jdos_kc_m1010_dos_wo_arrows_bw-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figure_jdoss.eps>
 (epstopdf)                    date: 2018-03-30 18:41:34
 (epstopdf)                    size: 717976 bytes
@@ -475,12 +470,12 @@ Package epstopdf Info: Source file: <figure_jdoss.eps>
 (epstopdf)                    date: 2018-03-30 18:41:34
 (epstopdf)                    size: 44974 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_jdoss-eps-converted-to.pdf figure_jdoss.eps>
-(epstopdf)             \includegraphics on input line 770.
+(epstopdf)             \includegraphics on input line 768.
 Package epstopdf Info: Output file is already uptodate.
  <figure_jdoss-eps-converted-to.pdf, id=280, 248.93pt x 278.03876pt>
 File: figure_jdoss-eps-converted-to.pdf Graphic file (type pdf)
  <use figure_jdoss-eps-converted-to.pdf>
-Package pdftex.def Info: figure_jdoss-eps-converted-to.pdf used on input line 770.
+Package pdftex.def Info: figure_jdoss-eps-converted-to.pdf used on input line 768.
 (pdftex.def)             Requested size: 221.3985pt x 247.2925pt.
 Package epstopdf Info: Source file: <Fig_wjdos.eps>
 (epstopdf)                    date: 2018-03-30 18:41:33
@@ -489,12 +484,12 @@ Package epstopdf Info: Source file: <Fig_wjdos.eps>
 (epstopdf)                    date: 2018-03-30 18:41:33
 (epstopdf)                    size: 16823 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig_wjdos-eps-converted-to.pdf Fig_wjdos.eps>
-(epstopdf)             \includegraphics on input line 792.
+(epstopdf)             \includegraphics on input line 791.
 Package epstopdf Info: Output file is already uptodate.
  <Fig_wjdos-eps-converted-to.pdf, id=281, 248.93pt x 110.4125pt>
 File: Fig_wjdos-eps-converted-to.pdf Graphic file (type pdf)
  <use Fig_wjdos-eps-converted-to.pdf>
-Package pdftex.def Info: Fig_wjdos-eps-converted-to.pdf used on input line 792.
+Package pdftex.def Info: Fig_wjdos-eps-converted-to.pdf used on input line 791.
 (pdftex.def)             Requested size: 221.3985pt x 98.20277pt.
 
 ./Si3N4.tex:811: Extra alignment tab has been changed to \cr.
@@ -516,10 +511,10 @@ in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
 Package epstopdf Info: Source file: <figure_analyze_gamma3_m1010_print.eps>
-(epstopdf)                    date: 2018-01-12 14:43:12
+(epstopdf)                    date: 2018-03-29 17:12:08
 (epstopdf)                    size: 1367508 bytes
 (epstopdf)             Output file: <figure_analyze_gamma3_m1010_print-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-01-12 14:43:37
+(epstopdf)                    date: 2018-03-29 17:12:08
 (epstopdf)                    size: 155590 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_analyze_gamma3_m1010_print-eps-converted-to.pdf figure_analyze_gamma3_m1010_print.eps>
 (epstopdf)             \includegraphics on input line 832.
@@ -531,29 +526,35 @@ Package pdftex.def Info: figure_analyze_gamma3_m1010_print-eps-converted-to.pdf 
 (pdftex.def)             Requested size: 246.0pt x 202.65216pt.
  [8 <./figure_jdoss-eps-converted-to.pdf> <./Fig_wjdos-eps-converted-to.pdf>]
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 862.
+LaTeX Warning: A float is stuck (cannot be placed) on input line 863.
 
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 862.
+LaTeX Warning: A float is stuck (cannot be placed) on input line 863.
 
 
 Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
 
 Package epstopdf Info: Source file: <S1.eps>
-(epstopdf)                    date: 2017-12-04 17:05:10
+(epstopdf)                    date: 2018-03-29 17:11:08
 (epstopdf)                    size: 681606 bytes
 (epstopdf)             Output file: <S1-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-04 17:05:10
+(epstopdf)                    date: 2018-03-29 17:11:08
 (epstopdf)                    size: 22714 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 900.
+(epstopdf)             \includegraphics on input line 902.
 Package epstopdf Info: Output file is already uptodate.
 <S1-eps-converted-to.pdf, id=316, 393.47pt x 392.46625pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 900.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 902.
 (pdftex.def)             Requested size: 196.80075pt x 196.29851pt.
- (./Si3N4.bbl [9 <./figure_analyze_gamma3_m1010_print-eps-converted-to.pdf> <./S1-eps-converted-to.pdf>]
+ (./Si3N4.bbl
+Overfull \vbox (3.6508pt too high) has occurred while \output is active []
+
+
+Overfull \vbox (3.6508pt too high) has occurred while \output is active []
+
+ [9 <./figure_analyze_gamma3_m1010_print-eps-converted-to.pdf> <./S1-eps-converted-to.pdf>]
 Underfull \hbox (badness 4001) in paragraph at lines 155--160
  []\OT1/cmr/m/n/9 T. Hahn, ed., |   [],
  []
@@ -583,7 +584,7 @@ Here is how much of TeX's memory you used:
  38i,15n,32p,533b,452s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (10 pages, 4133019 bytes).
+Output written on Si3N4.pdf (10 pages, 4133049 bytes).
 PDF statistics:
  431 PDF objects out of 1000 (max. 8388607)
  207 compressed objects within 3 object streams
