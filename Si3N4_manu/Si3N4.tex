@@ -141,11 +141,12 @@ reported, although it has been estimated by the Slack model.\cite{morelli}
 The present study aims to qualitatively elucidate the lattice thermal
 conductivity tensors among the three Si$_3$N$_4$ phases by a first principles
 approach.  We calculate $\boldsymbol{\kappa}$ of the $\gamma$ phase as well, for
-systematic understanding. After the methodology section, we examine the validity
-of the present results. The calculated thermal properties are then compared with
-the available experimental and theoretical references.  The characteristic
-behaviors of  $\boldsymbol{\kappa}$ are then investigated in detail on the basis
-of the phonon band structures and phonon linewidths.
+systematic understanding. After the methodology \textcolor{blue}{is described}, we
+examine the validity of the present results, \textcolor{blue}{through comparison
+of} the calculated thermal properties with the available experimental and
+theoretical references.  The characteristic behaviors of  $\boldsymbol{\kappa}$
+are then investigated in detail on the basis of the phonon band structures and
+phonon linewidths.
 
 \section{Computational procedures}
 
@@ -158,11 +159,12 @@ conductivities were calculated with the phonopy\cite{phonopy} and
 phono3py\cite{phono3py} software packages, respectively.  We also attempted the
 direct-solution of LBTE\cite{chaput-direct} and give the calculated
 $\boldsymbol{\kappa}$ values in the following section. The
-\textcolor{red}{difference} between $\boldsymbol{\kappa}$ calculated by the
-single-mode RTA and that by the direct solution was to be minor for our
-discussion. Therefore, this research was limited to use the single-mode RTA to
-take advantage of its \textcolor{green}{intuitive} closed form of
-$\boldsymbol{\kappa}$.
+\textcolor{blue}{difference \bf{(or plural form of differences?)}} between
+$\boldsymbol{\kappa}$ calculated by the single-mode RTA and that by the direct
+solution was to be minor for our discussion. Therefore, this research was
+limited to use the single-mode RTA to take advantage of its closed form of
+$\boldsymbol{\kappa}$\textcolor{blue}{, which can be intuitively understood in
+terms of mode-specific phonon properties.}
 
 In the following sections, we denote the phonon mode by $\lambda=(\mathbf{q},p)$
 with the set of the phonon wave vector $\mathbf{q}$ and band index $p$ and
@@ -246,11 +248,11 @@ approximation (GGA) parameterized by Perdew, Burke, and Ernzerhof\cite{pbe} was
 used for the exchange correlation potential. A plane wave energy cutoff of 500
 eV was employed. The crystal structures were optimized for 0 K and 0 GPa until
 the residual forces acting on the constituent atoms were less than $10^{-6}$
-eV\AA$^{-1}$. Here, the temperature and pressure were considered only for the
+eV \AA$^{-1}$. Here, the temperature and pressure were considered only for the
 electronic system and the zero point lattice vibration was not considered. The
-calculated lattice parameters were $a=7.808$ \AA and $c=5.659$ \AA for the
-$\alpha$ phase, $a=7.660$ \AA and $c=2.925$ \AA for the $\beta$ phase, and
-$a=7.787$ \AA for the $\gamma$ phase, which are in agreement with the experimental
+calculated lattice parameters were $a=7.808$ {\AA} and $c=5.659$ {\AA} for the
+$\alpha$ phase, $a=7.660$ {\AA} and $c=2.925$ {\AA} for the $\beta$ phase, and
+$a=7.787$ {\AA} for the $\gamma$ phase, which are in agreement with the experimental
 data\cite{yashima,boulay,paszkowicz} within +0.7 \% error. The lattice volume
 optimized with the local density approximation (LDA)\cite{lda} for the exchange
 correlation potential was, for $\beta$-Si$_3$N$_4$, 3 \% smaller than the volume
@@ -349,9 +351,9 @@ corresponding temperatures within the quasi-harmonic approximation
 (QHA)\cite{dove-p76}. These $\boldsymbol{\kappa}$ were different from those
 calculated for the same temperatures with the structure
 optimized for 0 K. We consider these differences as the effect of lattice
-thermal expansion. \textcolor{red}{The differences in $\boldsymbol{\kappa}$ for $T$=300, 600,
-900, 1200, and, 1500 K, for the $\beta$ phase, were within 1 \%. The magnitude
-was similar to that for Si and Ge calculated by Ward {\it{et
+thermal expansion. \textcolor{blue}{The differences in $\boldsymbol{\kappa}$ for $T$=300, 600,
+900, 1200, and, 1500 K, for the $\beta$ phase, were within 1 \%. They 
+were similar to those for Si and Ge calculated by Ward {\it{et
 al.}}\cite{ward-ltc}.} 
 %Similar differences in $\boldsymbol{\kappa}$ for $T$=300,
 %600, 900, 1200, and, 1500 K within 1 \% were determined in the case of Si and
@@ -362,7 +364,7 @@ structure optimized for 0 K was adopted.
 
 
 The volumetric thermal expansion coefficients were also calculated. 
-\textcolor{red}{Comparison with the experimental coefficient is useful to validate the present
+\textcolor{blue}{Comparison with the experimental coefficient is useful to validate the present
 thermal conductivity calculation because both the thermal expansion
 and $\boldsymbol{\kappa}$ originate from the anharmonicity of the interatomic
 potential.}
@@ -511,7 +513,7 @@ $\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$, into the total phonon
 lifetime could not explain the discrepancy either. A $L$ value of 0.6
 $\mu\text{m}$, which was much smaller than the experimental grain
 size\cite{hirai} of 10 $\mu\text{m}$, decreased the theoretical $\kappa$$_{ii}$
-at the low temperature side toward the experimental valuesl; however,
+at the low temperature side toward the experimental values; however,
 $\kappa$$_{ii}$ at the high temperature side continued to be significantly
 smaller than the experimental values. At present, the reason for the discrepancy
 between the theoretical and experimental behavior is unclear. Although the
@@ -542,12 +544,14 @@ presence of other lattice defects than by the grain boundaries.
 Fig.~\ref{fig:Fig4_ver5_338} shows phonon band diagrams for the three
 Si$_3$N$_4$ phases. The branches are classified according to their symmetry
 groups, using different colors and line styles. The solid and dashed lines are
-used to represent degenerate and non-degenerate modes, respectively.
-\textcolor{red}{The band diagrams on the other high-symmetry paths} are almost
-identical to those reported earlier\cite{kuwabara,xu} and thus are not shown.
-Here we investigate the frequency gradients, the group velocities projected on
-the paths, with particular focus on their anisotropy in the $\alpha$ and $\beta$
-phases. This was not investigated in the previous works.
+used to represent degenerate and non-degenerate modes, respectively.  Here we
+investigate the frequency gradients, the group velocities projected on the paths
+\textcolor{blue}{along the inequivalent reciprocal axes}, with particular focus
+on their anisotropy in the $\alpha$ and $\beta$ phases. This was not
+investigated in the previous works. \textcolor{blue}{The band diagrams on the
+other high-symmetry paths} are almost identical to those reported
+earlier\cite{kuwabara,xu} and thus are not shown.
+
 
 \begin{figure}[ht]
  \begin{center}
