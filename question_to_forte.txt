@@ -1,0 +1,57 @@
+Dear corrector,
+
+Thank you for your correcting my manuscript. I believe the manuscript become
+much nicer than before by your correction.
+
+After I carefully read the corrected Si3N4.tex, I typed the correction into the
+original Si3N4.tex, because there are some errors for the tex format. During my
+typing I found a few parts which my English in the original manuscript could not
+be interpreted as my intention; therefore I revised the parts in the present
+Si3N4.tex, which are highlighted by blue. I also attach the pdf produced from
+the present Si3N4.tex.  
+
+Could you kindly check the revised parts and respond my related questions?
+
+I would like to put my comments and questions below.
+
+1) "those" in the first paragraph of the left column in  page 2 of Si3N4.pdf,
+"that" was written in your corrected Si3N4.tex, instead. Because I compare
+kappa_xx and kappa_zz after the semicolon, "those" seems adequate than "that".
+
+
+2) Some words are added in the fourth paragraph of the left column in page 2.  I
+intend that the validity of the present calculation is examined during the
+comparison between the  present calculation results and the references. But you
+interpret that after the validation, the present calculation results are
+compared with the references. Some words are added in order to correctly
+represent my original intention. 
+
+3) Some words are added and "intuitively closed form" in the corrected Si3N4.tex
+is modified as "closed form", in the first paragraph of the right column in page
+2.  If the "intuitively closed form"  can be used to express that the closed
+form is intuitively understood", then it is OK. But I can not judge this and add
+some words to express the situation correctly. 
+
+4) As for the "similar" in the third paragraph of the right column in page 3, I
+meant that the degree of the differences in kappa for 300, 600, 900, 1200, and ,
+1500 K calculated in the present study is similar to that reported on Si and Ge
+by Ward et al.. I modify the representation for correct expression. 
+
+5) In the fourth paragraph of the right column in page 3, I meant that kappa and
+the thermal expansion originate from the anharmonicity of the interatomic
+potential. I modify the representation to express this. 
+
+6) In the first paragraph of section B, in page 5, I slightly modify my
+description on the band diagrams which are compared with the previously
+calculated band diagrams: I describe that selected parts of the band diagrams
+are shown here and what we investigate here. I also describe that  the other
+parts are not shown and what is the reason. 
+
+7) As for the figure number in the appendix:
+The figure number "FIG.X" is put in series during the tex compilation. I do not
+know the tex syntax to express the number for supplemental number and thus do not
+change the number as in the original Si3N4.tex, although your suggestion is
+better. If you know the syntax, please tell it to me. 
+
+ 
+
