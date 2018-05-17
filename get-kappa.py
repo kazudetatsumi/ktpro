@@ -84,7 +84,7 @@ def get_irdata(irf):
             values = l.split()
             rvec[2,0]= float(values[2][:-1])
             rvec[2,1]= float(values[3][:-1])
-            rvlc[2,2]= float(values[4][:-1])
+            rvec[2,2]= float(values[4][:-1])
             vol = 1/np.dot(rvec[0,:],np.cross(rvec[1,:],rvec[2,:]))
 
     f.close()
