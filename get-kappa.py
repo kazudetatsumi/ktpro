@@ -1,40 +1,43 @@
 #!/user/bin/env python
 import numpy as np
 import h5py,sys
+import matplotlib.pyplot as plt
 
 
 subjs = []
 dirs = []
 meshes =[]
 subjs.append("bc3n4")
-dirs.append("/home/kazu/bc3n4_m/phono3py_113_fc2_338_sym/jdos_t300/tmp/")
+dirs.append("/home/kazu/bc3n4_m/phono3py_113_fc2_338_sym/")
 meshes.append("101026")
 subjs.append("bsi3n4")
-dirs.append("/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym/jdos_t300/tmp/")
+dirs.append("/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym/")
 meshes.append("101026")
 subjs.append("bge3n4")
-dirs.append("/home/kazu/bge3n4_m/phono3py_113_fc2_338_sym/jdos_t300/tmp/")
+dirs.append("/home/kazu/bge3n4_m/phono3py_113_fc2_338_sym/")
 meshes.append("101026")
 subjs.append("ac3n4")
-dirs.append("/home/kazu/ac3n4/phono3py_112_fc2_334_sym_monk_shift/jdos_t300/tmp/")
+dirs.append("/home/kazu/ac3n4/phono3py_112_fc2_334_sym_monk_shift/")
 meshes.append("101014")
 subjs.append("asi3n4")
-dirs.append("/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/jdos_t300/tmp/")
+dirs.append("/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/")
 meshes.append("101014")
 subjs.append("age3n4")
-dirs.append("/home/kazu/age3n4/phono3py_112_fc2_334_sym_monk_shift/jdos_t300/tmp/")
+dirs.append("/home/kazu/age3n4/phono3py_112_fc2_334_sym_monk_shift/")
 meshes.append("101014")
 
 temp = 300
 
 def generate_filenames(dirs, meshes):
     kappafiles = []
+    kappa_constavp_files = []
     irfiles = []
 
     for d, m in zip(dirs, meshes):
         kappafiles.append(d + "kappa-m" + m + ".hdf5")
-        irfiles.append(d + "ir_grid_points.yaml")
-    return(kappafiles,irfiles)
+        kappa_constavp_files.append(d + "kappa-m" + m + ".const_ave-pp_noiso.hdf5")
+        irfiles.append(d + "/jdos_t300/tmp/ir_grid_points.yaml")
+    return(kappafiles,kappa_constavp_files,irfiles)
  
 
 def get_freqs(kf,n):
@@ -92,7 +95,7 @@ def get_irdata(irf):
     return(g,w,qs,vol,n)
 
 def jdos_wj(g,omega,dirname,mesh):
-    jdata=np.loadtxt(dirname + "jdos-m"+mesh+"-g" + str(g) + "-t300.dat",dtype='float')
+    jdata=np.loadtxt(dirname + "jdos_t300/tmp/jdos-m"+mesh+"-g" + str(g) + "-t300.dat",dtype='float')
     totx=0
     for omj in omega:
         mindiff = abs(jdata[0,0] - omj)
@@ -113,9 +116,9 @@ def jdos_wj(g,omega,dirname,mesh):
     return(np.sum(totx))
 
 def get_ps(gp,wt,qp,omega,qs,dirname,mesh):
-    tmp_jdata=np.loadtxt(dirname + "jdos-m"+mesh+"-g" + str(gp[0]) + "-t300.dat",dtype='float')
-    totjdata=np.zeros_like(tmp_jdata)
-    totjdata[:,0]=tmp_jdata[:,0]
+    #tmp_jdata=np.loadtxt(dirname + "jdos_t300/tmp/jdos-m"+mesh+"-g" + str(gp[0]) + "-t300.dat",dtype='float')
+    #totjdata=np.zeros_like(tmp_jdata)
+    #totjdata[:,0]=tmp_jdata[:,0]
     i=0
     ps=0
     for g, w in zip(gp,wt):
@@ -139,17 +142,31 @@ def get_kappa(hdf):
     return(kappa)
 
 def run():
-    kappafiles,irfiles = generate_filenames(dirs,meshes)
+    kappafiles,kappa_constavp_files,irfiles = generate_filenames(dirs,meshes)
     # get kappa
-    for f,s in zip(kappafiles,subjs):
+    kappas=np.empty((0,6),float)
+    kappacs=np.empty((0,6),float)
+    for f,fc,s in zip(kappafiles,kappa_constavp_files,subjs):
        print s
        kappa=get_kappa(f)
-       print kappa[0],kappa[2]
+       kappas = np.append(kappas,([kappa]), axis=0)
+       kappac=get_kappa(fc)
+       kappacs = np.append(kappacs,([kappac]), axis=0)
+
+    print "kappa:\n",kappas
+    print "kappa_const_avepp:\n",kappacs
     # get phase space
+    pss=np.empty((0),float)
     for ds,ms,kappafile, irfile in zip(dirs,meshes,kappafiles,irfiles):
        gp,wt,qp,vol,n = get_irdata(irfile)
        omega,qs,sumw = get_freqs(kappafile,n)
-       print get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / vol**2
+       ps=get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / vol**2
+       pss=np.append(pss,np.array([ps]))
+    print "phase spaece:\n",pss
 
+    #plt.figure(figsize=(10,10))
+    plt.plot(pss,kappas[:,0])
 run()
+
+plt.show()
     
