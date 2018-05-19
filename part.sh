@@ -6,8 +6,8 @@ for i in `grep grid_point ir_grid_points.yaml | grep -|grep -o '[0-9]*'` ; do
        echo $string
        mkdir ./gpjob_$j
 	   cd ./gpjob_$j
-       ln -s ../for_gpjob/* .
-       sed s/NUM/"$string"/ ../job-ph3-part.sh > job.sh    
+       cp  ../../for_gpjob/* .
+       sed s/GP/"$string"/ ../job-ph3-part.sh > job.sh    
        qsub ./job.sh
        cd ../ 
        string=""
@@ -17,12 +17,12 @@ for i in `grep grid_point ir_grid_points.yaml | grep -|grep -o '[0-9]*'` ; do
     j=$((j+1))
 done 
 
-if [ $((j%10)) != 0 ];then
+if [ $((j%10)) != 1 ];then
        echo $string
        mkdir ./gpjob_$j
 	   cd ./gpjob_$j
-       ln -s ../for_gpjob/* .
-       sed s/NUM/"$string"/ ../job-ph3-part.sh > job.sh    
+       cp  ../../for_gpjob/* .
+       sed s/GP/"$string"/ ../job-ph3-part.sh > job.sh    
        qsub ./job.sh
        cd ../ 
 fi

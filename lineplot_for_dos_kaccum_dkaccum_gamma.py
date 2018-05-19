@@ -57,8 +57,8 @@ cjc= cdir + "kappa-m8810.const_ave1.hdf5"
 cjs= sdir + "kappa-m8820.const_ave1.hdf5"
 cjg= gdir + "kappa-m121212.const_ave1.hdf5"
 cv=298.78
-sv=148.60
-gv=472.14/4
+sv=143.78
+gv=472.14
 
 
 def parse_kaccum(filename):
@@ -298,8 +298,8 @@ def eachplot3(sn,phase,omega,dos):
    plt.subplot(numr,3,sn)
    plt.title("dos_for_" + phase)
    plt.plot(omega,dos,label=phase + "_dos")
-   plt.ylim(0,0.1)
-   plt.yticks([0,0.05,0.1])
+   plt.ylim(0,0.10)
+   plt.yticks([0,0.05,0.10])
    plt.xlim(0,max_freq)
 
 
@@ -407,7 +407,7 @@ def run():
 
    eachplot3(1,"alpha",dosc[:,0],dosc[:,1]/cv)
    eachplot3(2,"beta",doss[:,0],doss[:,1]/sv)
-   eachplot3(3,"gamma",dosg[:,0],dosg[:,1]/gv)
+   eachplot3(3,"gamma",dosg[:,0],dosg[:,1]/gv*4)
    eachplot(4,"alpha",omegac,kaccumc,dkaccumc)
    eachplot(5,"beta",omegas,kaccums,dkaccums)
    eachplot(6,"gamma",omegag,kaccumg,dkaccumg)
@@ -457,6 +457,7 @@ def run():
    eachplot12(19,"alpha",omegacjc1,gammacjc1*apc1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
+   plt.savefig("tst_plot.eps")
    plt.tight_layout()
    plt.figure(figsize=(12,16))
    plt.subplot(4,1,1)
@@ -509,4 +510,4 @@ def run():
    #plt.savefig("tst_plot.eps")
 
 run()
-plt.show()
+#plt.show()
