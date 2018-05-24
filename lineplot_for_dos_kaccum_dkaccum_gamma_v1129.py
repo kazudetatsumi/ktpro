@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
-#plt.style.use('classic')
+plt.style.use('classic')
 plt.rcParams['font.family'] = 'Times New Roman'
 homedir = "/home/kazu/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
@@ -20,10 +20,10 @@ dosc  = np.loadtxt(cdir + 'total_dos_m292935.dat',comments='#',dtype='float')
 doss  = np.loadtxt(sdir + 'total_dos_m292967.dat',comments='#',dtype='float')
 dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
 gc = cdir + 'noiso/kaccum_m101014.dat'
-gs = sdir + 'gpjob_m101026_v1129/kaccum_m101026.dat'
+gs = sdir + 'gpjob_m101026_v1129/kaccum.dat'
 gg = gdir + 'noiso/kaccum.dat'
 ggc = cdir +  'noiso/gvaccum_m101014.dat'
-ggs = sdir + 'gpjob_m101026_v1129/gvaccum_m101026.dat'
+ggs = sdir + 'gpjob_m101026_v1129/gvaccum.dat'
 ggg = gdir + 'noiso/gvaccum.dat'
 c = cdir + "noiso/kappa-m101014.noiso.hdf5"
 s = sdir + "gpjob_m101026_v1129/kappa-m101026.hdf5"
@@ -156,7 +156,7 @@ def eachplot12(sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
        plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
        omega_a,gamma_a=sortomega(omega,gamma)
        print omega_a.shape,gamma_a.shape
-       plt.yscale("log")
+       #plt.yscale("log")
        plt.ylim(ymin,ymax)
        plt.xlim(xmin,xmax)
 
@@ -197,12 +197,15 @@ def run():
    eachplot2(7,"alpha",omegagc,dgvaccumc)
    eachplot2(8,"beta",omegags,dgvaccums)
    eachplot2(9,"gamma",omegagg,dgvaccumg)
-   eachplot12(10,"alpha",omegac1,gammac1,0,max_freq,0.0005,0.35,"gamma")
-   eachplot12(11,"beta",omegas1,gammas1,0,max_freq,0.0005,0.35,"gamma")
-   eachplot12(12,"gamma",omegag1,gammag1,0,max_freq,0.0005,0.35,"gamma")
-   #plt.savefig("tst_plot.eps")
+   #eachplot12(10,"alpha",omegac1,gammac1,0,max_freq,0.0005,0.35,"gamma")
+   #eachplot12(11,"beta",omegas1,gammas1,0,max_freq,0.0005,0.35,"gamma")
+   #eachplot12(12,"gamma",omegag1,gammag1,0,max_freq,0.0005,0.35,"gamma")
+   eachplot12(10,"alpha",omegac1,0.5/gammac1,0,max_freq,0,700,"gamma")
+   eachplot12(11,"beta",omegas1,0.5/gammas1,0,max_freq,0,700,"gamma")
+   eachplot12(12,"gamma",omegag1,0.5/gammag1,0,max_freq,0,700,"gamma")
+   plt.savefig("tst_plot_v129.eps")
 
 
 
 run()
-plt.show()
+#plt.show()

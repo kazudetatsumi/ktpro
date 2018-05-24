@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
-#plt.style.use('classic')
+plt.style.use('classic')
 plt.rcParams['font.family'] = 'Times New Roman'
 homedir = "/home/kazu/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
@@ -457,7 +457,7 @@ def run():
    eachplot12(19,"alpha",omegacjc1,gammacjc1*apc1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
-   plt.savefig("tst_plot.eps")
+   #plt.savefig("tst_plot.eps")
    plt.tight_layout()
    plt.figure(figsize=(12,16))
    plt.subplot(4,1,1)
@@ -510,4 +510,4 @@ def run():
    #plt.savefig("tst_plot.eps")
 
 run()
-#plt.show()
+plt.show()
