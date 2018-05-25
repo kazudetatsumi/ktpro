@@ -73,7 +73,7 @@ devices.
 At atmospheric pressure, Si$_3$N$_4$ has two phases, $\alpha$ and $\beta$, which
 are generally considered as low- and high-temperature phases,
 respectively.\cite{zhou,hirosaki-md,riley} Their crystal structures belong to
-the P31c and P6$_3$/m space groups, respectively.\cite{yashima,boulay} These
+the {\it P31c} and {\it P6$_3$/m} space groups, respectively.\cite{yashima,boulay} These
 structures have different manners of stacking equivalent basal layer structures
 composed of SiN$_4$ tetrahedra.\cite{hampshire} Fig. \ref{fig:Fig1_cryst}
 depicts these layer structures from the principal axis direction. They are
@@ -89,7 +89,8 @@ the $\beta$ phase.
   online) Crystal structures of $\alpha$- and $\beta$-Si$_3$N$_4$. Stacking of
   SiN$_4$ tetrahedron layers are shown at the left. (a) ABCDABCD... for
   $\alpha$-Si$_3$N$_4$. (b) ABAB... for $\beta$-Si$_3$N$_4$.  Space group
-  diagrams\cite{inttableA} for P31c ($\alpha$-Si$_3$N$_4$) and P6$_3$/m ($\beta$-Si$_3$N$_4$)
+  diagrams\cite{inttableA} for {\it P31c} ($\alpha$-Si$_3$N$_4$) and {\it
+  P6$_3$/m} ($\beta$-Si$_3$N$_4$)
   are shown at the right.}
   \label{fig:Fig1_cryst} 
  \end{center}
@@ -223,8 +224,8 @@ include it in the calculated $\boldsymbol{\kappa}$, according to Matthiessen's r
 The closed form of $\boldsymbol{\kappa}$ within the RTA was obtained via
 \begin{align}
  \label{eq:kappa}
- \boldsymbol{\kappa}(T) = \frac{1}{N_\mathbf{q}\Omega} \sum_\lambda
- \tau_\lambda(T) \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda c_\lambda(T),
+ \boldsymbol{\kappa} = \frac{1}{N_\mathbf{q}\Omega} \sum_\lambda
+ \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda c_\lambda,
 \end{align}
 where $N_\mathbf{q}$ is the number of
 $\mathbf{q}$-points, $\Omega$ is the unit cell volume, and $c_\lambda$
@@ -234,11 +235,19 @@ the cumulative thermal conductivity:
  \label{eq:cum-kappa}
  \boldsymbol{\kappa}^\text{c}(\omega) = \frac{1}{N_\mathbf{q}\Omega}
  \int_0^\omega \sum_\lambda
- \tau_\lambda(T) \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda
- c_\lambda(T) \delta(\omega'-\omega)d\omega',
+ \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda
+ c_\lambda \delta(\omega'-\omega_{\lambda})d\omega',
 \end{align}
-and its derivative $\frac{\partial
-\boldsymbol{\kappa}^\text{c}(\omega)}{\partial \omega}$, were calculated to
+and its derivative $\frac{d
+\boldsymbol{\kappa}^\text{c}(\omega)}{d\omega}$: 
+\begin{align}
+ \label{eq:cum-kappa}
+ \frac{d\boldsymbol{\kappa}^\text{c}(\omega)}{d\omega} = \frac{1}{N_\mathbf{q}\Omega}
+ \sum_\lambda
+ \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda
+ c_\lambda\delta(\omega-\omega_{\lambda}),
+\end{align}
+were calculated to
 determine the phonon mode
 contributions to $\boldsymbol{\kappa}$.
 
@@ -468,74 +477,7 @@ agreement with the experimental $\boldsymbol{\kappa}$.  Compared to $\kappa$
 from the Slack model, our directional average $\sum_i \kappa_{ii}/3$ is also
 much closer to the experimental average. 
 
-Fig.~\ref{fig:Fig1_338} shows the theoretical $\boldsymbol{\kappa}$ for the
-$\alpha$ and $\beta$ phases as a function of $T$, together with the reference
-experimental data\cite{hirosaki,hirai}. The experimental thermal conductivities
-for a series of temperatures were measured on polycrystalline areas
-by the laser flash method. These thermal conductivities (denoted as
-$\kappa_\mathrm{polycrystal}$) cannot be directly compared with the calculated
-intrinsic $\boldsymbol{\kappa}$, because they are largely dependent on the
-microstructure of the samples; they deviate from the simple directional
-averages of the intrinsic $\kappa_{ii}$, depending on the shapes of the crystal
-grains. We treated this effect using the parameter $0\le{w}\le{1}$ and fitting
-the quantity $w\kappa_{xx} + (1-w) \kappa_{zz}$ to the experimental
-$\kappa_\mathrm{polycrystal}$ by the least squares method. We regard this as
-theoretical $\kappa_\mathrm{polycrystal}$. 
-
-\begin{figure}[ht]
- \begin{center}
-  \includegraphics[width=0.90\linewidth]{Fig1_m1010.eps} \caption{(color
-  online) Dependence of thermal conductivity on the temperature for $\alpha$- and
-  $\beta$-Si$_3$N$_4$. For $\beta$-Si$_3$N$_4$, theoretical conductivities with the
-  boundary scattering effect are shown by broken lines. Theoretical
-  $\kappa_\mathrm{polycrystal}$ 
-  (see text) for the $\beta$-Si$_3$N$_4$ sample are
-  also shown for comparison with the experimental conductivities.}
-  \label{fig:Fig1_338}
- \end{center}
-\end{figure}
-
-In Fig.~\ref{fig:Fig1_338}, $\kappa_{ii}$ calculated without
-$\tau_{\lambda,\text{bs}}$ are almost proportional to $T^{-1}$ because
-$n_\lambda$ in Eq.~(\ref{eq:linewidth}) can be reduced to
-$\frac{\mathrm{k_B}T}{\hbar\omega_\lambda}-\frac{1}{2}$. In
-Fig.~\ref{fig:Fig1_338}(a), the experimental $\kappa_\mathrm{polycrystal}$ of a
-chemically vapor-deposited $\alpha$-Si$_3$N$_4$ sample\cite{hirai} is not
-proportional to $T^{-1}$ and intersects the theoretical $\kappa_{ii}$. Thus, $w$
-does not adjust the theoretical $\kappa_\rm{polycrystal}$ to the experimental
-$\kappa_\rm{polycrystal}$.  The full solution of LBTE would negligibly cure the
-disagreement.  Including the simple phonon lifetime of boundary scattering,
-$\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$, into the total phonon
-lifetime could not explain the discrepancy either. A $L$ value of 0.6
-$\mu\text{m}$, which was much smaller than the experimental grain
-size\cite{hirai} of 10 $\mu\text{m}$, decreased the theoretical $\kappa$$_{ii}$
-at the low temperature side toward the experimental values; however,
-$\kappa$$_{ii}$ at the high temperature side continued to be significantly
-smaller than the experimental values. At present, the reason for the discrepancy
-between the theoretical and experimental behavior is unclear. Although the
-crystal structure of the experimental sample was characterized as
-$\alpha$-Si$_3$N$_4$, significant lattice defects were present in the sample, as
-pointed out by Hirosaki {\it et al.}\cite{hirosaki-md}, so that the simple
-phonon boundary scattering model may fail to describe their effects on the
-$\kappa_\mathrm{polycrystal}$. 
-
-For the $\beta$ phase, the experimental $\kappa_\mathrm{polycrystal}$ is located
-in-between the theoretical $\kappa$$_{xx}$ and $\kappa$$_{zz}$ curves, being
-almost proportional to $T^{-1}$. Simple directional averages of the theoretical
-$\kappa_{ii}$ slightly underestimate these experimental values. This is
-understood from the control of the microstructure to increase
-$\kappa_\mathrm{polycrystal}$, and the crystalline grains were selectively grown
-along the $c$ axis of the most conductive direction.\cite{hirosaki} The
-theoretical $\kappa_\mathrm{polycrystal}$ was fit well with $w=0.44$ to the
-experimental. For the effects of lattice defects most of which were grain
-boundaries, $\tau_{\lambda,\text{bs}}$ was included with $L=0.6$ $\mu\text{m}$
-to further fit the theoretical curve ($w=0.33$) to the experimental data. $L$ is
-slightly smaller than the average grain size\cite{hirosaki} of 2 $\mu\text{m}$
-in the experiment; therefore, the discrepancy can presumably be explained by the
-presence of other lattice defects than by the grain boundaries.
-
-
-\subsection{Dispersion curves}
+\subsection{Dispersion curves \textcolor{red}{[pending!!]}}
 
 Fig.~\ref{fig:Fig4_ver5_338} shows phonon band diagrams for the three
 Si$_3$N$_4$ phases. The branches are classified according to their symmetry
@@ -596,7 +538,9 @@ dispersion at higher frequencies than in the other phases. The gradients of
 $\omega_\lambda$ for the $\gamma$ phase are the largest among the three phases,
 as expected by the largest $B$.
 
-\subsection{$\omega_\lambda$ contour map on the reciprocal plane}
+\subsection{$\omega_\lambda$ contour map on the reciprocal plane
+	\textcolor{red}{[add more, for example, isotropic distribution at low
+frequency i.e., $\lesssim$ 2 THz in $\beta$ phase.]}}
 
 \begin{figure}[ht]
  \centerins
@@ -631,30 +575,31 @@ of the acoustic and low-frequency optical phonon branches for the $\beta$ phase.
 
 \begin{figure*}[ht]
  \begin{center}
-	 \includegraphics[width=0.9\linewidth]{figure_dos_jdos_kc_m1010_dos_wo_arrows_bw.eps}
+	 \includegraphics[width=0.9\linewidth]{figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog.eps}
   \caption{(color online) Microscopic phonon properties of three Si$_3$N$_4$
 	  phases. (a) Cumulative thermal conductivity $\boldsymbol{\kappa}^\text{c}$ and
 	  its frequency derivative
 	  , (b) DOS as $g(\omega)$, (c) DOS weighted with $\mathbf{v}_\lambda \otimes
-	  \mathbf{v}_\lambda$ as $\boldsymbol{h}(\omega)$, and (d) scatter plots of
-	  linewidths and phonon frequencies, $(\Gamma_\lambda,\omega_\lambda)$.
+	  \mathbf{v}_\lambda$ as $\boldsymbol{h}(\omega)$, and (d) scatter plots of phonon
+	  lifetimes and phonon frequencies, $(\tau_\lambda,\omega_\lambda)$.
   \label{fig:Fig5_338_rev} }
  \end{center}
 \end{figure*}
 
 In the previous two sections, we have investigated the anisotropy in
 $\mathbf{v}_\lambda$, which may explain the anisotropy in $\boldsymbol{\kappa}$.
-Here we examine which phonon frequencies and which terms in the RTA closed form
+Here we examine which phonon frequencies and which terms in Eq.(\ref{eq:kappa})
 characterize the behavior of the present $\boldsymbol{\kappa}$. In the
 following, we disregard the term of mode heat capacity because it is
-approximately constant for 300 K.  For simplicity, the effects of isotope
-scattering and boundary scattering are not considered.  For the investigation,
-the cumulative thermal conductivity, $\boldsymbol{k}^c(\omega)$ in
-Eq.(\ref{eq:cum-kappa}), and its derivative $d\boldsymbol{\kappa}^c/d\omega$,
-are shown at the top of Fig.~\ref{fig:Fig5_338_rev}. From this figure, it is
-evident that in the $\alpha$, $\beta$, and $\gamma$ phases, the phonon modes
-with their frequencies up to ca. 6, 12 and 10 THz largely contribute to each
-respective $\boldsymbol{\kappa}$. The frequencies shown in the contour maps in
+approximately constant for the phonon modes that mainly carry heat at 300 K.
+For simplicity, the effects of isotope scattering and boundary scattering are
+not considered.  For the investigation, the cumulative thermal conductivity,
+$\boldsymbol{k}^c(\omega)$ in Eq.(\ref{eq:cum-kappa}), and its derivative
+$d\boldsymbol{\kappa}^c/d\omega$, are shown at the top of
+Fig.~\ref{fig:Fig5_338_rev}. From this figure, it is evident that in the
+$\alpha$, $\beta$, and $\gamma$ phases, the phonon modes with their frequencies
+up to $\sim$ 6, 12 and 10 THz largely contribute to each respective
+$\boldsymbol{\kappa}$. The frequencies shown in the contour maps in
 Fig.~\ref{fig:Fig3_338} are within these frequency ranges, and thus it is
 confirmed that these bands make a significant contribution to
 $\boldsymbol{\kappa}$.  
@@ -687,7 +632,7 @@ plots of $(\Gamma_\lambda,\omega_\lambda)$ in Fig.~\ref{fig:Fig5_338_rev}(d).
 
 Comparison of the $\alpha$ and $\beta$ phases indicates their linewidth
 distributions are qualitatively similar, except for a striking difference below
-ca. 5 THz, which will be examined later. The markedly different
+$\sim$ 5 THz, which will be examined later. The markedly different
 $d\kappa_{ii}^c/d\omega$ between the two phases are therefore ascribed to the
 corresponding $h_{ii}$. The overall spectral shapes of $g(\omega)$ are also
 similar between the two phases; therefore, $\mathbf{v}_\lambda$ alone accounts
@@ -704,7 +649,7 @@ structures, irrespective of the stacking manner.
 The $\gamma$ phase has much different $g(\omega)$, $\boldsymbol{h}(\omega)$,
 and, $\Gamma_\lambda$ from the other phases, as expected from the large
 differences in their crystal structures. The most significant difference is in
-the phonon linewidths. Below ca. 10 THz, the phonon linewidths are approximately
+the phonon linewidths. Below $\sim$ 10 THz, the phonon linewidths are approximately
 twice as large as those of the other phases. We will examine this in detail
 later. As a result, $d\kappa_{xx}^c/d\omega$ has relatively low intensities. The
 longitudinal acoustic phonon branch increases its frequencies much
@@ -783,7 +728,7 @@ weighting factors reduce $N_2^{(1)}$ near 0 THz and enhance $N_2^{(2)}$
 in the high frequency range. The latter reduces 
 $d\boldsymbol{\kappa}^c/d\omega$ in the high frequency range for all the phases.
 The total WJDOSs are similar between the $\alpha$ and $\beta$ phases. The
-$\gamma$ phase has slightly small intensities of the total WJDOS below ca. 10 THz.
+$\gamma$ phase has slightly small intensities of the total WJDOS below $\sim$ 10 THz.
 
 \begin{figure}[ht]
  \centering
@@ -828,7 +773,7 @@ terahertz did not change the qualitative characteristics of the averages.
 
 \begin{figure}[ht]
  \centering
-  \includegraphics[width=\linewidth]{figure_analyze_gamma3_m1010_print.eps} \caption{(color
+  \includegraphics[width=\linewidth]{figure_analyze_gamma3_m1010_nolog.eps} \caption{(color
 	  online) Distribution of linewidths $\omega_\lambda$ $\leq$ 5 THz
 		  shown in color with respect to the strengths of the eigenvector
 		  components along (a) $\mathbf q$ 
@@ -838,7 +783,7 @@ terahertz did not change the qualitative characteristics of the averages.
 
 Finally, we examine the exceptional, but striking difference in the linewidth
 distributions between the $\alpha$ and $\beta$ phases. In the $\alpha$ phase,
-$\Gamma_\lambda$ below ca. 5 THz are aligned on a single smooth line, while in
+$\Gamma_\lambda$ below $\sim$ 5 THz are aligned on a single smooth line, while in
 the $\beta$ phase, they are scattered roughly on two branches. This difference
 was investigated by an attempt to relate the linewidths to the directions of the
 atomic vibrations of the phonon modes. Fig.~\ref{fig:Fig7_338} enlarges the
