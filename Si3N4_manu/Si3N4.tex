@@ -559,24 +559,25 @@ We investigate the anisotropy in $\mathbf{v}_{\lambda}$ of $\alpha$- and
 $\beta$-Si$_3$N$_4$ phases using another geometry, i.e., a cross-section of the
 Brillouin-zone. Fig.~\ref{fig:Fig3_338} shows contour maps of
 $\omega_{\lambda}$  on the $b^*c^*$ plane.  We show the maps for the four
-lowest-frequency bands because they contribute significantly to 
+lowest-frequency bands because they contribute significantly to
 $\boldsymbol{\kappa}$, which will be confirmed in the next section. There were
 negligible differences between the distributions on the $b^*c^*$ plane and the
 other planes containing the $c^*$ axis.  Therefore, the $b^*c^*$ plane was
-selected as a
-representative plane. In the $\alpha$ phase, the $\omega_{\lambda}$ distributions and
-thus $\mathbf{v}_{\lambda}$ are almost isotropic. In the $\beta$ phase, the
-contours are rather parallel to the $b^*$ axis, and thus the
-$\mathbf{v}_{\lambda}$ tends to orient toward the $c^*$ axis direction. This
-confirms the large anisotropy of $\mathbf{v}_{\lambda}$ 
-of the acoustic and low-frequency optical phonon branches for the $\beta$ phase.
+selected as a representative plane.
+In both of the phases, the countours  $leq$ 2 THz ar
+In the $\alpha$ phase, the
+$\omega_{\lambda}$ distributions and thus $\mathbf{v}_{\lambda}$ are almost
+isotropic. In the $\beta$ phase, the contours are rather parallel to the $b^*$
+axis, and thus the $\mathbf{v}_{\lambda}$ tends to orient toward the $c^*$ axis
+direction. This confirms the large anisotropy of $\mathbf{v}_{\lambda}$ of the
+acoustic and low-frequency optical phonon branches for the $\beta$ phase.
 
 \subsection{Frequency distributions of phonon properties}
 
 \begin{figure*}[ht]
  \begin{center}
 	 \includegraphics[width=0.9\linewidth]{figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog.eps}
-  \caption{(color online) Microscopic phonon properties of three Si$_3$N$_4$
+  \caption{Microscopic phonon properties of three Si$_3$N$_4$
 	  phases. (a) Cumulative thermal conductivity $\boldsymbol{\kappa}^\text{c}$ and
 	  its frequency derivative
 	  , (b) DOS as $g(\omega)$, (c) DOS weighted with $\mathbf{v}_\lambda \otimes
@@ -663,81 +664,50 @@ Analogous to the report by Lindsay {\it et al.}\cite{Lindsay}, we can say that
 $\Gamma_\lambda$ in the present form is dependent on the phase space for the
 available two phonons, $\{\lambda', \lambda''\}$, and is also dependent on
 $|\Phi_{\lambda\lambda'\lambda''}|^2$. We examine these terms one-by-one. A
-distribution of two-phonon configurations is represented as a joint DOS (JDOS),
-${D_2(\mathbf{q},\omega)}$:  
+distribution of two-phonon configurations satisfying the energy and momentum
+conservation law is represented as a weighted joint DOS
+(WJDOS)\cite{phono3py},
+${N_2(\mathbf{q},\omega)}$:  
 \begin{align}
  \label{eq:jdos}
- &D_2(\mathbf{q},\omega) = D_2^{(1)}(\mathbf{q},\omega) +  D_2^{(2)}(\mathbf{q},\omega)
+ &N_2(\mathbf{q},\omega) = N_2^{(1)}(\mathbf{q},\omega) +  N_2^{(2)}(\mathbf{q},\omega)
 \end{align}
 where 
 \begin{eqnarray*}
-	D_2^{(1)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
-								   & \times & [\delta(\omega + \omega_{\lambda'} - \omega_{\lambda''}) + \delta(\omega - \omega_{\lambda'} + \omega_{\lambda''})],\\
-	D_2^{(2)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+	N_2^{(1)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}(n_{\lambda'}-n_{\lambda''})\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+								   & \times & [\delta(\omega + \omega_{\lambda'} - \omega_{\lambda''}) - \delta(\omega - \omega_{\lambda'} + \omega_{\lambda''})],\\
+	N_2^{(2)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}(n_{\lambda'} + n_{\lambda''}+1)\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
 								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
 \end{eqnarray*}
 with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
 vector, and otherwise zero. $Z$ is the number of formula units in the primitive unit cell
-and is included as a scaling factor to compare JDOS for structures with different
-$Z$. The equation of the linewidth in Eq.~(\ref{eq:linewidth}) contains terms
-of $(n_{\lambda'}+n_{\lambda''}+1)$ and $(n_{\lambda'}-n_{\lambda''})$. Thus, in
-more rigorous study, instead of $D_2^{(1)}$ and $D_2^{(2)}$, we should
-employ weighted JDOS with these terms. We firstly employ the JDOS in
-Eq.~(\ref{eq:jdos}) to intuitively examine the similarity between the
-linewidths of the $\alpha$ and $\beta$ phases. The weighted JDOS (WJDOS)
-will be briefly shown later, including that of the $\gamma$ phase. 
-
-Fig.~\ref{fig:Fig6_338} shows frequency-functions of JDOS at several different
-$\mathbf{q}$-points. They have very weak $\mathbf{q}$-point dependences. In the
-low frequency region up to $\simeq$ 10 THz, $D_2^{(1)}$ is dominant between the
-two terms. $D_2^{(1)}$ are similar between the phases. In the present
-Si$_3$N$_4$ system, the phonon modes of the acoustic and low-frequency optical
-branches, which largely contribute to $\boldsymbol{\kappa}$, are significantly
-fewer than the other phonon modes. The JDOS are mainly determined by the latter
-majorities.  As in the band diagrams, the branches of the majorities are rather
-flat.  Therefore, in Eq.~(\ref{eq:jdos}) the dependences of the
-$\omega_{\lambda'}$ and $\omega_{\lambda''}$ on the $\mathbf{q}'$ and
-$\mathbf{q}''$ can be disregarded. In this case, $D_2^{(1)}$ is simplified to
-the half part ($\omega \geq  0$) of the auto-correlation function of DOS. The
-DOSs for both the $\alpha$ and $\beta$ phases in Fig.~\ref{fig:Fig5_338_rev}(a)
-have a frequency gap. The $D_2^{(1)}$ reflect this DOS feature, dropping
-suddenly around 0 THz with a small shoulder around 5 THz, which corresponds to
-the width of the gap.  The gap originates from the local modes of the planar
-NSi$_3$ that compose each of the $\alpha$ and $\beta$ crystal
-structures;\cite{kuwabara} therefore, the $D_2^{(1)}$ are similar in these
-phases.  
+and is included as a scaling factor to compare WJDOS for structures with different
+$Z$. 
 
 \begin{figure}[ht]
  \centering
-  \includegraphics[width=0.9\linewidth]{figure_jdoss.eps} \caption{(color
-	  online) JDOS of $\alpha$- and $\beta$-Si$_3$N$_4$ at different $\mathbf q$ points.
-  The first and fourth rows are JDOS at the same $\Gamma$-point but calculated
+  \includegraphics[width=0.9\linewidth]{figure_wjdoss.eps} \caption{(color
+	  online) WJDOS of $\alpha$- and $\beta$-Si$_3$N$_4$ at different $\mathbf
+	  q$ points and that of $\gamma$-Si$_3$N$_4$ at the $\Gamma$ point. 
+  The WJDOS for the $\alpha$ and $\beta$ phases in the  first and fourth rows
+  are calculated at the same $\Gamma$-point but 
   with the polarization for the non-analytic term correction set along $c^*$ and
   $b^*$, respectively. \label{fig:Fig6_338} }
  \centering
 \end{figure}
 
-Fig.~\ref{fig:Fig_wjdos} shows the WJDOS.  The terms that corresponds to
-$D_2^{(1)}$ and $D_2^{(2)}$ are denoted as $N_2^{(1)}$ and $N_2^{(2)}$,
-respectively. They are
-weighted $D_2^{(1)}$ and  $D_2^{(2)}$ with $(n_{\lambda'}-n_{\lambda''})$ and
-$(n_{\lambda'}+n_{\lambda''}+1)$, respectively. For the comparison among the
-three phases, we only show the frequency distributions at $\mathbf{q}=(0,0,0)$
-because the $\mathbf{q}$ dependence of the WJDOS was as weak as that for the JDOS. The
-weighting factors reduce $N_2^{(1)}$ near 0 THz and enhance $N_2^{(2)}$
-in the high frequency range. The latter reduces 
-$d\boldsymbol{\kappa}^c/d\omega$ in the high frequency range for all the phases.
-The total WJDOSs are similar between the $\alpha$ and $\beta$ phases. The
-$\gamma$ phase has slightly small intensities of the total WJDOS below $\sim$ 10 THz.
-
-\begin{figure}[ht]
- \centering
-  \includegraphics[width=0.9\linewidth]{Fig_wjdos.eps} \caption{(color
-	  online) Comparison of WJDOS among the three phases at $\mathbf{q}=(0,0,0)$
-	  and 300 K. 
-		  } \label{fig:Fig_wjdos} 
- \centering
-\end{figure}
+Fig.~\ref{fig:Fig6_338} shows the WJDOS.  For the comparison among the three
+phases, we only show the frequency distributions for the $\gamma$ phase at
+$\mathbf{q}=(0,0,0)$ because the different symmetry of the Brillouin zone from
+those in the $\alpha$ and $\beta$ phases. We checked that  the $\mathbf{q}$
+dependence of the WJDOS for the $\gamma$ phase was as weak as those shown in
+Fig.~\ref{fig:Fig6_338} for the $\alpha$ and $\beta$ phases. The weighting
+factors of $(n_{\lambda'}-n_{\lambda''})$ reduce $N_2^{(1)}$ near 0 THz and
+those of $(n_{\lambda'}+n_{\lambda''}+1)$ enhance $N_2^{(2)}$ in the high
+frequency range. The latter reduces $d\boldsymbol{\kappa}^c/d\omega$ in the
+high frequency range for all the phases.  The total WJDOSs are similar between
+the $\alpha$ and $\beta$ phases.  The $\gamma$ phase has slightly small
+intensities of the total WJDOS below $\sim$ 10 THz.
 
 \begin{table}[ht]
 	\caption{\label{table:aveavepp} Averages of
@@ -763,46 +733,39 @@ As for $|\Phi_{\lambda\lambda'\lambda''}|^2$, in Table.~\ref{table:aveavepp},
 they are averaged over two frequency ranges of 0--15 or 0--35 THz for
 $\omega_\lambda$ and all indices in $\lambda'$ and $\lambda''$. The averages
 are very similar for the $\alpha$ and $\beta$ phases. With the
-similar impact of the (W)JDOS and $|\Phi_{\lambda\lambda'\lambda''}|^2$, the
-linewidths in these phases are also similar. For the $\gamma$ phase, the large
-$|\Phi_{\lambda\lambda'\lambda''}|^2$ is attributed to the large linewidths. 
+similar impact of the WJDOS and $|\Phi_{\lambda\lambda'\lambda''}|^2$, the
+phonon lifetimes in these phases are also similar. For the $\gamma$ phase, the large
+$|\Phi_{\lambda\lambda'\lambda''}|^2$ is attributed to the short phonon lifetimes. 
 The frequency ranges for $\omega_\lambda$ were set so that the narrower frequency range
 approximately corresponds to the range where the phonon modes largely contribute
 to $\boldsymbol{\kappa}$. A small change in the frequency range by a few
 terahertz did not change the qualitative characteristics of the averages.  
 
-\begin{figure}[ht]
- \centering
-  \includegraphics[width=\linewidth]{figure_analyze_gamma3_m1010_nolog.eps} \caption{(color
-	  online) Distribution of linewidths $\omega_\lambda$ $\leq$ 5 THz
-		  shown in color with respect to the strengths of the eigenvector
-		  components along (a) $\mathbf q$ 
-	  and (b) on the $ab$ plane (b).} \label{fig:Fig7_338} 
- \centering
-\end{figure}
 
-Finally, we examine the exceptional, but striking difference in the linewidth
+Finally, we examine the exceptional, but striking difference in the phonon
+lifetimes
 distributions between the $\alpha$ and $\beta$ phases. In the $\alpha$ phase,
-$\Gamma_\lambda$ below $\sim$ 5 THz are aligned on a single smooth line, while in
+$\tau_{\lambda,\text{ph-ph}}$ below $\sim$ 5 THz are aligned on a single smooth line, while in
 the $\beta$ phase, they are scattered roughly on two branches. This difference
 was investigated by an attempt to relate the linewidths to the directions of the
 atomic vibrations of the phonon modes. Fig.~\ref{fig:Fig7_338} enlarges the
-$(\Gamma_\lambda,\omega_\lambda)$ plots in this frequency range. In
-Fig.~\ref{fig:Fig7_338}(a), $\Gamma_\lambda$ are classified using colors
+$(\tau_{\lambda,\text{ph-ph}},\omega_\lambda)$ plots in this frequency range. In
+Fig.~\ref{fig:Fig7_338}(a), $\tau_{\lambda,\text{ph-ph}}$ are classified using colors
 according to the sums of the squares of the eigenvector components along the
 $\mathbf{q}$; the sum is 1 for a perfectly longitudinal wave. However, these
 sums show no clear contrast between the two branches in the $\beta$ phase.
 Fig.~\ref{fig:Fig7_338}(b) shows the same plot as Fig.~\ref{fig:Fig7_338}(a),
 but with colors according to the sums of the squares of the eigenvector
 components along the $ab$ plane, which is 1 when the eigenvector lies in the
-$ab$ plane.  There is a tendency in the $\beta$ phase that $\Gamma_\lambda$ are
-large for atomic vibrations along the $ab$ plane; therefore, the vibration modes
+$ab$ plane.  There is a tendency in the $\beta$ phase that
+$\tau_{\lambda,\text{ph-ph}}$ are
+short for atomic vibrations along the $ab$ plane; therefore, the vibration modes
 along the $ab$ plane that belong to the acoustic phonon branches are more easily
 scattered in the $\beta$ phase, regardless of whether they are longitudinal or
 transverse. For the panel of $\beta$-Si$_3$N$_4$ in Fig.~\ref{fig:Fig7_338}(b),
 a straight line splits the phonon modes into two groups. The numbers of the
-phonon modes assigned to the larger and smaller $\Gamma_\lambda$ groups are 157
-and 58, of which the ratio is confirmed to be close to the population ratio of
+phonon modes assigned to the smaller and larger $\Gamma_\lambda$ groups are 145
+and 67, of which the ratio is confirmed to be close to the population ratio of
 the vibration modes along and out of the $ab$ plane.
 
 
