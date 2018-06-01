@@ -174,21 +174,12 @@ In the following sections, we denote the phonon mode by $\lambda=(\mathbf{q},p)$
 with the set of the phonon wave vector $\mathbf{q}$ and band index $p$ and
 $-\lambda \equiv (-\mathbf{q},p)$. The relaxation time due to phonon-phonon
 scattering was obtained as half the reciprocal of linewidth,
-$\tau_{\lambda,\text{ph-ph}}=(2\Gamma_\lambda)^{-1}$, where the linewidth that was
-employed is as follows:
+$\tau_{\lambda,\text{ph-ph}}=(2\Gamma_\lambda(\omega_\lambda))^{-1}$, by 
 \begin{align}
  \label{eq:linewidth}
- &\Gamma_\lambda = \frac{18\pi}{\hbar^2}
+ &\Gamma_\lambda(\omega) = \frac{18\pi}{\hbar^2}
   \sum_{\lambda' \lambda''}
-  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2 \times \nonumber \\ 
- &\left\{ (n_{\lambda'} + n_{\lambda''}+1) 
-   \delta(\omega_\lambda-\omega_{\lambda'}-\omega_{\lambda''}) \right.
-   + \nonumber \\ 
- &\;\;(n_{\lambda'}-n_{\lambda''})
-  \left[\delta(\omega_\lambda +\omega_{\lambda'}-\omega_{\lambda''})
- \right. 
- \left. -\left. \delta(\omega_\lambda - \omega_{\lambda'}+\omega_{\lambda''})
- \right]\right\}.
+  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2 N_2(\mathbf{q},\omega) 
 \end{align}
 Here, $\omega_\lambda$ is the harmonic phonon frequency of the phonon mode
 $\lambda$, $n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$ is
@@ -198,7 +189,23 @@ $\Phi_{\lambda\lambda'\lambda''}$ was obtained by the usual coordinate
 transformation of third-order force constants from direct space to phonon
 space.\cite{phono3py} The second- and third-order real-space force constants
 were obtained by {\it ab initio} calculation, of which the details are given in the
-next section.
+next section. $N_2(\mathbf{q},\omega)$ is a weighted joint DOS (WJDOS)\cite{phono3py},
+\begin{align}
+ \label{eq:jdos}
+ &N_2(\mathbf{q},\omega) = N_2^{(1)}(\mathbf{q},\omega) +  N_2^{(2)}(\mathbf{q},\omega)
+\end{align}
+where 
+\begin{eqnarray*}
+	N_2^{(1)} & = & \frac{1}{N_\mathbf{q}} \sum_{\lambda'\lambda''}(n_{\lambda'}-n_{\lambda''})\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+								   & \times & [\delta(\omega + \omega_{\lambda'} - \omega_{\lambda''}) - \delta(\omega - \omega_{\lambda'} + \omega_{\lambda''})],\\
+	N_2^{(2)} & = & \frac{1}{N_\mathbf{q}} \sum_{\lambda'\lambda''}(n_{\lambda'} + n_{\lambda''}+1)\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
+\end{eqnarray*}
+with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
+vector, and otherwise zero. This constraint comes from the lattice
+translational invariance that appears inside
+$\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py} however, it is included in
+$N_2$ in Eq.~(\ref{eq:linewidth}) for the analysis given below.
 
 To more realistically compare the  calculated $\boldsymbol{\kappa}$ with the
 measured thermal conductivities, the isotopic scattering effect due to the natural isotope
@@ -210,16 +217,16 @@ $\tau_{\lambda}$, was calculated by assuming Matthiessen's rule,
 $1/\tau_{\lambda} = 1/\tau_{\lambda,\text{ph-ph}} +
 1/\tau_{\lambda,\text{iso}}$.
 
-The experimental thermal conductivities in the Si$_3$N$_4$ system were
-measured for polycrystalline samples and not from single
-crystals. The conductivities measured in a polycrystalline area were affected
-by various lattice defects within that area, such as grain boundaries, impurities, and
-vacancies. We crudely took them into account by the relaxation time
-$\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$ of a phonon boundary
-scattering model, where $\mathbf{v}_\lambda = \nabla_{\mathbf{q}}\omega_\lambda$
-is the group velocity and $L$ is a parameter related to the boundary mean free
-path. We consider $\tau_{\lambda,\text{bs}}$ as a variable parameter and partly
-include it in the calculated $\boldsymbol{\kappa}$, according to Matthiessen's rule. 
+%The experimental thermal conductivities in the Si$_3$N$_4$ system were
+%measured for polycrystalline samples and not from single
+%crystals. The conductivities measured in a polycrystalline area were affected
+%by various lattice defects within that area, such as grain boundaries, impurities, and
+%vacancies. We crudely took them into account by the relaxation time
+%$\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$ of a phonon boundary
+%scattering model, where $\mathbf{v}_\lambda = \nabla_{\mathbf{q}}\omega_\lambda$
+%is the group velocity and $L$ is a parameter related to the boundary mean free
+%path. We consider $\tau_{\lambda,\text{bs}}$ as a variable parameter and partly
+%include it in the calculated $\boldsymbol{\kappa}$, according to Matthiessen's rule. 
 
 The closed form of $\boldsymbol{\kappa}$ within the RTA was obtained via
 \begin{align}
@@ -562,9 +569,6 @@ the large absolute values and anisotropy of $\mathbf{v}_{\lambda}$ of the
 low-frequency optical phonon branches, as well as the acoustic phonon branches,
 in the $\beta$ phase.
 
-
-\subsection{Frequency distributions of phonon properties}
-
 \begin{figure*}[ht]
  \begin{center}
 	 \includegraphics[width=0.9\linewidth]{figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog.eps}
@@ -578,13 +582,16 @@ in the $\beta$ phase.
  \end{center}
 \end{figure*}
 
+\subsection{Frequency distributions of phonon properties}
+
+
 In the previous two sections, we have investigated the anisotropy in
 $\mathbf{v}_\lambda$, which may explain the anisotropy in $\boldsymbol{\kappa}$.
 Here we examine which phonon frequencies and which terms in Eq.(\ref{eq:kappa})
 characterize the behavior of the present $\boldsymbol{\kappa}$. In the
 following, we disregard the term of mode heat capacity because it is
 approximately constant for the phonon modes that mainly carry heat at 300 K.
-For simplicity, the effects of isotope scattering and boundary scattering are
+For simplicity, the effect of isotope scattering is
 not considered.  For the investigation, the cumulative thermal conductivity,
 $\boldsymbol{k}^c(\omega)$ in Eq.(\ref{eq:cum-kappa}), and its derivative
 $d\boldsymbol{\kappa}^c/d\omega$, are shown at the top of
@@ -655,24 +662,23 @@ $\tau_{\lambda,\text{ph-ph}}$ in the present form is dependent on the phase spac
 available two phonons, $\{\lambda', \lambda''\}$, and is also dependent on
 $|\Phi_{\lambda\lambda'\lambda''}|^2$. We examine these terms one-by-one. A
 distribution of two-phonon configurations satisfying the energy and momentum
-conservation law is represented as a weighted joint DOS
-(WJDOS)\cite{phono3py},
-${N_2(\mathbf{q},\omega)}$:  
-\begin{align}
- \label{eq:jdos}
- &N_2(\mathbf{q},\omega) = N_2^{(1)}(\mathbf{q},\omega) +  N_2^{(2)}(\mathbf{q},\omega)
-\end{align}
-where 
-\begin{eqnarray*}
-	N_2^{(1)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}(n_{\lambda'}-n_{\lambda''})\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
-								   & \times & [\delta(\omega + \omega_{\lambda'} - \omega_{\lambda''}) - \delta(\omega - \omega_{\lambda'} + \omega_{\lambda''})],\\
-	N_2^{(2)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}(n_{\lambda'} + n_{\lambda''}+1)\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
-								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
-\end{eqnarray*}
-with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
-vector, and otherwise zero. $Z$ is the number of formula units in the primitive unit cell
-and is included as a scaling factor to compare WJDOS for structures with different
-$Z$. 
+conservation law is represented as WJDOS\cite{phono3py}.
+%${N_2(\mathbf{q},\omega)}$:  
+%\begin{align}
+% \label{eq:jdos}
+% &N_2(\mathbf{q},\omega) = N_2^{(1)}(\mathbf{q},\omega) +  N_2^{(2)}(\mathbf{q},\omega)
+%\end{align}
+%where 
+%\begin{eqnarray*}
+%	N_2^{(1)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}(n_{\lambda'}-n_{\lambda''})\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+%								   & \times & [\delta(\omega + \omega_{\lambda'} - \omega_{\lambda''}) - \delta(\omega - \omega_{\lambda'} + \omega_{\lambda''})],\\
+%	N_2^{(2)} & = & \frac{1}{N_\mathbf{q}Z^2} \sum_{\lambda'\lambda''}(n_{\lambda'} + n_{\lambda''}+1)\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+%								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
+%\end{eqnarray*}
+%with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
+%vector, and otherwise zero. $Z$ is the number of formula units in the primitive unit cell
+%and is included as a scaling factor to compare WJDOS for structures with different
+%$Z$. 
 
 \begin{figure}[ht]
  \centering
@@ -687,13 +693,15 @@ $Z$.
 \end{figure}
 
 Fig.~\ref{fig:Fig6_338} shows the WJDOS at several different
-$\mathbf{q}$-points. They have weak $\mathbf{q}$-point dependences.  For the
-comparison among the three phases, the frequency distribution for the $\gamma$
-phase is only shown at $\mathbf{q}=(0,0,0)$ because of the different symmetry
-of the Brillouin zone from those in the $\alpha$ and $\beta$ phases. We checked
-that the $\mathbf{q}$ dependence of the WJDOS for the $\gamma$ phase was as
-weak as those shown in Fig.~\ref{fig:Fig6_338} for the $\alpha$ and $\beta$
-phases. 
+$\mathbf{q}$-points. The intensities are scaled with $Z^2$ where $Z$ is the
+number of formula units in the primitive unit cell, to compare WJDOS for
+structures with different $Z$.  They have weak $\mathbf{q}$-point dependences.
+For the comparison among the three phases, the frequency distribution for the
+$\gamma$ phase is only shown at $\mathbf{q}=(0,0,0)$ because of the different
+symmetry of the Brillouin zone from those in the $\alpha$ and $\beta$ phases.
+We checked that the $\mathbf{q}$ dependence of the WJDOS for the $\gamma$ phase
+was as weak as those shown in Fig.~\ref{fig:Fig6_338} for the $\alpha$ and
+$\beta$ phases. 
 The total WJDOSs are similar between the $\alpha$ and $\beta$ phases.
 The $\gamma$ phase has slightly small intensities of the total WJDOS below
 $\sim$ 10 THz.
@@ -702,6 +710,7 @@ $\sim$ 10 THz.
 %$N_2^{(2)}$ in the high frequency range. The latter reduces
 %$d\boldsymbol{\kappa}^c/d\omega$ in the high frequency range for all the
 %phases.  
+
 
 \begin{table}[ht]
 	\caption{\label{table:aveavepp} Averages of
@@ -736,6 +745,8 @@ where the phonon modes largely contribute to $\boldsymbol{\kappa}$. A small
 change in the frequency range by a few terahertz did not change the qualitative
 characteristics of the averages.  
 
+
+
 \begin{figure}[ht]
 	 \centering
 	   \includegraphics[width=\linewidth]{figure_analyze_gamma3_m1010_nolog.eps} \caption{(color
@@ -745,7 +756,6 @@ characteristics of the averages.
 		  	  and (b) on the $ab$ plane (b).} \label{fig:Fig7_338} 
 	   \centering
 \end{figure}
-
 
 Finally, we examine the exceptional, but striking difference in the phonon
 lifetimes
