@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.2)  1 JUN 2018 19:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.28)  4 JUN 2018 12:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -304,10 +304,10 @@ LaTeX Font Info:    Try loading font information for U+rsfs on input line 38.
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
 Package epstopdf Info: Source file: <Fig1_crystal_str2.eps>
-(epstopdf)                    date: 2017-12-28 12:27:30
+(epstopdf)                    date: 2017-12-28 12:33:06
 (epstopdf)                    size: 4101351 bytes
 (epstopdf)             Output file: <Fig1_crystal_str2-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-28 17:05:16
+(epstopdf)                    date: 2017-12-28 12:33:56
 (epstopdf)                    size: 154944 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig1_crystal_str2-eps-converted-to.pdf Fig1_crystal_str2.eps>
 (epstopdf)             \includegraphics on input line 88.
@@ -317,9 +317,14 @@ File: Fig1_crystal_str2-eps-converted-to.pdf Graphic file (type pdf)
  <use Fig1_crystal_str2-eps-converted-to.pdf>
 Package pdftex.def Info: Fig1_crystal_str2-eps-converted-to.pdf used on input line 88.
 (pdftex.def)             Requested size: 221.3985pt x 233.0515pt.
- [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str2-eps-converted-to.pdf>] [2]
-./Si3N4.tex:279: Extra }, or forgotten $.
-l.279 $\kappa_{xx}}
+ [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str2-eps-converted-to.pdf>]
+Underfull \hbox (badness 1067) in paragraph at lines 184--192
+\OT1/cmr/m/n/10 In this equa-tion, $^^H[]$ de-notes the three-phonon-
+ []
+
+[2]
+./Si3N4.tex:280: Extra }, or forgotten $.
+l.280 $\kappa_{xx}}
                    $ and $\kappa_{zz}}$ calculated with LDA were larger by 0...
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -327,8 +332,8 @@ you forgot something else, as in `\hbox{$x}'. In such cases
 the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 
-./Si3N4.tex:279: Extra }, or forgotten $.
-l.279 $\kappa_{xx}}$ and $\kappa_{zz}}
+./Si3N4.tex:280: Extra }, or forgotten $.
+l.280 $\kappa_{xx}}$ and $\kappa_{zz}}
                                       $ calculated with LDA were larger by 0...
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -337,30 +342,30 @@ the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 477--486
+Underfull \hbox (badness 10000) in paragraph at lines 478--487
 []\OT1/cmr/m/n/10 Table II[] also lists the pre-vi-ously re-ported
  []
 
 Package epstopdf Info: Source file: <Fig4_ver5_338_resize2_woDOS.eps>
-(epstopdf)                    date: 2018-03-20 18:33:44
+(epstopdf)                    date: 2018-03-23 10:11:23
 (epstopdf)                    size: 7899123 bytes
 (epstopdf)             Output file: <Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-03-20 18:33:46
+(epstopdf)                    date: 2018-03-23 10:11:23
 (epstopdf)                    size: 386617 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf Fig4_ver5_338_resize2_woDOS.eps>
-(epstopdf)             \includegraphics on input line 498.
+(epstopdf)             \includegraphics on input line 499.
 Package epstopdf Info: Output file is already uptodate.
 <Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf, id=89, 248.93pt x 398.48875pt>
 File: Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf Graphic file (type pdf)
  <use Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>
-Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf used on input line 498.
+Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf used on input line 499.
 (pdftex.def)             Requested size: 221.3985pt x 354.42282pt.
  [4]
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 518.
+LaTeX Warning: A float is stuck (cannot be placed) on input line 519.
 
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 518.
+LaTeX Warning: A float is stuck (cannot be placed) on input line 519.
 
 
 Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
@@ -375,10 +380,10 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
 Package epstopdf Info: Source file: <Fig2_small.eps>
-(epstopdf)                    date: 2018-04-28 18:21:00
+(epstopdf)                    date: 2018-05-11 10:44:54
 (epstopdf)                    size: 3820206 bytes
 (epstopdf)             Output file: <Fig2_small-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-04-28 18:21:04
+(epstopdf)                    date: 2018-05-11 10:44:54
 (epstopdf)                    size: 179326 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig2_small-eps-converted-to.pdf Fig2_small.eps>
 (epstopdf)             \includegraphics on input line 528.
@@ -394,25 +399,25 @@ Underfull \hbox (badness 1237) in paragraph at lines 549--560
  []
 
 Package epstopdf Info: Source file: <figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog.eps>
-(epstopdf)                    date: 2018-05-24 18:36:39
+(epstopdf)                    date: 2018-05-25 10:19:38
 (epstopdf)                    size: 15730395 bytes
 (epstopdf)             Output file: <figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-05-24 18:36:52
+(epstopdf)                    date: 2018-05-25 10:19:38
 (epstopdf)                    size: 3049589 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog.eps>
-(epstopdf)             \includegraphics on input line 574.
+(epstopdf)             \includegraphics on input line 573.
 Package epstopdf Info: Output file is already uptodate.
 <figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf, id=94, 493.845pt x 259.97125pt>
 File: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf Graphic file (type pdf)
  <use figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>
-Package pdftex.def Info: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf used on input line 574.
+Package pdftex.def Info: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf used on input line 573.
 (pdftex.def)             Requested size: 458.99689pt x 241.62398pt.
  [5 <./Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf> <./Fig2_small-eps-converted-to.pdf>] [6 <./figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figure_wjdoss.eps>
-(epstopdf)                    date: 2018-05-25 14:44:30
+(epstopdf)                    date: 2018-05-25 15:39:53
 (epstopdf)                    size: 841753 bytes
 (epstopdf)             Output file: <figure_wjdoss-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-05-28 11:12:50
+(epstopdf)                    date: 2018-05-25 15:40:25
 (epstopdf)                    size: 55751 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_wjdoss-eps-converted-to.pdf figure_wjdoss.eps>
 (epstopdf)             \includegraphics on input line 685.
@@ -442,10 +447,10 @@ in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
 Package epstopdf Info: Source file: <figure_analyze_gamma3_m1010_nolog.eps>
-(epstopdf)                    date: 2018-05-24 20:10:26
+(epstopdf)                    date: 2018-05-25 10:19:38
 (epstopdf)                    size: 1349523 bytes
 (epstopdf)             Output file: <figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-05-24 20:10:58
+(epstopdf)                    date: 2018-05-25 10:19:38
 (epstopdf)                    size: 144259 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf figure_analyze_gamma3_m1010_nolog.eps>
 (epstopdf)             \includegraphics on input line 752.
@@ -457,10 +462,10 @@ Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf 
 (pdftex.def)             Requested size: 246.0pt x 223.1753pt.
  [7 <./figure_wjdoss-eps-converted-to.pdf> <./figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <S1.eps>
-(epstopdf)                    date: 2018-05-01 14:41:54
+(epstopdf)                    date: 2018-05-11 10:44:54
 (epstopdf)                    size: 452983 bytes
 (epstopdf)             Output file: <S1-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-05-01 14:41:54
+(epstopdf)                    date: 2018-05-11 10:44:54
 (epstopdf)                    size: 10255 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
 (epstopdf)             \includegraphics on input line 826.
@@ -506,15 +511,15 @@ LaTeX Warning: There were multiply-defined labels.
  ) 
 Here is how much of TeX's memory you used:
  4929 strings out of 494497
- 65964 string characters out of 6172401
- 149383 words of memory out of 5000000
+ 65964 string characters out of 6172399
+ 148383 words of memory out of 5000000
  8234 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  264 hyphenation exceptions out of 8191
  38i,15n,32p,533b,452s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/f
 onts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Si3N4.pdf (9 pages, 4290703 bytes).
+Output written on Si3N4.pdf (9 pages, 4290743 bytes).
 PDF statistics:
  399 PDF objects out of 1000 (max. 8388607)
  184 compressed objects within 2 object streams

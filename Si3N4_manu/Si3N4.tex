@@ -150,7 +150,7 @@ theoretical references.
 
 The characteristic behaviors of  $\boldsymbol{\kappa}$
 are then investigated in detail on the basis of the phonon band structures and
-phonon linewidths.
+phonon lifetimes.
 
 \section{Computational procedures}
 
@@ -172,24 +172,23 @@ terms of mode-specific phonon properties.
 
 In the following sections, we denote the phonon mode by $\lambda=(\mathbf{q},p)$
 with the set of the phonon wave vector $\mathbf{q}$ and band index $p$ and
-$-\lambda \equiv (-\mathbf{q},p)$. The relaxation time due to phonon-phonon
-scattering was obtained as half the reciprocal of linewidth,
-$\tau_{\lambda,\text{ph-ph}}=(2\Gamma_\lambda(\omega_\lambda))^{-1}$, by 
+$-\lambda \equiv (-\mathbf{q},p)$. The hoarmonic phonon frequency of the phonon
+mode $\lambda$ is denoted by  $\omega_\lambda$. The relaxation time due to phonon-phonon
+scattering was obtained as,
+$\tau_{\lambda,\text{ph-ph}}=(2\Gamma_\lambda(\omega_\lambda))^{-1}$, with
 \begin{align}
  \label{eq:linewidth}
  &\Gamma_\lambda(\omega) = \frac{18\pi}{\hbar^2}
   \sum_{\lambda' \lambda''}
-  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2 N_2(\mathbf{q},\omega) 
+  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2 N_2(\mathbf{q},\omega).
 \end{align}
-Here, $\omega_\lambda$ is the harmonic phonon frequency of the phonon mode
-$\lambda$, $n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$ is
-the Bose-Einstein distribution at temperature $T$, and
-$\Phi_{\lambda\lambda'\lambda''}$ denotes the three-phonon-scattering strength.
-$\Phi_{\lambda\lambda'\lambda''}$ was obtained by the usual coordinate
+In this equation, $\Phi_{\lambda\lambda'\lambda''}$ denotes the
+three-phonon-scattering strength, obtained by the usual coordinate
 transformation of third-order force constants from direct space to phonon
 space.\cite{phono3py} The second- and third-order real-space force constants
-were obtained by {\it ab initio} calculation, of which the details are given in the
-next section. $N_2(\mathbf{q},\omega)$ is a weighted joint DOS (WJDOS)\cite{phono3py},
+were obtained by {\it ab initio} calculation, of which the details are given in
+the next section. $N_2(\mathbf{q},\omega)$ is a weighted joint DOS
+(WJDOS)\cite{phono3py},
 \begin{align}
  \label{eq:jdos}
  &N_2(\mathbf{q},\omega) = N_2^{(1)}(\mathbf{q},\omega) +  N_2^{(2)}(\mathbf{q},\omega)
@@ -202,10 +201,12 @@ where
 								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
 \end{eqnarray*}
 with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
-vector, and otherwise zero. This constraint comes from the lattice
-translational invariance that appears inside
-$\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py} however, it is included in
-$N_2$ in Eq.~(\ref{eq:linewidth}) for the analysis given below.
+vector, and otherwise zero. This constraint comes from the lattice translational
+invariance that appears inside $\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py}
+however, it is included in $N_2$ in Eq.~(\ref{eq:linewidth}) for the analysis
+given below. The weighting terms are composed of
+$n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$, the Bose-Einstein
+distribution at temperature $T$.
 
 To more realistically compare the  calculated $\boldsymbol{\kappa}$ with the
 measured thermal conductivities, the isotopic scattering effect due to the natural isotope
@@ -516,10 +517,9 @@ flat; however, the $\beta$ phase shows significantly large gradients for the
 low frequency optical phonon branches.  This indicates that the
 \rm{v}$_{\lambda}$ of these phonon modes are large.
 
-In the $\gamma$ phase, the longitudinal acoustic phonon branches maintain
-linear dispersion relation at hihger freqnuencies than in the other phases.
-The gradients of $\omega_\lambda$ for the $\gamma$ phase are largest among the
-three phases, as expected by the largest $B$.
+In the $\gamma$ phase, the longitudinal acoustic phonon branches maintain linear
+dispersion relation at hihger freqnuencies than in the other phases.  The
+gradients are largest among the three phases, as expected by the largest $B$.
 
 \subsection{$\omega_\lambda$ contour map on the reciprocal plane}
 
@@ -566,8 +566,7 @@ to the low frequency optical branches, similarly to the case of the $\alpha$ pha
 These modes show large gradients along $q_c^*$, which is clearly different from
 the gentle slopes in the corresponding bands in the $\alpha$ phase, confirming
 the large absolute values and anisotropy of $\mathbf{v}_{\lambda}$ of the
-low-frequency optical phonon branches, as well as the acoustic phonon branches,
-in the $\beta$ phase.
+low-frequency optical phonon branches, as well as the acoustic phonon branches.
 
 \begin{figure*}[ht]
  \begin{center}
@@ -645,24 +644,25 @@ This must result in similar $\boldsymbol{\kappa}$ between these
 structures, irrespective of the stacking manner. 
 
 The $\gamma$ phase has much different $g(\omega)$, $\boldsymbol{h}(\omega)$,
-and, $\tau_{\lambda,\text{ph-ph}}$ from the other phases, as expected from the large
-differences in their crystal structures. The most significant difference is in
-the phonon linewidths. Below $\sim$ 10 THz, the phonon lifetimes are approximately
-half as short as those of the other phases. We will examine this in detail
-later. As a result, $d\kappa_{xx}^c/d\omega$ has relatively low intensities. The
-longitudinal acoustic phonon branch increases its frequencies much
-significantly, as we have examined in the band diagram; therefore,
-$d\kappa_{xx}^c/d\omega$ rather gradually attenuates as the frequency increases,
-occasionally resembling $d\kappa_{xx}^c/d\omega$ of the $\beta$ phase.
+and, $\tau_{\lambda,\text{ph-ph}}$ from the other phases, as expected from the
+large differences in their crystal structures. The most significant difference
+is in the phonon lifetimes. In 4 THz $\lesssim\omega_\lambda\lesssim$ 10 THz,
+the phonon lifetimes are approximately half as short as those of the other
+phases. We will examine this in detail later. As a result,
+$d\kappa_{xx}^c/d\omega$ has relatively low intensities. The longitudinal
+acoustic phonon branch increases its frequencies much significantly, as we have
+examined in the band diagram; therefore, $d\kappa_{xx}^c/d\omega$ rather
+gradually attenuates as the frequency increases, occasionally resembling
+$d\kappa_{xx}^c/d\omega$ of the $\beta$ phase.
 
-The similar phonon lifetimes between the $\alpha$ and
-$\beta$ phases remains a curiosity, although their group velocities have marked differences.
-Analogous to the report by Lindsay {\it et al.}\cite{Lindsay}, we can say that
-$\tau_{\lambda,\text{ph-ph}}$ in the present form is dependent on the phase space for the
-available two phonons, $\{\lambda', \lambda''\}$, and is also dependent on
-$|\Phi_{\lambda\lambda'\lambda''}|^2$. We examine these terms one-by-one. A
-distribution of two-phonon configurations satisfying the energy and momentum
-conservation law is represented as WJDOS\cite{phono3py}.
+The similar phonon lifetimes between the $\alpha$ and $\beta$ phases remains a
+curiosity, although their group velocities have marked differences.  Analogous
+to the report by Lindsay {\it et al.}\cite{Lindsay}, we can say that
+$\tau_{\lambda,\text{ph-ph}}$ in the present form is dependent on the phase
+space for the available two phonons, $\{\lambda', \lambda''\}$, and is also
+dependent on $|\Phi_{\lambda\lambda'\lambda''}|^2$. We examine these terms
+one-by-one. A distribution of two-phonon configurations satisfying the energy
+and momentum conservation law is represented as WJDOS\cite{phono3py}.
 %${N_2(\mathbf{q},\omega)}$:  
 %\begin{align}
 % \label{eq:jdos}
@@ -693,7 +693,7 @@ conservation law is represented as WJDOS\cite{phono3py}.
 \end{figure}
 
 Fig.~\ref{fig:Fig6_338} shows the WJDOS at several different
-$\mathbf{q}$-points. The intensities are scaled with $Z^2$ where $Z$ is the
+$\mathbf{q}$-points. The intensities are scaled with $Z^2$ of which $Z$ is the
 number of formula units in the primitive unit cell, to compare WJDOS for
 structures with different $Z$.  They have weak $\mathbf{q}$-point dependences.
 For the comparison among the three phases, the frequency distribution for the
