@@ -200,10 +200,11 @@ where
 								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
 \end{eqnarray*}
 with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
-vector, and otherwise zero. This constraint comes from the lattice translational
-invariance that appears inside $\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py}
-however, it is included in $N_2$ in Eq.~(\ref{eq:linewidth}) for the analysis
-given below. The weighting terms are composed of
+vector, and otherwise zero. This constraint comes from the lattice
+translational invariance that appears inside
+$\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py} however, it is included in
+$N_2$ in Eq.~(\ref{eq:linewidth}) for the analysis given below. $N_\mathbf{q}$
+is the number of $\mathbf{q}$-points. The weighting terms are composed of
 $n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$, the Bose-Einstein
 distribution at temperature $T$.
 
@@ -234,10 +235,10 @@ The closed form of $\boldsymbol{\kappa}$ within the RTA was obtained via
  \boldsymbol{\kappa} = \frac{1}{N_\mathbf{q}\Omega} \sum_\lambda
  \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda c_\lambda,
 \end{align}
-where $N_\mathbf{q}$ is the number of $\mathbf{q}$-points, $\Omega$ is the unit
-cell volume,  $\mathbf{v}_\lambda = \nabla_{\mathbf{q}}\omega_\lambda$ is the
-group velocity, and $c_\lambda$ is the mode heat capacity. To analyze
-$\boldsymbol{\kappa}$ in detail, the cumulative thermal conductivity:
+where $\Omega$ is the unit cell volume,  $\mathbf{v}_\lambda =
+\nabla_{\mathbf{q}}\omega_\lambda$ is the group velocity, and $c_\lambda$ is
+the mode heat capacity. To analyze $\boldsymbol{\kappa}$ in detail, the
+cumulative thermal conductivity:
 \begin{align}
  \label{eq:cum-kappa}
  \boldsymbol{\kappa}^\text{c}(\omega) = \frac{1}{N_\mathbf{q}\Omega}
@@ -260,7 +261,7 @@ contributions to $\boldsymbol{\kappa}$.
 
 \subsection{Computational details}
 
-The force constants required for the lattice dynamics were calculated using the
+The force constants required were calculated using the
 first-principles projector augmented wave method\cite{paw} (VASP
 code\cite{vasp-1996,vasp-1995, vasp-1999}). The generalized gradient
 approximation (GGA) parameterized by Perdew, Burke, and Ernzerhof\cite{pbe} was
@@ -584,15 +585,15 @@ low-frequency optical phonon branches, as well as the acoustic phonon branches.
 
 
 In the previous two sections, we have investigated the anisotropy in
-$\mathbf{v}_\lambda$, which may explain the anisotropy in $\boldsymbol{\kappa}$.
-Here we examine which phonon frequencies and which terms in Eq.(\ref{eq:kappa})
-characterize the behavior of the present $\boldsymbol{\kappa}$. In the
-following, we disregard the term of mode heat capacity because it is
-approximately constant for the phonon modes that mainly carry heat at 300 K.
-For simplicity, the effect of isotope scattering is
-not considered.  For the investigation, the cumulative thermal conductivity,
-$\boldsymbol{k}^c(\omega)$ in Eq.(\ref{eq:cum-kappa}), and its derivative
-$d\boldsymbol{\kappa}^c/d\omega$, are shown at the top of
+$\mathbf{v}_\lambda$, which may explain the anisotropy in
+$\boldsymbol{\kappa}$.  Here we examine which phonon frequencies and which
+terms in Eq.(\ref{eq:kappa}) characterize the behavior of the present
+$\boldsymbol{\kappa}$. In the following, we disregard the term of mode heat
+capacity because it is approximately constant for the phonon modes that mainly
+carry heat at 300 K.  For simplicity, the effect of isotope scattering is not
+considered in this section. For the investigation, the cumulative thermal
+conductivity, $\boldsymbol{k}^c(\omega)$ in Eq.(\ref{eq:cum-kappa}), and its
+derivative $d\boldsymbol{\kappa}^c/d\omega$, are shown at the top of
 Fig.~\ref{fig:Fig5_338_rev}. From this figure, it is evident that in the
 $\alpha$, $\beta$, and $\gamma$ phases, the phonon modes with their frequencies
 up to $\sim$ 6, 12 and 10 THz largely contribute to each respective
@@ -654,14 +655,15 @@ examined in the band diagram; therefore, $d\kappa_{xx}^c/d\omega$ rather
 gradually attenuates as the frequency increases, occasionally resembling
 $d\kappa_{xx}^c/d\omega$ of the $\beta$ phase.
 
-The similar phonon lifetimes are seen between the $\alpha$ and $\beta$ phases,
-although their group velocities have marked differences. This remains a
-curiosity.  Analogous to the report by Lindsay {\it et al.}\cite{Lindsay}, we
-can say that $\tau_{\lambda,\text{ph-ph}}$ in the present form is dependent on
-the phase space for the available two phonons, $\{\lambda', \lambda''\}$, and
-is also dependent on $|\Phi_{\lambda\lambda'\lambda''}|^2$. We examine these
-terms one-by-one. A distribution of two-phonon configurations satisfying the
-energy and momentum conservation law is represented as WJDOS\cite{phono3py}.
+The distribution of phonon lifetimes is qualitatively similar between the $\alpha$ and
+$\beta$ phases, although their group velocities have marked differences. This
+remains a curiosity. Analogous to the report by Lindsay {\it et
+al.}\cite{Lindsay}, we can say that $\tau_{\lambda,\text{ph-ph}}$ in the
+present form is dependent on the phase space for the available two phonons,
+$\{\lambda', \lambda''\}$, and is also dependent on
+$|\Phi_{\lambda\lambda'\lambda''}|^2$. We examine these terms one-by-one. A
+distribution of two-phonon configurations satisfying the energy and momentum
+conservation law is represented as WJDOS\cite{phono3py}.
 %${N_2(\mathbf{q},\omega)}$:  
 %\begin{align}
 % \label{eq:jdos}
@@ -715,7 +717,7 @@ $\sim$ 10 THz.
 	\caption{\label{table:aveavepp} Averages of
 	$|\Phi_{\lambda\lambda'\lambda''}|^2$ over frequency ranges of
 	$\omega_\lambda$ (0--15 and 0--35 THz) and all ($\lambda'$,$\lambda'$). The
-	values are in units of 10$^{-9}$ eV$^2$ f.u.$^{2}$.}
+	values are in units of meV$^2$.}
  \begin{ruledtabular}
   \begin{tabular}{cccc}
 	  \multirow{2}{*}{Frequency range (THz)}
@@ -724,19 +726,21 @@ $\sim$ 10 THz.
    & $\alpha$ & $\beta$ & $\gamma$ \\
    \hline
    \multirow{1}{*}{0--15}
-   & 1.1  &  1.1  & 2.3 &    
+   & 0.47 &  0.46 & 1.02 &    
    \multirow{1}{*}{0--35}
-   & 5.2 & 5.2 & 4.6 &     
+   & 2.30 & 2.30 & 2.02 &     
   \end{tabular}
  \end{ruledtabular}
 \end{table}
 
 As for $|\Phi_{\lambda\lambda'\lambda''}|^2$, in Table.~\ref{table:aveavepp},
 they are averaged over two frequency ranges of 0--15 or 0--35 THz for
-$\omega_\lambda$ and all indices in $\lambda'$ and $\lambda''$. The averages
-are very similar for the $\alpha$ and $\beta$ phases. With the similar impact
-of the WJDOS and $|\Phi_{\lambda\lambda'\lambda''}|^2$, the phonon lifetimes in
-these phases are also similar. For the $\gamma$ phase, the large
+$\omega_\lambda$ and all indices in $\lambda'$ and $\lambda''$. To compare the
+values of the structures with different $Z$, we multiply the average by
+$(3n_a)^2$ where $n_a$ is the number of atoms in the primitive unit cell. The
+averages are very similar for the $\alpha$ and $\beta$ phases. With the similar
+impact of the WJDOS and $|\Phi_{\lambda\lambda'\lambda''}|^2$, the phonon
+lifetimes in these phases are also similar. For the $\gamma$ phase, the large
 $|\Phi_{\lambda\lambda'\lambda''}|^2$ of the low frequency region is attributed
 to the short phonon lifetimes.  The frequency ranges for $\omega_\lambda$ were
 set so that the narrower frequency range approximately corresponds to the range
