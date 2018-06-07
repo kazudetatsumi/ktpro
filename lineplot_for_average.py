@@ -24,9 +24,9 @@ apg= gdir + "gpjob_m121212_fullpp/kappa-m121212.hdf5"
 #cjc= cdir + "kappa-m8810.const_ave1.hdf5"
 #cjs= sdir + "kappa-m8820.const_ave1.hdf5"
 #cjg= gdir + "kappa-m121212.const_ave1.hdf5"
-cz=4
-sz=2
-gz=2
+cz=4*7*3
+sz=2*7*3
+gz=2*7*3
 
 
 
