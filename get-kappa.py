@@ -131,6 +131,7 @@ def get_ps(gp,wt,qp,omega,qs,dirname,mesh):
     return(ps)
 
 def get_kappa(hdf):
+    print hdf
     f = h5py.File(hdf)
     temperature = f["temperature"].value
     i=0
@@ -164,8 +165,24 @@ def run():
        pss=np.append(pss,np.array([ps]))
     print "phase spaece:\n",pss
 
-    #plt.figure(figsize=(10,10))
-    plt.plot(pss,kappas[:,0])
+    plt.figure(figsize=(10,20))
+    plt.subplot(2,1,1)
+    #plt.scatter(pss,kappas[:,0],label="kxx")
+    plt.scatter(pss,kappas[:,2],label="kzz")
+    #plt.scatter(pss,np.average(kappas[:,0:3], axis=1),label="kave")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.xlabel("phase space")
+    plt.ylabel("kappa")
+    plt.subplot(2,1,2)
+    #plt.scatter(kappacs[:,0],kappas[:,0],label="kxx")
+    plt.scatter(kappacs[:,2],kappas[:,2],label="kzz")
+    #plt.scatter(np.average(kappacs[:,0:3],axis=1),np.average(kappas[:,0:3], axis=1),label="kave")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.xlabel("kappa const avepp")
+    plt.ylabel("kappa")
+    plt.legend()
 run()
 
 plt.show()
