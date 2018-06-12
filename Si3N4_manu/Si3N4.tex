@@ -73,7 +73,7 @@ devices.
 At atmospheric pressure, Si$_3$N$_4$ has two phases, $\alpha$ and $\beta$, which
 are generally considered as low- and high-temperature phases,
 respectively.\cite{zhou,hirosaki-md,riley} Their crystal structures belong to
-the {\it P31c} and {\it P6$_3$/m} space groups, respectively.\cite{yashima,boulay} These
+the {\it P}31{\it c} and {\it P}6$_3${\it /m} space groups, respectively.\cite{yashima,boulay} These
 structures have different manners of stacking equivalent basal layer structures
 composed of SiN$_4$ tetrahedra.\cite{hampshire} Fig. \ref{fig:Fig1_cryst}
 depicts these layer structures from the principal axis direction. They are
@@ -157,37 +157,36 @@ phonon lifetimes.
 
 The lattice thermal conductivities were calculated by solving the linearized
 Boltzmann transport equation (LBTE) within the single-mode relaxation time
-approximation (single-mode RTA).  The harmonic phonon states and lattice thermal
-conductivities were calculated with the phonopy\cite{phonopy} and
+approximation (single-mode RTA).  The harmonic phonon states and lattice
+thermal conductivities were calculated with the phonopy\cite{phonopy} and
 phono3py\cite{phono3py} software packages, respectively.  We also attempted the
 direct-solution of LBTE\cite{chaput-direct} and give the calculated
-$\boldsymbol{\kappa}$ values in the following section. The
-difference between
+$\boldsymbol{\kappa}$ values in the following section. The difference between
 $\boldsymbol{\kappa}$ calculated by the single-mode RTA and that by the direct
-solution was minor for our discussion. Therefore, this research was
-limited to use the single-mode RTA to take advantage of the closed form of
-$\boldsymbol{\kappa}$, which can be intuitively understood in
-terms of mode-specific phonon properties.
+solution was minor for our discussion, for which the detail is given in Sec.
+IIc. Therefore, this research was limited to use the single-mode RTA to take
+advantage of the closed form of $\boldsymbol{\kappa}$, which can be intuitively
+understood in terms of mode-specific phonon properties.
 
 In the following sections, we denote the phonon mode by $\lambda=(\mathbf{q},p)$
 with the set of the phonon wave vector $\mathbf{q}$ and band index $p$ and
 $-\lambda \equiv (-\mathbf{q},p)$. The harmonic phonon frequency of the phonon
 mode $\lambda$ is denoted by  $\omega_\lambda$. The relaxation time due to phonon-phonon
 scattering was obtained as,
-$\tau_{\lambda,\text{ph-ph}}=(2\Gamma_\lambda(\omega_\lambda))^{-1}$, with
+$\tau_{\lambda,\text{ph-ph}}=[2\Gamma_\lambda(\omega_\lambda)]^{-1}$, with
 \begin{align}
  \label{eq:linewidth}
  &\Gamma_\lambda(\omega) = \frac{18\pi}{\hbar^2}
   \sum_{\lambda' \lambda''}
   \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2 N_2(\mathbf{q},\omega).
 \end{align}
-In this equation, $\Phi_{\lambda\lambda'\lambda''}$ denotes the
-three-phonon-scattering strength, obtained by the usual coordinate
-transformation of third-order force constants from direct space to phonon
-space.\cite{phono3py} The second- and third-order real-space force constants
-were obtained by {\it ab initio} calculation, of which the details are given in
-the next section. $N_2(\mathbf{q},\omega)$ is a weighted joint DOS
-(WJDOS)\cite{phono3py},
+In this equation, $\hbar$ is the reduced Planck constant and
+$\Phi_{\lambda\lambda'\lambda''}$ denotes the three-phonon-scattering strength,
+obtained by the usual coordinate transformation of third-order force constants
+from direct space to phonon space.\cite{phono3py} The second- and third-order
+real-space force constants were obtained by {\it ab initio} calculation, of
+which the details are given in the next section. $N_2(\mathbf{q},\omega)$ is a
+weighted joint DOS (WJDOS)\cite{phono3py},
 \begin{align}
  \label{eq:jdos}
  &N_2(\mathbf{q},\omega) = N_2^{(1)}(\mathbf{q},\omega) +  N_2^{(2)}(\mathbf{q},\omega)
@@ -202,11 +201,11 @@ where
 with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
 vector, and otherwise zero. This constraint comes from the lattice
 translational invariance that appears inside
-$\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py} however, it is included in
+$\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py} however, we let it appear in
 $N_2$ in Eq.~(\ref{eq:linewidth}) for the analysis given below. $N_\mathbf{q}$
 is the number of $\mathbf{q}$-points. The weighting terms are composed of
 $n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$, the Bose-Einstein
-distribution at temperature $T$.
+distribution at temperature $T$ with $\mathrm{k_B}$ of Boltzmann constant.
 
 To more realistically compare the  calculated $\boldsymbol{\kappa}$ with the
 measured thermal conductivities, the isotopic scattering effect due to the natural isotope
@@ -236,7 +235,7 @@ The closed form of $\boldsymbol{\kappa}$ within the RTA was obtained via
  \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda c_\lambda,
 \end{align}
 where $\Omega$ is the unit cell volume,  $\mathbf{v}_\lambda =
-\nabla_{\mathbf{q}}\omega_\lambda$ is the group velocity, and $c_\lambda$ is
+\nabla_{\mathbf{q}}\omega_\lambda$ is the group velocity, and $c_\lambda=\frac {\partial (n_\lambda\hbar\omega_\lambda)}{\partial T}$ is
 the mode heat capacity. To analyze $\boldsymbol{\kappa}$ in detail, the
 cumulative thermal conductivity:
 \begin{align}
@@ -413,7 +412,7 @@ the $\alpha$ and $\beta$ phases.
 \subsection{Direct solution of LBTE}
 
 The advantage of employing the single-mode RTA for thermal conductivity
-calculations is the closed form, by which the qualitative character of
+calculations is the closed form Eq.~(\ref{eq:kappa}), by which the qualitative character of
 $\boldsymbol{\kappa}$ can be intuitively understood in terms of the phonon-mode
 specific properties. The microscopic understanding of the full solution of LBTE
 is still under development,\cite{cepellotti-relaxons} and the microscopic
@@ -432,7 +431,7 @@ and 76 and 210 W m$^{-1}$ K$^{-1}$ for the $\beta$ phase. $\kappa_{zz}$ for the
 $\beta$ phase from the direct solution was 13 \% larger than that of the
 single-mode RTA solution. The differences in $\boldsymbol{\kappa}$ between the
 LBTE solutions are not significant; therefore, we expect that the physics of
-these lattice thermal conductivities can be well understood within the
+these lattice thermal conductivities is well understood within the
 single-mode RTA at the current level of our interest. Therefore, we discuss the
 lattice thermal conductivities calculated by the single-mode RTA solution.
 
@@ -446,8 +445,7 @@ lattice thermal conductivities calculated by the single-mode RTA solution.
  $\gamma$-Si$_3$N$_4$ (cubic) at 300
  K in units of W m$^{-1}$ K$^{-1}$, compared with the experimental and theoretical
  reference data. Theoretical bulk moduli $B$ (in
- units of GPa), calculated using the present band
- method are presented in the fourth column.}
+ units of GPa), calculated from the elastic constant calculation routine\cite{elastic} in the the VASP code.}
 
 \begin{ruledtabular}
  \begin{tabular}{ccccccccc}
@@ -467,7 +465,7 @@ lattice thermal conductivities calculated by the single-mode RTA solution.
 \end{table}
 
 Table~\ref{table:LTC-exp} shows the calculated
-$\boldsymbol{\kappa}$ for 300 K.  $\beta$-Si$_3$N$_4$ has a markedly more
+$\boldsymbol{\kappa}$ for 300 K with the isotope effect. $\beta$-Si$_3$N$_4$ has a markedly more
 anisotropic $\boldsymbol{\kappa}$ than $\alpha$-Si$_3$N$_4$.  The directional
 averages $\sum_i \kappa_{ii}/3$  are 79, 115,  and 77 W m$^{-1}$ K$^{-1}$ for the
 $\alpha$, $\beta$, and $\gamma$ phases, respectively. The value for the
@@ -485,14 +483,14 @@ agreement with the experimental $\boldsymbol{\kappa}$.  Compared to $\kappa$
 from the Slack model, our directional average $\sum_i \kappa_{ii}/3$ is also
 much closer to the experimental average. 
 
-\subsection{Dispersion curves}
+\subsection{Dispersion curves, \textcolor{red}{pending! to be united with section C or remove both.}}
 
 Figure \ref{fig:Fig4_ver5_338} shows the phonon band diagrams of the three
 Si$_3$N$_4$ phases. The entire band diagrams are almost identical to those
 reported earlier~\cite{kuwabara,xu}. However, here we investigate the gradients
 of $\omega_\lambda$, that is, the group velocities projected on the
 high-symmetry paths. We especially focus on their anisotropy in the $\alpha$ and
-$\beta$ phases. This was not investigated by the previous works.
+$\beta$ phases. This was not investigated by the previous works~\cite{kuwabara,xu}.
 
 \begin{figure}[ht]
 	 \begin{center}
@@ -521,7 +519,7 @@ In the $\gamma$ phase, the longitudinal acoustic phonon branches maintain linear
 dispersion relation at hihger freqnuencies than in the other phases.  The
 gradients are largest among the three phases, as expected by the largest $B$.
 
-\subsection{$\omega_\lambda$ contour map on the reciprocal plane}
+\subsection{$\omega_\lambda$ contour map on the reciprocal plane \textcolor{red}{pending}}
 
 \begin{figure}[ht]
  \centerins
