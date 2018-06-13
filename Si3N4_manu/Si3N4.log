@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.5.24)  12 JUN 2018 19:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.4.2)  13 JUN 2018 19:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -6,7 +6,7 @@ entering extended mode
 **Si3N4.tex
 (./Si3N4.tex
 LaTeX2e <2016/02/01>
-Babel <3.9q> and hyphenation patterns for 11 language(s) loaded.
+Babel <3.9q> and hyphenation patterns for 12 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/revtex/revtex4-1.cls
 Document Class: revtex4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
  Copyright (c) 2009 The American Physical Society.
@@ -428,19 +428,19 @@ File: figure_wjdoss-eps-converted-to.pdf Graphic file (type pdf)
 Package pdftex.def Info: figure_wjdoss-eps-converted-to.pdf used on input line 684.
 (pdftex.def)             Requested size: 221.3985pt x 252.13329pt.
 
-./Si3N4.tex:727: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:725: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.727    & 0.47 &  0.46 & 1.02 &
+l.725    & 0.47 &  0.46 & 1.02 &
                                 
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-./Si3N4.tex:729: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:727: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.729    & 2.30 & 2.30 & 2.02 &
+l.727    & 2.30 & 2.30 & 2.02 &
                                
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
@@ -453,12 +453,12 @@ Package epstopdf Info: Source file: <figure_analyze_gamma3_m1010_nolog.eps>
 (epstopdf)                    date: 2018-06-06 17:30:23
 (epstopdf)                    size: 144256 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf figure_analyze_gamma3_m1010_nolog.eps>
-(epstopdf)             \includegraphics on input line 753.
+(epstopdf)             \includegraphics on input line 751.
 Package epstopdf Info: Output file is already uptodate.
 <figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf, id=264, 237.88875pt x 215.80624pt>
 File: figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf Graphic file (type pdf)
  <use figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf>
-Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf used on input line 753.
+Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf used on input line 751.
 (pdftex.def)             Requested size: 246.0pt x 223.1753pt.
  [7 <./figure_wjdoss-eps-converted-to.pdf> <./figure_analyze_gamma3_m1010_nolog-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <S1.eps>
@@ -468,12 +468,12 @@ Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)                    date: 2018-05-01 14:41:54
 (epstopdf)                    size: 10255 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 827.
+(epstopdf)             \includegraphics on input line 825.
 Package epstopdf Info: Output file is already uptodate.
  <S1-eps-converted-to.pdf, id=297, 238.8925pt x 234.8775pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 827.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 825.
 (pdftex.def)             Requested size: 196.80075pt x 193.4932pt.
  (./Si3N4.bbl
 Underfull \hbox (badness 4001) in paragraph at lines 155--160
@@ -485,17 +485,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 189--195
  |   []\OT1/cmr/m/n/9 , edited by
  []
 
-[8]
-
-LaTeX Warning: A float is stuck (cannot be placed) on input line 320.
-
-
-LaTeX Warning: A float is stuck (cannot be placed) on input line 320.
-
-
-Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
-
-
+[8 <./S1-eps-converted-to.pdf>]
 Underfull \hbox (badness 2158) in paragraph at lines 373--377
  []\OT1/cmr/m/n/9 M. T. Dove, |   [], Vol. 4
  []
@@ -504,22 +494,22 @@ Missing character: There is no ƒ in font cmr9!
 Missing character: There is no ¿ in font cmr9!
 Missing character: There is no ƒ in font cmr9!
 Missing character: There is no À in font cmr9!
-) [9 <./S1-eps-converted-to.pdf>] (./Si3N4.aux)
+) [9] (./Si3N4.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 4932 strings out of 494506
- 66012 string characters out of 6172962
- 149372 words of memory out of 5000000
- 8236 multiletter control sequences out of 15000+600000
+ 4933 strings out of 494497
+ 66023 string characters out of 6172401
+ 155416 words of memory out of 5000000
+ 8238 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  264 hyphenation exceptions out of 8191
  38i,15n,32p,533b,452s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texlive/texmf-dist/fonts/t
 ype1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (9 pages, 4302391 bytes).
+Output written on Si3N4.pdf (9 pages, 4302377 bytes).
 PDF statistics:
  407 PDF objects out of 1000 (max. 8388607)
  190 compressed objects within 2 object streams
