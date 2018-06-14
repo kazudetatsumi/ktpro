@@ -131,7 +131,7 @@ def caserun(casefile,vcasefile,n,phase):
     longiamp=trans(qpointq,eigenvecq)
     omega1d,gamma1d,sqamp1d,longiamp1d=select_mode(omegak,gammak,sqamp,longiamp)
     plt.subplot(2,2,n)
-    plt.scatter(omega1d,0.5/gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.scatter(omega1d,0.5/gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase, cmap='magma')
     plt.tick_params(which='both',tickdir='in')
     #plt.rcParams['ytick.right'] = True
     #plt.rcParams['xtick.top'] = True
@@ -145,7 +145,7 @@ def caserun(casefile,vcasefile,n,phase):
     plt.colorbar(label='sum of squares of eigenvector component along q')
     plt.subplot(2,2,n+2)
     #plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
-    plt.scatter(omega1d,0.5/gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.scatter(omega1d,0.5/gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='magma')
     plt.tick_params(which='both',tickdir='in')
     #plt.rcParams['ytick.right'] = True
     #plt.rcParams['xtick.top'] = True
