@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.28)  15 JUN 2018 17:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.5.24)  18 JUN 2018 18:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -6,7 +6,7 @@ entering extended mode
 **Si3N4.tex
 (./Si3N4.tex
 LaTeX2e <2016/02/01>
-Babel <3.9q> and hyphenation patterns for 12 language(s) loaded.
+Babel <3.9q> and hyphenation patterns for 11 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/revtex/revtex4-1.cls
 Document Class: revtex4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
  Copyright (c) 2009 The American Physical Society.
@@ -203,42 +203,53 @@ Package color Info: Driver file: pdftex.def on input line 143.
  (/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
 File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
 \Gread@gobject=\count107
-)) (/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty
-\UL@box=\box43
-\UL@hyphenbox=\box44
+)) (/usr/share/texlive/texmf-dist/tex/latex/here/here.sty) (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count108
+\float@exts=\toks23
+\float@box=\box43
+\@float@everytoks=\toks24
+\@floatcapt=\box44
+) (/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty
+\UL@box=\box45
+\UL@hyphenbox=\box46
 \UL@skip=\skip49
-\UL@hook=\toks23
+\UL@hook=\toks25
 \UL@height=\dimen114
-\UL@pe=\count108
+\UL@pe=\count109
 \UL@pixel=\dimen115
-\ULC@box=\box45
+\ULC@box=\box47
 Package: ulem 2012/05/18
 \ULdepth=\dimen116
 )
-Class revtex4-1 Info: Patching LaTeX tabular. on input line 12.
-Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 12.
-Class revtex4-1 Info: cite was not loaded (OK!) on input line 12.
-Class revtex4-1 Info: mcite was not loaded (OK!) on input line 12.
-Class revtex4-1 Info: multicol was not loaded (OK!) on input line 12.
- (./Si3N4.aux
+Class revtex4-1 Info: Patching LaTeX tabular. on input line 13.
+
+
+Class revtex4-1 Warning: Repair the float package.
+
+Class revtex4-1 Info: Robustifying \LaTeX's \boldmath command on input line 13.
+Class revtex4-1 Info: cite was not loaded (OK!) on input line 13.
+Class revtex4-1 Info: mcite was not loaded (OK!) on input line 13.
+Class revtex4-1 Info: multicol was not loaded (OK!) on input line 13.
+(./Si3N4.aux
 
 LaTeX Warning: Label `eq:cum-kappa' multiply defined.
 
 )
 \openout1 = `Si3N4.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
  (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO)
  (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifluatex.sty
@@ -277,54 +288,54 @@ Package grfext Info: Graphics extension search list:
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 )) (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count109
+\scratchcounter=\count110
 \scratchdimen=\dimen117
-\scratchbox=\box46
-\nofMPsegments=\count110
-\nofMParguments=\count111
-\everyMPshowfont=\toks24
-\MPscratchCnt=\count112
+\scratchbox=\box48
+\nofMPsegments=\count111
+\nofMParguments=\count112
+\everyMPshowfont=\toks26
+\MPscratchCnt=\count113
 \MPscratchDim=\dimen118
-\MPnumerator=\count113
-\makeMPintoPDFobject=\count114
-\everyMPtoPDFconversion=\toks25
+\MPnumerator=\count114
+\makeMPintoPDFobject=\count115
+\everyMPtoPDFconversion=\toks27
 )
 \openout3 = `Si3N4Notes.bib'.
 
-LaTeX Font Info:    Try loading font information for U+msa on input line 38.
+LaTeX Font Info:    Try loading font information for U+msa on input line 39.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 38.
+LaTeX Font Info:    Try loading font information for U+msb on input line 39.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for U+rsfs on input line 38.
+LaTeX Font Info:    Try loading font information for U+rsfs on input line 39.
  (/usr/share/texlive/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
 Package epstopdf Info: Source file: <Fig1_crystal_str2.eps>
-(epstopdf)                    date: 2017-12-28 12:33:06
+(epstopdf)                    date: 2017-12-28 12:27:30
 (epstopdf)                    size: 4101351 bytes
 (epstopdf)             Output file: <Fig1_crystal_str2-eps-converted-to.pdf>
-(epstopdf)                    date: 2017-12-28 12:33:56
+(epstopdf)                    date: 2017-12-28 17:05:16
 (epstopdf)                    size: 154944 bytes
 (epstopdf)             Command: <repstopdf --outfile=Fig1_crystal_str2-eps-converted-to.pdf Fig1_crystal_str2.eps>
-(epstopdf)             \includegraphics on input line 88.
+(epstopdf)             \includegraphics on input line 89.
 Package epstopdf Info: Output file is already uptodate.
  <Fig1_crystal_str2-eps-converted-to.pdf, id=1, 247.92625pt x 260.975pt>
 File: Fig1_crystal_str2-eps-converted-to.pdf Graphic file (type pdf)
  <use Fig1_crystal_str2-eps-converted-to.pdf>
-Package pdftex.def Info: Fig1_crystal_str2-eps-converted-to.pdf used on input line 88.
+Package pdftex.def Info: Fig1_crystal_str2-eps-converted-to.pdf used on input line 89.
 (pdftex.def)             Requested size: 221.3985pt x 233.0515pt.
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str2-eps-converted-to.pdf>]
-Underfull \hbox (badness 1092) in paragraph at lines 182--190
+Underfull \hbox (badness 1092) in paragraph at lines 183--191
 \OT1/cmr/m/n/10 ob-tained by the usual co-or-di-nate trans-for-ma-tion of
  []
 
 [2]
-./Si3N4.tex:279: Extra }, or forgotten $.
-l.279 $\kappa_{xx}}
+./Si3N4.tex:280: Extra }, or forgotten $.
+l.280 $\kappa_{xx}}
                    $ and $\kappa_{zz}}$ calculated with LDA were larger by 0...
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -332,8 +343,8 @@ you forgot something else, as in `\hbox{$x}'. In such cases
 the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 
-./Si3N4.tex:279: Extra }, or forgotten $.
-l.279 $\kappa_{xx}}$ and $\kappa_{zz}}
+./Si3N4.tex:280: Extra }, or forgotten $.
+l.280 $\kappa_{xx}}$ and $\kappa_{zz}}
                                       $ calculated with LDA were larger by 0...
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -342,142 +353,122 @@ the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 476--485
+Underfull \hbox (badness 10000) in paragraph at lines 477--486
 []\OT1/cmr/m/n/10 Table II[] also lists the pre-vi-ously re-ported
  []
 
-Package epstopdf Info: Source file: <Fig4_ver5_338_resize2_woDOS.eps>
-(epstopdf)                    date: 2018-03-23 10:11:23
-(epstopdf)                    size: 7899123 bytes
-(epstopdf)             Output file: <Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-03-23 10:11:23
-(epstopdf)                    size: 386617 bytes
-(epstopdf)             Command: <repstopdf --outfile=Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf Fig4_ver5_338_resize2_woDOS.eps>
-(epstopdf)             \includegraphics on input line 497.
+Package epstopdf Info: Source file: <Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.eps>
+(epstopdf)                    date: 2018-06-18 18:00:46
+(epstopdf)                    size: 9699199 bytes
+(epstopdf)             Output file: <Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf>
+(epstopdf)                    date: 2018-06-18 18:01:54
+(epstopdf)                    size: 319397 bytes
+(epstopdf)             Command: <repstopdf --outfile=Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.eps>
+(epstopdf)             \includegraphics on input line 510.
 Package epstopdf Info: Output file is already uptodate.
-<Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf, id=91, 248.93pt x 398.48875pt>
-File: Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf Graphic file (type pdf)
- <use Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf>
-Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf used on input line 497.
-(pdftex.def)             Requested size: 221.3985pt x 354.42282pt.
+<Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf, id=91, 243.91125pt x 607.26875pt>
+File: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf Graphic file (type pdf)
+ <use Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf>
+Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf used on input line 510.
+(pdftex.def)             Requested size: 221.3985pt x 551.22551pt.
  [4]
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 517.
+LaTeX Warning: Reference `fig:Fig3_338' on page 5 undefined on input line 544.
 
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 517.
-
-
-Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
-
-./Si3N4.tex:525: Undefined control sequence.
-l.525  \centerins
-                 
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-Package epstopdf Info: Source file: <Fig2_small_scale.eps>
-(epstopdf)                    date: 2018-06-15 17:34:20
-(epstopdf)                    size: 3187122 bytes
-(epstopdf)             Output file: <Fig2_small_scale-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-15 17:12:42
-(epstopdf)                    size: 159605 bytes
-(epstopdf)             Command: <repstopdf --outfile=Fig2_small_scale-eps-converted-to.pdf Fig2_small_scale.eps>
-(epstopdf)             \includegraphics on input line 526.
-runsystem(repstopdf --outfile=Fig2_small_scale-eps-converted-to.pdf Fig2_small_scale.eps)...executed safely (allowed).
-
-Package epstopdf Info: Result file: <Fig2_small_scale-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-15 17:34:26
-(epstopdf)                    size: 159304 bytes.
-<Fig2_small_scale-eps-converted-to.pdf, id=95, 237.88875pt x 210.7875pt>
-File: Fig2_small_scale-eps-converted-to.pdf Graphic file (type pdf)
- <use Fig2_small_scale-eps-converted-to.pdf>
-Package pdftex.def Info: Fig2_small_scale-eps-converted-to.pdf used on input line 526.
-(pdftex.def)             Requested size: 246.0pt x 217.98518pt.
-
-Underfull \hbox (badness 1237) in paragraph at lines 547--558
+Underfull \hbox (badness 1237) in paragraph at lines 552--563
 \OT1/cmr/m/n/10 nearly isotrop-i-cally; the cor-re-spond-ing con-tours are
  []
 
 Package epstopdf Info: Source file: <figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog.eps>
-(epstopdf)                    date: 2018-06-15 10:36:09
+(epstopdf)                    date: 2018-06-06 13:19:09
 (epstopdf)                    size: 15730623 bytes
 (epstopdf)             Output file: <figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-15 10:36:09
+(epstopdf)                    date: 2018-06-06 13:19:27
 (epstopdf)                    size: 3049856 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog.eps>
-(epstopdf)             \includegraphics on input line 571.
+(epstopdf)             \includegraphics on input line 576.
 Package epstopdf Info: Output file is already uptodate.
-<figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf, id=96, 493.845pt x 259.97125pt>
+<figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf, id=95, 493.845pt x 259.97125pt>
 File: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf Graphic file (type pdf)
  <use figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>
-Package pdftex.def Info: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf used on input line 571.
+Package pdftex.def Info: figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf used on input line 576.
 (pdftex.def)             Requested size: 458.99689pt x 241.62398pt.
- [5 <./Fig4_ver5_338_resize2_woDOS-eps-converted-to.pdf> <./Fig2_small_scale-eps-converted-to.pdf>] [6 <./figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>]
+
+
+LaTeX Warning: Reference `fig:Fig3_338' on page 5 undefined on input line 604.
+
+[5 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <figure_wjdoss_gray.eps>
-(epstopdf)                    date: 2018-06-15 10:36:09
+(epstopdf)                    date: 2018-06-14 20:06:50
 (epstopdf)                    size: 760642 bytes
 (epstopdf)             Output file: <figure_wjdoss_gray-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-15 10:36:09
+(epstopdf)                    date: 2018-06-14 20:07:02
 (epstopdf)                    size: 33666 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_wjdoss_gray-eps-converted-to.pdf figure_wjdoss_gray.eps>
-(epstopdf)             \includegraphics on input line 684.
+(epstopdf)             \includegraphics on input line 689.
 Package epstopdf Info: Output file is already uptodate.
- <figure_wjdoss_gray-eps-converted-to.pdf, id=262, 245.91875pt x 280.04625pt>
+ <figure_wjdoss_gray-eps-converted-to.pdf, id=235, 245.91875pt x 280.04625pt>
 File: figure_wjdoss_gray-eps-converted-to.pdf Graphic file (type pdf)
  <use figure_wjdoss_gray-eps-converted-to.pdf>
-Package pdftex.def Info: figure_wjdoss_gray-eps-converted-to.pdf used on input line 684.
+Package pdftex.def Info: figure_wjdoss_gray-eps-converted-to.pdf used on input line 689.
 (pdftex.def)             Requested size: 221.3985pt x 252.13329pt.
+ [6 <./figure_dos_jdos_kc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>]
 
-./Si3N4.tex:725: Extra alignment tab has been changed to \cr.
+LaTeX Warning: A float is stuck (cannot be placed) on input line 715.
+
+
+LaTeX Warning: A float is stuck (cannot be placed) on input line 715.
+
+
+Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
+
+./Si3N4.tex:730: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.725    & 0.47 &  0.46 & 1.02 &
+l.730    & 0.47 &  0.46 & 1.02 &
                                 
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-./Si3N4.tex:727: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:732: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.727    & 2.30 & 2.30 & 2.02 &
+l.732    & 2.30 & 2.30 & 2.02 &
                                
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
 Package epstopdf Info: Source file: <figure_analyze_gamma3_m1010_nolog_gray.eps>
-(epstopdf)                    date: 2018-06-15 15:21:02
+(epstopdf)                    date: 2018-06-18 17:59:58
 (epstopdf)                    size: 1454872 bytes
 (epstopdf)             Output file: <figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-15 15:21:11
+(epstopdf)                    date: 2018-06-18 17:59:58
 (epstopdf)                    size: 148451 bytes
 (epstopdf)             Command: <repstopdf --outfile=figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf figure_analyze_gamma3_m1010_nolog_gray.eps>
-(epstopdf)             \includegraphics on input line 751.
+(epstopdf)             \includegraphics on input line 756.
 Package epstopdf Info: Output file is already uptodate.
-<figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf, id=263, 237.88875pt x 214.8025pt>
+<figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf, id=256, 237.88875pt x 214.8025pt>
 File: figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf Graphic file (type pdf)
  <use figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf>
-Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf used on input line 751.
+Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf used on input line 756.
 (pdftex.def)             Requested size: 246.0pt x 222.13727pt.
  [7 <./figure_wjdoss_gray-eps-converted-to.pdf> <./figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <S1.eps>
-(epstopdf)                    date: 2018-05-11 10:44:54
+(epstopdf)                    date: 2018-05-01 14:41:54
 (epstopdf)                    size: 452983 bytes
 (epstopdf)             Output file: <S1-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-05-11 10:44:54
+(epstopdf)                    date: 2018-05-01 14:41:54
 (epstopdf)                    size: 10255 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 827.
+(epstopdf)             \includegraphics on input line 832.
 Package epstopdf Info: Output file is already uptodate.
- <S1-eps-converted-to.pdf, id=295, 238.8925pt x 234.8775pt>
+ <S1-eps-converted-to.pdf, id=288, 238.8925pt x 234.8775pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 827.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 832.
 (pdftex.def)             Requested size: 196.80075pt x 193.4932pt.
  (./Si3N4.bbl
 Underfull \hbox (badness 4001) in paragraph at lines 155--160
@@ -489,17 +480,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 189--195
  |   []\OT1/cmr/m/n/9 , edited by
  []
 
-[8]
-
-LaTeX Warning: A float is stuck (cannot be placed) on input line 320.
-
-
-LaTeX Warning: A float is stuck (cannot be placed) on input line 320.
-
-
-Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
-
-
+[8 <./S1-eps-converted-to.pdf>]
 Underfull \hbox (badness 2158) in paragraph at lines 373--377
  []\OT1/cmr/m/n/9 M. T. Dove, |   [], Vol. 4
  []
@@ -508,25 +489,28 @@ Missing character: There is no ƒ in font cmr9!
 Missing character: There is no ¿ in font cmr9!
 Missing character: There is no ƒ in font cmr9!
 Missing character: There is no À in font cmr9!
-) [9 <./S1-eps-converted-to.pdf>] (./Si3N4.aux)
+) [9] (./Si3N4.aux)
+
+LaTeX Warning: There were undefined references.
+
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 4932 strings out of 494497
- 66092 string characters out of 6172399
- 149416 words of memory out of 5000000
- 8237 multiletter control sequences out of 15000+600000
+ 4984 strings out of 494506
+ 66900 string characters out of 6172962
+ 151528 words of memory out of 5000000
+ 8281 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  264 hyphenation exceptions out of 8191
- 38i,15n,32p,533b,452s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,15n,32p,497b,458s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/share/texlive/texmf-dist/fonts/t
 ype1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (9 pages, 4267011 bytes).
+Output written on Si3N4.pdf (9 pages, 4043200 bytes).
 PDF statistics:
- 405 PDF objects out of 1000 (max. 8388607)
- 186 compressed objects within 2 object streams
+ 398 PDF objects out of 1000 (max. 8388607)
+ 181 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 36 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 31 words of extra memory for PDF output out of 10000 (max. 10000000)
 
