@@ -258,6 +258,15 @@
   {Chaput}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Physical review letters}\ }\textbf {\bibinfo {volume} {110}},\ \bibinfo
   {pages} {265506} (\bibinfo {year} {2013})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Mizokami}\ \emph {et~al.}(2018)\citenamefont
+  {Mizokami}, \citenamefont {Togo},\ and\ \citenamefont {Tanaka}}]{sio2}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
+  {Mizokami}}, \bibinfo {author} {\bibfnamefont {A.~L.}\ \bibnamefont {Togo}},
+  \ and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. B}\
+  }\textbf {\bibinfo {volume} {97}},\ \bibinfo {pages} {224306} (\bibinfo
+  {year} {2018})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Tamura}(1983)}]{tamura}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.-i.}\ \bibnamefont
@@ -390,7 +399,7 @@
   {Paszkowicz}}, \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Piszora}},
   \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Knapp}}, \ and\ \bibinfo
   {author} {\bibfnamefont {C.}~\bibnamefont {B{\"a}htz}},\ }\href@noop {}
-  {\enquote {\bibinfo {title} {Thermal expansion of ƒ¿ and ƒÀ silicon
+  {\enquote {\bibinfo {title} {Thermal expansion of Î± and Î² silicon
   nitride},}\ } (\bibinfo {year} {2007})\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Paszkowicz}\ and\ \citenamefont
   {Minikayev}(2004)}]{gamma-expand}%
@@ -448,12 +457,4 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
   B}\ }\textbf {\bibinfo {volume} {78}},\ \bibinfo {pages} {064104} (\bibinfo
   {year} {2008})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Lindsay}\ and\ \citenamefont
-  {Broido}(2008)}]{Lindsay}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
-  {Lindsay}}\ and\ \bibinfo {author} {\bibfnamefont {D.~A.}\ \bibnamefont
-  {Broido}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {J.
-  Phys.: Condens. Matter}\ }\textbf {\bibinfo {volume} {20}},\ \bibinfo {pages}
-  {165209} (\bibinfo {year} {2008})}\BibitemShut {NoStop}%
 \end{thebibliography}%
