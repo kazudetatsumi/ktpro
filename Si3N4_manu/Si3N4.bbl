@@ -262,8 +262,8 @@
   {Mizokami}, \citenamefont {Togo},\ and\ \citenamefont {Tanaka}}]{sio2}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
-  {Mizokami}}, \bibinfo {author} {\bibfnamefont {A.~L.}\ \bibnamefont {Togo}},
-  \ and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\
+  {Mizokami}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Togo}}, \
+  and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. B}\
   }\textbf {\bibinfo {volume} {97}},\ \bibinfo {pages} {224306} (\bibinfo
   {year} {2018})}\BibitemShut {NoStop}%
