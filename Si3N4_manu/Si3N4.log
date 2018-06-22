@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  21 JUN 2018 19:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  22 JUN 2018 18:05
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -310,22 +310,12 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 LaTeX Font Info:    Try loading font information for U+rsfs on input line 39.
  (/sw/share/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
-)
-Package epstopdf Info: Source file: <Fig1_crystal_str2.eps>
-(epstopdf)                    date: 2018-05-18 11:46:40
-(epstopdf)                    size: 4101351 bytes
-(epstopdf)             Output file: <Fig1_crystal_str2-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-05-18 11:46:40
-(epstopdf)                    size: 154944 bytes
-(epstopdf)             Command: <repstopdf --outfile=Fig1_crystal_str2-eps-converted-to.pdf Fig1_crystal_str2.eps>
-(epstopdf)             \includegraphics on input line 89.
-Package epstopdf Info: Output file is already uptodate.
- <Fig1_crystal_str2-eps-converted-to.pdf, id=1, 247.92625pt x 260.975pt>
-File: Fig1_crystal_str2-eps-converted-to.pdf Graphic file (type pdf)
- <use Fig1_crystal_str2-eps-converted-to.pdf>
-Package pdftex.def Info: Fig1_crystal_str2-eps-converted-to.pdf used on input line 89.
-(pdftex.def)             Requested size: 221.3985pt x 233.0515pt.
- [1{/sw/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str2-eps-converted-to.pdf>]
+) <Fig1_crystal_str2.pdf, id=1, 247.539pt x 261.76537pt>
+File: Fig1_crystal_str2.pdf Graphic file (type pdf)
+ <use Fig1_crystal_str2.pdf>
+Package pdftex.def Info: Fig1_crystal_str2.pdf used on input line 89.
+(pdftex.def)             Requested size: 221.3985pt x 234.12874pt.
+ [1{/sw/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str2.pdf>]
 Underfull \hbox (badness 1092) in paragraph at lines 184--192
 \OT1/cmr/m/n/10 ob-tained by the usual co-or-di-nate trans-for-ma-tion of
  []
@@ -349,118 +339,70 @@ you forgot something else, as in `\hbox{$x}'. In such cases
 the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 
-[3]
-Package epstopdf Info: Source file: <Figure_kaccum_for_alpha_beta_gamma_phases.eps>
-(epstopdf)                    date: 2018-06-21 12:50:35
-(epstopdf)                    size: 478284 bytes
-(epstopdf)             Output file: <Figure_kaccum_for_alpha_beta_gamma_phases-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-21 12:50:35
-(epstopdf)                    size: 15138 bytes
-(epstopdf)             Command: <repstopdf --outfile=Figure_kaccum_for_alpha_beta_gamma_phases-eps-converted-to.pdf Figure_kaccum_for_alpha_beta_gamma_phases.eps>
-(epstopdf)             \includegraphics on input line 472.
-Package epstopdf Info: Output file is already uptodate.
- <Figure_kaccum_for_alpha_beta_gamma_phases-eps-converted-to.pdf, id=91, 228.855pt x 255.95625pt>
-File: Figure_kaccum_for_alpha_beta_gamma_phases-eps-converted-to.pdf Graphic file (type pdf)
- <use Figure_kaccum_for_alpha_beta_gamma_phases-eps-converted-to.pdf>
-Package pdftex.def Info: Figure_kaccum_for_alpha_beta_gamma_phases-eps-converted-to.pdf used on input line 472.
-(pdftex.def)             Requested size: 221.3985pt x 247.62502pt.
- [4 <./Figure_kaccum_for_alpha_beta_gamma_phases-eps-converted-to.pdf>]
+[3] <Figure_kaccum_for_alpha_beta_gamma_phases.pdf, id=236, 233.31256pt x 256.0748pt>
+File: Figure_kaccum_for_alpha_beta_gamma_phases.pdf Graphic file (type pdf)
+ <use Figure_kaccum_for_alpha_beta_gamma_phases.pdf>
+Package pdftex.def Info: Figure_kaccum_for_alpha_beta_gamma_phases.pdf used on input line 472.
+(pdftex.def)             Requested size: 221.3985pt x 243.01178pt.
+ [4 <./Figure_kaccum_for_alpha_beta_gamma_phases.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 486--495
 []\OT1/cmr/m/n/10 Table II[] also lists the pre-vi-ously re-ported
  []
 
-Package epstopdf Info: Source file: <Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.eps>
-(epstopdf)                    date: 2018-06-21 18:23:08
-(epstopdf)                    size: 8804504 bytes
-(epstopdf)             Output file: <Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-21 18:23:11
-(epstopdf)                    size: 289313 bytes
-(epstopdf)             Command: <repstopdf --outfile=Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.eps>
-(epstopdf)             \includegraphics on input line 544.
-Package epstopdf Info: Output file is already uptodate.
-<Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf, id=107, 243.91125pt x 603.25375pt>
-File: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf Graphic file (type pdf)
- <use Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf>
-Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf used on input line 544.
-(pdftex.def)             Requested size: 221.3985pt x 547.58104pt.
- [5 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm-eps-converted-to.pdf>]
-Package epstopdf Info: Source file: <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.eps>
-(epstopdf)                    date: 2018-06-21 16:47:22
-(epstopdf)                    size: 15712444 bytes
-(epstopdf)             Output file: <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-21 16:47:39
-(epstopdf)                    size: 3045639 bytes
-(epstopdf)             Command: <repstopdf --outfile=figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.eps>
-(epstopdf)             \includegraphics on input line 576.
-Package epstopdf Info: Output file is already uptodate.
- <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf, id=230, 493.845pt x 259.97125pt>
-File: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf Graphic file (type pdf)
- <use figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>
-Package pdftex.def Info: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf used on input line 576.
-(pdftex.def)             Requested size: 458.99689pt x 241.62398pt.
+<Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf, id=258, 245.91875pt x 607.26875pt>
+File: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf Graphic file (type pdf)
+ <use Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>
+Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf used on input line 542.
+(pdftex.def)             Requested size: 221.3985pt x 546.74069pt.
+ [5 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>] <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf, id=446, 494.84875pt x 264.99pt>
+File: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf Graphic file (type pdf)
+ <use figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf>
+Package pdftex.def Info: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf used on input line 575.
+(pdftex.def)             Requested size: 458.99689pt x 245.7912pt.
 
 
-./Si3N4.tex:585: LaTeX Error: \begin{figure*} on input line 574 ended by \end{figure}.
+./Si3N4.tex:584: LaTeX Error: \begin{figure*} on input line 573 ended by \end{figure}.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.585 \end{figure}
+l.584 \end{figure}
                   
 Your command was ignored.
 Type  I <command> <return>  to replace it with another command,
 or  <return>  to continue without it.
 
-[6 <./figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog-eps-converted-to.pdf>]
-Package epstopdf Info: Source file: <figure_wjdoss_gray.eps>
-(epstopdf)                    date: 2018-06-21 12:50:35
-(epstopdf)                    size: 760642 bytes
-(epstopdf)             Output file: <figure_wjdoss_gray-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-21 12:50:35
-(epstopdf)                    size: 33666 bytes
-(epstopdf)             Command: <repstopdf --outfile=figure_wjdoss_gray-eps-converted-to.pdf figure_wjdoss_gray.eps>
-(epstopdf)             \includegraphics on input line 662.
-Package epstopdf Info: Output file is already uptodate.
- <figure_wjdoss_gray-eps-converted-to.pdf, id=252, 245.91875pt x 280.04625pt>
-File: figure_wjdoss_gray-eps-converted-to.pdf Graphic file (type pdf)
- <use figure_wjdoss_gray-eps-converted-to.pdf>
-Package pdftex.def Info: figure_wjdoss_gray-eps-converted-to.pdf used on input line 662.
-(pdftex.def)             Requested size: 221.3985pt x 252.13329pt.
+[6 <./figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf>] <figure_wjdoss_gray.pdf, id=483, 250.38425pt x 281.68228pt>
+File: figure_wjdoss_gray.pdf Graphic file (type pdf)
+ <use figure_wjdoss_gray.pdf>
+Package pdftex.def Info: figure_wjdoss_gray.pdf used on input line 661.
+(pdftex.def)             Requested size: 221.3985pt x 249.08034pt.
 
-./Si3N4.tex:698: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:697: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.698    & 0.47 &  0.46 & 1.02 &
+l.697    & 0.47 &  0.46 & 1.02 &
                                 
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-./Si3N4.tex:700: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:699: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.700    & 2.30 & 2.30 & 2.02 &
+l.699    & 2.30 & 2.30 & 2.02 &
                                
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-Package epstopdf Info: Source file: <figure_analyze_gamma3_m1010_nolog_gray.eps>
-(epstopdf)                    date: 2018-06-21 12:50:35
-(epstopdf)                    size: 1454872 bytes
-(epstopdf)             Output file: <figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-06-21 12:50:35
-(epstopdf)                    size: 148451 bytes
-(epstopdf)             Command: <repstopdf --outfile=figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf figure_analyze_gamma3_m1010_nolog_gray.eps>
-(epstopdf)             \includegraphics on input line 724.
-Package epstopdf Info: Output file is already uptodate.
-<figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf, id=253, 237.88875pt x 214.8025pt>
-File: figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf Graphic file (type pdf)
- <use figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf>
-Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf used on input line 724.
-(pdftex.def)             Requested size: 246.0pt x 222.13727pt.
- [7 <./figure_wjdoss_gray-eps-converted-to.pdf> <./figure_analyze_gamma3_m1010_nolog_gray-eps-converted-to.pdf>]
+<figure_analyze_gamma3_m1010_nolog_gray.pdf, id=484, 230.8625pt x 215.80624pt>
+File: figure_analyze_gamma3_m1010_nolog_gray.pdf Graphic file (type pdf)
+ <use figure_analyze_gamma3_m1010_nolog_gray.pdf>
+Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray.pdf used on input line 723.
+(pdftex.def)             Requested size: 246.0pt x 229.95872pt.
+ [7 <./figure_wjdoss_gray.pdf> <./figure_analyze_gamma3_m1010_nolog_gray.pdf>]
 Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)                    date: 2018-05-18 11:46:41
 (epstopdf)                    size: 452983 bytes
@@ -468,12 +410,12 @@ Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)                    date: 2018-05-18 11:46:41
 (epstopdf)                    size: 10255 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 798.
+(epstopdf)             \includegraphics on input line 800.
 Package epstopdf Info: Output file is already uptodate.
- <S1-eps-converted-to.pdf, id=285, 238.8925pt x 234.8775pt>
+ <S1-eps-converted-to.pdf, id=527, 238.8925pt x 234.8775pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 798.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 800.
 (pdftex.def)             Requested size: 196.80075pt x 193.4932pt.
  (./Si3N4.bbl [8 <./S1-eps-converted-to.pdf>]
 Underfull \hbox (badness 4001) in paragraph at lines 155--160
@@ -497,17 +439,17 @@ Missing character: There is no ² in font cmr9!
 ) [9] (./Si3N4.aux) ) 
 Here is how much of TeX's memory you used:
  4983 strings out of 493117
- 66125 string characters out of 6141650
- 167311 words of memory out of 5000000
+ 65715 string characters out of 6141650
+ 169311 words of memory out of 5000000
  8326 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,15n,32p,516b,458s stack positions out of 5000i,500n,10000p,200000b,80000s
 </sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (9 pages, 4018741 bytes).
+Output written on Si3N4.pdf (9 pages, 5805834 bytes).
 PDF statistics:
- 395 PDF objects out of 1000 (max. 8388607)
- 187 compressed objects within 2 object streams
+ 637 PDF objects out of 1000 (max. 8388607)
+ 434 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 
