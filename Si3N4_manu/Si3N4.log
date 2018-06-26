@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  25 JUN 2018 17:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  26 JUN 2018 16:05
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -354,7 +354,7 @@ File: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf Graphic file (typ
  <use Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>
 Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf used on input line 545.
 (pdftex.def)             Requested size: 221.3985pt x 546.74069pt.
- [5] <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf, id=262, 494.84875pt x 264.99pt>
+ [5 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>] <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf, id=446, 494.84875pt x 264.99pt>
 File: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf Graphic file (type pdf)
  <use figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf>
 Package pdftex.def Info: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf used on input line 578.
@@ -373,45 +373,36 @@ Your command was ignored.
 Type  I <command> <return>  to replace it with another command,
 or  <return>  to continue without it.
 
-[6 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>] <figure_wjdoss_gray.pdf, id=450, 250.38425pt x 281.68228pt>
+[6 <./figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf>] <figure_wjdoss_gray.pdf, id=482, 250.38425pt x 281.68228pt>
 File: figure_wjdoss_gray.pdf Graphic file (type pdf)
  <use figure_wjdoss_gray.pdf>
-Package pdftex.def Info: figure_wjdoss_gray.pdf used on input line 664.
+Package pdftex.def Info: figure_wjdoss_gray.pdf used on input line 665.
 (pdftex.def)             Requested size: 221.3985pt x 249.08034pt.
- [7 <./figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf>]
 
-LaTeX Warning: A float is stuck (cannot be placed) on input line 685.
-
-
-LaTeX Warning: A float is stuck (cannot be placed) on input line 685.
-
-
-Class revtex4-1 Warning: Deferred float stuck during \clearpage processing.
-
-./Si3N4.tex:700: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:701: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.700    & 0.47 &  0.46 & 1.02 &
+l.701    & 0.47 &  0.46 & 1.02 &
                                 
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-./Si3N4.tex:702: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:703: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.702    & 2.30 & 2.30 & 2.02 &
+l.703    & 2.30 & 2.30 & 2.02 &
                                
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-<figure_analyze_gamma3_m1010_nolog_gray.pdf, id=489, 230.8625pt x 215.80624pt>
+<figure_analyze_gamma3_m1010_nolog_gray.pdf, id=483, 230.8625pt x 215.80624pt>
 File: figure_analyze_gamma3_m1010_nolog_gray.pdf Graphic file (type pdf)
  <use figure_analyze_gamma3_m1010_nolog_gray.pdf>
-Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray.pdf used on input line 726.
+Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray.pdf used on input line 727.
 (pdftex.def)             Requested size: 246.0pt x 229.95872pt.
- [8 <./figure_wjdoss_gray.pdf> <./figure_analyze_gamma3_m1010_nolog_gray.pdf>]
+ [7 <./figure_wjdoss_gray.pdf> <./figure_analyze_gamma3_m1010_nolog_gray.pdf>]
 Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)                    date: 2018-05-18 11:46:41
 (epstopdf)                    size: 452983 bytes
@@ -421,12 +412,12 @@ Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
 (epstopdf)             \includegraphics on input line 802.
 Package epstopdf Info: Output file is already uptodate.
- <S1-eps-converted-to.pdf, id=530, 238.8925pt x 234.8775pt>
+ <S1-eps-converted-to.pdf, id=527, 238.8925pt x 234.8775pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
 Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 802.
 (pdftex.def)             Requested size: 196.80075pt x 193.4932pt.
- (./Si3N4.bbl
+ (./Si3N4.bbl [8 <./S1-eps-converted-to.pdf>]
 Underfull \hbox (badness 4001) in paragraph at lines 155--160
  []\OT1/cmr/m/n/9 T. Hahn, ed., |   [],
  []
@@ -436,7 +427,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 189--195
  |   []\OT1/cmr/m/n/9 , edited by
  []
 
-[9 <./S1-eps-converted-to.pdf>]
+
 Underfull \hbox (badness 2158) in paragraph at lines 382--386
  []\OT1/cmr/m/n/9 M. T. Dove, |   [], Vol. 4
  []
@@ -445,20 +436,20 @@ Missing character: There is no Î in font cmr9!
 Missing character: There is no ± in font cmr9!
 Missing character: There is no Î in font cmr9!
 Missing character: There is no ² in font cmr9!
-) [10] (./Si3N4.aux) ) 
+) [9] (./Si3N4.aux) ) 
 Here is how much of TeX's memory you used:
- 4980 strings out of 493117
- 65687 string characters out of 6141650
- 155313 words of memory out of 5000000
- 8323 multiletter control sequences out of 15000+600000
+ 4982 strings out of 493117
+ 65705 string characters out of 6141650
+ 167311 words of memory out of 5000000
+ 8325 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,15n,32p,516b,458s stack positions out of 5000i,500n,10000p,200000b,80000s
 </sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (10 pages, 5805849 bytes).
+Output written on Si3N4.pdf (9 pages, 5805401 bytes).
 PDF statistics:
- 640 PDF objects out of 1000 (max. 8388607)
- 436 compressed objects within 5 object streams
+ 637 PDF objects out of 1000 (max. 8388607)
+ 434 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 
