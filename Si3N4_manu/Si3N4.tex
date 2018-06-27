@@ -90,8 +90,8 @@ the $\beta$ phase.
   online) Crystal structures of $\alpha$- and $\beta$-Si$_3$N$_4$. Stacking of
   SiN$_4$ tetrahedron layers are shown at the left. (a) ABCDABCD... for
   $\alpha$-Si$_3$N$_4$. (b) ABAB... for $\beta$-Si$_3$N$_4$.  Space group
-  diagrams\cite{inttableA} for {\it P31c} ($\alpha$-Si$_3$N$_4$) and {\it
-  P6$_3$/m} ($\beta$-Si$_3$N$_4$)
+  diagrams\cite{inttableA} for {\it P$\rm{31}$c} ($\alpha$-Si$_3$N$_4$) and {\it
+  P$\rm{6_3}$/m} ($\beta$-Si$_3$N$_4$)
   are shown at the right.}
   \label{fig:Fig1_cryst} 
  \end{center}
@@ -114,12 +114,11 @@ al.}\cite{hirosaki-md} theoretically estimated $\boldsymbol{\kappa}$ by
 application of the Green-Kubo formulation to the molecular dynamics (MD) method
 with the interatomic potentials proposed by Vashishta {\it et
 al.}\cite{vashishta}.  They calculated $\kappa$$_{xx}$ and $\kappa$$_{zz}$ of
-$\alpha$-Si$_3$N$_4$ to be 105 and 225 W m$^{-1}$ K$^{-1}$, and those of
-$\beta$-Si$_3$N$_4$ as 170 and 450 W m$^{-1}$ K$^{-1}$, respectively.  The ratio
-$\kappa_{zz}/\kappa_{xx}$ in $\beta$-Si$_3$N$_4$ agreed well with the
+$\beta$-Si$_3$N$_4$ to be 170 and 450 W m$^{-1}$ K$^{-1}$, respectively.  The
+ratio $\kappa_{zz}/\kappa_{xx}$ in $\beta$-Si$_3$N$_4$ agreed well with the
 experimental ratio; $\kappa_{xx}$ and $\kappa_{zz}$ were overestimated by more
-than two times those 
-of the corresponding experimental $\boldsymbol{\kappa}$ values. 
+than two times those of the corresponding experimental $\boldsymbol{\kappa}$
+values. 
 
 Based on first principles calculations and Boltzmann transport
 theory\cite{phono3py}, Togo {\it{et al.}} recently calculated
@@ -127,9 +126,9 @@ $\boldsymbol{\kappa}$ of many polymorphs of the zincblende- and wurtzite-type
 structures. Their crystal structures have stacking manners of the densest atom
 planes as ABCABC... and ABAB..., respectively. The different stacking manners
 merely altered $\boldsymbol{\kappa}$, the phonon linewidths and the phonon
-density of states (DOS).\cite{phono3py} On the other hand, the previous MD
+densities of states (DOS).\cite{phono3py} On the other hand, the previous MD
 results indicated that the different stacking manners between the $\alpha$ and
-$\beta$ phases altered $\boldsymbol{\kappa}$ significantly. This has not been
+$\beta$ phases altered $\boldsymbol{\kappa}$ significantly.\cite{hirosaki-md} This has not been
 explained with respect to their phonon properties. Therefore, it is of interest
 to investigate this based on the first principles anharmonic phonon calculation.
 
@@ -145,7 +144,7 @@ The present study aims to qualitatively elucidate the lattice thermal
 conductivity tensors among the three Si$_3$N$_4$ phases by a first principles
 approach.  We calculate $\boldsymbol{\kappa}$ of the $\gamma$ phase as well, for
 systematic understanding. After the methodology is described, we
-examine the validity of the present results; through comparison
+examine the validity of the present results through comparison
 of the calculated thermal properties with the available experimental and
 theoretical references. 
 The characteristic behaviors of  $\boldsymbol{\kappa}$
@@ -174,9 +173,9 @@ with the set of the phonon wave vector $\mathbf{q}$ and band index $p$ and
 $-\lambda \equiv (-\mathbf{q},p)$.  The harmonic phonon frequency of the phonon
 mode $\lambda$ is denoted by  $\omega_\lambda$.  The band index $p$ is set as 1,
 2,... simply in ascending order of the harmonic phonon frequency at a
-$\mathbf{q}$-point.  We refer to $e_\lambda^{i,j}$ as the eigenvector
-component belonging to the $j$-th cartesian coordination of the $i$-th atom in
-the primitive unit cell.  The relaxation time due to phonon-phonon scattering
+$\mathbf{q}$-point. For the detailed analysis below, we refer to $e_{j}(i,\lambda)$ as an eigenvector
+component for a phonon mode $\lambda$, with respect to a cartesian coordinate
+$j$ ($=x,y,z$) of an atom $i$.  The relaxation time due to phonon-phonon scattering
 was obtained as,
 $\tau_{\lambda,\text{ph-ph}}=[2\Gamma_\lambda(\omega_\lambda)]^{-1}$, with
 \begin{align}
@@ -209,9 +208,9 @@ translational invariance that appears inside
 $\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py} however, we let it appear in
 $N_2$ in Eq.~(\ref{eq:linewidth}) in the same manner as in
 Ref.~\onlinecite{sio2}, for the analysis given below. $N_\mathbf{q}$
-is the number of $\mathbf{q}$-points. The weighting terms are composed of
-$n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$, the Bose-Einstein
-distribution at temperature $T$ with $\mathrm{k_B}$ of Boltzmann constant.
+is the number of $\mathbf{q}$-points. 
+$n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$ is 
+the Bose-Einstein distribution at temperature $T$ with $\mathrm{k_B}$ of Boltzmann constant.
 
 To more realistically compare the  calculated $\boldsymbol{\kappa}$ with the
 measured thermal conductivities, the isotopic scattering effect due to the natural isotope
@@ -381,7 +380,7 @@ thermal expansion. The differences in $\boldsymbol{\kappa}$ for $T$=300, 600,
 were similar to those for Si and Ge calculated by Ward {\it{et
 al.}}\cite{ward-ltc}.
 For the present study, these differences are negligible and
-for finite temperatures $\boldsymbol{\kappa}$ calculated with the
+for a finite temperature of 300 K $\boldsymbol{\kappa}$ calculated with the
 structure optimized for 0 K was adopted.
 
 
@@ -418,7 +417,7 @@ the $\alpha$ and $\beta$ phases.
 \subsection{Direct solution of LBTE}
 
 The advantage of employing the single-mode RTA for thermal conductivity
-calculations is the closed form Eq.~(\ref{eq:kappa}), by which the qualitative character of
+calculations is the closed form in Eq.~(\ref{eq:kappa}), by which the qualitative character of
 $\boldsymbol{\kappa}$ can be intuitively understood in terms of the phonon-mode
 specific properties. The microscopic understanding of the full solution of LBTE
 is still under development,\cite{cepellotti-relaxons} and the microscopic
@@ -496,9 +495,8 @@ agreement with the experimental $\boldsymbol{\kappa}$.  Compared to $\kappa$
 from the Slack model, our directional average $\sum_i \kappa_{ii}/3$ is also
 much closer to the experimental average. 
 
-For simplicity, in the analysis hereafter, the effect of the isotope scattering
-is not considered. Fig.~\ref{fig:kaccum} shows the cumulative thermal
-conductivity, $\boldsymbol{\kappa}^c(\omega)$. 
+Fig.~\ref{fig:kaccum} shows the cumulative thermal
+conductivity, $\boldsymbol{\kappa}^c(\omega)$, with the isotope effect. 
 From this figure, it is evident that in the
 $\alpha$, $\beta$, and $\gamma$ phases, the phonon modes with their frequencies
 up to $\sim$ 6, 12 and 10 THz largely contribute to each respective
@@ -515,7 +513,7 @@ in the previous works. The band diagrams on the other high-symmetry paths are
 almost identical to those reported\cite{kuwabara,xu} and thus are not shown.
 For the $\alpha$ and $\beta$ phases, in order to investigate the distribution of
 the group velocities all over the Brillouin zone, the cross-sections of the
-phonon frequency distributions for $p$=1, 2, 3 and 4 are shown in
+phonon frequency distributions for the band indices $p$=1, 2, 3 and 4 are shown in
 Fig.~\ref{fig:Fig4_ver5_338}~(b). The cross-sections are on the $b^*c^*$ plane.
 There were negligible differences among the cross-sections on the planes
 containing $c^*$ axis, we focus on the $b^*c^*$ plane as a representative of all
@@ -524,15 +522,16 @@ frequency, because they contribute significantly to
 $\boldsymbol{\kappa}$.
 The A-$\Gamma$ and $\Gamma$-K paths of the band diagram in
 Fig.~\ref{fig:Fig4_ver5_338}~(a) correspond to the left and bottom edges of the
-cross-section in Fig.~\ref{fig:Fig4_ver5_338}~(b), respectively.  In order to
-show more clearly the relationship between the band diagram and the
-cross-section, in the band diagram, a thick gray line is underlaid for the
-dispersion curves corresponding to the profiles of the cross-section for $p$=4. 
+cross-section in Fig.~\ref{fig:Fig4_ver5_338}~(b), respectively.  
+The profiles at the edges of the cross-sections are present as the corresponding dispersion curves in 
+the band diagrams. For clarification purposes, the dispersion curves
+corresponding to such profiles for $p$=4 are highlighted by gray color:
+It denote the frequency upper bounds among the profiles for $p$=1,..,4. 
 
 In the band diagram of the $\alpha$ phase, the acoustic
 phonon modes show similar $\omega_\lambda$ values at the A and K points, 
 indicating the isotropic group velocities of the acoustic phonons.
-The cross-sections for $p$=1, 2, and 3 include the most of the acoustic phonon
+The most part of the cross-sections for $p$=1, 2, and 3 shows $\omega_\lambda$ of the acoustic phonon
 modes. 
 For the $\alpha$ phase, these cross-sections clearly show the
 isotropic group velocities: The most of the contour lines 
@@ -590,15 +589,15 @@ the largest among the three phases, as expected by the largest $B$.
 \end{figure}
 \twocolumngrid
 
-\subsection{Microscopic phonon properties responsible for $\boldsymbol{\kappa}$
-behavior}
+\subsection{Microscopic analysis on $\boldsymbol{\kappa}$ behavior}
 
 In the previous section, we have investigated the anisotropy in
 $\mathbf{v}_\lambda$, which may explain the anisotropy in $\boldsymbol{\kappa}$.
 Here we examine which terms in Eq.(\ref{eq:kappa}) characterize the behavior of
 the calculated $\boldsymbol{\kappa}$. In the following, we omit the term of mode
 heat capacity because it is approximately constant for the phonon modes that
-mainly carry heat at 300 K.  
+mainly carry heat at 300 K. For simplicity, the effect of isotope scattering is
+not considered in this section.
 For the investigation, the derivative of
 cumulative thermal conductivity, $d\boldsymbol{\kappa}^c/d\omega$ in
 Eq.(\ref{eq:dcum-kappa}), is shown at the top of Fig.~\ref{fig:Fig5_338_rev}. 
@@ -640,7 +639,7 @@ for the different behavior of $d\kappa_{ii}^c/d\omega$. It is thus concluded
 that the different anisotropy in $\boldsymbol{\kappa}$ can be qualitatively
 explained by the different $\mathbf{v}_\lambda$.
 In contrast, for the zincblende and wurtzite
-structures, the group velocities are suggested to be similar from their band
+structures, the group velocities of these structures are suggested to be similar from their band
 structures\cite{phono3py}.
 This must result in similar $\boldsymbol{\kappa}$ between these
 structures, irrespective of the stacking manner. 
@@ -657,7 +656,7 @@ examined in the band diagram; therefore, $d\kappa_{xx}^c/d\omega$ rather
 gradually attenuates as the frequency increases, occasionally resembling
 $d\kappa_{xx}^c/d\omega$ of the $\beta$ phase.
 
-\subsection{Detailed phonon properties characterizing $\tau_{\lambda,ph-ph}$}
+\subsection{Phonon properties characterizing $\tau_{\lambda,ph-ph}$}
 
 The distribution of phonon lifetimes is qualitatively similar between the $\alpha$ and
 $\beta$ phases, although their group velocities have marked differences. This
@@ -694,7 +693,7 @@ the other phases.
 \begin{table}[ht]
 	\caption{\label{table:aveavepp} Averages of
 	$|\Phi_{\lambda\lambda'\lambda''}|^2$ over frequency ranges of
-	$\omega_\lambda$ (0--15 and 0--35 THz) and all ($\lambda'$,$\lambda'$). The
+	$\omega_\lambda$ (0--15 and 0--35 THz) and all ($\lambda'$,$\lambda''$). The
 	values are in units of meV$^2$.}
  \begin{ruledtabular}
   \begin{tabular}{cccc}
@@ -720,7 +719,7 @@ contribute to $\boldsymbol{\kappa}$. A small change in the frequency range by a
 few terahertz did not change the qualitative characteristics of the averages.
 To compare the averages among the phases having different $Z$, we multiply the
 average by $(3n_a)^2$ where $n_a$ is the number of atoms in the primitive unit
-cell. This is the same scaling manner as in Ref.~\onlinecite{sio2}. The averages are very similar for the $\alpha$ and $\beta$ phases. With
+cell, as in Ref.~\onlinecite{sio2}. The averages are very similar for the $\alpha$ and $\beta$ phases. With
 the similar impact of the WJDOS and $|\Phi_{\lambda\lambda'\lambda''}|^2$, the
 phonon lifetimes in these phases are also similar. For the $\gamma$ phase, the
 short $\tau_\lambda$ are attributed to the large
@@ -749,13 +748,10 @@ specified by
 $\sum_{i}[e_x(i,\lambda)^2+e_y(i,\lambda)^2]$, the fraction of the eigenvector
 component parallel to the $ab$ plane. 
 
-In Fig.~\ref{fig:Fig7_338} for the $\beta$ phase, clearly, a shorter
-lifetime at a similar frequency show a brighter color. 
-Therefore, in the $\beta$
-phase,  a phonon mode of the atomic vibration parallel to the $ab$ plane is more hindered by
+From Fig.~\ref{fig:Fig7_338},we find that, for the $\beta$ phase, 
+a phonon mode of the atomic vibration parallel to the $ab$ plane is more hindered by
 the other phonons than a phonon mode of the vibration 
 perpendicular to the plane.
-
 A straight line is inserted in the graph for $\beta$ phase in
 Fig.~\ref{fig:Fig7_338}.  The numbers of the phonon modes below and above the
 line are 145 and 67, whose ratio is reasonable as the population ratio between
@@ -778,7 +774,7 @@ study\cite{phono3py}. $\boldsymbol{\kappa}$ for $\alpha$-Si$_3$N$_4$ is rather
 isotropic, while $\kappa$$_{zz}$ for the $\beta$ phase is twice or more larger
 than the other $\kappa_{ii}$ of the three phases.
 
-2) In the $\alpha$ phase, the acoustic mode phonons below 6 THz are the main
+2) In the $\alpha$ phase, the acoustic-mode phonons below 6 THz are the main
 heat carriers, while in the $\beta$ phase, the phonons below 12 THz contribute
 to $\boldsymbol{\kappa}$. Their group velocities are confirmed to characterize
 the behavior of $\boldsymbol{\kappa}$.
