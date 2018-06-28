@@ -29,7 +29,7 @@ dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
 gc = cdir + 'kaccum_m101014.dat'
 #gs = sdir + 'noiso/kaccum.dat'
 gs = sdir + 'kaccum_m101026.dat'
-gg = gdir + 'kaccum.dat'
+gg = gdir + 'kaccum_m121212.dat'
 #ggc = cdir +  'noiso/gvaccum.dat'
 ggc = cdir +  'noiso/gvaccum_m101014.dat'
 #ggs = sdir + 'noiso/gvaccum.dat'

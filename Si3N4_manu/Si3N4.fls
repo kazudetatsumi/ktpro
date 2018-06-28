@@ -167,9 +167,9 @@ INPUT ./Fig1_crystal_str2.pdf
 OUTPUT Si3N4.pdf
 INPUT ./Fig1_crystal_str2.pdf
 INPUT /sw/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
-INPUT Figure_kaccum_for_alpha_beta_gamma_phases.pdf
-INPUT ./Figure_kaccum_for_alpha_beta_gamma_phases.pdf
-INPUT ./Figure_kaccum_for_alpha_beta_gamma_phases.pdf
+INPUT Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf
+INPUT ./Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf
+INPUT ./Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf
 INPUT Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf
 INPUT ./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf
 INPUT ./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf

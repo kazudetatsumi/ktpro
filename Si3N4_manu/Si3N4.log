@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  28 JUN 2018 16:05
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  28 JUN 2018 17:51
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -339,12 +339,12 @@ you forgot something else, as in `\hbox{$x}'. In such cases
 the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 
-[3] <Figure_kaccum_for_alpha_beta_gamma_phases.pdf, id=236, 233.31256pt x 256.0748pt>
-File: Figure_kaccum_for_alpha_beta_gamma_phases.pdf Graphic file (type pdf)
- <use Figure_kaccum_for_alpha_beta_gamma_phases.pdf>
-Package pdftex.def Info: Figure_kaccum_for_alpha_beta_gamma_phases.pdf used on input line 474.
+[3] <Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf, id=236, 233.31256pt x 256.0748pt>
+File: Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf Graphic file (type pdf)
+ <use Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf>
+Package pdftex.def Info: Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf used on input line 474.
 (pdftex.def)             Requested size: 221.3985pt x 243.01178pt.
- [4 <./Figure_kaccum_for_alpha_beta_gamma_phases.pdf>]
+ [4 <./Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 488--497
 []\OT1/cmr/m/n/10 Table II[] also lists the pre-vi-ously re-ported
  []
@@ -449,14 +449,14 @@ Missing character: There is no ² in font cmr9!
 ) [9 <./S1-eps-converted-to.pdf>] (./Si3N4.aux) ) 
 Here is how much of TeX's memory you used:
  4982 strings out of 493117
- 65748 string characters out of 6141650
+ 65768 string characters out of 6141650
  152311 words of memory out of 5000000
  8325 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,15n,32p,516b,458s stack positions out of 5000i,500n,10000p,200000b,80000s
 </sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (9 pages, 5604819 bytes).
+Output written on Si3N4.pdf (9 pages, 5604323 bytes).
 PDF statistics:
  633 PDF objects out of 1000 (max. 8388607)
  432 compressed objects within 5 object streams
