@@ -1,13 +1,13 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.28)  27 JUN 2018 16:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  28 JUN 2018 16:05
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
 **Si3N4.tex
 (./Si3N4.tex
-LaTeX2e <2016/02/01>
-Babel <3.9q> and hyphenation patterns for 12 language(s) loaded.
-(/usr/share/texlive/texmf-dist/tex/latex/revtex/revtex4-1.cls
+LaTeX2e <2014/05/01>
+Babel <3.9k> and hyphenation patterns for 78 languages loaded.
+(/sw/share/texmf-dist/tex/latex/revtex/revtex4-1.cls
 Document Class: revtex4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
  Copyright (c) 2009 The American Physical Society.
  mailto:revtex@aps.org
@@ -64,7 +64,7 @@ Class revtex4-1 Info: Overriding \@vspace, \@vspacer, \@no@pgbk, \@newline, and 
 
 Class revtex4-1 Warning: No Society specified, using default society aps.
 
-(/usr/share/texlive/texmf-dist/tex/latex/revtex/aps4-1.rtx
+(/sw/share/texmf-dist/tex/latex/revtex/aps4-1.rtx
 File: aps4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
 Class revtex4-1 Info: RevTeX society APS selected on input line 31.
 )
@@ -74,54 +74,54 @@ Class revtex4-1 Info: APS journal PRB selected on input line 7545.
 
 Class revtex4-1 Warning: No type size specified, using default 10.
 
-(/usr/share/texlive/texmf-dist/tex/latex/revtex/aps10pt4-1.rtx
+(/sw/share/texmf-dist/tex/latex/revtex/aps10pt4-1.rtx
 File: aps10pt4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
 Class revtex4-1 Info: RevTeX pointsize 10pt selected on input line 30.
-) (/usr/share/texlive/texmf-dist/tex/latex/textcase/textcase.sty
+) (/sw/share/texmf-dist/tex/latex/textcase/textcase.sty
 Package: textcase 2004/10/07 v0.07 Text only upper/lower case changing (DPC)
-) (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+) (/sw/share/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
- (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+ (/sw/share/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \@emptytoks=\toks16
 \symAMSa=\mathgroup4
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-)) (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
-Package: amsmath 2016/03/03 v2.15a AMS math features
+)) (/sw/share/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2013/01/14 v2.14 AMS math features
 \@mathmargin=\skip44
 
 For additional information on amsmath, use the `?' option.
-(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
-Package: amstext 2000/06/29 v2.01 AMS text
- (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty
-File: amsgen.sty 1999/11/30 v2.0 generic functions
+(/sw/share/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01
+ (/sw/share/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0
 \@emptytoks=\toks17
 \ex@=\dimen102
 )
-LaTeX Info: Redefining \text on input line 28.
-) (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty
-Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+LaTeX Info: Redefining \text on input line 39.
+) (/sw/share/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d
 \pmbraise@=\dimen103
-) (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty
+) (/sw/share/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 1999/12/14 v2.01 operator names
 )
 \inf@bad=\count94
-LaTeX Info: Redefining \frac on input line 199.
+LaTeX Info: Redefining \frac on input line 210.
 \uproot@=\count95
 \leftroot@=\count96
-LaTeX Info: Redefining \overline on input line 297.
+LaTeX Info: Redefining \overline on input line 306.
 \classnum@=\count97
 \DOTSCASE@=\count98
-LaTeX Info: Redefining \ldots on input line 394.
-LaTeX Info: Redefining \dots on input line 397.
-LaTeX Info: Redefining \cdots on input line 518.
+LaTeX Info: Redefining \ldots on input line 378.
+LaTeX Info: Redefining \dots on input line 381.
+LaTeX Info: Redefining \cdots on input line 466.
 \Mathstrutbox@=\box41
 \strutbox@=\box42
 \big@size=\dimen104
-LaTeX Font Info:    Redeclaring font encoding OML on input line 630.
-LaTeX Font Info:    Redeclaring font encoding OMS on input line 631.
+LaTeX Font Info:    Redeclaring font encoding OML on input line 566.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 \macc@depth=\count99
 \c@MaxMatrixCols=\count100
 \dotsspace@=\muskip10
@@ -142,12 +142,12 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 631.
 \multlinegap=\skip45
 \multlinetaggap=\skip46
 \mathdisplay@stack=\toks21
-LaTeX Info: Redefining \[ on input line 2735.
-LaTeX Info: Redefining \] on input line 2736.
-) (/usr/share/texlive/texmf-dist/tex/latex/url/url.sty
+LaTeX Info: Redefining \[ on input line 2665.
+LaTeX Info: Redefining \] on input line 2666.
+) (/sw/share/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
-) (/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty
+) (/sw/share/texmf-dist/tex/latex/natbib/natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
 \bibhang=\skip47
 \bibsep=\skip48
@@ -155,62 +155,63 @@ LaTeX Info: Redefining \cite on input line 694.
 \c@NAT@ctr=\count106
 )
 Class revtex4-1 Info: Repairing natbib's \BibitemShut on input line 7549.
- (/usr/share/texlive/texmf-dist/tex/latex/revtex/revsymb4-1.sty
+ (/sw/share/texmf-dist/tex/latex/revtex/revsymb4-1.sty
 Package: revsymb4-1 2010/07/25/20:33:00 4.1r (http://publish.aps.org/revtex4/ for documentation)
 LaTeX Info: Redefining \frak on input line 95.
 LaTeX Info: Redefining \Bbb on input line 111.
 LaTeX Info: Redefining \REV@mathfrak on input line 119.
-)) (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
-Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
- (/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
-Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+)) (/sw/share/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2014/04/25 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+ (/sw/share/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/05/08 v1.15 key=value parser (DPC)
 \KV@toks@=\toks22
-) (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
-Package: graphics 2016/01/03 v1.0q Standard LaTeX Graphics (DPC,SPQR)
- (/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
-Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
-) (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg
+) (/sw/share/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+ (/sw/share/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+) (/sw/share/texmf-dist/tex/latex/latexconfig/graphics.cfg
 File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
 )
-Package graphics Info: Driver file: dvipdfmx.def on input line 95.
- (/usr/share/texlive/texmf-dist/tex/latex/dvipdfmx-def/dvipdfmx.def
-File: dvipdfmx.def 2015/11/04 v4.07 LaTeX color/graphics driver for dvipdfmx (TeX Live/ChoF)
- (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
-Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
-) (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
-Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
-)))
+Package graphics Info: Driver file: dvipdfmx.def on input line 91.
+ (/sw/share/texmf-dist/tex/latex/dvipdfmx-def/dvipdfmx.def
+File: dvipdfmx.def 2014/04/28 v4.01 LaTeX color/graphics driver for dvipdfmx (TeX Live/ChoF)
+))
 \Gin@req@height=\dimen111
 \Gin@req@width=\dimen112
-) (/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty
+) (/sw/share/texmf-dist/tex/latex/multirow/multirow.sty
 \bigstrutjot=\dimen113
-) (/usr/share/texlive/texmf-dist/tex/latex/tools/bm.sty
-Package: bm 2014/10/28 v1.1c Bold Symbol Support (DPC/FMi)
+) (/sw/share/texmf-dist/tex/latex/tools/bm.sty
+Package: bm 2004/02/26 v1.1c Bold Symbol Support (DPC/FMi)
 \symboldoperators=\mathgroup6
 \symboldletters=\mathgroup7
 \symboldsymbols=\mathgroup8
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 141.
-LaTeX Info: Redefining \bm on input line 207.
-) (/usr/share/texlive/texmf-dist/tex/latex/jknapltx/mathrsfs.sty
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 137.
+LaTeX Info: Redefining \bm on input line 203.
+) (/sw/share/texmf-dist/tex/latex/jknapltx/mathrsfs.sty
 Package: mathrsfs 1996/01/01 Math RSFS package v1.0 (jk)
 \symrsfs=\mathgroup9
-) (/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
-Package: color 2016/01/03 v1.1b Standard LaTeX Color (DPC)
- (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg
+) (/sw/share/texmf-dist/tex/latex/graphics/color.sty
+Package: color 2014/04/23 v1.1a Standard LaTeX Color (DPC)
+ (/sw/share/texmf-dist/tex/latex/latexconfig/color.cfg
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
-Package color Info: Driver file: pdftex.def on input line 143.
- (/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+Package color Info: Driver file: pdftex.def on input line 137.
+ (/sw/share/texmf-dist/tex/latex/pdftex-def/pdftex.def
 File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+ (/sw/share/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+) (/sw/share/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
 \Gread@gobject=\count107
-)) (/usr/share/texlive/texmf-dist/tex/latex/here/here.sty) (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+)) (/sw/share/texmf-dist/tex/latex/here/here.sty) (/sw/share/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count108
 \float@exts=\toks23
 \float@box=\box43
 \@float@everytoks=\toks24
 \@floatcapt=\box44
-) (/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty
+) (/sw/share/texmf-dist/tex/generic/ulem/ulem.sty
 \UL@box=\box45
 \UL@hyphenbox=\box46
 \UL@skip=\skip49
@@ -246,12 +247,12 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
 LaTeX Font Info:    ... okay on input line 13.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
 LaTeX Font Info:    ... okay on input line 13.
- (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+ (/sw/share/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO)
- (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+ (/sw/share/texmf-dist/tex/generic/oberdiek/ifluatex.sty
 Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
 Package ifluatex Info: LuaTeX not detected.
-) (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+) (/sw/share/texmf-dist/tex/generic/oberdiek/ifpdf.sty
 Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
 Package ifpdf Info: pdfTeX in PDF mode is detected.
 )
@@ -259,17 +260,17 @@ Package pdftexcmds Info: LuaTeX not detected.
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
-) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+) (/sw/share/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
- (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty
+ (/sw/share/texmf-dist/tex/latex/oberdiek/grfext.sty
 Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
- (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+ (/sw/share/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
 Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
-)) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+)) (/sw/share/texmf-dist/tex/latex/oberdiek/kvoptions.sty
 Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
- (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+ (/sw/share/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
 Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
- (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+ (/sw/share/texmf-dist/tex/generic/oberdiek/etexcmds.sty
 Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
 Package etexcmds Info: Could not find \expanded.
 (etexcmds)             That can mean that you are not using pdfTeX 1.50 or
@@ -280,9 +281,9 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 43
 Package grfext Info: Graphics extension search list:
 (grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPEG,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 452.
- (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+ (/sw/share/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
-)) (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+)) (/sw/share/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count110
 \scratchdimen=\dimen117
@@ -299,22 +300,22 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 \openout3 = `Si3N4Notes.bib'.
 
 LaTeX Font Info:    Try loading font information for U+msa on input line 39.
- (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+ (/sw/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
 LaTeX Font Info:    Try loading font information for U+msb on input line 39.
- (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+ (/sw/share/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Try loading font information for U+rsfs on input line 39.
- (/usr/share/texlive/texmf-dist/tex/latex/jknapltx/ursfs.fd
+ (/sw/share/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 ) <Fig1_crystal_str2.pdf, id=1, 247.539pt x 261.76537pt>
 File: Fig1_crystal_str2.pdf Graphic file (type pdf)
  <use Fig1_crystal_str2.pdf>
 Package pdftex.def Info: Fig1_crystal_str2.pdf used on input line 89.
 (pdftex.def)             Requested size: 221.3985pt x 234.12874pt.
- [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str2.pdf>]
+ [1{/sw/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Fig1_crystal_str2.pdf>]
 Underfull \hbox (badness 1092) in paragraph at lines 186--194
 \OT1/cmr/m/n/10 ob-tained by the usual co-or-di-nate trans-for-ma-tion of
  []
@@ -356,17 +357,17 @@ Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pd
  [5 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>] <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf, id=446, 494.84875pt x 264.99pt>
 File: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf Graphic file (type pdf)
  <use figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf>
-Package pdftex.def Info: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf used on input line 580.
+Package pdftex.def Info: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf used on input line 579.
 (pdftex.def)             Requested size: 458.99689pt x 245.7912pt.
 
 
-./Si3N4.tex:589: LaTeX Error: \begin{figure*} on input line 578 ended by \end{figure}.
+./Si3N4.tex:588: LaTeX Error: \begin{figure*} on input line 577 ended by \end{figure}.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.589 \end{figure}
+l.588 \end{figure}
                   
 Your command was ignored.
 Type  I <command> <return>  to replace it with another command,
@@ -375,22 +376,22 @@ or  <return>  to continue without it.
 [6 <./figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf>] <figure_wjdoss_gray.pdf, id=482, 250.38425pt x 281.68228pt>
 File: figure_wjdoss_gray.pdf Graphic file (type pdf)
  <use figure_wjdoss_gray.pdf>
-Package pdftex.def Info: figure_wjdoss_gray.pdf used on input line 670.
+Package pdftex.def Info: figure_wjdoss_gray.pdf used on input line 669.
 (pdftex.def)             Requested size: 221.3985pt x 249.08034pt.
 
-./Si3N4.tex:706: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:705: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.706    & 0.47 &  0.46 & 1.02 &
+l.705    & 0.47 &  0.46 & 1.02 &
                                 
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
 So I'll assume that you meant to type \cr instead.
 
-./Si3N4.tex:708: Extra alignment tab has been changed to \cr.
+./Si3N4.tex:707: Extra alignment tab has been changed to \cr.
 <template> ...ip \tabrightsep \relax \endtemplate 
                                                   
-l.708    & 2.30 & 2.30 & 2.02 &
+l.707    & 2.30 & 2.30 & 2.02 &
                                
 You have given more \span or & marks than there were
 in the preamble to the \halign or \valign now in progress.
@@ -399,22 +400,22 @@ So I'll assume that you meant to type \cr instead.
 <figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf, id=483, 230.8625pt x 110.39674pt>
 File: figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf Graphic file (type pdf)
  <use figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf>
-Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf used on input line 733.
+Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf used on input line 732.
 (pdftex.def)             Requested size: 246.0pt x 117.63649pt.
  [7 <./figure_wjdoss_gray.pdf> <./figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf>]
 Package epstopdf Info: Source file: <S1.eps>
-(epstopdf)                    date: 2018-05-11 10:44:54
+(epstopdf)                    date: 2018-05-18 11:46:41
 (epstopdf)                    size: 452983 bytes
 (epstopdf)             Output file: <S1-eps-converted-to.pdf>
-(epstopdf)                    date: 2018-05-11 10:44:54
+(epstopdf)                    date: 2018-05-18 11:46:41
 (epstopdf)                    size: 10255 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 800.
+(epstopdf)             \includegraphics on input line 799.
 Package epstopdf Info: Output file is already uptodate.
- <S1-eps-converted-to.pdf, id=533, 238.8925pt x 234.8775pt>
+ <S1-eps-converted-to.pdf, id=523, 238.8925pt x 234.8775pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 800.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 799.
 (pdftex.def)             Requested size: 196.80075pt x 193.4932pt.
  (./Si3N4.bbl
 Underfull \hbox (badness 4001) in paragraph at lines 155--160
@@ -441,25 +442,24 @@ Underfull \hbox (badness 2158) in paragraph at lines 382--386
  []\OT1/cmr/m/n/9 M. T. Dove, |   [], Vol. 4
  []
 
-Missing character: There is no ƒ in font cmr9!
-Missing character: There is no ¿ in font cmr9!
-Missing character: There is no ƒ in font cmr9!
-Missing character: There is no À in font cmr9!
+Missing character: There is no Î in font cmr9!
+Missing character: There is no ± in font cmr9!
+Missing character: There is no Î in font cmr9!
+Missing character: There is no ² in font cmr9!
 ) [9 <./S1-eps-converted-to.pdf>] (./Si3N4.aux) ) 
 Here is how much of TeX's memory you used:
- 4991 strings out of 494497
- 66862 string characters out of 6172399
- 148587 words of memory out of 5000000
- 8288 multiletter control sequences out of 15000+600000
+ 4982 strings out of 493117
+ 65748 string characters out of 6141650
+ 152311 words of memory out of 5000000
+ 8325 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
- 264 hyphenation exceptions out of 8191
+ 1141 hyphenation exceptions out of 8191
  38i,15n,32p,516b,458s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mti9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (9 pages, 5515332 bytes).
+</sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
+Output written on Si3N4.pdf (9 pages, 5604819 bytes).
 PDF statistics:
- 643 PDF objects out of 1000 (max. 8388607)
- 440 compressed objects within 5 object streams
+ 633 PDF objects out of 1000 (max. 8388607)
+ 432 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 
