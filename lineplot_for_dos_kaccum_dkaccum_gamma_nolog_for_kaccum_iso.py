@@ -26,10 +26,10 @@ dosc  = np.loadtxt(cdir + 'total_dos_m292935.dat',comments='#',dtype='float')
 doss  = np.loadtxt(sdir + 'total_dos_m292967.dat',comments='#',dtype='float')
 dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
 #gc = cdir + 'noiso/kaccum.dat'
-gc = cdir + 'noiso/kaccum_m101014.dat'
+gc = cdir + 'kaccum_m101014.dat'
 #gs = sdir + 'noiso/kaccum.dat'
-gs = sdir + 'noiso/kaccum_m101026.dat'
-gg = gdir + 'noiso/kaccum.dat'
+gs = sdir + 'kaccum_m101026.dat'
+gg = gdir + 'kaccum.dat'
 #ggc = cdir +  'noiso/gvaccum.dat'
 ggc = cdir +  'noiso/gvaccum_m101014.dat'
 #ggs = sdir + 'noiso/gvaccum.dat'
@@ -511,4 +511,4 @@ def run():
    #plt.savefig("tst_plot.eps")
 
 run()
-plt.show()
+#plt.show()
