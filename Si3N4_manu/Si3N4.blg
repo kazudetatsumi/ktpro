@@ -1,4 +1,4 @@
-This is pBibTeX, Version 0.99d-j0.33 (utf8.euc) (TeX Live 2014/Fink)
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Si3N4.aux
 The style file: apsrev4-1.bst
@@ -25,7 +25,7 @@ Control: year (1) truncated
 Control: production of eprint (0) enabled
 You've used 46 entries,
             5847 wiz_defined-function locations,
-            1871 strings with 20831 characters,
+            1870 strings with 20818 characters,
 and the built_in function-call counts, 44582 in all, are:
 = -- 2827
 > -- 1175
@@ -64,5 +64,4 @@ warning$ -- 1
 while$ -- 140
 width$ -- 0
 write$ -- 404
-is.kanji.str$ -- 0
 (There was 1 warning)
