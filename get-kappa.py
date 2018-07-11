@@ -25,6 +25,15 @@ meshes.append("101014")
 subjs.append("age3n4")
 dirs.append("/home/kazu/age3n4/phono3py_112_fc2_334_sym_monk_shift/")
 meshes.append("101014")
+subjs.append("be2sio4")
+dirs.append("/home/kazu/be2sio4/phono3py_111_fc2_222/")
+meshes.append("121212")
+subjs.append("gsi3n4")
+dirs.append("/home/kazu//gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/")
+meshes.append("121212")
+subjs.append("wAlN")
+dirs.append("/home/kazu/waln/phono3py_332_fc2_443_sym_monk/")
+meshes.append("212111")
 
 temp = 300
 
@@ -88,7 +97,7 @@ def get_irdata(irf):
             rvec[2,0]= float(values[2][:-1])
             rvec[2,1]= float(values[3][:-1])
             rvec[2,2]= float(values[4][:-1])
-            vol = 1/np.dot(rvec[0,:],np.cross(rvec[1,:],rvec[2,:]))
+            vol = np.dot(rvec[0,:],np.cross(rvec[1,:],rvec[2,:]))
 
     f.close()
     g=np.array(g)
@@ -96,6 +105,7 @@ def get_irdata(irf):
 
 def jdos_wj(g,omega,dirname,mesh):
     jdata=np.loadtxt(dirname + "jdos_t300/tmp/jdos-m"+mesh+"-g" + str(g) + "-t300.dat",dtype='float')
+    #jdata=np.loadtxt(dirname + "jdos/tmp/jdos-m"+mesh+"-g" + str(g) + ".dat",dtype='float')
     totx=0
     for omj in omega:
         mindiff = abs(jdata[0,0] - omj)
@@ -111,17 +121,21 @@ def jdos_wj(g,omega,dirname,mesh):
               x = (jdata[mink+1,1:3] - jdata[mink,1:3]) / (jdata[mink+1,0] - jdata[mink,0]) * (omj - jdata[mink,0]) + jdata[mink,1:3]
               totx += x
            if jdata[mink-1,0] < omj and omj < jdata[mink,0]:
-              x = (jdata[mink+1,1:3] - jdata[mink,1:3]) / (jdata[mink+1,0] - jdata[mink,0]) * (omj - jdata[mink,0]) + jdata[mink,1:3]
+              x = (jdata[mink,1:3] - jdata[mink-1,1:3]) / (jdata[mink,0] - jdata[mink-1,0]) * (omj - jdata[mink-1,0]) + jdata[mink-1,1:3]
               totx += x
     return(np.sum(totx))
 
 def get_ps(gp,wt,qp,omega,qs,dirname,mesh):
-    #tmp_jdata=np.loadtxt(dirname + "jdos_t300/tmp/jdos-m"+mesh+"-g" + str(gp[0]) + "-t300.dat",dtype='float')
-    #totjdata=np.zeros_like(tmp_jdata)
-    #totjdata[:,0]=tmp_jdata[:,0]
     i=0
     ps=0
     for g, w in zip(gp,wt):
+        j=0
+        for qpe,qse in zip(qp[i,:],qs[i,:]):
+            if qse < 0:
+               qs[i,j] +=1 
+            if qpe < 0:
+               qp[i,j] +=1 
+            j += 1
         if np.linalg.norm(qp[i,:] - qs[i,:]) > 0.01:
            print "qp and qs are much different! \n"
            sys.exit()
@@ -154,26 +168,32 @@ def run():
        kappac=get_kappa(fc)
        kappacs = np.append(kappacs,([kappac]), axis=0)
 
+    print "material:\n",subjs
     print "kappa:\n",kappas
+    print "kappa_ave\n",np.average(kappas[:,0:3], axis=1)
     print "kappa_const_avepp:\n",kappacs
     # get phase space
     pss=np.empty((0),float)
     for ds,ms,kappafile, irfile in zip(dirs,meshes,kappafiles,irfiles):
        gp,wt,qp,vol,n = get_irdata(irfile)
        omega,qs,sumw = get_freqs(kappafile,n)
-       ps=get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / vol**2
+       nj = omega.shape[1]
+       ps=get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / nj**3 * 2 / 3
        pss=np.append(pss,np.array([ps]))
     print "phase spaece:\n",pss
 
     plt.figure(figsize=(10,20))
     plt.subplot(2,1,1)
     #plt.scatter(pss,kappas[:,0],label="kxx")
-    plt.scatter(pss,kappas[:,2],label="kzz")
+    #plt.scatter(pss,kappas[:,2],label="kzz")
+    #plt.scatter(kappas[:,2],pss,label="kzz")
+    #plt.scatter(kappas[:,0],pss,label="kxx")
+    plt.scatter(np.average(kappas[:,0:3], axis=1),pss,label="kave")
     #plt.scatter(pss,np.average(kappas[:,0:3], axis=1),label="kave")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
-    plt.xlabel("phase space")
-    plt.ylabel("kappa")
+    plt.xlabel("kappa")
+    plt.ylabel("phase space")
     plt.subplot(2,1,2)
     #plt.scatter(kappacs[:,0],kappas[:,0],label="kxx")
     plt.scatter(kappacs[:,2],kappas[:,2],label="kzz")
@@ -186,4 +206,5 @@ def run():
 run()
 
 plt.show()
+#plt.savefig("ph-kappa-wjdos-si3n4.eps")
     

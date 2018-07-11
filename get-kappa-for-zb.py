@@ -37,6 +37,10 @@ meshes.append("191919")
 subjs.append("znte")
 dirs.append("/home/kazu/zb/znte/phono3py_222_fc2_444_sym_monk/")
 meshes.append("191919")
+subjs.append("wAlN")
+dirs.append("/home/kazu/waln/phono3py_332_fc2_443_sym_monk/")
+meshes.append("212111")
+
 
 temp = 300
 
@@ -100,15 +104,16 @@ def get_irdata(irf):
             rvec[2,0]= float(values[2][:-1])
             rvec[2,1]= float(values[3][:-1])
             rvec[2,2]= float(values[4][:-1])
-            vol = 1/np.dot(rvec[0,:],np.cross(rvec[1,:],rvec[2,:]))
+            #vol = 1/np.dot(rvec[0,:],np.cross(rvec[1,:],rvec[2,:]))
+            vol = np.dot(rvec[0,:],np.cross(rvec[1,:],rvec[2,:]))
 
     f.close()
     g=np.array(g)
     return(g,w,qs,vol,n)
 
 def jdos_wj(g,omega,dirname,mesh):
-    #jdata=np.loadtxt(dirname + "jdos_t300/tmp/jdos-m"+mesh+"-g" + str(g) + "-t300.dat",dtype='float')
-    jdata=np.loadtxt(dirname + "jdos/tmp/jdos-m"+mesh+"-g" + str(g) + ".dat",dtype='float')
+    jdata=np.loadtxt(dirname + "jdos_t300/tmp/jdos-m"+mesh+"-g" + str(g) + "-t300.dat",dtype='float')
+    #jdata=np.loadtxt(dirname + "jdos/tmp/jdos-m"+mesh+"-g" + str(g) + ".dat",dtype='float')
     totx=0
     for omj in omega:
         mindiff = abs(jdata[0,0] - omj)
@@ -124,7 +129,8 @@ def jdos_wj(g,omega,dirname,mesh):
               x = (jdata[mink+1,1:3] - jdata[mink,1:3]) / (jdata[mink+1,0] - jdata[mink,0]) * (omj - jdata[mink,0]) + jdata[mink,1:3]
               totx += x
            if jdata[mink-1,0] < omj and omj < jdata[mink,0]:
-              x = (jdata[mink+1,1:3] - jdata[mink,1:3]) / (jdata[mink+1,0] - jdata[mink,0]) * (omj - jdata[mink,0]) + jdata[mink,1:3]
+              #x = (jdata[mink+1,1:3] - jdata[mink,1:3]) / (jdata[mink+1,0] - jdata[mink,0]) * (omj - jdata[mink,0]) + jdata[mink,1:3]
+              x = (jdata[mink,1:3] - jdata[mink-1,1:3]) / (jdata[mink,0] - jdata[mink-1,0]) * (omj - jdata[mink-1,0]) + jdata[mink-1,1:3]
               totx += x
     return(np.sum(totx))
 
@@ -185,7 +191,9 @@ def run():
     for ds,ms,kappafile, irfile in zip(dirs,meshes,kappafiles,irfiles):
        gp,wt,qp,vol,n = get_irdata(irfile)
        omega,qs,sumw = get_freqs(kappafile,n)
-       ps=get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / vol**2
+       nj = omega.shape[1]
+       #ps=get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / vol**2
+       ps=get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / nj**3 * 2 / 3
        pss=np.append(pss,np.array([ps]))
     print "phase spaece:\n",pss
 
@@ -210,4 +218,5 @@ def run():
 run()
 
 plt.show()
+#plt.savefig("ph-kappa-wjdos.eps")
     
