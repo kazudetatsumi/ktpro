@@ -9,11 +9,11 @@ dirs = []
 meshes =[]
 masss =[]
 zs =[]
-subjs.append("bc3n4")
-dirs.append("/home/kazu/bc3n4_m/phono3py_113_fc2_338_sym/")
-meshes.append("101026")
-masss.append(184.109)
-zs.append(2)
+#subjs.append("bc3n4")
+#dirs.append("/home/kazu/bc3n4_m/phono3py_113_fc2_338_sym/")
+#meshes.append("101026")
+#masss.append(184.109)
+#zs.append(2)
 subjs.append("bsi3n4")
 dirs.append("/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym/")
 meshes.append("101026")
@@ -33,21 +33,21 @@ dirs.append("/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/")
 meshes.append("101014")
 masss.append(561.1109)
 zs.append(4)
-subjs.append("age3n4")
-dirs.append("/home/kazu/age3n4/phono3py_112_fc2_334_sym_monk_shift/")
-meshes.append("101014")
-masss.append(1095.663)
-zs.append(4)
-subjs.append("be2sio4")
-dirs.append("/home/kazu/be2sio4/phono3py_111_fc2_222/")
-meshes.append("121212")
-masss.append(660.624)
-zs.append(6)
-subjs.append("gsi3n4")
-dirs.append("/home/kazu//gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/")
-meshes.append("121212")
-masss.append(280.5554)
-zs.append(2)
+#subjs.append("age3n4")
+#dirs.append("/home/kazu/age3n4/phono3py_112_fc2_334_sym_monk_shift/")
+#meshes.append("101014")
+#masss.append(1095.663)
+#zs.append(4)
+#subjs.append("be2sio4")
+#dirs.append("/home/kazu/be2sio4/phono3py_111_fc2_222/")
+#meshes.append("121212")
+#masss.append(660.624)
+#zs.append(6)
+#subjs.append("gsi3n4")
+#dirs.append("/home/kazu//gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/")
+#meshes.append("121212")
+#masss.append(280.5554)
+#zs.append(2)
 #subjs.append("wAlN")
 #dirs.append("/home/kazu/waln/phono3py_332_fc2_443_sym_monk/")
 #meshes.append("212111")
@@ -60,12 +60,14 @@ def generate_filenames(dirs, meshes):
     kappafiles = []
     kappa_constavp_files = []
     irfiles = []
+    kappa_avp_files = []
 
     for d, m in zip(dirs, meshes):
         kappafiles.append(d + "kappa-m" + m + ".hdf5")
         kappa_constavp_files.append(d + "kappa-m" + m + ".const_ave-pp_noiso.hdf5")
+        kappa_avp_files.append(d + "/gpjob_m" + m + "_fullpp/kappa-m" + m + ".ave_pp.hdf5")
         irfiles.append(d + "/jdos_t300/tmp/ir_grid_points.yaml")
-    return(kappafiles,kappa_constavp_files,irfiles)
+    return(kappafiles,kappa_constavp_files,irfiles,kappa_avp_files)
  
 
 def get_freqs(kf,n):
@@ -176,21 +178,25 @@ def get_kappa(hdf):
     return(kappa)
 
 def run():
-    kappafiles,kappa_constavp_files,irfiles = generate_filenames(dirs,meshes)
+    kappafiles,kappa_constavp_files,irfiles,kappa_avp_files = generate_filenames(dirs,meshes)
     # get kappa
     kappas=np.empty((0,6),float)
     kappacs=np.empty((0,6),float)
-    for f,fc,s in zip(kappafiles,kappa_constavp_files,subjs):
+    kappaavps=np.empty((0,6),float)
+    for f,fc,favp,s in zip(kappafiles,kappa_constavp_files,kappa_avp_files,subjs):
        print s
        kappa=get_kappa(f)
        kappas = np.append(kappas,([kappa]), axis=0)
        kappac=get_kappa(fc)
        kappacs = np.append(kappacs,([kappac]), axis=0)
+       kappaavp=get_kappa(favp)
+       kappaavps = np.append(kappaavps,([kappaavp]), axis=0)
 
     print "material:\n",subjs
     print "kappa:\n",kappas
     print "kappa_ave\n",np.average(kappas[:,0:3], axis=1)
     print "kappa_const_avepp:\n",kappacs
+    print "kappa_avepp:\n",kappaavps
     # get phase space
     pss=np.empty((0),float)
     rhos=np.empty((0),float)
@@ -204,32 +210,78 @@ def run():
        rhos=np.append(rhos,np.array([rho]))
     print "phase spaece:\n",pss
 
-    plt.figure(figsize=(10,20))
-    plt.subplot(2,1,1)
-    #plt.scatter(pss,kappas[:,2],label="kzz")
-    #plt.scatter(kappas[:,2],pss,label="kzz")
-    #plt.scatter(kappas[:,0],pss,label="kxx")
+    plt.figure(figsize=(13,13))
+
+    plt.subplot(3,3,1)
     plt.scatter(np.average(kappas[:,0:3], axis=1),pss,label="kave")
-    #plt.scatter(kappas[:,0],pss,label="kxx")
-    #plt.scatter(pss,np.average(kappas[:,0:3], axis=1),label="kave")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
     plt.xlabel("kappa")
     plt.ylabel("phase space")
-    plt.subplot(2,1,2)
-    #plt.scatter(kappas[:,0],kappacs[:,0]*zs*zs,label="kxx")
-    #plt.scatter(kappas[:,2],kappacs[:,2]*zs*zs,label="kzz")
-    plt.scatter(np.average(kappas[:,0:3],axis=1),np.average(kappacs[:,0:3],axis=1)*zs*zs,label="kave")
-    #plt.scatter(kappas[:,0],rhos,label="kxx")
-    #plt.scatter(kappacs[:,2],kappas[:,2],label="kzz")
-    #plt.scatter(np.average(kappacs[:,0:3],axis=1),np.average(kappas[:,0:3], axis=1),label="kave")
+    plt.legend()
+
+    plt.subplot(3,3,2)
+    plt.scatter(kappas[:,0],pss,label="kxx")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
-    #plt.xlabel("kappa const avepp")
     plt.xlabel("kappa")
-    #plt.ylabel("rho")
+    plt.ylabel("phase space")
+    plt.legend()
+
+    plt.subplot(3,3,3)
+    plt.scatter(kappas[:,2],pss,label="kzz")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.xlabel("kappa")
+    plt.ylabel("phase space")
+    plt.legend()
+
+    plt.subplot(3,3,4)
+    plt.scatter(np.average(kappas[:,0:3],axis=1),np.average(kappacs[:,0:3], axis=1),label="kave")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.xlabel("kappa")
     plt.ylabel("kappa const avepp")
     plt.legend()
+
+    plt.subplot(3,3,5)
+    plt.scatter(kappas[:,0],kappacs[:,0],label="kxx")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.xlabel("kappa")
+    plt.ylabel("kappa const avepp")
+    plt.legend()
+
+    plt.subplot(3,3,6)
+    plt.scatter(kappas[:,2],kappacs[:,2],label="kzz")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.xlabel("kappa")
+    plt.ylabel("kappa const avepp")
+    plt.legend()
+
+    plt.subplot(3,3,7)
+    plt.scatter(np.average(kappas[:,0:3],axis=1),np.average(kappaavps[:,0:3],axis=1),label="kavep")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.ylabel("kappa avepp")
+    plt.legend()
+
+    plt.subplot(3,3,8)
+    plt.scatter(kappas[:,0],kappaavps[:,0],label="kxx")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.xlabel("kappa")
+    plt.ylabel("kappa avepp")
+    plt.legend()
+
+    plt.subplot(3,3,9)
+    plt.scatter(kappas[:,2],kappaavps[:,2],label="kavep_zz")
+    plt.xlim(left=0)
+    plt.ylim(bottom=0)
+    plt.ylabel("kappa avepp")
+    plt.legend()
+
 run()
 
 plt.show()
