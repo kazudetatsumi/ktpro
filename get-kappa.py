@@ -7,36 +7,55 @@ import matplotlib.pyplot as plt
 subjs = []
 dirs = []
 meshes =[]
+masss =[]
+zs =[]
 subjs.append("bc3n4")
 dirs.append("/home/kazu/bc3n4_m/phono3py_113_fc2_338_sym/")
 meshes.append("101026")
+masss.append(184.109)
+zs.append(2)
 subjs.append("bsi3n4")
 dirs.append("/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym/")
 meshes.append("101026")
+masss.append(280.5554)
+zs.append(2)
 subjs.append("bge3n4")
 dirs.append("/home/kazu/bge3n4_m/phono3py_113_fc2_338_sym/")
 meshes.append("101026")
-subjs.append("ac3n4")
-dirs.append("/home/kazu/ac3n4/phono3py_112_fc2_334_sym_monk_shift/")
-meshes.append("101014")
+masss.append(547.8314)
+zs.append(2)
+#subjs.append("ac3n4")
+#dirs.append("/home/kazu/ac3n4/phono3py_112_fc2_334_sym_monk_shift/")
+#meshes.append("101014")
+#masss.append(368.218)
 subjs.append("asi3n4")
 dirs.append("/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/")
 meshes.append("101014")
+masss.append(561.1109)
+zs.append(4)
 subjs.append("age3n4")
 dirs.append("/home/kazu/age3n4/phono3py_112_fc2_334_sym_monk_shift/")
 meshes.append("101014")
+masss.append(1095.663)
+zs.append(4)
 subjs.append("be2sio4")
 dirs.append("/home/kazu/be2sio4/phono3py_111_fc2_222/")
 meshes.append("121212")
+masss.append(660.624)
+zs.append(6)
 subjs.append("gsi3n4")
 dirs.append("/home/kazu//gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/")
 meshes.append("121212")
-subjs.append("wAlN")
-dirs.append("/home/kazu/waln/phono3py_332_fc2_443_sym_monk/")
-meshes.append("212111")
+masss.append(280.5554)
+zs.append(2)
+#subjs.append("wAlN")
+#dirs.append("/home/kazu/waln/phono3py_332_fc2_443_sym_monk/")
+#meshes.append("212111")
 
 temp = 300
 
+zs=np.array(zs)
+print zs
 def generate_filenames(dirs, meshes):
     kappafiles = []
     kappa_constavp_files = []
@@ -174,34 +193,42 @@ def run():
     print "kappa_const_avepp:\n",kappacs
     # get phase space
     pss=np.empty((0),float)
-    for ds,ms,kappafile, irfile in zip(dirs,meshes,kappafiles,irfiles):
+    rhos=np.empty((0),float)
+    for ds,ms,kappafile,irfile,mass in zip(dirs,meshes,kappafiles,irfiles,masss):
        gp,wt,qp,vol,n = get_irdata(irfile)
        omega,qs,sumw = get_freqs(kappafile,n)
        nj = omega.shape[1]
        ps=get_ps(gp,wt,qp,omega,qs,ds,ms) / float(sumw) / nj**3 * 2 / 3
        pss=np.append(pss,np.array([ps]))
+       rho=mass*vol
+       rhos=np.append(rhos,np.array([rho]))
     print "phase spaece:\n",pss
 
     plt.figure(figsize=(10,20))
     plt.subplot(2,1,1)
-    #plt.scatter(pss,kappas[:,0],label="kxx")
     #plt.scatter(pss,kappas[:,2],label="kzz")
     #plt.scatter(kappas[:,2],pss,label="kzz")
     #plt.scatter(kappas[:,0],pss,label="kxx")
     plt.scatter(np.average(kappas[:,0:3], axis=1),pss,label="kave")
+    #plt.scatter(kappas[:,0],pss,label="kxx")
     #plt.scatter(pss,np.average(kappas[:,0:3], axis=1),label="kave")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
     plt.xlabel("kappa")
     plt.ylabel("phase space")
     plt.subplot(2,1,2)
-    #plt.scatter(kappacs[:,0],kappas[:,0],label="kxx")
-    plt.scatter(kappacs[:,2],kappas[:,2],label="kzz")
+    #plt.scatter(kappas[:,0],kappacs[:,0]*zs*zs,label="kxx")
+    #plt.scatter(kappas[:,2],kappacs[:,2]*zs*zs,label="kzz")
+    plt.scatter(np.average(kappas[:,0:3],axis=1),np.average(kappacs[:,0:3],axis=1)*zs*zs,label="kave")
+    #plt.scatter(kappas[:,0],rhos,label="kxx")
+    #plt.scatter(kappacs[:,2],kappas[:,2],label="kzz")
     #plt.scatter(np.average(kappacs[:,0:3],axis=1),np.average(kappas[:,0:3], axis=1),label="kave")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
-    plt.xlabel("kappa const avepp")
-    plt.ylabel("kappa")
+    #plt.xlabel("kappa const avepp")
+    plt.xlabel("kappa")
+    #plt.ylabel("rho")
+    plt.ylabel("kappa const avepp")
     plt.legend()
 run()
 

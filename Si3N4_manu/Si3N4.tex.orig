@@ -1,0 +1,803 @@
+%#BIBTEX bibtex Si$_3$N$_4$
+\documentclass[twocolumn,amsmath,amssymb,a4paper,prb,superscriptaddress,floatfix]{revtex4-1}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{natbib}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{url}
+\usepackage{color}
+\usepackage{here}
+\usepackage{ulem}
+\begin{document}
+
+\title{First-principles calculation of lattice thermal
+conductivities of $\alpha$-, $\beta$-, and $\gamma$-Si$_3$N$_4$}
+
+\author{Kazuyoshi Tatsumi} \email{k-tatsumi@imass.nagoya-u.ac.jp}
+\affiliation{Institute of
+Materials and Systems for Sustainability, Nagoya University, Chikusa,
+Nagoya 464-8603, Japan}
+\affiliation{Center for Elements Strategy
+Initiative for Structural Materials, Kyoto University, Sakyo, Kyoto
+606-8501, Japan}
+
+\author{Atsushi Togo}
+\affiliation{Center for Elements Strategy Initiative for Structural
+Materials, Kyoto University, Sakyo, Kyoto 606-8501, Japan}
+
+\author{Isao Tanaka}
+\affiliation{Center for Elements Strategy Initiative for Structural
+Materials, Kyoto University, Sakyo, Kyoto 606-8501, Japan}
+\affiliation{Department of Materials Science and
+Engineering, Kyoto University, Sakyo, Kyoto 606-8501, Japan}
+\affiliation{Nanostructures Research Laboratory, Japan Fine Ceramics
+Center, Atsuta, Nagoya 456-8587, Japan}
+
+\begin{abstract}
+The lattice thermal conductivities of $\alpha$-, $\beta$- and $\gamma$-Si$_3$N$_4$
+phases are investigated from {\it ab-initio} anharmonic lattice dynamics, within
+the single-mode relaxation-time approximation of the linearized phonon Boltzmann
+transport equation. At 300 K, the lattice thermal conductivity of
+$\beta$-Si$_3$N$_4$ is calculated as $\kappa_{xx}=73$ and $\kappa_{zz}=199$ (in
+units of W m$^{-1}$ K$^{-1}$), which is consistent with the reported experimental
+values of 69 and 180, respectively. For $\alpha$-Si$_3$N$_4$, $\kappa_{xx}=68$
+and $\kappa_{zz}=100$ are obtained.  The difference in anisotropy between these
+phases originates from the characteristic differences in their phonon band
+structures, which is closely related to the crystal structures.  In $\alpha$-Si$_3$N$_4$,
+acoustic-mode phonons below 6 THz are the main heat carriers, while in
+$\beta$-Si$_3$N$_4$, the phonon modes up to 12 THz contribute to the lattice
+thermal conductivity. In $\gamma$-Si$_3$N$_4$, $\kappa=77$ is obtained. The
+distribution of phonon mode contributions to the lattice thermal conductivity with
+respect to phonon frequency closely resembles that for $\kappa_{xx}$
+of $\beta$-Si$_3$N$_4$, although the phonon lifetimes for $\gamma$-Si$_3$N$_4$ are
+half as short as those for $\beta$-Si$_3$N$_4$.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+Several nitride insulators are known to exhibit high thermal conductivity, which
+is important for heat transfer materials at elevated temperatures. For example,
+Slack {\it et al.}\cite{slack} reported that wurtzite-type AlN has thermal
+conductivity that exceeds 100 W m$^{-1}$ K$^{-1}$. Si$_3$N$_4$ has become another
+promising thermal conductive insulator because its thermal conductivity has been
+improved up to 177 W m$^{-1}$ K$^{-1}$ through the use of advanced ceramic technologies
+related to densification and microstructure
+control.\cite{zhou,hirao-rev,watari,hirosaki} The Si$_3$N$_4$ ceramics
+also exhibit high mechanical strength at elevated temperatures; therefore, they are
+regarded as ideal materials for use in various applications, such as engine
+components, gas turbines, and heat sink substrates of power semiconductor
+devices.
+
+At atmospheric pressure, Si$_3$N$_4$ has two phases, $\alpha$ and $\beta$, which
+are generally considered as low- and high-temperature phases,
+respectively.\cite{zhou,hirosaki-md,riley} Their crystal structures belong to
+the {\it P}31{\it c} and {\it P}6$_3${\it /m} space groups, respectively.\cite{yashima,boulay} These
+structures have different manners of stacking equivalent basal layer structures
+composed of SiN$_4$ tetrahedra.\cite{hampshire} Fig.~\ref{fig:Fig1_cryst}
+depicts these layer structures from the principal axis direction. They are
+denoted as A, B, C, and D in the $\alpha$ phase, and A and B in the $\beta$
+phase. The stacking manners are thus ABCDABCD... and ABAB..., respectively. The
+$\alpha$ phase has additional two layer structures of C and D, which are related
+to A and B by the $c$ glide operation.\cite{hampshire} Along this direction, the
+lattice constant of the $\alpha$ phase is approximately twice as long as that of
+the $\beta$ phase.
+\begin{figure}[ht]
+ \begin{center}
+  \includegraphics[width=0.90\linewidth]{Fig1_crystal_str2.pdf} \caption{(color
+  online) Crystal structures of $\alpha$- and $\beta$-Si$_3$N$_4$. Stacking of
+  SiN$_4$ tetrahedron layers are shown at the left. (a) ABCDABCD... for
+  $\alpha$-Si$_3$N$_4$. (b) ABAB... for $\beta$-Si$_3$N$_4$.  Space group
+  diagrams\cite{inttableA} for {\it P$\rm{31}$c} ($\alpha$-Si$_3$N$_4$) and {\it
+  P$\rm{6_3}$/m} ($\beta$-Si$_3$N$_4$)
+  are shown at the right.}
+  \label{fig:Fig1_cryst} 
+ \end{center}
+\end{figure}
+
+The experimental thermal conductivities
+\cite{zhou,hirao-rev,watari,hirosaki,hirai} of the Si$_3$N$_4$ polymorphs were
+measured for bulk polycrystalline samples. These values were significantly
+affected by the lattice defects, impurities, shapes and orientations of the
+constituent crystal grains;\cite{hirosaki-md} the intrinsic thermal conductivity
+of defect-free Si$_3$N$_4$ has not been established. As an experimental approach
+to determine this, Li {\it et al.}\cite{li} applied the high-resolution
+thermoreflectance microscopy to single $\beta$-Si$_3$N$_4$ grains in a ceramic
+sample. The thermal conductivity was analyzed as 69 and 180 W m$^{-1}$ K$^{-1}$
+along the $a$ and $c$ axes, respectively.  These values respectively correspond
+to the $xx$ and $zz$ elements of the lattice thermal conductivity tensor,
+$\boldsymbol{\kappa}$. We consider the anisotropy of
+$\kappa_{zz}/\kappa_{xx}\sim 3$ is relatively large. Hirosaki {\it et
+al.}\cite{hirosaki-md} theoretically estimated $\boldsymbol{\kappa}$ by
+application of the Green-Kubo formulation to the molecular dynamics (MD) method
+with the interatomic potentials proposed by Vashishta {\it et
+al.}\cite{vashishta}.  They calculated $\kappa$$_{xx}$ and $\kappa$$_{zz}$ of
+$\beta$-Si$_3$N$_4$ to be 170 and 450 W m$^{-1}$ K$^{-1}$, respectively.  The
+ratio $\kappa_{zz}/\kappa_{xx}$ in $\beta$-Si$_3$N$_4$ agreed well with the
+experimental ratio; $\kappa_{xx}$ and $\kappa_{zz}$ were overestimated by more
+than two times those of the corresponding experimental $\boldsymbol{\kappa}$
+values. 
+
+Based on first principles calculations and Boltzmann transport
+theory\cite{phono3py}, Togo {\it{et al.}} recently calculated
+$\boldsymbol{\kappa}$ of many polymorphs of the zincblende- and wurtzite-type
+structures. Their crystal structures have stacking manners of the densest atom
+planes as ABCABC... and ABAB..., respectively. The different stacking manners
+merely altered $\boldsymbol{\kappa}$, the phonon linewidths and the phonon
+densities of states (DOS).\cite{phono3py} On the other hand, the previous MD
+results indicated that the different stacking manners between the $\alpha$ and
+$\beta$ phases altered $\boldsymbol{\kappa}$ significantly.\cite{hirosaki-md} This has not been
+explained with respect to their phonon properties. Therefore, it is of interest
+to investigate this based on the first principles anharmonic phonon calculation.
+
+In addition to the $\alpha$ and $\beta$ phases, a cubic spinel phase
+($\gamma$-Si$_3$N$_4$) is known to form upon compression and {\it{in situ}}
+heating.\cite{zerr,zhang} The reported transition pressures are scattered from
+10 to 36 GPa, depending on the experimental conditions.\cite{xu}  The $\gamma$
+phase is experimentally quenched to atmospheric pressure and room temperature.
+The thermal conductivity of the $\gamma$ phase has not been experimentally
+reported, although it has been estimated by the Slack model.\cite{morelli} 
+
+The present study aims to qualitatively elucidate the lattice thermal
+conductivity tensors among the three Si$_3$N$_4$ phases by a first principles
+approach.  We calculate $\boldsymbol{\kappa}$ of the $\gamma$ phase as well, for
+systematic understanding. After the methodology is described, we
+examine the validity of the present results through comparison
+of the calculated thermal properties with the available experimental and
+theoretical references. 
+The characteristic behaviors of  $\boldsymbol{\kappa}$
+are then investigated in detail on the basis of the phonon band structures and
+phonon lifetimes.
+
+\section{Computational procedures}
+
+\subsection{Lattice thermal conductivity calculation}
+
+The lattice thermal conductivities were calculated by solving the linearized
+Boltzmann transport equation (LBTE) within the single-mode relaxation time
+approximation (single-mode RTA).  The harmonic phonon states and lattice
+thermal conductivities were calculated with the phonopy\cite{phonopy} and
+phono3py\cite{phono3py} software packages, respectively.  We also attempted the
+direct-solution of LBTE\cite{chaput-direct} and give the calculated
+$\boldsymbol{\kappa}$ values in the following section. The difference between
+$\boldsymbol{\kappa}$ calculated by the single-mode RTA and that by the direct
+solution was minor for our discussion, for which the detail is given in Sec.
+IIc. Therefore, this research was limited to use the single-mode RTA to take
+advantage of the closed form of $\boldsymbol{\kappa}$, which can be intuitively
+understood in terms of mode-specific phonon properties.
+
+In the following sections, we denote the phonon mode by $\lambda=(\mathbf{q},p)$
+with the set of the phonon wave vector $\mathbf{q}$ and band index $p$ and
+$-\lambda \equiv (-\mathbf{q},p)$.  The harmonic phonon frequency of the phonon
+mode $\lambda$ is denoted by  $\omega_\lambda$.  The band index $p$ is set as 1,
+2,... simply in ascending order of the harmonic phonon frequency at a
+$\mathbf{q}$-point. For the detailed analysis below, we refer to $e_{j}(i,\lambda)$ as an eigenvector
+component for a phonon mode $\lambda$, with respect to a cartesian coordinate
+$j$ ($=x,y,z$) of an atom $i$.  The relaxation time due to phonon-phonon scattering
+was obtained as,
+$\tau_{\lambda,\text{ph-ph}}=[2\Gamma_\lambda(\omega_\lambda)]^{-1}$, with
+\begin{align}
+ \label{eq:linewidth}
+ &\Gamma_\lambda(\omega) = \frac{18\pi}{\hbar^2}
+  \sum_{\lambda' \lambda''}
+  \bigl|\Phi_{-\lambda\lambda'\lambda''}\bigl|^2 N_2(\mathbf{q},\omega).
+\end{align}
+In this equation, $\hbar$ is the reduced Planck constant and
+$\Phi_{\lambda\lambda'\lambda''}$ denotes the three-phonon-scattering strength,
+obtained by the usual coordinate transformation of third-order force constants
+from direct space to phonon space.\cite{phono3py} The second- and third-order
+real-space force constants were obtained by {\it ab initio} calculation, of
+which the details are given in the next section. $N_2(\mathbf{q},\omega)$ is a
+weighted joint DOS (WJDOS)\cite{phono3py},
+\begin{align}
+ \label{eq:jdos}
+ &N_2(\mathbf{q},\omega) = N_2^{(1)}(\mathbf{q},\omega) +  N_2^{(2)}(\mathbf{q},\omega)
+\end{align}
+where 
+\begin{eqnarray*}
+	N_2^{(1)} & = & \frac{1}{N_\mathbf{q}} \sum_{\lambda'\lambda''}(n_{\lambda'}-n_{\lambda''})\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+								   & \times & [\delta(\omega + \omega_{\lambda'} - \omega_{\lambda''}) - \delta(\omega - \omega_{\lambda'} + \omega_{\lambda''})],\\
+	N_2^{(2)} & = & \frac{1}{N_\mathbf{q}} \sum_{\lambda'\lambda''}(n_{\lambda'} + n_{\lambda''}+1)\Delta(-\mathbf{q} + \mathbf{q'} + \mathbf{q''}) \nonumber \\
+								   & \times & \delta(\omega - \omega_{\lambda'} - \omega_{\lambda''}),
+\end{eqnarray*}
+with $\Delta$($\mathbf{x}$) giving 1 if $\mathbf{x}$ is a reciprocal lattice
+vector, and otherwise zero. This constraint comes from the lattice
+translational invariance that appears inside
+$\Phi_{\lambda\lambda'\lambda''}$,\cite{phono3py} however, we let it appear in
+$N_2$ in Eq.~(\ref{eq:linewidth}) in the same manner as in
+Ref.~\onlinecite{sio2}, for the analysis given below. $N_\mathbf{q}$
+is the number of $\mathbf{q}$-points. 
+$n_\lambda=[\exp(\hbar\omega_\lambda/\mathrm{k_B}T)-1]^{-1}$ is 
+the Bose-Einstein distribution at temperature $T$ with $\mathrm{k_B}$ of Boltzmann constant.
+
+To more realistically compare the  calculated $\boldsymbol{\kappa}$ with the
+measured thermal conductivities, the isotopic scattering effect due to the natural isotope
+distribution was taken into account according to the second-order perturbation
+theory.\cite{tamura} Using the relaxation times for the phonon-phonon scattering
+and isotopic scattering, $\tau_{\lambda,\text{ph-ph}}$ and
+$\tau_{\lambda,\text{iso}}$, respectively, the total relaxation time for a phonon mode,
+$\tau_{\lambda}$, was calculated by assuming Matthiessen's rule, 
+$1/\tau_{\lambda} = 1/\tau_{\lambda,\text{ph-ph}} +
+1/\tau_{\lambda,\text{iso}}$.
+
+%The experimental thermal conductivities in the Si$_3$N$_4$ system were
+%measured for polycrystalline samples and not from single
+%crystals. The conductivities measured in a polycrystalline area were affected
+%by various lattice defects within that area, such as grain boundaries, impurities, and
+%vacancies. We crudely took them into account by the relaxation time
+%$\tau_{\lambda,\text{bs}}=L/|\mathbf{v}_\lambda|$ of a phonon boundary
+%scattering model, where $\mathbf{v}_\lambda = \nabla_{\mathbf{q}}\omega_\lambda$
+%is the group velocity and $L$ is a parameter related to the boundary mean free
+%path. We consider $\tau_{\lambda,\text{bs}}$ as a variable parameter and partly
+%include it in the calculated $\boldsymbol{\kappa}$, according to Matthiessen's rule. 
+
+The closed form of $\boldsymbol{\kappa}$ within the RTA was obtained via
+\begin{align}
+ \label{eq:kappa}
+ \boldsymbol{\kappa} = \frac{1}{N_\mathbf{q}\Omega} \sum_\lambda
+ \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda c_\lambda,
+\end{align}
+where $\Omega$ is the unit cell volume,  $\mathbf{v}_\lambda =
+\nabla_{\mathbf{q}}\omega_\lambda$ is the group velocity, and $c_\lambda=\frac {\partial (n_\lambda\hbar\omega_\lambda)}{\partial T}$ is
+the mode heat capacity. To analyze $\boldsymbol{\kappa}$ in detail, the
+cumulative thermal conductivity:
+\begin{align}
+ \label{eq:cum-kappa}
+ \boldsymbol{\kappa}^\text{c}(\omega) = \frac{1}{N_\mathbf{q}\Omega}
+ \int_0^\omega \sum_\lambda
+ \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda
+ c_\lambda \delta(\omega'-\omega_{\lambda})d\omega',
+\end{align}
+and its derivative $\frac{d
+\boldsymbol{\kappa}^\text{c}(\omega)}{d\omega}$: 
+\begin{align}
+ \label{eq:dcum-kappa}
+ \frac{d\boldsymbol{\kappa}^\text{c}(\omega)}{d\omega} = \frac{1}{N_\mathbf{q}\Omega}
+ \sum_\lambda
+ \tau_\lambda \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda
+ c_\lambda\delta(\omega-\omega_{\lambda}),
+\end{align}
+were calculated to
+determine the phonon mode
+contributions to $\boldsymbol{\kappa}$.
+
+\subsection{Computational details}
+
+The force constants required were calculated using the
+first-principles projector augmented wave method\cite{paw} (VASP
+code\cite{vasp-1996,vasp-1995, vasp-1999}). The generalized gradient
+approximation (GGA) parameterized by Perdew, Burke, and Ernzerhof\cite{pbe} was
+used for the exchange correlation potential. A plane wave energy cutoff of 500
+eV was employed. The crystal structures were optimized for 0 K and 0 GPa until
+the residual forces acting on the constituent atoms were less than $10^{-6}$
+eV \AA$^{-1}$. Here, the temperature and pressure were considered only for the
+electronic system and the zero point lattice vibration was not considered. The
+calculated lattice parameters were $a=7.808$ {\AA} and $c=5.659$ {\AA} for the
+$\alpha$ phase, $a=7.660$ {\AA} and $c=2.925$ {\AA} for the $\beta$ phase, and
+$a=7.787$ {\AA} for the $\gamma$ phase, which are in agreement with the experimental
+data\cite{yashima,boulay,paszkowicz} within +0.7 \% error. The lattice volume
+optimized with the local density approximation (LDA)\cite{lda} for the exchange
+correlation potential was, for $\beta$-Si$_3$N$_4$, 3 \% smaller than the volume
+optimized with GGA, which is a typical volume contraction of LDA. 
+$\kappa_{xx}}$ and $\kappa_{zz}}$ calculated with LDA were larger by 0.3 and 2.6
+\% than those calculated with GGA. For our discussion, these differences are
+sufficiently small; therefore, the impact of the choice of exchange correlation
+potential is considered to be minor in this study.
+
+\begin{table}[ht]
+	\caption{\label{table:LTC} Calculated lattice thermal conductivities 
+ of $\alpha$-, $\beta$-, and $\gamma$-Si$_3$N$_4$
+ (W K$^{-1}$ m$^{-1}$) at 300 K with respect to several combinations of
+ supercell sizes.}
+ \begin{ruledtabular}
+  \begin{tabular}{ccccc}
+   \multirow{2}{*}{Phase}
+   & \multicolumn{2}{c}{Supercell (\# of atoms)} &
+   \multicolumn{2}{c}{LTC} \\
+   \cline{2-5}
+   & $3^\text{rd}$ force constants & $2^\text{nd}$ force constants & $xx$ & $zz$ \\
+   \hline
+   \multirow{6}{*}{$\alpha$}
+   & $1\times 1\times 1$ (28) & $1\times
+   1\times 1$ (28) & 37 &   57 \\ 
+   & $1\times 1\times 2$ (56) & $1\times
+   1\times 2$ (56) & 41 &   79 \\ 
+   & $1\times 1\times 1$ (28) & $2\times
+   2\times 2$ (224) & 55 &   81 \\ 
+   & $1\times 1\times 2$ (56) & $2\times
+   2\times 2$ (224) & 67 &   95 \\ 
+   & $1\times 1\times 2$ (56) & $2\times
+   2\times 3$ (336) & 68 &  97 \\ 
+   & $1\times 1\times 2$ (56) & $3\times
+   3\times 4$ (1008) & 68 &  100 \\ 
+   \hline
+   \multirow{5}{*}{$\beta$}
+   & $1\times 1\times 2$ (28) & $1\times
+   1\times 2$ (28) & 44 & 173 \\ 
+   & $1\times 1\times 2$ (28) & $2\times
+   2\times 4$ (224) & 76 &  208 \\ 
+   & $1\times 1\times 3$ (42) & $2\times
+   2\times 4$ (224) & 71 & 194 \\ 
+   & $1\times 1\times 3$ (42) & $2\times
+   2\times 5$ (280) & 72 & 196 \\ 
+   & $1\times 1\times 3$ (42) & $3\times
+   3\times 8$ (1008) & 73 & 199 \\ 
+   \hline
+   \multirow{3}{*}{$\gamma$}
+   & $1\times 1\times 1$ (56) & $1\times
+   1\times 1$ (56) & \multicolumn{2}{c}{72} \\ 
+   & $1\times 1\times 1$ (56) & $2\times
+   2\times 2$ (448) & \multicolumn{2}{c}{77} \\ 
+   & $1\times 1\times 1$ (56) & $3\times
+   3\times 3$ (56) & \multicolumn{2}{c}{79} \\ 
+  \end{tabular}
+ \end{ruledtabular}
+\end{table}
+
+The force constants were calculated by the finite difference
+approach\cite{wei-supercell}. For this calculation, the following supercells
+were adopted: $1\times 1\times2$, $1\times 1\times3$, and $1\times 1\times1$
+supercells of the conventional unit cells for the calculations of the
+third-order force constants of $\alpha$, $\beta$, and $\gamma$-Si$_3$N$_4$,
+respectively, and $3\times 3\times4$, $3\times 3\times8$ and $2\times 2\times2$
+for those of the second-order force constants.  The length of the induced atomic
+displacements was set to 0.03 \AA.  Table \ref{table:LTC} shows
+$\boldsymbol{\kappa}$ calculated with several different sets of the supercells,
+which indicates that the calculated $\boldsymbol{\kappa}$ has reasonable
+convergence with respect to the size of the supercells. 
+
+Uniform $\mathbf{k}$-point sampling meshes of $4\times 4\times 2$, $4\times
+4\times 3$, and $3\times 3\times 3$ were employed for calculations of the
+third-order force constants of the $\alpha$, $\beta$, and $\gamma$ phases. For
+the $\alpha$ and $\beta$ phases, the center of the $a^*b^*$ plane was sampled,
+while the center on the $c^*$-axis was not. For the $\gamma$ phase, a non-$\Gamma$
+center mesh was used. For the calculations of the second-order force constants,
+the $\Gamma$-point was only sampled for the $\alpha$ and $\beta$
+phases, and the
+only one $\mathbf{k}=(0.5, 0.5, 0.5)$ point was sampled for the $\gamma$ phase.
+The $\mathbf{q}$-point sampling meshes of $10\times 10\times 14$, $10\times
+10\times 26$, and $12\times 12\times 12$ were employed to calculate
+$\boldsymbol{\kappa}$ in Eq.~(\ref{eq:kappa}) for the $\alpha$, $\beta$, and
+$\gamma$ phases, respectively.
+
+Non-analytical term correction\cite{wang} was applied to the second-order force
+constants to take into account the long range coulombic forces present in ionic
+crystals. For the correction, static dielectric constants and Born effective
+charges were calculated using the density functional perturbation theory
+as implemented in the VASP code\cite{vasp-lepsiron,lepsiron}.
+
+The effect of lattice thermal expansion on $\boldsymbol{\kappa}$ was examined
+by the calculation of $\boldsymbol{\kappa}$ for several finite
+temperatures with the crystal structures optimized for the
+corresponding temperatures within the quasi-harmonic approximation
+(QHA)\cite{dove-p76}. These $\boldsymbol{\kappa}$ were different from those
+calculated for the same temperatures with the structure
+optimized for 0 K. We consider these differences as the effect of lattice
+thermal expansion. The differences in $\boldsymbol{\kappa}$ for $T$=300, 600,
+900, 1200, and, 1500 K, for the $\beta$ phase, were within 1 \%. They 
+were similar to those for Si and Ge calculated by Ward {\it{et
+al.}}\cite{ward-ltc}.
+For the present study, these differences are negligible and
+$\boldsymbol{\kappa}$ calculated with the
+structure optimized for 0 K was adopted.
+
+
+The volumetric thermal expansion coefficients were also calculated. 
+Comparison with the experimental coefficient is useful to validate the present
+thermal conductivity calculation because both the thermal expansion
+and $\boldsymbol{\kappa}$ originate from the anharmonicity of the interatomic
+potential.
+The calculated coefficients of the $\alpha$, $\beta$, and $\gamma$ phases were
+4.31$\times 10^{-6}$,  4.19$\times 10^{-6}$, and 1.13$\times 10^{-5}$
+K$^{-1}$
+for 300 K, while the experimental values\cite{minikayev-alpha, gamma-expand}
+were 3.75$\times 10^{-6}$ , 3.55$\times 10^{-6}$, and 9.48$\times
+10^{-6}$ K$^{-1}$. The calculation systematically overestimated the experimental
+values, but reproduced the experimental tendencies, including that the $\alpha$
+phase has a slightly larger coefficient than the $\beta$
+phase. This supports the validity of the present calculation to qualitatively
+compare the calculated $\boldsymbol{\kappa}$ among the Si$_3$N$_4$ phases.
+
+To compare the microscopic phonon properties among the three phases under the
+same conditions, the results calculated at 0 GPa are shown and discussed.  For
+the $\gamma$ phase, this means that we assume the condition of a virtually
+quenched $\gamma$ phase at 0 GPa from the high pressure. To examine the
+analytical continuity of the properties with respect to pressure,
+$\boldsymbol{\kappa}$ of the $\gamma$ phase was calculated at 10, 20, and 40
+GPa, as shown in Fig.~\ref{fig:S1}. The phenomenological behavior of the linear
+dependence of $\boldsymbol{\kappa}$ with respect to the pressure was reproduced,
+similar to that in Ref.~\onlinecite{andersson-pressure}. The slope was 2.89
+W m$^{-1}$ K$^{-1}$ GPa$^{-1}$ for the $\gamma$ phase.  From this dependence, we
+consider that the microscopic values are also varied smoothly with the pressure
+and those at 0 GPa are valuable for comparison with the corresponding values of
+the $\alpha$ and $\beta$ phases.
+
+\subsection{Direct solution of LBTE}
+
+The advantage of employing the single-mode RTA for thermal conductivity
+calculations is the closed form in Eq.~(\ref{eq:kappa}), by which the qualitative character of
+$\boldsymbol{\kappa}$ can be intuitively understood in terms of the phonon-mode
+specific properties. The microscopic understanding of the full solution of LBTE
+is still under development,\cite{cepellotti-relaxons} and the microscopic
+picture based on collective phonons\cite{hardy-collective} will require more
+complicated investigation.
+
+Single-mode RTA solutions of LBTE often underestimate the full
+solution.\cite{mukhopadhyay-ltc,ward-ltc} To check this underestimation,
+$\boldsymbol{\kappa}$ for the $\alpha$ and $\beta$ phases were calculated by the
+direct solution of LBTE\cite{chaput-direct}, which is one of the methods of LBTE
+full solutions. $\kappa_{xx}$ and $\kappa_{zz}$ without the isotope effect were
+69 and 102 W m$^{-1}$ K$^{-1}$ for the $\alpha$ phase, and 76 and 238
+W m$^{-1}$ K$^{-1}$ for the $\beta$ phase, respectively, while the corresponding
+single-mode RTA values were 70 and 102 W m$^{-1}$ K$^{-1}$ for the $\alpha$ phase,
+and 76 and 210 W m$^{-1}$ K$^{-1}$ for the $\beta$ phase. $\kappa_{zz}$ for the
+$\beta$ phase from the direct solution was 13 \% larger than that of the
+single-mode RTA solution. The differences in $\boldsymbol{\kappa}$ between the
+LBTE solutions are not significant; therefore, we expect that the physics of
+these lattice thermal conductivities is well understood within the
+single-mode RTA at the current level of our interest. Therefore, we discuss the
+lattice thermal conductivities calculated by the single-mode RTA solution.
+
+\section{Results and discussion}
+
+\subsection{Lattice thermal conductivities}
+
+\begin{table}[ht]
+ \caption{\label{table:LTC-exp} Calculated thermal conductivities of
+ $\alpha$-Si$_3$N$_4$ (trigonal), $\beta$-Si$_3$N$_4$ (trigonal), and
+ $\gamma$-Si$_3$N$_4$ (cubic) at 300
+ K in units of W m$^{-1}$ K$^{-1}$, compared with the experimental and theoretical
+ reference data, and bulk moduli $B$ (in
+ units of GPa), calculated from the elastic constant calculation routine\cite{elastic} in the VASP code.}
+
+\begin{ruledtabular}
+ \begin{tabular}{ccccccccc}
+   & \multicolumn{3}{c}{This work} & \multicolumn{3}{c}{Ref. Theo.}
+   & \multicolumn{2}{c}{Ref. Expt.} \\
+   \cline{2-9}
+   & $\kappa_{xx}$ & $\kappa_{zz}$ & $B$ & $\kappa$ & $\kappa_{xx}$ & $\kappa_{zz}$ & $\kappa_{xx}$ & $\kappa_{zz}$ \\
+   \hline
+   $\alpha$-Si$_3$N$_4$ & 68 & 100 & 224 & 70\footnotemark[1] & 105\footnotemark[2] & 225\footnotemark[2] & - & -  \\
+   $\beta$-Si$_3$N$_4$ & 73 & 199 & 237 & 250\footnotemark[1] & 170\footnotemark[2] & 450\footnotemark[2] & 69\footnotemark[3] & 180\footnotemark[3] \\
+   $\gamma$-Si$_3$N$_4$ & 77 & - & 296 & 80\footnotemark[1] & - & - & - & - 
+   \footnotetext[1]{Ref.~\onlinecite{morelli}, Slack model.}
+   \footnotetext[2]{Ref.~\onlinecite{hirosaki-md}, molecular dynamics (Green-Kubo).}
+   \footnotetext[3]{Ref.~\onlinecite{li}, single crystalline grains of poly-crystals.}
+  \end{tabular}
+ \end{ruledtabular}
+\end{table}
+
+\begin{figure}[H]
+	 \begin{center}
+		   \includegraphics[width=0.90\linewidth]{Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf}
+		   \caption{Cumulative thermal conductivity of the three phases. 
+		   \label{fig:kaccum} }
+    \end{center}
+\end{figure}
+Table~\ref{table:LTC-exp} shows the calculated
+$\boldsymbol{\kappa}$ for 300 K with the isotope effect. $\beta$-Si$_3$N$_4$ has a markedly more
+anisotropic $\boldsymbol{\kappa}$ than $\alpha$-Si$_3$N$_4$.  The directional
+averages $\sum_i \kappa_{ii}/3$  are 79, 115,  and 77 W m$^{-1}$ K$^{-1}$ for the
+$\alpha$, $\beta$, and $\gamma$ phases, respectively. The value for the
+$\gamma$ phase is similar to that for the $\alpha$ phase, despite the
+comparatively large difference among the bulk moduli ($B$) that are also shown
+in Table~\ref{table:LTC-exp}.   
+
+Table~\ref{table:LTC-exp} also lists the previously reported
+experimental\cite{li} and theoretical\cite{hirosaki-md} $\boldsymbol{\kappa}$
+for reference. The theoretical results\cite{morelli} of the Slack model, which
+do not include the anisotropy in $\boldsymbol{\kappa}$, are shown as $\kappa$ in
+Table~\ref{table:LTC-exp}. Compared to the $\boldsymbol{\kappa}$ from
+MD\cite{hirosaki-md}, our $\boldsymbol{\kappa}$ for the $\beta$ phase has better
+agreement with the experimental $\boldsymbol{\kappa}$.  Compared to $\kappa$
+from the Slack model, our directional average $\sum_i \kappa_{ii}/3$ is also
+much closer to the experimental average. 
+
+Fig.~\ref{fig:kaccum} shows the cumulative thermal conductivity,
+$\boldsymbol{\kappa}^c(\omega)$, with the isotope effect.  From this figure, it
+is evident that in the $\alpha$, $\beta$, and $\gamma$ phases, the phonon modes
+with their frequencies up to $\sim$ 6, 12 and 10 THz largely contribute to each
+respective $\boldsymbol{\kappa}$. Thus we investigate the phonon modes
+in these frequency ranges.
+
+\subsection{Distribution of group velocity in Brillouin zone}
+
+The Brillouin zones and phonon band diagrams of the three phases are shown in
+Fig.~\ref{fig:Fig4_ver5_338}~(a). In this figure, we investigate the 
+gradient of $\omega_\lambda$, the group velocity projected on the paths along the nonequivalent
+axes of the reciprocal lattice. We particularly focus on the anisotropy of the
+group velocity in the $\alpha$ and $\beta$ phases. This was not investigated
+in the previous works\cite{kuwabara,xu}. The band diagrams on the other high-symmetry paths are
+almost identical to those reported\cite{kuwabara,xu} and thus are not shown.
+For the $\alpha$ and $\beta$ phases, in order to investigate the distribution of
+the group velocities all over the Brillouin zone, the cross-sections of the
+phonon frequency distributions for the band indices $p$=1, 2, 3 and 4 are shown in
+Fig.~\ref{fig:Fig4_ver5_338}~(b). As seen in Fig.~\ref{fig:kaccum}, the
+frequencies for these band indicies cover a large part of the frequency ranges
+where $\boldsymbol{\kappa}^c$ increase significantly. The cross-sections are on the $b^*c^*$ plane.
+There were negligible differences among the cross-sections on the planes
+containing $c^*$ axis, we focus on the $b^*c^*$ plane as a representative of all
+such planes. 
+The A-$\Gamma$ and $\Gamma$-K paths of the band diagram
+respectively correspond to the left and bottom end lines in the
+cross-section area.  
+Thus, the distribution profiles on the end lines appear in  the
+dispersion curves in the band diagrams. 
+Just for clarification purposes, the dispersion curves
+corresponding to the profiles for $p$=4 are highlighted by gray color.
+
+In the band diagram of the $\alpha$ phase, the dispersion relation on the
+A-$\Gamma$ path for a band index is similar to that on the K-$\Gamma$ path.
+This suggests nearly isotropic group velocities, which is more clearly seen in
+the cross-sections for $p$=1, 2 and 3, where the most of the contour lines are
+nearly parallel to the circular dash lines inserted as a guide.  In contrast, in
+the band diagram of the $\beta$ phase, the dispersion relation is much more
+different between the two paths. For example, the frequencies of the
+acoustic-mode phonons at the A point are much higher 
+than those at the K point.
+Consistently, the gradients of frequencies
+
+\begin{figure}[H]
+	 \begin{center}
+		   \includegraphics[width=0.90\linewidth]{Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf}
+		   \caption{(color online) (a) Brillouin-zones and  band diagrams of the three phases. (b) Contour maps 
+			   of phonon frequencies for the $\alpha$ and $\beta$ phases, on the  $b^*c^*$  planes of Brillouin-zones. 
+			   The maps for the four lowest-frequency phonon modes ($p$=1, 2, 3,
+			   and 4) are shown. In the band diagrams for the $\alpha$ and
+			   $\beta$ phases, the dispersion curve for $p$=4 is denoted by a thick gray line.
+		   \label{fig:Fig4_ver5_338} }
+    \end{center}
+\end{figure}
+\noindent
+in the cross-sections are, in the
+most part, parallel to the vertical edges; the group velocities orient closely
+to the $c^*$ axis direction.
+This difference in group velocities between the $\alpha$ and $\beta$ phases is due to the A-$\Gamma$
+path lengths. The $\beta$ phase has an approximately twice longer path than the
+$\alpha$ phase; the lattice constant $c$ of the $\beta$ phase is nearly half
+that of the $\alpha$ phase, owing to the different stacking manners of the basal
+layer structures (Fig.~\ref{fig:Fig1_cryst}).  Comparing the cross-sections for
+$p$=4 between the $\alpha$ and $\beta$ phases, the $\beta$
+phase has larger gradients of frequencies than the $\alpha$ phase.  Comparing the
+band diagrams of the $\alpha$ and $\beta$ phases, the same tendency is also seen
+for the most of the other optical phonon modes.
+
+In the $\gamma$ phase, the dispersion curve for the longitudinal acoustic
+mode-phonons is almost linear. Their frequencies at the L point is much higher than the
+longitudinal acoustic phonon frequencies at the A or K points of the $\alpha$
+and $\beta$ phases.  The gradients of the acoustic phonon branches near the
+$\Gamma$ point are the largest among the three phases, as expected by the
+largest $B$.
+
+\onecolumngrid
+
+
+\begin{figure*}[h]
+% \begin{center}
+	 \includegraphics[width=0.9\linewidth]{figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog.pdf}
+  \caption{Microscopic phonon properties of three Si$_3$N$_4$
+	  phases. (a) Cumulative thermal conductivity $\boldsymbol{\kappa}^\text{c}$ and
+	  its frequency derivative
+	  , (b) DOS as $g(\omega)$, (c) DOS weighted with $\mathbf{v}_\lambda \otimes
+	  \mathbf{v}_\lambda$ as $\boldsymbol{h}(\omega)$, and (d) scatter plots of phonon
+	  lifetimes and phonon frequencies, $(\tau_\lambda,\omega_\lambda)$.
+  \label{fig:Fig5_338_rev} }
+% \end{center}
+\end{figure}
+\twocolumngrid
+
+\subsection{Microscopic analysis on $\boldsymbol{\kappa}$ behavior}
+
+In the previous section, we have investigated the anisotropy in
+$\mathbf{v}_\lambda$, which may explain the anisotropy in $\boldsymbol{\kappa}$.
+Here we examine which terms in Eq.(\ref{eq:kappa}) characterize the behavior of
+the calculated $\boldsymbol{\kappa}$. In the following, we omit the term of mode
+heat capacity because it is approximately constant for the phonon modes that
+mainly carry heat at 300 K. For simplicity, the effect of isotope scattering is
+not considered in this section.
+For the investigation, the derivative of
+cumulative thermal conductivity, $d\boldsymbol{\kappa}^c/d\omega$ in
+Eq.(\ref{eq:dcum-kappa}), is shown at the top of Fig.~\ref{fig:Fig5_338_rev}. 
+
+Assuming that $\tau_\lambda$ and $\mathbf{v}_\lambda$ are constant, then
+$d\kappa_{ii}^c/d\omega$ ($ii$=$xx,zz$) are proportional to the phonon
+DOS: 
+\begin{align}
+ \label{eq:dos}
+ g(\omega) = \frac{1}{N_\mathbf{q}}
+ \sum_\lambda
+ \delta(\omega-\omega_{\lambda}).
+\end{align}
+We refer to $g(\omega)/\Omega$ as a frequency distribution of a heat
+carrier density. Alternatively, assuming that only $\tau_\lambda$ is constant,
+then $d\boldsymbol{\kappa}^c/d\omega$ is proportional to:
+\begin{align}
+ \label{eq:wdos}
+ \boldsymbol{h}(\omega) = \frac{1}{N_\mathbf{q}\Omega}
+ \sum_\lambda
+ \mathbf{v}_\lambda \otimes \mathbf{v}_\lambda
+ \delta(\omega-\omega_{\lambda}),
+\end{align}
+from which we examine the impacts of both of $\mathbf{v}_\lambda$ and the heat carrier
+density. $g(\omega)/\Omega$ and  $\boldsymbol{h}(\omega)$
+are shown in
+Figs.~\ref{fig:Fig5_338_rev}~(b) and (c). As for the frequency
+variation of $\tau_{\lambda,\text{ph-ph}}$, scatter
+plots of $(\tau_{\lambda,\text{ph-ph}},\omega_\lambda)$ are shown in
+Fig.~\ref{fig:Fig5_338_rev}~(d).
+
+Comparison of the $\alpha$ and $\beta$ phases indicates their phonon lifetimes
+distributions are qualitatively similar, except for a striking difference below
+$\sim$ 5 THz, which will be examined later. The markedly different
+$d\kappa_{ii}^c/d\omega$ between the two phases are therefore ascribed to the
+corresponding $h_{ii}$. The overall spectral shapes of $g(\omega)/\Omega$ are also
+similar between the two phases; therefore, $\mathbf{v}_\lambda$ alone accounts
+for the different behavior of $d\kappa_{ii}^c/d\omega$. It is thus concluded
+that the different anisotropy in $\boldsymbol{\kappa}$ can be qualitatively
+explained by the different $\mathbf{v}_\lambda$.
+In contrast, for the zincblende and wurtzite
+structures, the group velocities of these structures are suggested to be similar from their band
+structures\cite{phono3py}.
+This must result in similar $\boldsymbol{\kappa}$ between these
+structures, irrespective of the stacking manner. 
+
+The $\gamma$ phase has much different $g(\omega)/\Omega$, $\boldsymbol{h}(\omega)$,
+and, $\tau_{\lambda,\text{ph-ph}}$ from the other phases, as expected from the
+large differences in their crystal structures. The most significant difference
+is in the phonon lifetimes. For 4 THz $\lesssim\omega_\lambda\lesssim$ 10 THz,
+the phonon lifetimes are approximately half as short as those of the other
+phases. We will examine this in detail later. As a result,
+$d\kappa_{xx}^c/d\omega$ has relatively low intensities. The longitudinal
+acoustic phonon branch increases its frequencies much significantly, as we have
+examined in the band diagram; therefore, $d\kappa_{xx}^c/d\omega$ rather
+gradually attenuates as the frequency increases, occasionally resembling
+$d\kappa_{xx}^c/d\omega$ of the $\beta$ phase.
+
+\subsection{Phonon properties characterizing $\tau_{\lambda,ph-ph}$}
+
+The distribution of phonon lifetimes is qualitatively similar between the $\alpha$ and
+$\beta$ phases, although their group velocities have marked differences. This
+remains a curiosity. 
+Recalling Eq.~(\ref{eq:linewidth}), $\tau_{\lambda,\text{ph-ph}}$ in the
+present form is dependent on WJDOS
+and $|\Phi_{\lambda\lambda'\lambda''}|^2$. We examine these terms one-by-one.
+
+\begin{figure}[ht]
+ \centering
+  \includegraphics[width=0.9\linewidth]{figure_wjdoss_gray.pdf} \caption{
+	  WJDOS of $\alpha$- and $\beta$-Si$_3$N$_4$ at different $\mathbf
+	  q$ points and that of $\gamma$-Si$_3$N$_4$ at the $\Gamma$ point. 
+  The WJDOS for the $\alpha$ and $\beta$ phases in the  first and fourth rows
+  are calculated at the same $\Gamma$-point but 
+  with the polarization for the non-analytic term correction set along $c^*$ and
+  $b^*$, respectively. \label{fig:Fig6_338} }
+ \centering
+\end{figure}
+
+The frequency profiles of WJDOS in Fig.~\ref{fig:Fig6_338} are very similar between the $\alpha$ and
+$\beta$ phases, for each different $\mathbf{q}$-points.  Their intensities are
+scaled with $Z^2$ of which $Z$ is the number of formula units in the primitive
+unit cell, to compare WJDOS for structures with different $Z$.  These profiles
+show weak $\mathbf{q}$-point dependences.  The frequency profile for the
+$\gamma$ phase is only shown at $\mathbf{q}=(0,0,0)$ because of the different
+shape of the Brillouin zone from those in the other phases.  We checked that
+the $\mathbf{q}$ dependence of WJDOS for the $\gamma$ phase was as weak as
+those shown in Fig.~\ref{fig:Fig6_338} for the $\alpha$ and $\beta$ phases.
+The intensities of WJDOS below $\sim$ 10 THz in the $\gamma$ phase are slightly smaller than those in
+the other phases. 
+
+
+\begin{table}[ht]
+	\caption{\label{table:aveavepp} Averages of
+	$|\Phi_{\lambda\lambda'\lambda''}|^2$ over frequency ranges of
+	$\omega_\lambda$ (0--15 and 0--35 THz) and all ($\lambda'$,$\lambda''$). The
+	values are in units of meV$^2$.}
+ \begin{ruledtabular}
+  \begin{tabular}{cccc}
+	  \multirow{2}{*}{Frequency range (THz)}
+   & \multicolumn{3}{c}{Phase}  \\
+   \cline{2-4}
+   & $\alpha$ & $\beta$ & $\gamma$ \\
+   \hline
+   \multirow{1}{*}{0--15}
+   & 0.47 &  0.46 & 1.02 &    
+   \multirow{1}{*}{0--35}
+   & 2.30 & 2.30 & 2.02 &     
+  \end{tabular}
+ \end{ruledtabular}
+\end{table}
+
+As for $|\Phi_{\lambda\lambda'\lambda''}|^2$, in Table.~\ref{table:aveavepp},
+they are averaged over two frequency ranges of 0--15 or 0--35 THz for
+$\omega_\lambda$ and all indices in $\lambda'$ and $\lambda''$.  The frequency
+ranges for $\omega_\lambda$ were set so that the narrower frequency range
+approximately corresponds to the range where the phonon modes largely contribute
+to $\boldsymbol{\kappa}$. A small change in the frequency range by a few
+terahertz did not change the qualitative characteristics of the averages.  To
+compare the averages among the phases having different $Z$, as in
+Ref.~\onlinecite{sio2} we multiply the average by $(3n_a)^2$ where $n_a$ is the
+number of atoms in the primitive unit cell. The averages are very similar for
+the $\alpha$ and $\beta$ phases. With the similar impact of the WJDOS and
+$|\Phi_{\lambda\lambda'\lambda''}|^2$, the phonon lifetimes in these phases are
+also similar. For the $\gamma$ phase, the short $\tau_\lambda$ are attributed to
+the large $|\Phi_{\lambda\lambda'\lambda''}|^2$ in the narrower frequency range
+for $\omega_\lambda$. 
+
+
+
+\begin{figure}[ht]
+	 \centering
+	   \includegraphics[width=\linewidth]{figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf} \caption{(color
+		   	  online) Distribution of phonon lifetimes for $\omega_\lambda$ $\leq$ 5 THz
+	  		  shown in color with respect to the fraction of the eigenvector
+			  component (a) along $\mathbf q$ 
+		  	  and (b) parallel to the $ab$ plane (b).} \label{fig:Fig7_338} 
+	   \centering
+\end{figure}
+
+Finally, we examine the striking difference in Fig.~\ref{fig:Fig5_338_rev}~(d)
+below $\sim$ 5 THz between the $\alpha$ and $\beta$ phases.
+Fig.~\ref{fig:Fig7_338} enlarges that part.  In the $\alpha$ phase,
+$\tau_{\lambda,\text{ph-ph}}$ below $\sim$ 5 THz are distributed around a single
+smooth line, while for the $\beta$ phase, they are scattered much more largely.
+In this figure, each plot is shown with a color specified by
+$\sum_{i}[e_x(i,\lambda)^2+e_y(i,\lambda)^2]$, the fraction of the eigenvector
+component parallel to the $ab$ plane. 
+
+From Fig.~\ref{fig:Fig7_338}, we find that, for the $\beta$ phase, 
+a phonon mode of the atomic vibration parallel to the $ab$ plane is more hindered by
+the other phonons than a phonon mode of the vibration 
+perpendicular to the plane.
+A straight line is inserted in the graph for $\beta$ phase in
+Fig.~\ref{fig:Fig7_338}.  The numbers of the phonon modes below and above the
+line are 145 and 67, whose ratio is reasonable as the population ratio between
+the two groups of the phonon modes whose atomic vibrations are, respectively,
+parallel and perpendicular to the $ab$ plane.
+
+
+\section{Summary}
+
+In the present study, the lattice thermal conductivities of the
+three Si$_3$N$_4$ phases were investigated using lattice dynamics based on the
+first-principles interatomic force constants. The main remarks are as follows:
+
+1) In $\alpha$- and $\beta$-Si$_3$N$_4$, of which the crystal structures are
+characterized by the stacking manner of the basal layer structures,
+$\boldsymbol{\kappa}$ is largely altered due to the differences in the harmonic
+band structures induced by the different stacking manners. This is in contrast
+with the zincblende and wurtzite structures in the previous
+study\cite{phono3py}. $\boldsymbol{\kappa}$ for $\alpha$-Si$_3$N$_4$ is rather
+isotropic, while $\kappa$$_{zz}$ for the $\beta$ phase is twice or more larger
+than the other $\kappa_{ii}$ of the three phases.
+
+2) In the $\alpha$ phase, the acoustic-mode phonons below 6 THz are the main
+heat carriers, while in the $\beta$ phase, the phonons below 12 THz contribute
+to $\boldsymbol{\kappa}$. Their group velocities are confirmed to characterize
+the behavior of $\boldsymbol{\kappa}$.
+
+3) In the $\gamma$ phase, the frequency distribution of the phonon mode
+contributions to $\boldsymbol{\kappa}$ is similar to that for $\kappa_{xx}$ of
+$\beta$-Si$_3$N$_4$, which is attributed to its large phonon-phonon scattering
+strength and steep longitudinal acoustic branches.
+
+
+
+\section*{ACKNOWLEDGMENTS}
+The present work was partly supported by a Grant-in-Aid for Scientific
+Research (No. 15K14108 from the Ministry of Education, Culture, Sports, Science
+and Technology (MEXT) Japan and the Elements Strategy Initiative for Structural
+Materials (ESISM) of Kyoto University.
+
+\appendix
+\section{Dependence of the lattice thermal conductivity of $\gamma$-phase on
+pressure}
+\begin{figure}[ht]
+ \begin{center}
+  \includegraphics[width=0.80\linewidth]{S1.eps} \caption{(color online)
+  Lattice thermal conductivity of $\gamma$-Si$_3$N$_4$ as a function of pressure.  \label{fig:S1} }
+ \end{center}
+\end{figure}
+\bibliography{Si3N4}
+\end{document}
