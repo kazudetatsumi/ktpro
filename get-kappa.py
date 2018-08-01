@@ -4,6 +4,7 @@ import h5py,sys
 import matplotlib.pyplot as plt
 
 
+naf=7
 subjs = []
 dirs = []
 meshes =[]
@@ -177,6 +178,19 @@ def get_kappa(hdf):
     kappa=f["kappa"][tindex,] 
     return(kappa)
 
+
+
+def parse_tildapave(files,ms,zs):
+    ts=[]
+    for f,m,z in zip(files,ms,zs):
+        f = h5py.File(f,'r')
+        na = z*naf
+        N = int(m[0:2])*int(m[2:4])*int(m[4:6])
+        t =  1/float(3*na) * 1/float(N**2) * np.sum(f["ave_pp"])
+        print t
+        ts.append(t)
+    return(ts)
+
 def run():
     kappafiles,kappa_constavp_files,irfiles,kappa_avp_files = generate_filenames(dirs,meshes)
     # get kappa
@@ -210,9 +224,15 @@ def run():
        rhos=np.append(rhos,np.array([rho]))
     print "phase spaece:\n",pss
 
-    plt.figure(figsize=(13,13))
 
-    plt.subplot(3,3,1)
+    # get tildapave
+    tildapaves=parse_tildapave(kappa_avp_files,meshes,zs)
+    print tildapaves
+
+
+    plt.figure(figsize=(17,13))
+
+    plt.subplot(3,4,1)
     plt.scatter(np.average(kappas[:,0:3], axis=1),pss,label="kave")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
@@ -220,7 +240,7 @@ def run():
     plt.ylabel("phase space")
     plt.legend()
 
-    plt.subplot(3,3,2)
+    plt.subplot(3,4,2)
     plt.scatter(kappas[:,0],pss,label="kxx")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
@@ -228,7 +248,7 @@ def run():
     plt.ylabel("phase space")
     plt.legend()
 
-    plt.subplot(3,3,3)
+    plt.subplot(3,4,3)
     plt.scatter(kappas[:,2],pss,label="kzz")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
@@ -236,7 +256,7 @@ def run():
     plt.ylabel("phase space")
     plt.legend()
 
-    plt.subplot(3,3,4)
+    plt.subplot(3,4,5)
     plt.scatter(np.average(kappas[:,0:3],axis=1),np.average(kappacs[:,0:3], axis=1),label="kave")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
@@ -244,7 +264,7 @@ def run():
     plt.ylabel("kappa const avepp")
     plt.legend()
 
-    plt.subplot(3,3,5)
+    plt.subplot(3,4,6)
     plt.scatter(kappas[:,0],kappacs[:,0],label="kxx")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
@@ -252,7 +272,7 @@ def run():
     plt.ylabel("kappa const avepp")
     plt.legend()
 
-    plt.subplot(3,3,6)
+    plt.subplot(3,4,7)
     plt.scatter(kappas[:,2],kappacs[:,2],label="kzz")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
@@ -260,14 +280,21 @@ def run():
     plt.ylabel("kappa const avepp")
     plt.legend()
 
-    plt.subplot(3,3,7)
-    plt.scatter(np.average(kappas[:,0:3],axis=1),np.average(kappaavps[:,0:3],axis=1),label="kavep")
+    plt.subplot(3,4,8)
+    plt.scatter(kappas[:,2]/kappas[:,0],kappacs[:,2]/kappacs[:,0],label="kzz/kxx")
+    plt.xlim(left=0,right=3.5)
+    plt.ylim(bottom=0,top=3.5)
+    plt.ylabel("kappa avepp")
+    plt.legend()
+
+    plt.subplot(3,4,9)
+    plt.scatter(np.average(kappas[:,0:3],axis=1),np.average(kappaavps[:,0:3],axis=1),label="kave")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
     plt.ylabel("kappa avepp")
     plt.legend()
 
-    plt.subplot(3,3,8)
+    plt.subplot(3,4,10)
     plt.scatter(kappas[:,0],kappaavps[:,0],label="kxx")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
@@ -275,10 +302,17 @@ def run():
     plt.ylabel("kappa avepp")
     plt.legend()
 
-    plt.subplot(3,3,9)
-    plt.scatter(kappas[:,2],kappaavps[:,2],label="kavep_zz")
+    plt.subplot(3,4,11)
+    plt.scatter(kappas[:,2],kappaavps[:,2],label="kzz")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
+    plt.ylabel("kappa avepp")
+    plt.legend()
+
+    plt.subplot(3,4,12)
+    plt.scatter(kappas[:,2]/kappas[:,0],kappaavps[:,2]/kappaavps[:,0],label="kzz/kxx")
+    plt.xlim(left=0,right=3.5)
+    plt.ylim(bottom=0,top=3.5)
     plt.ylabel("kappa avepp")
     plt.legend()
 
