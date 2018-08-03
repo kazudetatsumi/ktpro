@@ -11,7 +11,7 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: Si3N4Notes.bib
 Database file #2: Si3N4.bib
-Repeated entry---line 594 of file Si3N4.bib
+Repeated entry---line 603 of file Si3N4.bib
  : @article{sio2
  :              ,
 I'm skipping whatever remains of this entry
@@ -27,46 +27,46 @@ Control: production of article title (-1) disabled
 Control: page (0) single
 Control: year (1) truncated
 Control: production of eprint (0) enabled
-You've used 46 entries,
+You've used 47 entries,
             5847 wiz_defined-function locations,
-            1871 strings with 20831 characters,
-and the built_in function-call counts, 44582 in all, are:
-= -- 2827
-> -- 1175
-< -- 319
-+ -- 373
-- -- 295
-* -- 6840
-:= -- 4372
-add.period$ -- 45
-call.type$ -- 46
-change.case$ -- 181
-chr.to.int$ -- 54
-cite$ -- 46
-duplicate$ -- 4192
-empty$ -- 3308
-format.name$ -- 681
-if$ -- 8880
+            1875 strings with 20872 characters,
+and the built_in function-call counts, 45479 in all, are:
+= -- 2892
+> -- 1194
+< -- 325
++ -- 379
+- -- 299
+* -- 6969
+:= -- 4463
+add.period$ -- 46
+call.type$ -- 47
+change.case$ -- 185
+chr.to.int$ -- 55
+cite$ -- 47
+duplicate$ -- 4276
+empty$ -- 3376
+format.name$ -- 694
+if$ -- 9060
 int.to.chr$ -- 1
-int.to.str$ -- 53
-missing$ -- 552
-newline$ -- 184
-num.names$ -- 134
-pop$ -- 1801
+int.to.str$ -- 54
+missing$ -- 563
+newline$ -- 187
+num.names$ -- 137
+pop$ -- 1840
 preamble$ -- 1
-purify$ -- 220
+purify$ -- 225
 quote$ -- 0
-skip$ -- 1613
+skip$ -- 1647
 stack$ -- 0
-substring$ -- 1152
-swap$ -- 3908
-text.length$ -- 142
+substring$ -- 1178
+swap$ -- 3984
+text.length$ -- 144
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 632
+type$ -- 645
 warning$ -- 1
-while$ -- 140
+while$ -- 143
 width$ -- 0
-write$ -- 404
+write$ -- 412
 is.kanji.str$ -- 0
 (There was 1 error message)

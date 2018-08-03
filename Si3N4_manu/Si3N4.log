@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  2 AUG 2018 22:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/Fink) (preloaded format=pdflatex 2018.5.15)  3 AUG 2018 16:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -323,32 +323,32 @@ Underfull \hbox (badness 1092) in paragraph at lines 219--227
 [2] [3] <Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf, id=236, 233.31256pt x 256.0748pt>
 File: Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf Graphic file (type pdf)
  <use Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf>
-Package pdftex.def Info: Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf used on input line 507.
+Package pdftex.def Info: Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf used on input line 512.
 (pdftex.def)             Requested size: 221.3985pt x 243.01178pt.
  [4]
-Underfull \hbox (badness 10000) in paragraph at lines 523--532
+Underfull \hbox (badness 10000) in paragraph at lines 528--537
 []\OT1/cmr/m/n/10 Table II[] also lists the pre-vi-ously re-ported
  []
 
 <Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf, id=240, 245.91875pt x 607.26875pt>
 File: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf Graphic file (type pdf)
  <use Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>
-Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf used on input line 579.
+Package pdftex.def Info: Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf used on input line 584.
 (pdftex.def)             Requested size: 221.3985pt x 546.74069pt.
  [5 <./Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf>] <figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog_raster.pdf, id=262, 494.84875pt x 264.99pt>
 File: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog_raster.pdf Graphic file (type pdf)
  <use figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog_raster.pdf>
-Package pdftex.def Info: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog_raster.pdf used on input line 614.
+Package pdftex.def Info: figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog_raster.pdf used on input line 619.
 (pdftex.def)             Requested size: 458.99689pt x 245.7912pt.
- [6 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>] [7 <./figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog_raster.pdf>] <figure_wjdoss_gray.pdf, id=514, 250.38425pt x 281.68228pt>
+ [6 <./Fig4_ver5_338_resize2_woDOS_color_simplified_no_symm.pdf>] [7 <./figure_dos_jdos_dkc_m1010_dos_wo_arrows_bw_nolog_raster.pdf>] <figure_wjdoss_gray.pdf, id=544, 250.38425pt x 281.68228pt>
 File: figure_wjdoss_gray.pdf Graphic file (type pdf)
  <use figure_wjdoss_gray.pdf>
-Package pdftex.def Info: figure_wjdoss_gray.pdf used on input line 706.
+Package pdftex.def Info: figure_wjdoss_gray.pdf used on input line 711.
 (pdftex.def)             Requested size: 221.3985pt x 249.08034pt.
- <figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf, id=515, 230.8625pt x 110.39674pt>
+ <figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf, id=545, 230.8625pt x 110.39674pt>
 File: figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf Graphic file (type pdf)
  <use figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf>
-Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf used on input line 766.
+Package pdftex.def Info: figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf used on input line 771.
 (pdftex.def)             Requested size: 246.0pt x 117.63649pt.
  [8 <./figure_wjdoss_gray.pdf> <./figure_analyze_gamma3_m1010_nolog_gray_only_ab.pdf>]
 Package epstopdf Info: Source file: <S1.eps>
@@ -358,12 +358,12 @@ Package epstopdf Info: Source file: <S1.eps>
 (epstopdf)                    date: 2018-05-18 11:46:41
 (epstopdf)                    size: 10255 bytes
 (epstopdf)             Command: <repstopdf --outfile=S1-eps-converted-to.pdf S1.eps>
-(epstopdf)             \includegraphics on input line 832.
+(epstopdf)             \includegraphics on input line 837.
 Package epstopdf Info: Output file is already uptodate.
- <S1-eps-converted-to.pdf, id=552, 238.8925pt x 234.8775pt>
+ <S1-eps-converted-to.pdf, id=582, 238.8925pt x 234.8775pt>
 File: S1-eps-converted-to.pdf Graphic file (type pdf)
  <use S1-eps-converted-to.pdf>
-Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 832.
+Package pdftex.def Info: S1-eps-converted-to.pdf used on input line 837.
 (pdftex.def)             Requested size: 196.80075pt x 193.4932pt.
  (./Si3N4.bbl
 Underfull \hbox (badness 4001) in paragraph at lines 155--160
@@ -376,7 +376,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 189--195
  []
 
 [9 <./S1-eps-converted-to.pdf>]
-Underfull \hbox (badness 2158) in paragraph at lines 382--386
+Underfull \hbox (badness 2158) in paragraph at lines 389--393
  []\OT1/cmr/m/n/9 M. T. Dove, |   [], Vol. 4
  []
 
@@ -386,18 +386,18 @@ Missing character: There is no Î in font cmr9!
 Missing character: There is no ² in font cmr9!
 ) [10] (./Si3N4.aux) ) 
 Here is how much of TeX's memory you used:
- 4981 strings out of 493117
- 65790 string characters out of 6141650
- 159313 words of memory out of 5000000
- 8324 multiletter control sequences out of 15000+600000
+ 4985 strings out of 493117
+ 65845 string characters out of 6141650
+ 158350 words of memory out of 5000000
+ 8328 multiletter control sequences out of 15000+600000
  19927 words of font info for 77 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,15n,32p,618b,458s stack positions out of 5000i,500n,10000p,200000b,80000s
 </sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></sw/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Si3N4.pdf (10 pages, 5655979 bytes).
+Output written on Si3N4.pdf (10 pages, 12477857 bytes).
 PDF statistics:
- 662 PDF objects out of 1000 (max. 8388607)
- 452 compressed objects within 5 object streams
+ 692 PDF objects out of 1000 (max. 8388607)
+ 460 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

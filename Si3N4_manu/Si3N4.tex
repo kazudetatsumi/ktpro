@@ -298,26 +298,31 @@ contributions to $\boldsymbol{\kappa}$.
 
 \subsection{Computational details}
 
-The force constants required were calculated using the
-first-principles projector augmented wave method\cite{paw} (VASP
-code\cite{vasp-1996,vasp-1995, vasp-1999}). The generalized gradient
-approximation (GGA) parameterized by Perdew, Burke, and Ernzerhof\cite{pbe} was
-used for the exchange correlation potential. A plane wave energy cutoff of 500
-eV was employed. The crystal structures were optimized for 0 K and 0 GPa until
-the residual forces acting on the constituent atoms were less than $10^{-6}$
-eV \AA$^{-1}$. Here, the temperature and pressure were considered only for the
-electronic system and the zero point lattice vibration was not considered. The
-calculated lattice parameters were $a=7.808$ {\AA} and $c=5.659$ {\AA} for the
-$\alpha$ phase, $a=7.660$ {\AA} and $c=2.925$ {\AA} for the $\beta$ phase, and
-$a=7.787$ {\AA} for the $\gamma$ phase, which are in agreement with the experimental
-data\cite{yashima,boulay,paszkowicz} within +0.7 \% error. The lattice volume
-optimized with the local density approximation (LDA)\cite{lda} for the exchange
-correlation potential was, for $\beta$-Si$_3$N$_4$, 3 \% smaller than the volume
-optimized with GGA, which is a typical volume contraction of LDA.
-$\kappa_{xx}$ and $\kappa_{zz}$ calculated with LDA were larger by 0.3 and 2.6
-\% than those calculated with GGA. For our discussion, these differences are
-sufficiently small; therefore, the impact of the choice of exchange correlation
-potential is considered to be minor in this study.
+The force constants required were calculated using the first-principles
+projector augmented wave method\cite{paw} (VASP code\cite{vasp-1996,vasp-1995,
+vasp-1999}). The generalized gradient approximation (GGA) parameterized by
+Perdew, Burke, and Ernzerhof\cite{pbe} was used for the exchange correlation
+potential. A plane wave energy cutoff of 500 eV was employed. The crystal
+structures were optimized for 0 K and 0 GPa until the residual forces acting on
+the constituent atoms were less than $10^{-6}$ eV \AA$^{-1}$. Here, the
+temperature and pressure were considered only for the electronic system and the
+zero point lattice vibration was not considered. The calculated lattice
+parameters were $a=7.808$ {\AA} and $c=5.659$ {\AA} for the $\alpha$ phase,
+$a=7.660$ {\AA} and $c=2.925$ {\AA} for the $\beta$ phase, and $a=7.787$ {\AA}
+for the $\gamma$ phase, \textcolor{blue}{while the experimental values are
+	reported as $a=7.7545$ {\AA} and $c=5.62145$ {\AA} for the $\alpha$
+phase\cite{yashima}, $a=7.6044$ {\AA} and $c=2.9063$ {\AA} for the $\beta$
+phase\cite{boulay}, and $a=7.7351$ {\AA} for the $\gamma$
+phase\cite{paszkowicz}. The present results} are in agreement with the
+experimental data within +0.7 \% error. The lattice volume optimized with the
+local density approximation (LDA) \textcolor{blue}{according to Ceperly and
+Alder as parameterized by Perdew and Zunger\cite{lda,lda-pz}} was, for
+$\beta$-Si$_3$N$_4$, 3 \% smaller than the volume optimized with GGA, which is a
+typical volume contraction of LDA.  $\kappa_{xx}$ and $\kappa_{zz}$ calculated
+with LDA were larger by 0.3 and 2.6 \% than those calculated with GGA. For our
+discussion, these differences are sufficiently small; therefore, the impact of
+the choice of exchange correlation potential is considered to be minor in this
+study.
 
 \begin{table}[ht]
         \caption{\label{table:LTC} Calculated lattice thermal conductivities
@@ -396,7 +401,7 @@ $\boldsymbol{\kappa}$ in Eq.~(\ref{eq:kappa}) for the $\alpha$, $\beta$, and
 $\gamma$ phases, respectively.
 
 Non-analytical term correction\cite{wang} was applied to the second-order force
-constants to take into account the long range coulombic forces present in ionic
+constants to take into account the long range Coulombic forces present in ionic
 crystals. For the correction, static dielectric constants and Born effective
 charges were calculated using the density functional perturbation theory
 as implemented in the VASP code\cite{vasp-lepsiron,lepsiron}.
@@ -506,7 +511,7 @@ lattice thermal conductivities calculated by the single-mode RTA solution.
          \begin{center}
                    \includegraphics[width=0.90\linewidth]{Figure_kaccum_for_alpha_beta_gamma_phases_iso.pdf}
 				   \caption{Cumulative thermal conductivity of the three
-					   phases. \textcolor{red}{The $xx$ and $zz$ components are
+					   phases. \textcolor{blue}{The $xx$ and $zz$ components are
 					   shown by the dash and solid lines, respectively.}
                    \label{fig:kaccum} }
     \end{center}
