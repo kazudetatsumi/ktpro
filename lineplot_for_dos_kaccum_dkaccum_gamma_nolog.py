@@ -29,12 +29,12 @@ dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
 gc = cdir + 'noiso/kaccum_m101014.dat'
 #gs = sdir + 'noiso/kaccum.dat'
 gs = sdir + 'noiso/kaccum_m101026.dat'
-gg = gdir + 'noiso/kaccum.dat'
+gg = gdir + 'noiso/kaccum_m181818.dat'
 #ggc = cdir +  'noiso/gvaccum.dat'
 ggc = cdir +  'noiso/gvaccum_m101014.dat'
 #ggs = sdir + 'noiso/gvaccum.dat'
 ggs = sdir + 'noiso/gvaccum_m101026.dat'
-ggg = gdir + 'noiso/gvaccum.dat'
+ggg = gdir + 'noiso/gvaccum_m181818.dat'
 #c = cdir + "noiso/kappa-m8810.hdf5"
 #c = cdir + "noiso/kappa-m141416.noiso.hdf5"
 c = cdir + "noiso/kappa-m101014.noiso.hdf5"
@@ -42,7 +42,7 @@ c = cdir + "noiso/kappa-m101014.noiso.hdf5"
 #s = sdir + "noiso/kappa-m8820.hdf5"
 #s = sdir + "noiso/kappa-m141432.noiso.hdf5"
 s = sdir + "noiso/kappa-m101026.noiso.hdf5" #s = sdir + "noiso/kappa-m141432_nu.hdf5"
-g = gdir + "noiso/kappa-m121212.hdf5"
+g = gdir + "noiso/kappa-m181818.hdf5"
 grc = homedir + "/asi3n4/gruneisen/gruneisen.hdf5"
 grs = homedir + "/bsi3n4_m/gruneisen/gruneisen.hdf5"
 grg = homedir + "/gamma-si3n4-unit/gruneisen/gruneisen.hdf5"
@@ -511,4 +511,4 @@ def run():
    #plt.savefig("tst_plot.eps")
 
 run()
-plt.show()
+#plt.show()

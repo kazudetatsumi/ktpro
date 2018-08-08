@@ -29,7 +29,7 @@ dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
 gc = cdir + 'kaccum_m101014.dat'
 #gs = sdir + 'noiso/kaccum.dat'
 gs = sdir + 'kaccum_m101026.dat'
-gg = gdir + 'kaccum_m222222.dat'
+gg = gdir + 'kaccum_m181818.dat'
 #ggc = cdir +  'noiso/gvaccum.dat'
 ggc = cdir +  'noiso/gvaccum_m101014.dat'
 #ggs = sdir + 'noiso/gvaccum.dat'
@@ -458,7 +458,7 @@ def run():
    #eachplot12(19,"alpha",omegacjc1,gammacjc1*apc1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    #eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    #eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
-   #plt.savefig("tst_plot.eps")
+   plt.savefig("tst_plot.eps")
    plt.tight_layout()
    plt.figure(figsize=(12,16))
    plt.subplot(4,1,1)
@@ -511,4 +511,4 @@ def run():
    #plt.savefig("tst_plot.eps")
 
 run()
-plt.show()
+#plt.show()
