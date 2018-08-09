@@ -25,10 +25,11 @@ fs = 9
 dosc  = np.loadtxt(cdir + 'total_dos_m292935.dat',comments='#',dtype='float')
 doss  = np.loadtxt(sdir + 'total_dos_m292967.dat',comments='#',dtype='float')
 dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
-#gc = cdir + 'noiso/kaccum.dat'
+gcni = cdir + 'noiso/kaccum.dat'
 gc = cdir + 'kaccum_m101014.dat'
-#gs = sdir + 'noiso/kaccum.dat'
+gsni = sdir + 'noiso/kaccum.dat'
 gs = sdir + 'kaccum_m101026.dat'
+ggni = gdir + 'noiso/kaccum_m181818.dat'
 gg = gdir + 'kaccum_m181818.dat'
 #ggc = cdir +  'noiso/gvaccum.dat'
 ggc = cdir +  'noiso/gvaccum_m101014.dat'
@@ -268,6 +269,16 @@ def parse_gruneisen(filename):
 
     return(x,y)
 
+def eachplot0(sn,phase,omega,kaccum,dkaccum,omegani,kaccumni,dkaccumni):
+   plt.subplot(numr,3,sn)
+   plt.title("kaccum_for_" + phase)
+   plt.plot(omega,kaccum[:,0],label=phase + "_kxx")
+   plt.plot(omega,kaccum[:,2],label=phase + "_kzz")
+   plt.plot(omegani,kaccumni[:,0],label=phase + "_kxxni")
+   plt.plot(omegani,kaccumni[:,2],label=phase + "_kzzni")
+   plt.ylim(0,255)
+   plt.yticks([0,100,200])
+   plt.xlim(0,max_freq)
 
 def eachplot(sn,phase,omega,kaccum,dkaccum):
    plt.subplot(numr,3,sn)
@@ -366,6 +377,9 @@ def run():
    omegac,kaccumc,dkaccumc=parse_kaccum(gc)
    omegas,kaccums,dkaccums=parse_kaccum(gs)
    omegag,kaccumg,dkaccumg=parse_kaccum(gg)
+   omegacni,kaccumcni,dkaccumcni=parse_kaccum(gcni)
+   omegasni,kaccumsni,dkaccumsni=parse_kaccum(gsni)
+   omegagni,kaccumgni,dkaccumgni=parse_kaccum(ggni)
    omegagc,gvaccumc,dgvaccumc=parse_gvaccum(ggc)
    omegags,gvaccums,dgvaccums=parse_gvaccum(ggs)
    omegagg,gvaccumg,dgvaccumg=parse_gvaccum(ggg)
@@ -409,9 +423,9 @@ def run():
    eachplot3(1,"alpha",dosc[:,0],dosc[:,1]/cv)
    eachplot3(2,"beta",doss[:,0],doss[:,1]/sv)
    eachplot3(3,"gamma",dosg[:,0],dosg[:,1]/gv*4)
-   eachplot(4,"alpha",omegac,kaccumc,dkaccumc)
-   eachplot(5,"beta",omegas,kaccums,dkaccums)
-   eachplot(6,"gamma",omegag,kaccumg,dkaccumg)
+   eachplot0(4,"alpha",omegac,kaccumc,dkaccumc,omegacni,kaccumcni,dkaccumcni)
+   eachplot0(5,"beta",omegas,kaccums,dkaccums,omegasni,kaccumsni,dkaccumsni)
+   eachplot0(6,"gamma",omegag,kaccumg,dkaccumg,omegagni,kaccumgni,dkaccumgni)
    #eachplot4(10,"alpha",omegac1,gammac1)
    #eachplot4(11,"betau",omeganus1,gammasu1)
    #eachplot4(12,"gamman",omeganug1,gammagu1)
