@@ -146,6 +146,7 @@ def caserun(casefile,vcasefile,n,phase):
     plt.subplot(2,2,n+2)
     #plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
     plt.scatter(omega1d,0.5/gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='magma')
+    plt.clim(0.0,1.2)
     plt.tick_params(which='both',tickdir='in')
     #plt.rcParams['ytick.right'] = True
     #plt.rcParams['xtick.top'] = True

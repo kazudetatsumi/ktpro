@@ -373,6 +373,10 @@ def sortomega(x,y):
     #return datas[cs:ds[0]-cs,0],data_ave 
     return datas[:,0],data_ave 
 
+def out_kaccum(o,k):
+    for oi, ki in zip(o,k):
+        print oi, ki[0],ki[2]
+
 def run():
    omegac,kaccumc,dkaccumc=parse_kaccum(gc)
    omegas,kaccums,dkaccums=parse_kaccum(gs)
@@ -380,6 +384,18 @@ def run():
    omegacni,kaccumcni,dkaccumcni=parse_kaccum(gcni)
    omegasni,kaccumsni,dkaccumsni=parse_kaccum(gsni)
    omegagni,kaccumgni,dkaccumgni=parse_kaccum(ggni)
+   print "#alpha, with isotope"
+   out_kaccum(omegac,kaccumc)
+   print "#beta, with isotope"
+   out_kaccum(omegas,kaccums)
+   print "#gamma, with isotope"
+   out_kaccum(omegag,kaccumg)
+   print "#alpha, without isotope"
+   out_kaccum(omegacni,kaccumcni)
+   print "#beta, without isotope"
+   out_kaccum(omegasni,kaccumsni)
+   print "#gamma, without isotope"
+   out_kaccum(omegagni,kaccumgni)
    omegagc,gvaccumc,dgvaccumc=parse_gvaccum(ggc)
    omegags,gvaccums,dgvaccums=parse_gvaccum(ggs)
    omegagg,gvaccumg,dgvaccumg=parse_gvaccum(ggg)
