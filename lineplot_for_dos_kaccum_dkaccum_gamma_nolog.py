@@ -511,4 +511,4 @@ def run():
    #plt.savefig("tst_plot.eps")
 
 run()
-#plt.show()
+plt.show()

@@ -182,11 +182,11 @@ def run():
     eachplot_gv(9, "gamma", omegagg, dgvaccumg, numr, max_freq)
 
     eachplot_tau(10, "alpha", omegac1, 1.0 / (4 * np.pi * gammac1),
-                 0, max_freq, 0, 200, "gamma", numr)
+                 0, max_freq, 0, 100, "gamma", numr)
     eachplot_tau(11, "beta", omegas1, 1.0 / (4 * np.pi * gammas1),
-                 0, max_freq, 0, 200, "gamma", numr)
+                 0, max_freq, 0, 100, "gamma", numr)
     eachplot_tau(12, "gamma", omegag1, 1.0 / (4 * np.pi * gammag1),
-                 0, max_freq, 0, 200, "gamma", numr)
+                 0, max_freq, 0, 100, "gamma", numr)
 
     plt.savefig("tst_plot.pdf")
 
