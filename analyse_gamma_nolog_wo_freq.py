@@ -138,25 +138,23 @@ def caserun(casefile, vcasefile, n, phase):
     omega1d, gamma1d, sqamp1d, longiamp1d = select_mode(omegak, gammak, sqamp,
                                                         longiamp)
     plt.subplot(2, 2, n)
-    plt.scatter(omega1d, 1.0 / (4 * np.pi * gamma1d), c=longiamp1d,
-                linewidth=0.01, s=5,
-                label=phase, cmap='magma')
+    plt.scatter(longiamp1d, 1.0 / (4 * np.pi * gamma1d),
+                linewidth=0.01, s=8, color='k', marker='o',
+                label=phase)
     plt.tick_params(which='both', tickdir='in')
     plt.ylim(0, 110)
     plt.yticks([0, 20, 40, 60, 80, 100])
-    plt.xlim(-0.2, 5.2)
-    plt.xlabel('omega / THz')
+    plt.xlim(-0.01, 1.01)
+    plt.xlabel('fraction of longitudinal components')
     plt.ylabel('tau')
-    plt.colorbar(label='sum of squares of eigenvector component along q')
     plt.subplot(2, 2, n+2)
-    plt.scatter(omega1d, 1.0 / (4 * np.pi * gamma1d), c=sqamp1d,
-                linewidth=0.01, s=5, label=phase, cmap='magma')
-    plt.clim(0.0, 1.2)
+    plt.scatter(sqamp1d, 1.0 / (4 * np.pi * gamma1d),
+                linewidth=0.01, s=8, color='k', marker='o', label=phase)
     plt.tick_params(which='both', tickdir='in')
     if phase == "beta":
         x = 0.1*np.arange(0, 50)
         y = (-30*x + 390) / (2 * np.pi)
-        plt.plot(x, y)
+        #plt.plot(x, y)
         n_up = 1
         n_dn = 0
         for omega, gamma in zip(omega1d, gamma1d):
@@ -168,18 +166,16 @@ def caserun(casefile, vcasefile, n, phase):
         print "num of up states:", n_up
         print "num of dn states:", n_dn
 
-    # plt.yscale("log")
     plt.ylim(0, 110)
     plt.yticks([0, 20, 40, 60, 80, 100])
-    plt.xlim(-0.2, 5.2)
-    plt.xlabel('omega / THz')
+    plt.xlim(-0.01, 1.01)
+    plt.xlabel('fraction of eigenvector components on x-y plane')
     plt.ylabel('tau')
-    plt.colorbar(label='sum of squares of eigenvector x_y_component')
 
 
 def run():
     plt.rcParams['font.family'] = 'Times New Roman'
-    plt.figure(figsize=(9, 7.30))
+    plt.figure(figsize=(9, 9))
     caserun(c, cv, 1, "alpha")
     caserun(s, sv, 2, "beta")
     # caserun(g,gv,3,"gamma")
