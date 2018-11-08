@@ -131,6 +131,7 @@ def select_mode(omega, gamma, sqamp, lamp):
 def caserun(casefile, vcasefile, n, phase):
     omegak, gammak, qpointk = parse_gamma(casefile, Temp)
     omegaq, eigenvecq, qpointq = parse_eigenvec(vcasefile)
+    print omegaq.shape
     check(omegak, omegaq)
     check(qpointk, qpointq)
     sqamp = project_eigenvec(eigenvecq)
