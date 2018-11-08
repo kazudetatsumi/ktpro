@@ -12,11 +12,12 @@ gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
 max_freq = 5
 fs = 9
-# c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+#c = cdir + "noiso/kappa-m141416.noiso.hdf5"
 c = cdir + "noiso/kappa-m101014.noiso.hdf5"
-# s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+#s = sdir + "noiso/kappa-m141432.noiso.hdf5"
 s = sdir + "noiso/kappa-m101026.noiso.hdf5"
-g = gdir + "noiso/kappa-m121212.hdf5"
+g = gdir + "noiso/kappa-m181818.hdf5"
+#cv = cdir + "qpoints_m141416.hdf5"
 cv = cdir + "qpoints.hdf5"
 sv = sdir + "qpoints.hdf5"
 gv = gdir + "qpoints.hdf5"
@@ -96,14 +97,20 @@ def kde(m1, m2, n, xlabel, ylabel):
     xmax = m1.max()
     ymin = m2.min()
     ymax = m2.max()
+    ymin = 0
+    ymax = 200
+    #xmin = 0
+    #xmax = 35
     X, Y = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
     positions = np.vstack([X.ravel(), Y.ravel()])
     values = np.vstack([m1, m2])
     kernel = stats.gaussian_kde(values)
     Z = np.reshape(kernel(positions).T, X.shape)
+    print Z.max()
+    print Z.min()
     plt.subplot(2, 2, n)
     plt.imshow(np.rot90(Z), cmap=plt.cm.gist_earth_r, extent=[xmin, xmax, ymin, ymax], aspect='auto')
-    #plt.plot(m1, m2, 'k.', markersize=2)
+    plt.plot(m1, m2, 'k.', markersize=1)
     plt.xlim(xmin, xmax)
     plt.ylim(ymin, ymax)
     plt.xlabel(xlabel)
@@ -143,6 +150,7 @@ def caserun(casefile, vcasefile, n, phase):
                                                         longiamp)
     kde(longiamp1d[3:], 1.0 / (4 * np.pi * gamma1d[3:]), n,'fraction of longitudinal components', 'tau')
     kde(sqamp1d[3:], 1.0 / (4 * np.pi * gamma1d[3:]), n+2, 'fraction of eigenvector components on x-y plane', 'tau')
+    #kde(omega1d[3:], 1.0 / (4 * np.pi * gamma1d[3:]), n, 'omega', 'tau')
     #plt.subplot(2, 2, n)
     #plt.scatter(longiamp1d, 1.0 / (4 * np.pi * gamma1d),
     #            linewidth=0.01, s=4, color='k', marker='o',
@@ -179,7 +187,7 @@ def run():
     plt.figure(figsize=(9, 9))
     caserun(c, cv, 1, "alpha")
     caserun(s, sv, 2, "beta")
-    # caserun(g,gv,3,"gamma")
+    #caserun(g, gv, 3, "gamma")
     #plt.savefig("tst_plot.eps")
 
 run()
