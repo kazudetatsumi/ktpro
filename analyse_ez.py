@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
-import matplotlib as mpl 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import h5py
 import math
@@ -10,7 +10,6 @@ sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
 max_freq = 5
-fs = 9
 c = cdir + "noiso/kappa-m101014.noiso.hdf5"
 s = sdir + "noiso/kappa-m101026.noiso.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
@@ -68,7 +67,7 @@ def project_eigenvec(edata):
         for j in range(0, datasize[2]):
             amp = 0
             for k in range(0, datasize[1]):
-                if k % 3 == 2  :
+                if k % 3 == 2:
                     amp += abs(edata[i, k, j])**2
             ampdata[i, j] = amp
     return(ampdata)
@@ -100,7 +99,8 @@ def parse_kpoints(qpfile, M):
     return(kpt)
 
 
-def band_by_band(omega, gamma, sqamp, kcoordx, kcoordz, phase, n, m,  markstyle):
+def band_by_band(omega, gamma, sqamp, kcoordx, kcoordz, phase, n, m,
+                 markstyle):
     freqs = []
     gammas = []
     sqamps = []
@@ -124,13 +124,15 @@ def band_by_band(omega, gamma, sqamp, kcoordx, kcoordz, phase, n, m,  markstyle)
     kx1 = np.array(kcdxs).ravel()
     kz1 = np.array(kcdzs).ravel()
     sc = ax[n, m*2].scatter(f1, kx1, c=s1, linewidth=0.01,
-                          s=18, label=phase, cmap='gnuplot', marker=markstyle)
+                            s=18, label=phase, cmap='gnuplot',
+                            marker=markstyle)
     ax[n, m*2].set_ylim(-0.10, 0.10)
     ax[n, m*2].set_title(phase)
     ax[n, m*2].set_xlabel('omega / THz')
     ax[n, m*2].set_ylabel('kx / Angs-1')
     sc = ax[n, 1 + m*2].scatter(f1, kz1, c=s1, linewidth=0.01,
-                          s=18, label=phase, cmap='gnuplot', marker=markstyle)
+                                s=18, label=phase, cmap='gnuplot',
+                                marker=markstyle)
     ax[n, 1 + m*2].set_ylim(-0.10, 0.10)
     ax[n, 1 + m*2].set_title(phase)
     ax[n, 1 + m*2].set_ylabel('kz / Angs-1')
