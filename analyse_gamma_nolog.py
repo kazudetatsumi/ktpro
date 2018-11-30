@@ -189,7 +189,7 @@ def caserun(casefile, vcasefile, n, phase):
 
 def run():
     plt.figure(figsize=(12, 9.73))
-    caserun(c, cv, 1, "alpha")
+    #caserun(c, cv, 1, "alpha")
     caserun(s, sv, 2, "beta")
     # caserun(g,gv,3,"gamma")
     plt.savefig("tst_plot.pdf")

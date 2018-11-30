@@ -11,9 +11,7 @@ gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
 max_freq = 5
 fs = 9
-# c = cdir + "noiso/kappa-m141416.noiso.hdf5"
 c = cdir + "noiso/kappa-m101014.noiso.hdf5"
-# s = sdir + "noiso/kappa-m141432.noiso.hdf5"
 s = sdir + "noiso/kappa-m101026.noiso.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
 cv = cdir + "qpoints.hdf5"
@@ -115,7 +113,6 @@ def select_mode(omega, gamma, sqamp, lamp):
     return(f1, g1, s1, l1)
 
 
-
 def band_by_band(omega, gamma, sqamp, lamp, phase, n, markstyle):
     freqs = []
     gammas = []
@@ -135,18 +132,22 @@ def band_by_band(omega, gamma, sqamp, lamp, phase, n, markstyle):
     g1 = np.array(gammas).ravel()
     s1 = np.array(sqamps).ravel()
     l1 = np.array(lamps).ravel()
-    ax[n, 0].scatter(f1, 1.0 / (4 * np.pi * g1), c=l1, linewidth=0.01, s=18,
-                     label=phase, cmap='magma', marker=markstyle)
+    sc = ax[n, 0].scatter(f1, 1.0 / (4 * np.pi * g1), c=l1, linewidth=0.01,
+                          s=18, label=phase, cmap='magma', marker=markstyle)
     ax[n, 0].set_ylim(0, 130)
-    ax[n, 0].set_yticks([0, 20, 40, 60, 80, 100, 120, 130])
+    ax[n, 0].set_yticks([0, 20, 40, 60, 80, 100, 120])
     ax[n, 0].set_xlim(0, 5)
     ax[n, 0].set_xticks([0, 1, 2, 3, 4, 5])
-    ax[n, 1].scatter(f1, 1.0 / (4 * np.pi * g1), c=s1, linewidth=0.01, s=18,
-                     label=phase, cmap='magma', marker=markstyle)
+    ax[n, 0].set_xlabel('omega / THz')
+    ax[n, 0].set_ylabel('tau')
+    sc.set_clim(0, 1.2)
+    sc = ax[n, 1].scatter(f1, 1.0 / (4 * np.pi * g1), c=s1, linewidth=0.01,
+                          s=18, label=phase, cmap='magma', marker=markstyle)
     ax[n, 1].set_ylim(0, 130)
-    ax[n, 1].set_yticks([0, 20, 40, 60, 80, 100, 120, 130])
+    ax[n, 1].set_yticks([0, 20, 40, 60, 80, 100, 120])
     ax[n, 1].set_xlim(0, 5)
     ax[n, 1].set_xticks([0, 1, 2, 3, 4, 5])
+    sc.set_clim(0, 1.2)
     if phase == "beta":
         n_up = 0
         n_dn = 0
@@ -158,6 +159,9 @@ def band_by_band(omega, gamma, sqamp, lamp, phase, n, markstyle):
                     n_dn += 1
         print "num of up states:", n_up
         print "num of dn states:", n_dn
+    if markstyle == "d":
+        cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+        fig.colorbar(sc, cax=cbar_ax)
 
 
 def caserun(casefile, vcasefile, n, phase):
@@ -210,11 +214,6 @@ def caserun(casefile, vcasefile, n, phase):
      #   print "num of up states:", n_up
      #   print "num of dn states:", n_dn
 
-    # plt.yscale("log")
-    #plt.ylim(0, 130)
-    #plt.yticks([0, 20, 40, 60, 80, 100, 120])
-    #plt.xlim(0, 5.0)
-    #plt.xticks([0, 1, 2, 3, 4, 5])
     #plt.xlabel('omega / THz')
     #plt.ylabel('tau')
     #plt.colorbar(label='sum of squares of eigenvector x_y_component')
