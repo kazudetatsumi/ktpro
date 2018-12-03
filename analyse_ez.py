@@ -25,10 +25,10 @@ plt.rcParams['font.size'] = 10
 plt.rcParams['axes.linewidth'] = 1
 plt.rcParams['ytick.major.width'] = 1
 plt.rcParams['ytick.major.size'] = 5
-fig, ax = plt.subplots(2, 6, figsize=(24, 8))
+fig, ax = plt.subplots(2, 8, figsize=(24, 8))
 
 
-def parse_gamma(filename, temp):
+def parse_modekappa(filename, temp):
     f = h5py.File(filename, 'r')
     temperature = f["temperature"].value
     i = 0
@@ -36,10 +36,10 @@ def parse_gamma(filename, temp):
         if t == temp:
             tindex = i
         i += 1
-    gamma_k = f["gamma"][tindex, ]
+    modekappa_k = f["mode_kappa"][tindex, :, :, :]
     omega_k = f["frequency"][:, :]
     qpoint_k = f["qpoint"][:]
-    return(omega_k, gamma_k, qpoint_k)
+    return(omega_k, modekappa_k, qpoint_k)
 
 
 def parse_eigenvec(filename):
@@ -92,79 +92,67 @@ def select_mode(omega, gamma, sqamp):
     return(f1, g1, s1)
 
 
-def parse_kpoints(qpfile, M):
-    f = h5py.File(qpfile)
-    qpt = f["qpoint"]
-    kpt = np.dot(qpt, np.transpose(np.linalg.inv((M))))
-    return(kpt)
-
-
-def band_by_band(omega, gamma, sqamp, kcoordx, kcoordz, phase, n, m,
-                 markstyle):
+def band_by_band(omega, sqamp, mkx, mkz, phase, n, m, markstyle):
     freqs = []
-    gammas = []
     sqamps = []
-    kcdxs = []
-    kcdzs = []
-    for f, g, s, kx, kz in zip(omega, gamma, sqamp, kcoordx, kcoordz):
+    mkxs = []
+    mkzs = []
+    for f, s, kx, kz in zip(omega, sqamp, mkx, mkz):
         condition = f < max_freq
         _f = np.extract(condition, f)
-        _g = np.extract(condition, g)
         _s = np.extract(condition, s)
         _kx = np.extract(condition, kx)
         _kz = np.extract(condition, kz)
         freqs += list(_f)
-        gammas += list(_g)
         sqamps += list(_s)
-        kcdxs += list(_kx)
-        kcdzs += list(_kz)
+        mkxs += list(_kx)
+        mkzs += list(_kz)
     f1 = np.array(freqs).ravel()
-    g1 = np.array(gammas).ravel()
     s1 = np.array(sqamps).ravel()
-    kx1 = np.array(kcdxs).ravel()
-    kz1 = np.array(kcdzs).ravel()
-    sc = ax[n, m*2].scatter(f1, kx1, c=s1, linewidth=0.01,
+    mkx1 = np.array(mkxs).ravel()
+    mkz1 = np.array(mkzs).ravel()
+    sc = ax[n, m*2].scatter(f1, mkx1, c=s1, linewidth=0.01,
                             s=18, label=phase, cmap='gnuplot',
                             marker=markstyle)
-    ax[n, m*2].set_ylim(-0.10, 0.10)
+    ax[n, m*2].set_ylim(0.0, 1.50)
     ax[n, m*2].set_title(phase)
     ax[n, m*2].set_xlabel('omega / THz')
-    ax[n, m*2].set_ylabel('kx / Angs-1')
-    sc = ax[n, 1 + m*2].scatter(f1, kz1, c=s1, linewidth=0.01,
+    ax[n, m*2].set_ylabel('kx / WmK-1')
+    sc = ax[n, 1 + m*2].scatter(f1, mkz1, c=s1, linewidth=0.01,
                                 s=18, label=phase, cmap='gnuplot',
                                 marker=markstyle)
-    ax[n, 1 + m*2].set_ylim(-0.10, 0.10)
+    ax[n, 1 + m*2].set_ylim(0., 1.50)
     ax[n, 1 + m*2].set_title(phase)
-    ax[n, 1 + m*2].set_ylabel('kz / Angs-1')
+    ax[n, 1 + m*2].set_ylabel('kz / WmK-1')
     if markstyle == "o":
         cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
         fig.colorbar(sc, cax=cbar_ax)
 
 
-def caserun(casefile, vcasefile, A, n, phase):
-    omegak, gammak, qpointk = parse_gamma(casefile, Temp)
+def caserun(casefile, vcasefile, n, phase):
+    omegak, modekappak, qpointk = parse_modekappa(casefile, Temp)
     omegaq, eigenvecq, qpointq = parse_eigenvec(vcasefile)
     check(omegak, omegaq)
     check(qpointk, qpointq)
-    kpt = parse_kpoints(vcasefile, A)
     sqamp = project_eigenvec(eigenvecq)
-    band_by_band(omegak[:, 0], gammak[:, 0], sqamp[:, 0], kpt[:, 0],
-                 kpt[:, 2], phase, n, 0, "o")
-    band_by_band(omegak[:, 1], gammak[:, 1], sqamp[:, 1], kpt[:, 0],
-                 kpt[:, 2], phase, n, 1, "v")
-    band_by_band(omegak[:, 2], gammak[:, 2], sqamp[:, 2], kpt[:, 0],
-                 kpt[:, 2], phase, n, 2, "d")
+    band_by_band(omegak[:, 0], sqamp[:, 0], modekappak[:, 0, 0],
+                 modekappak[:, 0, 2], phase, n, 0, "o")
+    band_by_band(omegak[:, 1], sqamp[:, 1], modekappak[:, 1, 0],
+                 modekappak[:, 1, 2], phase, n, 1, "v")
+    band_by_band(omegak[:, 2], sqamp[:, 2], modekappak[:, 2, 0],
+                 modekappak[:, 2, 2], phase, n, 2, "d")
+    rsize = omegak[:, 3:].shape
+    romega = np.reshape(omegak[:, 3:], (rsize[0]*rsize[1]))
+    rsqamp = np.reshape(sqamp[:, 3:], (rsize[0]*rsize[1]))
+    rmodekappakx = np.reshape(modekappak[:, 3:, 0], (rsize[0]*rsize[1]))
+    rmodekappakz = np.reshape(modekappak[:, 3:, 2], (rsize[0]*rsize[1]))
+    band_by_band(romega, rsqamp, rmodekappakx, rmodekappakz, phase, n, 3, "D")
 
 
 def run():
-    cA = np.array([[7.8079969443386954, 0.0000000000000000, 0.0000000000000001], [-3.9039984721693477, 6.7619237064685818, 0], [0, 0, 5.6590777347249741]])
-    sA = np.array([[7.6595137795552795, 0.0000000000000000, 0.0000000000000001], [-3.8297568897776397, 6.6333335137318326, 0], [0, 0, 2.9247116510287272]])
-    caserun(c, cv, cA, 0, "alpha")
-    caserun(s, sv, sA, 1, "beta")
+    caserun(c, cv, 0, "alpha")
+    caserun(s, sv, 1, "beta")
     plt.savefig("tst_plot.pdf")
 
 run()
-
-
-
 plt.show()
