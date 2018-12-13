@@ -54,6 +54,21 @@ def plot(lifetime, freqs, eigvecs):
     sc = ax.scatter(freqs + df, lifetime + dl, s=4, c=e_z2, cmap='PiYG')
     ax.set_xlim(0, 5)
     fig.colorbar(sc)
+    x = 0.1*np.arange(0, 51)
+    y = (-55*x + 515) / (2 * np.pi)
+    ax.plot(x, y)
+
+    #print e_z2.shape
+    #diff_lifetime = lifetime - (-55*freqs + 515) / (2 * np.pi)
+    #match = np.where(diff_lifetime > 0)
+    #match_qindx = match[0]
+    #match_pindx = match[1]
+    #counter = 0 
+    #for i, mq in enumerate(match_qindx):
+    #    if freqs[match_qindx[i], match_pindx[i]] < 5:
+    #        print qpoints_all[match_qindx[i]], match_pindx[i]
+    #        counter += 1
+    #print counter
 
 
 def plot_alpha():
@@ -97,10 +112,23 @@ def plot_beta():
     lifetime = get_lifetime_all(lifetime_ir, grid_mapping)
     plot(lifetime, freqs, eigvecs)
 
+    print eigvecs.shape
+    diff_lifetime = lifetime - (-55*freqs + 515) / (2 * np.pi)
+    match = np.where(diff_lifetime > 0)
+    match_qindx = match[0]
+    match_pindx = match[1]
+    counter = 0 
+    for i, mq in enumerate(match_qindx):
+        if freqs[match_qindx[i], match_pindx[i]] < 5:
+            print qpoints_all[match_qindx[i]], match_pindx[i]
+            counter += 1
+    print counter
+    
 
 def main():
-    plot_alpha()
+    plot_beta()
     plt.show()
+    
 
 
 if __name__ == '__main__':
