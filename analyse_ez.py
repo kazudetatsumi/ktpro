@@ -10,6 +10,7 @@ sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
 gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
 max_freq = 5
+min_sqamp = 0.1
 c = cdir + "noiso/kappa-m101014.noiso.hdf5"
 s = sdir + "noiso/kappa-m101026.noiso.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
@@ -73,26 +74,7 @@ def project_eigenvec(edata):
     return(ampdata)
 
 
-def select_mode(omega, gamma, sqamp):
-    freqs = []
-    gammas = []
-    sqamps = []
-    lamps = []
-    for f, g, s in zip(omega, gamma, sqamp):
-        condition = f < max_freq
-        _f = np.extract(condition, f)
-        _g = np.extract(condition, g)
-        _s = np.extract(condition, s)
-        freqs += list(_f)
-        gammas += list(_g)
-        sqamps += list(_s)
-    f1 = np.array(freqs).ravel()
-    g1 = np.array(gammas).ravel()
-    s1 = np.array(sqamps).ravel()
-    return(f1, g1, s1)
-
-
-def band_by_band(omega, sqamp, mkx, mkz, phase, n, m, markstyle):
+def select_mode(omega, sqamp, mkx, mkz):
     freqs = []
     sqamps = []
     mkxs = []
@@ -111,6 +93,39 @@ def band_by_band(omega, sqamp, mkx, mkz, phase, n, m, markstyle):
     s1 = np.array(sqamps).ravel()
     mkx1 = np.array(mkxs).ravel()
     mkz1 = np.array(mkzs).ravel()
+    return(f1, s1, mkx1, mkz1)
+
+
+def select_mode_with_large_ez(omega, sqamp, qx, qy, qz):
+    freqs = []
+    sqamps = []
+    qxs = []
+    qys = []
+    qzs = []
+    for f, s, x, y, z in zip(omega, sqamp, qx, qy, qz):
+        condition = s > min_sqamp
+        _f = np.extract(condition, f)
+        _s = np.extract(condition, s)
+        _x = np.extract(condition, x)
+        _y = np.extract(condition, y)
+        _z = np.extract(condition, z)
+        freqs += list(_f)
+        sqamps += list(_s)
+        qxs += list(_x)
+        qys += list(_y)
+        qzs += list(_z)
+    f1 = np.array(freqs).ravel()
+    s1 = np.array(sqamps).ravel()
+    qxs1 = np.array(qxs).ravel()
+    qys1 = np.array(qys).ravel()
+    qzs1 = np.array(qzs).ravel()
+    for f, s, x, y, z in zip(f1, s1, qxs1, qys1, qzs1):
+        print f, s, x, y, z
+    #return(f1, s1, qxs1, qys1, qzs1)
+
+
+def band_by_band(omega, sqamp, mkx, mkz, phase, n, m, markstyle):
+    f1, s1, mkx1, mkz1 = select_mode(omega, sqamp, mkx, mkz)
     sc = ax[n, m*2].scatter(f1, mkx1, c=s1, linewidth=0.01,
                             s=18, label=phase, cmap='gnuplot',
                             marker=markstyle)
@@ -135,6 +150,8 @@ def caserun(casefile, vcasefile, n, phase):
     check(omegak, omegaq)
     check(qpointk, qpointq)
     sqamp = project_eigenvec(eigenvecq)
+    print sqamp.shape, qpointq.shape
+    select_mode_with_large_ez(omegak[:, 0], sqamp[:, 0], qpointq[:, 0], qpointq[:, 1], qpointq[:, 2])
     band_by_band(omegak[:, 0], sqamp[:, 0], modekappak[:, 0, 0],
                  modekappak[:, 0, 2], phase, n, 0, "o")
     band_by_band(omegak[:, 1], sqamp[:, 1], modekappak[:, 1, 0],
