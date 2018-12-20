@@ -3,6 +3,7 @@
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def get_phonon_data(pre_dir):
@@ -70,6 +71,25 @@ def plot(lifetime, freqs, eigvecs):
     #        counter += 1
     #print counter
 
+def plotq(arr, arr2):
+
+    #fig, ax = plt.subplots()
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    df = np.random.rand(*(arr[:, 0].shape)) / 40
+    dl = np.random.rand(*(arr[:, 0].shape)) / 40
+    dv = np.random.rand(*(arr[:, 0].shape)) / 40
+    df2 = np.random.rand(*(arr2[:, 0].shape)) / 40
+    dl2 = np.random.rand(*(arr2[:, 0].shape)) / 40
+    dv2 = np.random.rand(*(arr2[:, 0].shape)) / 40
+
+    #sc = ax.scatter(arr[:, 1] + df, arr[:, 2] + dl, s=4 )
+    #sc = ax.scatter(arr2[:, 1] + df2, arr2[:, 2] + dl2, s=4 )
+    ax.scatter3D(arr[:, 0] + df, arr[:, 1] + dl, arr[:, 2] + dv, s=4)
+    ax.scatter3D(arr2[:, 0] + df2, arr2[:, 1] + dl2, arr2[:, 2] + dv2, s=4)
+    ax.set_xlabel('qx')
+    ax.set_ylabel('qy')
+    ax.set_zlabel('qz')
 
 def plot_alpha():
     pre_dir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
@@ -110,20 +130,28 @@ def plot_beta():
     g_ir = np.where(gamma_at_300K_ir > 0, gamma_at_300K_ir, -1)
     lifetime_ir = np.where(g_ir > 0, 1.0 / (2 * 2 * np.pi * g_ir), 0)
     lifetime = get_lifetime_all(lifetime_ir, grid_mapping)
-    plot(lifetime, freqs, eigvecs)
+    #plot(lifetime, freqs, eigvecs)
 
-    print eigvecs.shape
     diff_lifetime = lifetime - (-55*freqs + 515) / (2 * np.pi)
     match = np.where(diff_lifetime > 0)
     match_qindx = match[0]
     match_pindx = match[1]
-    counter = 0 
+    unmatch = np.where(diff_lifetime <= 0)
+    unmatch_qindx = unmatch[0]
+    unmatch_pindx = unmatch[1]
+    arr = np.empty((0, 3), float)
+    arr2 = np.empty((0, 3), float)
     for i, mq in enumerate(match_qindx):
         if freqs[match_qindx[i], match_pindx[i]] < 5:
             print qpoints_all[match_qindx[i]], match_pindx[i]
-            counter += 1
-    print counter
-    
+            arr = np.concatenate((arr, [qpoints_all[match_qindx[i]]]), axis=0)
+    for i, mq in enumerate(unmatch_qindx):
+        if freqs[unmatch_qindx[i], unmatch_pindx[i]] < 5:
+            arr2 = np.concatenate((arr2, [qpoints_all[unmatch_qindx[i]]]), axis=0)
+    print arr.shape
+    plotq(arr, arr2)
+    print eigvecs.shape
+    print freqs.shape
 
 def main():
     plot_beta()
