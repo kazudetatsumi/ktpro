@@ -11,8 +11,9 @@ def get_phonon_data(pre_dir):
     qpoints = f['qpoint'][:]
     freqs = f['frequency'][:]
     eigvecs = f['eigenvector'][:]
+    gvs = f['group_velocity'][:]
 
-    return qpoints, freqs, eigvecs
+    return qpoints, freqs, eigvecs, gvs
 
 
 def get_kappa_data(pre_dir, filename):
@@ -60,6 +61,22 @@ def plot(lifetime, freqs, eigvecs):
     ax.plot(x, y)
 
 
+def plotgv(gvs, freqs):
+    fig, ax = plt.subplots(2, 2)
+
+    df = np.random.rand(*(freqs.shape)) / 20
+    dl = np.random.rand(*(freqs.shape))
+    gv_mag = (np.abs(gvs) ** 2).sum(axis=2)
+    gv_z = np.abs(gvs[:, :, 2]) ** 2
+
+    sc = ax[0, 0].scatter(freqs + df, gv_z + dl, s=1)
+    ax[0, 0].set_xlim(0, 15)
+    ax[0, 0].set_ylim(0, 17000)
+    sc = ax[0, 1].scatter(freqs + df, gv_mag + dl, s=1)
+    ax[0, 1].set_xlim(0, 15)
+    ax[0, 1].set_ylim(0, 17000)
+
+
 def plotq(lifetime, freqs, qpoints_all, eigvecs):
     fig = plt.figure(figsize=(16, 6))
     for mindx in range(0, 3):
@@ -103,7 +120,7 @@ def plotq(lifetime, freqs, qpoints_all, eigvecs):
 
 def plot_alpha():
     pre_dir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
-    qpoints_all, freqs, eigvecs = get_phonon_data(pre_dir)
+    qpoints_all, freqs, eigvecs, gvs = get_phonon_data(pre_dir)
     f = h5py.File(pre_dir + "grid_address-m101014.hdf5", 'r')
     grid_mapping = f['grid_mapping_table'][:]
     gamma_ir, qpoints_ir = get_kappa_data(pre_dir,
@@ -113,7 +130,8 @@ def plot_alpha():
     g_ir = np.where(gamma_at_300K_ir > 0, gamma_at_300K_ir, -1)
     lifetime_ir = np.where(g_ir > 0, 1.0 / (2 * 2 * np.pi * g_ir), 0)
     lifetime = get_lifetime_all(lifetime_ir, grid_mapping)
-    plot(lifetime, freqs, eigvecs)
+    #plot(lifetime, freqs, eigvecs)
+    plotgv(gvs, freqs)
 
 
 def get_lifetime_all(lifetime_ir, grid_mapping):
@@ -165,7 +183,7 @@ def get_mode(lifetime, freqs, qpoints_all, eigvecs, mindx):
 
 def plot_beta():
     pre_dir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
-    qpoints_all, freqs, eigvecs = get_phonon_data(pre_dir)
+    qpoints_all, freqs, eigvecs, gvs = get_phonon_data(pre_dir)
     f = h5py.File(pre_dir + "grid_address-m101026.hdf5", 'r')
     grid_mapping = f['grid_mapping_table'][:]
     gamma_ir, qpoints_ir = get_kappa_data(pre_dir,
@@ -175,11 +193,12 @@ def plot_beta():
     g_ir = np.where(gamma_at_300K_ir > 0, gamma_at_300K_ir, -1)
     lifetime_ir = np.where(g_ir > 0, 1.0 / (2 * 2 * np.pi * g_ir), 0)
     lifetime = get_lifetime_all(lifetime_ir, grid_mapping)
-    plot(lifetime, freqs, eigvecs)
-    plotq(lifetime, freqs, qpoints_all, eigvecs)
+    #plot(lifetime, freqs)
+    plotgv(gvs, freqs)
 
 
 def main():
+    plot_alpha()
     plot_beta()
     plt.show()
 
