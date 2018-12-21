@@ -53,43 +53,53 @@ def plot(lifetime, freqs, eigvecs):
     dl = np.random.rand(*(freqs.shape))
 
     sc = ax.scatter(freqs + df, lifetime + dl, s=4, c=e_z2, cmap='PiYG')
-    ax.set_xlim(0, 5)
+    ax.set_xlim(0, 35)
     fig.colorbar(sc)
     x = 0.1*np.arange(0, 51)
     y = (-55*x + 515) / (2 * np.pi)
     ax.plot(x, y)
 
-    #print e_z2.shape
-    #diff_lifetime = lifetime - (-55*freqs + 515) / (2 * np.pi)
-    #match = np.where(diff_lifetime > 0)
-    #match_qindx = match[0]
-    #match_pindx = match[1]
-    #counter = 0 
-    #for i, mq in enumerate(match_qindx):
-    #    if freqs[match_qindx[i], match_pindx[i]] < 5:
-    #        print qpoints_all[match_qindx[i]], match_pindx[i]
-    #        counter += 1
-    #print counter
 
-def plotq(arr, arr2):
+def plotq(lifetime, freqs, qpoints_all, eigvecs):
+    fig = plt.figure(figsize=(16, 6))
+    for mindx in range(0, 3):
+        arr, arr2, earr, earr2 = get_mode(lifetime, freqs, qpoints_all, eigvecs, mindx)
 
-    #fig, ax = plt.subplots()
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    df = np.random.rand(*(arr[:, 0].shape)) / 40
-    dl = np.random.rand(*(arr[:, 0].shape)) / 40
-    dv = np.random.rand(*(arr[:, 0].shape)) / 40
-    df2 = np.random.rand(*(arr2[:, 0].shape)) / 40
-    dl2 = np.random.rand(*(arr2[:, 0].shape)) / 40
-    dv2 = np.random.rand(*(arr2[:, 0].shape)) / 40
+        natom = earr.shape[1] // 3
+        idx = [3 * i for i in range(natom)]
+        e_z = earr[:, idx]
+        e2_z = earr2[:, idx]
+        e_z2 = (np.abs(e_z) ** 2).sum(axis=1)
+        e2_z2 = (np.abs(e2_z) ** 2).sum(axis=1)
 
-    #sc = ax.scatter(arr[:, 1] + df, arr[:, 2] + dl, s=4 )
-    #sc = ax.scatter(arr2[:, 1] + df2, arr2[:, 2] + dl2, s=4 )
-    ax.scatter3D(arr[:, 0] + df, arr[:, 1] + dl, arr[:, 2] + dv, s=4)
-    ax.scatter3D(arr2[:, 0] + df2, arr2[:, 1] + dl2, arr2[:, 2] + dv2, s=4)
-    ax.set_xlabel('qx')
-    ax.set_ylabel('qy')
-    ax.set_zlabel('qz')
+        ax = fig.add_subplot(2, 3, mindx + 1, projection='3d')
+        ax2 = fig.add_subplot(2, 3, mindx + 4, projection='3d')
+        #df = np.random.uniform(-1, 1, (arr[:, 0].shape)) / 80
+        #dl = np.random.uniform(-1, 1, (arr[:, 0].shape)) / 80
+        #dv = np.random.uniform(-1, 1, (arr[:, 0].shape)) / 80
+        #df2 = np.random.uniform(-1, 1, (arr2[:, 0].shape)) / 80
+        #dl2 = np.random.uniform(-1, 1, (arr2[:, 0].shape)) / 80
+        #dv2 = np.random.uniform(-1, 1, (arr2[:, 0].shape)) / 80
+
+        #ax.scatter3D(arr[:, 0] + df, arr[:, 1] + dl, arr[:, 2] + dv, c=e_z2, cmap='PiYG', s=4)
+        #ax2.scatter3D(arr2[:, 0] + df2, arr2[:, 1] + dl2, arr2[:, 2] + dv2, c=e2_z2, cmap='PiYG',  s=4)
+        #ax.scatter3D(arr[:, 0], arr[:, 1], arr[:, 2], c=e_z2, cmap='PiYG', s=4)
+        p=ax.scatter3D(arr2[:, 0], arr2[:, 1], arr2[:, 2], c=e2_z2, cmap='PiYG', s=4)
+        p2 = ax2.scatter3D(arr[:, 0], arr[:, 1], arr[:, 2], c=e_z2, cmap='PiYG', s=4)
+        ax.view_init(azim=0, elev=0)
+        ax2.view_init(azim=0, elev=0)
+        ax.set_xlabel('qx')
+        ax.set_ylabel('qy')
+        ax.set_zlabel('qz')
+        ax.set_zlim(-0.50, 0.50)
+        ax2.set_zlim(-0.50, 0.50)
+        ax.set_xlim(-0.6, 0.6)
+        ax2.set_xlim(-0.6, 0.6)
+        ax.set_ylim(-0.6, 0.6)
+        ax2.set_ylim(-0.6, 0.6)
+        fig.colorbar(p2, ax=ax2)
+        fig.colorbar(p, ax=ax)
+
 
 def plot_alpha():
     pre_dir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
@@ -118,6 +128,41 @@ def get_lifetime_all(lifetime_ir, grid_mapping):
     return lifetime
 
 
+def get_mode(lifetime, freqs, qpoints_all, eigvecs, mindx):
+    diff_lifetime = lifetime - (-55*freqs + 515) / (2 * np.pi)
+    match = np.where(diff_lifetime > 0)
+    match_qindx = match[0]
+    match_pindx = match[1]
+    unmatch = np.where(diff_lifetime <= 0)
+    unmatch_qindx = unmatch[0]
+    unmatch_pindx = unmatch[1]
+    #idx = [3 * i for i in range(natom)]
+    #e_z = eigvecs[:, idx, :]
+    #e_z2 = (np.abs(e_z) ** 2).sum(axis=1)
+    
+    #match = np.where(e_z2 < 0.1)
+    #match_qindx = match[0]
+    #match_pindx = match[1]
+    #unmatch = np.where(e_z2 >= 0.1)
+    #unmatch_qindx = unmatch[0]
+    #unmatch_pindx = unmatch[1]
+
+    arr = np.empty((0, 3), float)
+    arr2 = np.empty((0, 3), float)
+    earr = np.empty((0, 42), float)
+    earr2 = np.empty((0, 42), float)
+    for i, mq in enumerate(match_qindx):
+        if freqs[match_qindx[i], match_pindx[i]] < 15 and match_pindx[i] == mindx:
+            #print qpoints_all[match_qindx[i]], match_pindx[i]
+            arr = np.concatenate((arr, [qpoints_all[match_qindx[i]]]), axis=0)
+            earr = np.concatenate((earr, [eigvecs[match_qindx[i], :, match_pindx[i]]]), axis=0)
+    for i, mq in enumerate(unmatch_qindx):
+        if freqs[unmatch_qindx[i], unmatch_pindx[i]] < 15 and unmatch_pindx[i] == mindx:
+            arr2 = np.concatenate((arr2, [qpoints_all[unmatch_qindx[i]]]), axis=0)
+            earr2 = np.concatenate((earr2, [eigvecs[unmatch_qindx[i], :, unmatch_pindx[i]]]), axis=0)
+    return arr, arr2, earr, earr2
+
+
 def plot_beta():
     pre_dir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
     qpoints_all, freqs, eigvecs = get_phonon_data(pre_dir)
@@ -130,33 +175,13 @@ def plot_beta():
     g_ir = np.where(gamma_at_300K_ir > 0, gamma_at_300K_ir, -1)
     lifetime_ir = np.where(g_ir > 0, 1.0 / (2 * 2 * np.pi * g_ir), 0)
     lifetime = get_lifetime_all(lifetime_ir, grid_mapping)
-    #plot(lifetime, freqs, eigvecs)
+    plot(lifetime, freqs, eigvecs)
+    plotq(lifetime, freqs, qpoints_all, eigvecs)
 
-    diff_lifetime = lifetime - (-55*freqs + 515) / (2 * np.pi)
-    match = np.where(diff_lifetime > 0)
-    match_qindx = match[0]
-    match_pindx = match[1]
-    unmatch = np.where(diff_lifetime <= 0)
-    unmatch_qindx = unmatch[0]
-    unmatch_pindx = unmatch[1]
-    arr = np.empty((0, 3), float)
-    arr2 = np.empty((0, 3), float)
-    for i, mq in enumerate(match_qindx):
-        if freqs[match_qindx[i], match_pindx[i]] < 5:
-            print qpoints_all[match_qindx[i]], match_pindx[i]
-            arr = np.concatenate((arr, [qpoints_all[match_qindx[i]]]), axis=0)
-    for i, mq in enumerate(unmatch_qindx):
-        if freqs[unmatch_qindx[i], unmatch_pindx[i]] < 5:
-            arr2 = np.concatenate((arr2, [qpoints_all[unmatch_qindx[i]]]), axis=0)
-    print arr.shape
-    plotq(arr, arr2)
-    print eigvecs.shape
-    print freqs.shape
 
 def main():
     plot_beta()
     plt.show()
-    
 
 
 if __name__ == '__main__':

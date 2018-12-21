@@ -98,20 +98,23 @@ def project_eigenvec(edata):
     return(ampdata)
 
 
-def trans(qpoint, edata):
+def trans(qpoint, edata, M):
     datasize = edata.shape
     longidata = np.zeros((datasize[0], datasize[2]))
+    cqpoint = np.dot(qpoint, np.transpose(np.linalg.inv((M))))
+    #for q, cq in zip(qpoint, cqpoint):
+    #    print "q=", q, "cq=", cq
     for i in range(0, datasize[0]):
-        norm = (qpoint[i, 0]**2 + qpoint[i, 1]**2 + qpoint[i, 2]**2)**0.5
+        norm = (cqpoint[i, 0]**2 + cqpoint[i, 1]**2 + cqpoint[i, 2]**2)**0.5
         if norm > 0:
             for j in range(0, datasize[2]):
                 longi = 0
                 for k in range(0, datasize[1]):
                     if k % 3 == 0:
-                        longi += (abs(edata[i, k, j]*qpoint[i, 0] +
-                                  edata[i, k + 1, j] * qpoint[i, 1] +
-                                  edata[i, k + 2, j] * qpoint[i, 2])/norm)**2
-                longidata[i, j] = longi
+                        longi += (abs(edata[i, k, j]*cqpoint[i, 0] +
+                                  edata[i, k + 1, j] * cqpoint[i, 1] +
+                                  edata[i, k + 2, j] * cqpoint[i, 2])/norm)**2
+                longidata[i, j] = 1 - longi
     return(longidata)
 
 
@@ -137,19 +140,19 @@ def select_mode(omega, gamma, sqamp, lamp):
     return(f1, g1, s1, l1)
 
 
-def caserun(casefile, vcasefile, n, phase):
+def caserun(casefile, vcasefile, n, phase, A):
     omegak, gammak, qpointk = parse_gamma(casefile, Temp)
     omegaq, eigenvecq, qpointq = parse_eigenvec(vcasefile)
     check(omegak, omegaq)
     check(qpointk, qpointq)
     sqamp = project_eigenvec(eigenvecq)
-    longiamp = trans(qpointq, eigenvecq)
+    longiamp = trans(qpointq, eigenvecq, A)
     omega1d, gamma1d, sqamp1d, longiamp1d = select_mode(omegak, gammak, sqamp,
                                                         longiamp)
     plt.subplot(2, 2, n)
     plt.scatter(omega1d, 1.0 / (4 * np.pi * gamma1d), c=longiamp1d,
                 linewidth=0.01, s=5,
-                label=phase, cmap='magma')
+                label=phase, cmap='PiYG')
     plt.tick_params(which='both', tickdir='in')
     plt.ylim(0, 110)
     plt.yticks([0, 20, 40, 60, 80, 100])
@@ -188,9 +191,11 @@ def caserun(casefile, vcasefile, n, phase):
 
 
 def run():
+    cA = np.array([[7.8079969443386954, 0.0000000000000000, 0.0000000000000001], [-3.9039984721693477, 6.7619237064685818, 0], [0, 0, 5.6590777347249741]])
+    sA = np.array([[7.6595137795552795, 0.0000000000000000, 0.0000000000000001], [-3.8297568897776397, 6.6333335137318326, 0], [0, 0, 2.9247116510287272]])
     plt.figure(figsize=(12, 9.73))
     #caserun(c, cv, 1, "alpha")
-    caserun(s, sv, 2, "beta")
+    caserun(s, sv, 2, "beta", sA)
     # caserun(g,gv,3,"gamma")
     plt.savefig("tst_plot.pdf")
 
