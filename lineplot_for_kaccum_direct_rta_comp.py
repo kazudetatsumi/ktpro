@@ -30,24 +30,28 @@ def parse_kaccum(filename):
 
 
 def eachplot(sn, comp, omegar,  dkaccumr,  omegad, dkaccumd, max_freq, st1, st2, w1, w2):
-    plt.subplot(2, 1, sn, aspect=0.3)
+    #plt.subplot(2, 1, sn, aspect=0.3)
+    plt.subplot(2, 1, sn)
     #plt.subplot(2, 1, sn, aspect=0.45)
     plt.subplots_adjust(hspace=0, wspace=0)
-    plt.plot(omegar, dkaccumr, label=comp + "_rta", linestyle='-', color='gray', linewidth=w1)
-    plt.subplots_adjust(hspace=0, wspace=0)
+    plt.plot(omegad, dkaccumd, label=comp + "_rta", linestyle='-', color='k', linewidth=w1)
     #ax[sn].plot(omegad, dkaccumd)
     #ax[1, 1].fill(omegar, dkaccumr, facecolor='lightgray', linewidth=0.1)
     #plt.plot(omegad, dkaccumd, label=comp + "_direct", linestyle='-', color='k', linewidth=w2)
-    #plt.fill(omegar, dkaccumr, facecolor='lightgray', linewidth=0.1)
+    plt.fill(omegar, dkaccumr, facecolor='gray', linewidth=w2)
     #plt.xlim(0, max_freq)
     #ax[sn].set_ylim(0, 35)
     #ax[sn].set_xticks([0, 5, 10, 15, 20, 25, 30])
     #fig.subplots_adjust(hspace=0, wspace=0)
+    plt.xlim(0, max_freq)
     if sn == 2:
        plt.ylim(0, 15)
        plt.yticks([0, 10])
     else:
+       x = range(0, max_freq, 5)
+       plt.xticks(x, " ")
        plt.ylim(0, 35)
+       plt.yticks(range(0, 35, 10))
     #   ax[sn].set_yticks([0, 10, 20 ,30 ])
     #   ax[sn].set_aspect(0.35)
 
@@ -62,12 +66,12 @@ def run():
 
     omegas, kaccums, dkaccums = parse_kaccum(gs)
     omegasd, kaccumsd, dkaccumsd = parse_kaccum(gsd)
-    plt.figure(figsize=(4.5, 2))
+    plt.figure(figsize=(4.5, 2.5))
     plt.rcParams['pdf.fonttype'] = 42
     plt.rcParams['ps.fonttype'] = 42
 
-    eachplot(1, "zz", omegas, dkaccums[:, 2], omegasd, dkaccumsd[:, 2], max_freq, (0, (1.7, 1.7)), (0, (6, 1, 1, 1)), 0.5, 0.5)
-    eachplot(2, "xx", omegas, dkaccums[:, 0], omegasd, dkaccumsd[:, 0], max_freq, (0, ()), (0, (5, 2)), 0.5, 0.8)
+    eachplot(1, "zz", omegas, dkaccums[:, 2], omegasd, dkaccumsd[:, 2], max_freq, (0, (1.7, 1.7)), (0, (6, 1, 1, 1)), 1.0, 0.0)
+    eachplot(2, "xx", omegas, dkaccums[:, 0], omegasd, dkaccumsd[:, 0], max_freq, (0, ()), (0, (5, 2)), 1.0, 0.0)
     #plt.subplots_adjust(hspace=0, wspace=0)
 
 
