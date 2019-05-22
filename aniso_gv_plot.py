@@ -113,7 +113,7 @@ def run():
     c = cdir + "/mesh.hdf5"
     s = sdir + "/mesh.hdf5"
 
-    qp, aniso_ave, omega = parse_mesh(s, max_freq)
+    qp, aniso_ave, omega = parse_mesh(c, max_freq)
     qx1, qz1, aniso_ave1 = select_slice(qp, aniso_ave, y_s)
     #qx1, qz1, aniso_ave1 = select_slice(qp, omega, y_s)
 
@@ -121,12 +121,12 @@ def run():
     fig = plt.figure(figsize=(12, 12))
     #cf = plt.pcolor(X, Y, Z, vmin=0, vmax=10, cmap=cm.rainbow)
     #cf = plt.pcolor(X, Y, Z, vmin=0, vmax=1, cmap=cm.rainbow)
-    cf = plt.pcolor(X, Y, Z,  vmin=0, vmax=600,  cmap=cm.rainbow)
+    cf = plt.pcolor(X, Y, Z,  vmin=0, vmax=700,  cmap=cm.rainbow)
     plt.colorbar(cf)
     #cont = plt.contour(X, Y, Z, levels=np.arange(1,10))
     #cont.clabel(fmt='%2.0f', fontsize=14)
-    plt.show()
-    #plt.savefig("tst.png")
+    #plt.show()
+    plt.savefig("tst.png")
     #print anisos1.shape
     #print np.average(anisos1,axis=0)
 
