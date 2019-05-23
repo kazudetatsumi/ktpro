@@ -118,6 +118,7 @@ def run():
     #qx1, qz1, aniso_ave1 = select_slice(qp, omega, y_s)
 
     X, Y, Z = getXYZ(qx1, qz1, aniso_ave1)
+    print Z.shape
     fig = plt.figure(figsize=(12, 12))
     #cf = plt.pcolor(X, Y, Z, vmin=0, vmax=10, cmap=cm.rainbow)
     #cf = plt.pcolor(X, Y, Z, vmin=0, vmax=1, cmap=cm.rainbow)
