@@ -5,7 +5,7 @@ import numpy as np
 from mayavi import mlab
 
 x, y, z = np.ogrid[-10:10:20j, -10:10:20j, -10:10:20j]
-print x
+print x.shape
 s = np.sin(x*y*z)/(x*y*z)
 print s.shape
 
