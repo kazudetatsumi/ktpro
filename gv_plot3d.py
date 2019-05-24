@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# plot the anisotropic information of group velocities on a reciplocal plane.
+# extract the reciplocal distribution of group velocities on a reciplocal plane.
 # Written by Kazuyoshi TATSUMI
 import numpy as np
 import h5py
@@ -16,6 +16,7 @@ def parse_mesh(filename,  max_freq):
     gv = f["group_velocity"]
     #aniso = gv[:, :, 2]**2 / (gv[:, :, 0]**2 + gv[:, :, 1]**2 + gv[:, :, 2]**2)
     #aniso = ((gv[:, :, 0])**2 + (gv[:, :, 1])**2)**0.5
+    #aniso = gv[:, :, 2]**2
     aniso = abs(gv[:, :, 2])
     omega = f["frequency"][:, :]
     qp = f["qpoint"][:, :]
@@ -40,49 +41,57 @@ def parse_mesh(filename,  max_freq):
 
 
 
-def getXYZD(qx, qy, qz, ani):
+def getXYZD(qx, qy, qz, ani, n):
     #x = qx*0.1306
     #y = qz*0.342
-    xlin = np.linspace(min(qx), max(qx), 10)
-    ylin = np.linspace(min(qy), max(qy), 10)
-    zlin = np.linspace(min(qz), max(qz), 20)
+    xlin = np.linspace(min(qx), max(qx), n[0])
+    ylin = np.linspace(min(qy), max(qy), n[1])
+    zlin = np.linspace(min(qz), max(qz), n[2])
     X, Y, Z = np.meshgrid(xlin, ylin, zlin)
     D = griddata((qx, qy, qz), ani, (X, Y, Z), method='linear')
 
-    return X, Y, Z, D
+    D2 = np.transpose(D, (2, 1, 0))             # The output format is adjusted to the CHGCAR file.
+    D3 = D2.reshape(n[0]*n[1]*n[2] / 5, 5)      # The transposing is nescessary for it. 
+    return X, Y, Z, D3
 
 
 def run():
     cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift"
     sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
     max_freq = 15
+    cn = np.array([20, 20, 28])
+    sn = np.array([20, 20, 52])
+    crlat = np.array([[0.128074059, 0.073943593, 0.000000000],[0.000000000,  0.147887185,  0.000000000],[0.000000000, 0.000000000, 0.1767063800]])
+    srlat = np.array([[0.130517175, 0.075354126, 0.000000000],[0.000000000, 0.150708252, 0.00000000000],[0.000000000, 0.000000000, 0.3417394180]])
+    #cdlat = np.array([[7.807982394, 0.000000000, 0.000000000],[-3.903991197, 6.761911106, 0.0000000000],[0.000000000, 0.000000000, 5.6591052420]])
+    #print 1/np.linalg.det(crlat)
+    #print 1/np.linalg.det(cdlat)
     y_s = 0.0
     c = cdir + "/mesh.hdf5"
     s = sdir + "/mesh.hdf5"
 
-    qp, aniso_ave, omega = parse_mesh(c, max_freq)
+    qp, aniso_ave, omega = parse_mesh(s, max_freq)
     print qp[:,0].shape
     print qp[:,1].shape
     print qp[:,2].shape
     print aniso_ave.shape
-    X, Y, Z, D = getXYZD(qp[:,0], qp[:,1], qp[:,2], aniso_ave)
+    X, Y, Z, D3 = getXYZD(qp[:,0], qp[:,1], qp[:,2], aniso_ave, sn)
     print X.shape
     print Y.shape
     print Z.shape
-    print D.shape
-    cc = 0
-    tmp = ""
-    for xx in range(D.shape[0]):
-        for yy in range(D.shape[1]):
-            for zz in range(D.shape[2]):
-                tmp = tmp+" "+str(D[xx, yy, zz])
-                cc += 1
-                if cc % 5 == 0:
-                    cc = 0
-                    print tmp
-                    tmp = ""
-    D2 = D.reshape(400,5)
-    np.savetxt("array.txt", D2, fmt="%f")
+    print D3.shape
+    #cc = 0
+    #tmp = ""
+    #for xx in range(D.shape[0]):
+    #    for yy in range(D.shape[1]):
+    #        for zz in range(D.shape[2]):
+    #            tmp = tmp+" "+str(D[xx, yy, zz])
+    #            cc += 1
+    #            if cc % 5 == 0:
+    #                cc = 0
+    #                print tmp
+    #                tmp = ""
+    np.savetxt("array.txt", D3 * np.linalg.det(srlat), fmt="%17.11e")  #
 
 
     #print Z.shape

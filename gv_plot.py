@@ -113,7 +113,7 @@ def run():
     c = cdir + "/mesh.hdf5"
     s = sdir + "/mesh.hdf5"
 
-    qp, aniso_ave, omega = parse_mesh(c, max_freq)
+    qp, aniso_ave, omega = parse_mesh(s, max_freq)
     qx1, qz1, aniso_ave1 = select_slice(qp, aniso_ave, y_s)
     #qx1, qz1, aniso_ave1 = select_slice(qp, omega, y_s)
 
