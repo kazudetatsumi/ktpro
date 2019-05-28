@@ -49,23 +49,36 @@ def getXYZD(qx, qy, qz, ani, n):
     zlin = np.linspace(min(qz), max(qz), n[2])
     X, Y, Z = np.meshgrid(xlin, ylin, zlin)
     D = griddata((qx, qy, qz), ani, (X, Y, Z), method='linear')
-    print D.shape, "D_shape"
-    for xx in range(D.shape[0]):
-        for yy in range(D.shape[1]):
-            for zz in range(D.shape[2]):
-                if zz > D.shape[2]/4 and zz < D.shape[2]/2:
-                    print zz, D.shape[2]/2 - zz -1
-                    D[xx, yy, D.shape[2]/2 - zz -1] += D[xx, yy, zz]
-                #if zz == D.shape[2]/4 -1:
-                #    print zz, "ZZ_orikaeshi"
-                #    D[xx, yy, zz] += D[xx, yy, zz]
+    #print D.shape, "D_shape"
+    #for xx in range(D.shape[0]):
+    #    for yy in range(D.shape[1]):
+    #        for zz in range(D.shape[2]):
+    #            if zz >= D.shape[2]/4 and zz < D.shape[2]/2:
+    #                print zz, D.shape[2]/2 - zz -2
+    #                D[xx, yy, D.shape[2]/2 - zz -2] += D[xx, yy, zz]
+    #            if zz == D.shape[2]/4 -1:
+    #            #    print zz, "ZZ_orikaeshi"
+    #                D[xx, yy, zz] += D[xx, yy, zz]
 
-    _D = D[:, :, 0:D.shape[2]/4]
-    print _D.shape, "_D.shape"
+    #_D = D[:, :, 0:D.shape[2]/4]
+    #print _D.shape, "_D.shape"
 
-    D2 = np.transpose(_D, (2, 1, 0))             # The output format is adjusted to the CHGCAR file.
-    D3 = D2.reshape(n[0]*n[1]*n[2]/4 / 5, 5)      # The transposing is nescessary for it. 
+    D2 = np.transpose(D, (2, 1, 0))             # The output format is adjusted to the CHGCAR file.
+    D3 = D2.reshape(n[0]*n[1]*n[2] / 5, 5)      # The transposing is nescessary for it. 
     return X, Y, Z, D3
+
+
+def double(qp, aniso_ave):
+    dim = qp.shape
+    qp_doubled = np.zeros(dim[0]*2, dim[1])
+    aniso_ave_doubled = np.zeros(dim[0]*2)
+    qp_doubleed[0:dim[0], :] = qp
+    aniso_ave_doubled[0:dim[0]] = aniso_ave
+    for i in range(0, dim[0]):
+        qp_doubled[dim[0]+i, :] = qp[i, :]
+        qp_doubled[dim[0]+i, 2] = qp[i, 2]*(-1)
+        aniso_ave_doubled[dim[0]+i] = aniso_ave
+    return qp_double, aniso_ave_doubled
 
 
 def run():
@@ -73,7 +86,7 @@ def run():
     sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
     max_freq = 15
     cn = np.array([20, 20, 28])
-    sn = np.array([20, 20, 52])
+    sn = np.array([20, 20, 48])
     crlat = np.array([[0.128074059, 0.073943593, 0.000000000],[0.000000000,  0.147887185,  0.000000000],[0.000000000, 0.000000000, 0.1767063800]])
     srlat = np.array([[0.130517175, 0.075354126, 0.000000000],[0.000000000, 0.150708252, 0.00000000000],[0.000000000, 0.000000000, 0.3417394180]])
     #cdlat = np.array([[7.807982394, 0.000000000, 0.000000000],[-3.903991197, 6.761911106, 0.0000000000],[0.000000000, 0.000000000, 5.6591052420]])
@@ -84,6 +97,7 @@ def run():
     s = sdir + "/mesh.hdf5"
 
     qp, aniso_ave, omega = parse_mesh(s, max_freq)
+    qp_ex, aniso_ave_ex = double(qp, aniso_ave)
     print qp[:,0].shape
     print qp[:,1].shape
     print qp[:,2].shape 
