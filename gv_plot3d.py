@@ -15,9 +15,9 @@ def parse_mesh(filename,  max_freq):
     f = h5py.File(filename, 'r')
     gv = f["group_velocity"]
     #aniso = gv[:, :, 2]**2 / (gv[:, :, 0]**2 + gv[:, :, 1]**2 + gv[:, :, 2]**2)
-    #aniso = ((gv[:, :, 0])**2 + (gv[:, :, 1])**2)**0.5
+    aniso = ((gv[:, :, 0])**2 + (gv[:, :, 1])**2)**0.5
     #aniso = gv[:, :, 2]**2
-    aniso = abs(gv[:, :, 2])
+    #aniso = abs(gv[:, :, 2])
     omega = f["frequency"][:, :]
     qp = f["qpoint"][:, :]
     qp[qp < 0] += 1
@@ -42,8 +42,6 @@ def parse_mesh(filename,  max_freq):
 
 
 def getXYZD(qx, qy, qz, ani, n):
-    #x = qx*0.1306
-    #y = qz*0.342
     xlin = np.linspace(min(qx), max(qx), n[0])
     ylin = np.linspace(min(qy), max(qy), n[1])
     zlin = np.linspace(min(qz), max(qz), n[2])
@@ -58,24 +56,28 @@ def getXYZD(qx, qy, qz, ani, n):
 def run():
     cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift"
     sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
+    ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334"
     max_freq = 15
     cn = np.array([20, 20, 28])
     sn = np.array([20, 20, 52])
+    ssn = np.array([20, 20, 28])
     crlat = np.array([[0.128074059, 0.073943593, 0.000000000],[0.000000000,  0.147887185,  0.000000000],[0.000000000, 0.000000000, 0.1767063800]])
     srlat = np.array([[0.130517175, 0.075354126, 0.000000000],[0.000000000, 0.150708252, 0.00000000000],[0.000000000, 0.000000000, 0.3417394180]])
+    ssrlat = np.array([[0.130556943, 0.075377086, 0.000000000],[0.000000000, 0.150754172, 0.00000000000],[0.000000000, 0.000000000, 0.1709573530]])
     #cdlat = np.array([[7.807982394, 0.000000000, 0.000000000],[-3.903991197, 6.761911106, 0.0000000000],[0.000000000, 0.000000000, 5.6591052420]])
     #print 1/np.linalg.det(crlat)
     #print 1/np.linalg.det(cdlat)
     y_s = 0.0
     c = cdir + "/mesh.hdf5"
     s = sdir + "/mesh.hdf5"
+    ss = ssdir + "/mesh.hdf5"
 
-    qp, aniso_ave, omega = parse_mesh(s, max_freq)
+    qp, aniso_ave, omega = parse_mesh(c, max_freq)
     print qp[:,0].shape
     print qp[:,1].shape
     print qp[:,2].shape
     print aniso_ave.shape
-    X, Y, Z, D3 = getXYZD(qp[:,0], qp[:,1], qp[:,2], aniso_ave, sn)
+    X, Y, Z, D3 = getXYZD(qp[:,0], qp[:,1], qp[:,2], aniso_ave, cn)
     print X.shape
     print Y.shape
     print Z.shape
@@ -91,7 +93,7 @@ def run():
     #                cc = 0
     #                print tmp
     #                tmp = ""
-    np.savetxt("array.txt", D3 * np.linalg.det(srlat), fmt="%17.11e")  #
+    np.savetxt("array.txt", D3 * np.linalg.det(crlat), fmt="%17.11e")  #
 
 
     #print Z.shape
