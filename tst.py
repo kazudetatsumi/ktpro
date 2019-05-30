@@ -1,83 +1,117 @@
 #!/usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
-import h5py
-from scipy import stats
-from matplotlib import rc
-plt.style.use('classic')
-plt.rcParams['font.family'] = 'Times New Roman'
-homedir = "/home/kazu/"
-cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
-sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
-gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
-Temp = 300
-nbins = 300
-numr = 7
-max_freq = 33
-fs = 9
-gc = cdir + 'noiso/kaccum_m101014.dat'
-gs = cdir + 'noiso/kaccum_v1129.dat'
-#gs = sdir + 'noiso/kaccum_m101026.dat'
-gg = gdir + 'noiso/kaccum.dat'
-cv=298.78
-sv=143.78
-gv=472.14
 
 
-def parse_kaccum(filename):
-    data = []
-    count = 0 
-    with open(filename) as f:
-        for line in f:
-            if line[0] == '#':
-                values = line.split()
-                if float(values[1]) == Temp:
-                    break
-                count += 1
+def highResPoints(x, y, factor=10):
+    '''
+    Take points listed in two vectors and return them at a higher
+    resultion. Create at least factor*len(x) new points that include the
+    original points and those spaced in between.
 
-        for line in f:
-            if line[0] == '#':
+    Returns new x and y arrays as a tuple (x,y).
+    '''
+
+    # r is the distance spanned between pairs of points
+    r = [0]
+    for i in range(1, len(x)):
+        dx = x[i]-x[i-1]
+        dy = y[i]-y[i-1]
+        r.append(np.sqrt(dx*dx+dy*dy))
+    r = np.array(r)
+
+    # rtot is a cumulative sum of r, it's used to save time
+    rtot = []
+    for i in range(len(r)):
+        rtot.append(r[0:i].sum())
+    rtot.append(r.sum())
+
+    dr = rtot[-1]/(NPOINTS*RESFACT-1)
+    xmod = [x[0]]
+    ymod = [y[0]]
+    rPos = 0  # current point on walk along data
+    rcount = 1
+    while rPos < r.sum():
+        x1, x2 = x[rcount-1], x[rcount]
+        y1, y2 = y[rcount-1], y[rcount]
+        dpos = rPos-rtot[rcount]
+        theta = np.arctan2((x2-x1), (y2-y1))
+        rx = np.sin(theta)*dpos+x1
+        ry = np.cos(theta)*dpos+y1
+        xmod.append(rx)
+        ymod.append(ry)
+        rPos += dr
+        while rPos > rtot[rcount+1]:
+            rPos = rtot[rcount+1]
+            rcount += 1
+            if rcount > rtot[-1]:
                 break
-            if line.strip() == "": 
-                continue
-            if line[0] > max_freq:
-                data.append([float(x) for x in line.split()])
-    kaccum = np.array(data)[:,1:4]
-    dkaccum = np.array(data)[:,7:10]
-    omega = np.array(data)[:,0]
-    return (omega,kaccum,dkaccum)
+
+    return xmod, ymod
 
 
- 
+# CONSTANTS
+NPOINTS = 10
+COLOR = 'blue'
+RESFACT = 10
+MAP = 'winter'  # choose carefully, or color transitions will not appear smoooth
+
+# create random data
+np.random.seed(101)
+x = np.random.rand(NPOINTS)
+y = np.random.rand(NPOINTS)
+
+fig = plt.figure()
+ax1 = fig.add_subplot(221)  # regular resolution color map
+ax2 = fig.add_subplot(222)  # regular resolution alpha
+ax3 = fig.add_subplot(223)  # high resolution color map
+ax4 = fig.add_subplot(224)  # high resolution alpha
+
+# Choose a color map, loop through the colors, and assign them to the color
+# cycle. You need NPOINTS-1 colors, because you'll plot that many lines
+# between pairs. In other words, your line is not cyclic, so there's
+# no line from end to beginning
+cm = plt.get_cmap(MAP)
+ax1.set_color_cycle([cm(1.*i/(NPOINTS-1)) for i in range(NPOINTS-1)])
+for i in range(NPOINTS-1):
+    ax1.plot(x[i:i+2], y[i:i+2])
 
 
-def eachplot(sn,phase,omega,kaccum,dkaccum):
-   plt.subplot(numr,3,sn)
-   plt.title("kaccum_for_" + phase)
-   plt.plot(omega,kaccum[:,0],label=phase + "_kxx")
-   plt.plot(omega,kaccum[:,2],label=phase + "_kzz")
-   plt.plot(omega,dkaccum[:,0]*10,label=phase + "_dkxx")
-   plt.plot(omega,dkaccum[:,2]*10,label=phase + "_dkzz")
-   plt.ylim(0,255)
-   plt.yticks([0,100,200])
-   plt.xlim(0,max_freq)
+ax1.text(.05, 1.05, 'Reg. Res - Color Map')
+ax1.set_ylim(0, 1.2)
+
+# same approach, but fixed color and
+# alpha is scale from 0 to 1 in NPOINTS steps
+for i in range(NPOINTS-1):
+    ax2.plot(x[i:i+2], y[i:i+2], alpha=float(i)/(NPOINTS-1), color=COLOR)
+
+ax2.text(.05, 1.05, 'Reg. Res - alpha')
+ax2.set_ylim(0, 1.2)
+
+# get higher resolution data
+xHiRes, yHiRes = highResPoints(x, y, RESFACT)
+npointsHiRes = len(xHiRes)
+
+cm = plt.get_cmap(MAP)
+
+ax3.set_color_cycle([cm(1.*i/(npointsHiRes-1))
+                     for i in range(npointsHiRes-1)])
+
+
+for i in range(npointsHiRes-1):
+    ax3.plot(xHiRes[i:i+2], yHiRes[i:i+2])
+
+ax3.text(.05, 1.05, 'Hi Res - Color Map')
+ax3.set_ylim(0, 1.2)
+
+for i in range(npointsHiRes-1):
+    ax4.plot(xHiRes[i:i+2], yHiRes[i:i+2],
+             alpha=float(i)/(npointsHiRes-1),
+             color=COLOR)
+ax4.text(.05, 1.05, 'High Res - alpha')
+ax4.set_ylim(0, 1.2)
 
 
 
-
-def run():
-   omegac,kaccumc,dkaccumc=parse_kaccum(gc)
-   omegas,kaccums,dkaccums=parse_kaccum(gs)
-   omegag,kaccumg,dkaccumg=parse_kaccum(gg)
-   plt.figure(figsize=(11,10.050))
-   plt.rcParams['pdf.fonttype'] = 42
-
-   eachplot(4,"alpha",omegac,kaccumc,dkaccumc)
-   eachplot(4,"alphav1129",omegas,kaccums*10*10*14,dkaccums*10*10*14)
-   eachplot(6,"gamma",omegag,kaccumg,dkaccumg)
-   plt.savefig("tst_plot.eps")
-
-
-
-run()
-#plt.show()
+fig.savefig('gradColorLine.png')
+plt.show()
