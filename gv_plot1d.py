@@ -70,8 +70,8 @@ def run():
     cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift"
     sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
     ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334"
-    min_freq = 7
-    max_freq = 10
+    min_freq = 5
+    max_freq = 15
     xy = np.array([0.2, 0.2])
     c = cdir + "/mesh.hdf5"
     s = sdir + "/mesh.hdf5"
