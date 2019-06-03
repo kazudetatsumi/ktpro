@@ -15,9 +15,9 @@ def parse_mesh(filename,  max_freq, min_freq):
     f = h5py.File(filename, 'r')
     gv = f["group_velocity"]
     #aniso = gv[:, :, 2]**2 / (gv[:, :, 0]**2 + gv[:, :, 1]**2 + gv[:, :, 2]**2)
-    #aniso = ((gv[:, :, 0])**2 + (gv[:, :, 1])**2)**0.5
-    #aniso = gv[:, :, 2]**2
-    aniso = abs(gv[:, :, 2])
+    #aniso = ((gv[:, :, 0])**2 + (gv[:, :, 1])**2)
+    aniso = gv[:, :, 2]**2
+    #aniso = abs(gv[:, :, 2])
     omega = f["frequency"][:, :]
     qp = f["qpoint"][:, :]
     qp[qp < 0] += 1
@@ -48,6 +48,11 @@ def selectdata(qp, aniso, xy):
         _ani = np.extract(condition, ani)
         q += list(_qz)
         a += list(_ani)
+        if _qz == 0:
+            lastqz = _qz+1
+            lastvalue = _ani
+    q += list(lastqz)
+    a += list(lastvalue)
     q1 = np.array(q)
     a1 = np.array(a)
 
@@ -65,9 +70,9 @@ def run():
     cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift"
     sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
     ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334"
-    min_freq = 10
-    max_freq = 15
-    xy = np.array([0, 0])
+    min_freq = 7
+    max_freq = 10
+    xy = np.array([0.2, 0.2])
     c = cdir + "/mesh.hdf5"
     s = sdir + "/mesh.hdf5"
     ss = ssdir + "/mesh.hdf5"
@@ -76,13 +81,14 @@ def run():
     #qz, anisoz = selectdata(qp, aniso_ave, xy)
     cqz, canisoz = get_1d(c, max_freq, min_freq, xy)
     ssqz, ssanisoz = get_1d(ss, max_freq, min_freq, xy)
-    sqz, sanisoz = get_1d(s, max_freq, min_freq, xy)
+    #sqz, sanisoz = get_1d(s, max_freq, min_freq, xy)
 
     fig = plt.figure(figsize=(12, 12))
-    plt.plot(cqz, canisoz)
-    plt.plot(ssqz, ssanisoz)
+    #plt.plot(cqz, canisoz)
+    #plt.plot(ssqz, ssanisoz)
+    plt.plot(ssqz, ssanisoz / canisoz)
     #plt.plot(sqz*2, sanisoz)
-    plt.ylim(0, max(ssanisoz))
+    #plt.ylim(0, max(ssanisoz))
     plt.show()
 
 
