@@ -23,29 +23,28 @@ def parse_band(bfile):
     return(xdata, ydata, zdata)
 
 
-def plotdata(x, y, z, i, j):
+def plotdata(x, y, z, i, j, title):
     ydim = y.shape
     ax[i, j].axvline(x[100], color='k', linewidth=0.025)
     ax[i, j].set_ylim(0, 34)
     ax[i, j].set_xlim(min(x), max(x))
     ax[i, j].set_xticks([min(x), max(x)])
     ax[i, j].set_aspect(0.009)
+    ax[i, j].set_title(title)
     sc = ax[i, j].scatter(x, y, c=z, vmin=0, vmax=1, linewidth=0.01, s=1)
     #plt.colorbar(sc)
     ax[i,j].set_facecolor('k')
 
 
-def caserun(bfile, M, K):
+def caserun(bfile, M, K, title):
     xdata, ydata, zdata = parse_band(bfile)
     x = xdata[0, :]
     y = ydata[0, :, :]
-    if 'bsi3n4' in bfile and K == 0 :
+    if title == "beta_Nz":
         z = (abs(zdata[0, :, 41, :]))**2 + (abs(zdata[0, :, 29, :]))**2  
-    elif 'bsi3n4' in bfile and K == 1 :
-        z = (abs(zdata[0, :, 41, :]))**2 + (abs(zdata[0, :, 29, :]))**2  
-    elif 'asi3n4' in bfile and K == 0:
+    elif title == "alpha_Nz":
         z = (abs(zdata[0, :, 38, :]))**2 + (abs(zdata[0, :, 62, :]))**2 + (abs(zdata[0, :, 59, :]))**2 + (abs(zdata[0, :, 83, :]))**2 
-    elif 'asi3n4' in bfile and K == 1:
+    elif title == "alpha_Nz_near_void":
         z = (abs(zdata[0, :, 59, :]))**2 + (abs(zdata[0, :, 83, :]))**2  
     #print zdata[0, 0, 41, 0]
     #print (abs(zdata[0, 10, 10, 1]))**2    
@@ -63,18 +62,18 @@ def caserun(bfile, M, K):
     #print y2.shape
     #print z2.shape
 
-    plotdata(x3, y2, z2, M, K)
+    plotdata(x3, y2, z2, M, K, title)
 
 
 def run():
     cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
-    caserun(cbfile, 0, 0)
+    caserun(cbfile, 0, 0, "alpha_Nz")
     cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
-    caserun(cbfile, 0, 1)
+    caserun(cbfile, 0, 1, "alpha_Nz_near_void")
     sbfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/band.hdf5"
-    caserun(sbfile, 1, 0)
+    caserun(sbfile, 1, 0, "beta_Nz")
     sbfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/band.hdf5"
-    caserun(sbfile, 1, 1)
+    caserun(sbfile, 1, 1, "beta_Nz")
     #plt.savefig("band-alpha-beta-gamma2.eps")
 
 run()
