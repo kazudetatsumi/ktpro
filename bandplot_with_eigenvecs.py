@@ -3,6 +3,7 @@
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import yaml
 
 plt.style.use('classic')
 plt.rcParams['font.family'] = 'Times New Roman'
@@ -10,7 +11,7 @@ plt.rcParams['font.size'] = 12
 plt.rcParams['axes.linewidth'] = 1
 plt.rcParams['ytick.major.width'] = 1
 plt.rcParams['ytick.major.size'] = 5
-fig, ax = plt.subplots(2, 2, figsize=(8, 14))
+fig, ax = plt.subplots(2, 4, figsize=(16, 14))
 
 
 def parse_band(bfile):
@@ -18,8 +19,6 @@ def parse_band(bfile):
     xdata = f["distance"]
     ydata = f["frequency"]
     zdata = f["eigenvector"]
-    print ydata.shape
-    print zdata.shape
     return(xdata, ydata, zdata)
 
 
@@ -36,11 +35,52 @@ def plotdata(x, y, z, i, j, title):
     ax[i, j].set_facecolor('k')
 
 
-def get_z(atomlist, direction, zdata):
+def get_normalvec(pfile, ic, bondlenlim):
+    with open(pfile) as f:
+        data = yaml.load(f)
+        celldata = data["primitive_cell"]
+
+    latvec = np.array(celldata["lattice"])
+    numa = len(celldata["points"])
+    frac = np.zeros((numa, 3))
+    for i in range(0, numa):
+        frac[i, :] = np.array(celldata["points"][i]["coordinates"])
+
+    fracs = np.zeros((numa*27, 3))
+    l = 0
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            for k in range(-1, 2):
+                for m in range(0, numa):
+                    fracs[l, :] = np.array([i, j, k]) + frac[m, :]
+                    l += 1
+    cars = np.matmul(fracs, latvec)
+
+    car = np.matmul(frac, latvec)
+    ca_cars = np.zeros_like(cars)
+    for i in range(0, numa*27):
+        ca_cars[i, :] = car[ic, :]
+
+    diff_cars = cars - ca_cars
+    dist = (diff_cars[:, 0]**2 + diff_cars[:, 1]**2 + diff_cars[:, 2]**2)**0.5
+    
+    nn_ids = []
+    for i in range(0, numa*27):
+        if dist[i] <= bondlenlim and dist[i] > 0.00001:
+            nn_ids += [i]
+
+    diff1 = cars[nn_ids[0], :] - cars[nn_ids[1], :]
+    diff2 = cars[nn_ids[0], :] - cars[nn_ids[2], :]
+    normalvec = np.cross(diff1, diff2)
+    normalvec /= np.linalg.norm(normalvec, 2)
+
+    return normalvec
+
+
+def get_z(pfile, atomlist, direction, zdata):
     z = np.zeros_like(zdata[0, :, 0, :])
     if direction == "z":
         for an in atomlist:
-            print an * 3 - 1
             z += (abs(zdata[0, :, an * 3 - 1, :]))**2
     elif direction == "xy":
         for an in atomlist:
@@ -49,54 +89,54 @@ def get_z(atomlist, direction, zdata):
     return z
 
 
-def caserun(bfile, M, K, title):
+def caserun(bfile, pfile, M, K, title, bondlenlim):
     xdata, ydata, zdata = parse_band(bfile)
     x = xdata[0, :]
     y = ydata[0, :, :]
     if title == "beta_Nz":
         atomlist = [10, 14]
-        z = get_z(atomlist, 'z', zdata)
-        #z = (abs(zdata[0, :, 41, :]))**2 + (abs(zdata[0, :, 29, :]))**2  
+        z = get_z(pfile, atomlist, 'z', zdata)
     elif title == "beta_Nxy":
         atomlist = [10, 14]
-        z = get_z(atomlist, 'xy', zdata)
-        #z = (abs(zdata[0, :, 39, :]))**2 + (abs(zdata[0, :, 40, :]))**2 + (abs(zdata[0, :, 27, :]))**2 + (abs(zdata[0, :, 28, :]))**2 
+        z = get_z(pfile, atomlist, 'xy', zdata)
+    elif title == "beta_Nz_II":
+        atomlist = [7, 8, 9, 11, 12, 13]
+        z = get_z(pfile, atomlist, 'z', zdata)
     elif title == "alpha_Nz":
         atomlist = [13, 20, 21, 28]
-        z = get_z(atomlist, 'z', zdata)
-        #z = (abs(zdata[0, :, 38, :]))**2 + (abs(zdata[0, :, 62, :]))**2 + (abs(zdata[0, :, 59, :]))**2 + (abs(zdata[0, :, 83, :]))**2 
+        z = get_z(pfile, atomlist, 'z', zdata)
     elif title == "alpha_Nxy":
         atomlist = [13, 20, 21, 28]
-        z = get_z(atomlist, 'xy', zdata)
-        #z = (abs(zdata[0, :, 59, :]))**2 + (abs(zdata[0, :, 83, :]))**2  
-    #print zdata[0, 0, 41, 0]
-    #print (abs(zdata[0, 10, 10, 1]))**2    
-    #print z[10,10]
+        z = get_z(pfile, atomlist, 'xy', zdata)
+    elif title == "alpha_Nz_II":
+        atomlist = [14, 15, 16, 17, 18, 19, 22, 23, 24, 25, 26, 27]
+        z = get_z(pfile, atomlist, 'z', zdata)
     x2 = np.zeros_like(y)
     for i in range(0, x2.shape[1]):
         x2[:, i] = x
-    #print x2.shape
-    #print y.shape
-    #print z.shape
     x3 = np.reshape(x2, (x2.shape[0]*x2.shape[1]))
     y2 = np.reshape(y, (y.shape[0]*y.shape[1]))
     z2 = np.reshape(z, (z.shape[0]*z.shape[1]))
-    #print x3.shape
-    #print y2.shape
-    #print z2.shape
 
     plotdata(x3, y2, z2, M, K, title)
 
 
+
+
 def run():
+    bondlenlim = 2.0
     cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
-    caserun(cbfile, 0, 0, "alpha_Nz")
-    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
-    caserun(cbfile, 0, 1, "alpha_Nxy")
+    cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/phonopy.yaml"
+    caserun(cbfile, cpfile, 0, 0, "alpha_Nz", bondlenlim)
+    caserun(cbfile, cpfile,  0, 1, "alpha_Nxy", bondlenlim)
+    caserun(cbfile, cpfile, 0, 2, "alpha_Nz_II", bondlenlim)
     sbfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/band.hdf5"
-    caserun(sbfile, 1, 0, "beta_Nz")
-    sbfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/band.hdf5"
-    caserun(sbfile, 1, 1, "beta_Nxy")
+    spfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/phonopy.yaml"
+    #normalvec = get_normalvec(spfile, 10, bondlenlim)
+    #print normalvec
+    caserun(sbfile, spfile, 1, 0, "beta_Nz", bondlenlim)
+    caserun(sbfile, spfile, 1, 1, "beta_Nxy", bondlenlim)
+    caserun(sbfile, spfile, 1, 2, "beta_Nz_II", bondlenlim)
     #plt.savefig("band-alpha-beta-gamma2.eps")
 
 run()
