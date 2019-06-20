@@ -26,34 +26,42 @@ def parse_band(bfile):
 def scatterplotdata(x, y, z, i, j, title):
     ydim = y.shape
     ax[i, j].axvline(x[100], color='k', linewidth=0.025)
-    ax[i, j].set_ylim(0, 34)
+    #ax[i, j].set_ylim(0, 34)
+    ax[i, j].set_ylim(200, 650)
     ax[i, j].set_xlim(min(x), max(x))
     ax[i, j].set_xticks([min(x), max(x)])
-    ax[i, j].set_aspect(0.009)
+    #ax[i, j].set_aspect(0.009)
+    ax[i, j].set_aspect(0.009/THztoKayser)
     ax[i, j].set_title(title)
     x2 = []
     y2 = []
     z2 = []
     for xx, yy, zz in zip(x, y, z):
-        condition = zz > 0.05
+        condition = zz > 0.25
         _x = np.extract(condition, xx)
         _y = np.extract(condition, yy)
         _z = np.extract(condition, zz)
         x2 += list(_x)
         y2 += list(_y)
         z2 += list(_z)
-
-    sc = ax[i, j].scatter(x2, y2, c=z2, vmin=0, vmax=1, linewidth=0.01, s=1, cmap='jet')
-    #sc = ax[i, j].scatter(x2, y2,s=0.01)
+    z2 =np.array(z2)
+    x2 =np.array(x2)
+    y2 =np.array(y2)
+    print max(z2)
+    #sc = ax[i, j].scatter(x2, y2, c=z2, vmin=0, vmax=1,  s=z2*100, cmap='jet')
+    #sc = ax[i, j].scatter(x2, y2, vmin=0, vmax=1,  s=z2*100, cmap='jet')
+    print type(z2)
+    print type(x2)
+    sc = ax[i, j].scatter(x2, y2, c='k', linewidth=1, marker=".", s=(3*z2)**3)
     #plt.colorbar(sc)
-    ax[i, j].set_facecolor('k')
+    #ax[i, j].set_facecolor('k')
     print "sum_of_z_values:", np.sum(z)
 
 
 def lineplotdata(x, y, z, i, j, title):
     ydim = y.shape
     #ax[i, j].axvline(x[100], color='k', linewidth=0.025)
-    #ax[i, j].set_ylim(0, 34)
+    ax[i, j].set_ylim(0, 34*THztoKayser)
     #ax[i, j].set_ylim(150, 600)
     #ax[i, j].set_ylim(100, 700)
     ax[i, j].set_ylim(200, 650)
@@ -71,12 +79,12 @@ def lineplotdata(x, y, z, i, j, title):
     print np.max(zsum)
     for l in range(0, y.shape[1]):
         #if zsum[l] >= np.max(zsum)*0.30:
-        if zsum[l] >= 30:
+        #if zsum[l] >= 30:
             y2 = y[:, l]
             z3 = z2[:, l, :]
             for k in np.arange(x.shape[0]-1):
-                if z[k,l] > 0.25:
-                    ax[i, j].plot([x[k],x[k+1]], [y2[k],y2[k+1]], c=z3[k], linewidth=0.5)
+                #if z[k,l] > 0.25:
+                    ax[i, j].plot([x[k],x[k+1]], [y2[k],y2[k+1]], c=z3[k], linewidth=0.5 )
     #plt.colorbar(sc)
 
     ax[i, j].set_facecolor('k')
@@ -207,27 +215,27 @@ def run():
     bondlenlim = 2.0
 
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
-    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_0103.hdf5"
+    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_00501.hdf5"
     cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
     cxdata, cydata, czdata, ccelldata = get_files(cbfile, cpfile)
     caserun(cxdata, cydata, czdata, ccelldata, 0, 0, "alpha_Nperp", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata,  0, 1, "alpha_Npara", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata, 0, 2, "alpha_Nz", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata, 0, 3, "alpha_Nxy", bondlenlim)
-    caserun(cxdata, cydata, czdata, ccelldata, 0, 1, "alpha_Nperp_II", bondlenlim)
+    #caserun(cxdata, cydata, czdata, ccelldata, 0, 1, "alpha_Nperp_II", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata, 0, 3, "alpha_Npara_II", bondlenlim)
 
     #sbfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/band.hdf5"
     #spfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/primitive.yaml"
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band.hdf5"
-    sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_0103.hdf5"
+    sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_00501.hdf5"
     spfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
     sxdata, sydata, szdata, scelldata = get_files(sbfile, spfile)
     caserun(sxdata, sydata, szdata, scelldata, 1, 0, "beta_Nperp", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 1, "beta_Npara", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 2, "beta_Nz", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 3, "beta_Nxy", bondlenlim)
-    caserun(sxdata, sydata, szdata, scelldata, 1, 1, "beta_Nperp_II", bondlenlim)
+    #caserun(sxdata, sydata, szdata, scelldata, 1, 1, "beta_Nperp_II", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 3, "beta_Npara_II", bondlenlim)
     #plt.savefig("band-alpha-beta-gamma2.eps")
 
