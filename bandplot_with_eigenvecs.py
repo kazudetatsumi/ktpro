@@ -65,6 +65,8 @@ def lineplotdata(x, y, z, i, j, title):
     #ax[i, j].set_ylim(150, 600)
     #ax[i, j].set_ylim(100, 700)
     ax[i, j].set_ylim(200, 650)
+    #ax[i, j].set_ylim(350, 550)
+    #ax[i, j].set_ylim(0, 350)
     ax[i, j].set_xlim(min(x), max(x))
     ax[i, j].set_xticks([min(x), max(x)])
     ax[i, j].set_aspect(0.009/THztoKayser)
@@ -83,7 +85,7 @@ def lineplotdata(x, y, z, i, j, title):
             y2 = y[:, l]
             z3 = z2[:, l, :]
             for k in np.arange(x.shape[0]-1):
-                #if z[k,l] > 0.25:
+            #    if z[k,l] > 0.25:
                     ax[i, j].plot([x[k],x[k+1]], [y2[k],y2[k+1]], c=z3[k], linewidth=0.5 )
     #plt.colorbar(sc)
 
@@ -215,7 +217,13 @@ def run():
     bondlenlim = 2.0
 
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
-    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_00501.hdf5"
+    #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_00501.hdf5"
+    #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_055045.hdf5"
+    #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_0505.hdf5"
+    #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_0000.hdf5"
+    #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_031006.hdf5"
+    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_032032.hdf5"
+    #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_043015.hdf5"
     cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
     cxdata, cydata, czdata, ccelldata = get_files(cbfile, cpfile)
     caserun(cxdata, cydata, czdata, ccelldata, 0, 0, "alpha_Nperp", bondlenlim)
@@ -228,7 +236,13 @@ def run():
     #sbfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/band.hdf5"
     #spfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/primitive.yaml"
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band.hdf5"
-    sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_00501.hdf5"
+    #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_00501.hdf5"
+    #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_055045.hdf5"
+    #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_0505.hdf5"
+    #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_0000.hdf5"
+    #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_031006.hdf5"
+    sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_032032.hdf5"
+    #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_043015.hdf5"
     spfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
     sxdata, sydata, szdata, scelldata = get_files(sbfile, spfile)
     caserun(sxdata, sydata, szdata, scelldata, 1, 0, "beta_Nperp", bondlenlim)
