@@ -46,6 +46,7 @@ def expand(data):
     mesh = data['mesh']
     ir_grid_points = data['ir_grid_points']
     grid_address = data['grid_address']
+    gamma = data['gamma']
 
     point_operations = symmetry.get_reciprocal_operations()
     rec_lat = np.linalg.inv(primitive.get_cell())
@@ -59,6 +60,8 @@ def expand(data):
     freq_bz = np.zeros((len(grid_address), frequency.shape[1]),
                        dtype='double', order='C')
     cv_bz = np.zeros((cv.shape[0], len(grid_address), cv.shape[2]),
+                     dtype='double', order='C')
+    g_bz =  np.zeros((gamma.shape[0], len(grid_address), gamma.shape[2]),
                      dtype='double', order='C')
     
     for i, gp in enumerate(ir_grid_points):
@@ -76,13 +79,16 @@ def expand(data):
             qpt_bz[rgp] = np.dot(r, qpoint[i])
             freq_bz[rgp] = frequency[i]
             cv_bz[:, rgp, :] = cv[:, i, :]
+            g_bz[:, rgp, :] = gamma[:, i, :]
 
-    return gv_bz, qpt_bz, freq_bz, cv_bz
+    return gv_bz, qpt_bz, freq_bz, cv_bz, g_bz
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Generate cummulative physical properties")
+    parser.add_argument("--pa", dest="primitive_matrix",
+                        default="1 0 0 0 1 0 0 0 1", help="Primitive matrix")
     parser.add_argument('filenames', nargs='*')
     args = parser.parse_args()
     return args
@@ -90,8 +96,10 @@ def parse_args():
 
 def get_data(args, interface_mode=None):
     args = parse_args()
+    print "args:", args
     cell, _ = read_crystal_structure(args.filenames[0],
                                      interface_mode=interface_mode)
+    print "cell:", cell
     f = h5py.File(args.filenames[1])
     primitive_matrix = np.reshape(
         [fracval(x) for x in args.primitive_matrix.split()], (3, 3))
@@ -106,9 +114,7 @@ def get_data(args, interface_mode=None):
     data['group_velocity'] = f['group_velocity'][:] # (gp, band, 3)
     data['qpoint'] = f['qpoint'][:] # (gp, 3)
     data['frequency'] = f['frequency'][:] # (gp, band)
-    if 'gamma_N' in f:
-        data['gamma_N'] = f['gamma_N'][:] # (temps, gp, band)
-        data['gamma_U'] = f['gamma_U'][:] # (temps, gp, band)
+    data['gamma'] = f['gamma'][:] #KT, (temps, gp, band)
     data['heat_capacity'] = f['heat_capacity'][:] # (temps, gp, band)
     data['temperature'] = np.array(f['temperature'][:], dtype='double') # (temps)
 
@@ -122,12 +128,13 @@ def get_data(args, interface_mode=None):
 def main():
     args = parse_args()
     data = get_data(args)
-    gv_bz, qpt_bz, freq_bz, cv_bz = expand(data)
+    gv_bz, qpt_bz, freq_bz, cv_bz, g_bz  = expand(data)
     filename = write_kappa_to_hdf5(data['temperature'],
                                    data['mesh'],
                                    frequency=freq_bz,
                                    group_velocity=gv_bz,
                                    heat_capacity=cv_bz,
+                                   gamma=g_bz,
                                    filename="bz",
                                    verbose=False)
     print("The data are written to %s." % filename)
