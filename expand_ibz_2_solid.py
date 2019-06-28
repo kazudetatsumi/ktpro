@@ -110,6 +110,7 @@ def get_data(args, interface_mode=None):
     data['cell'] = primitive
     data['symmetry'] = symmetry
     data['mesh'] = np.array(f['mesh'][:], dtype='intc') # (3)
+    data['kappa_unit_conversion'] = f['kappa_unit_conversion'][()] # (1)
     data['weight'] = f['weight'][:] # (gp)
     data['group_velocity'] = f['group_velocity'][:] # (gp, band, 3)
     data['qpoint'] = f['qpoint'][:] # (gp, 3)
@@ -132,10 +133,12 @@ def main():
     filename = write_kappa_to_hdf5(data['temperature'],
                                    data['mesh'],
                                    frequency=freq_bz,
+                                   qpoint=qpt_bz,
                                    group_velocity=gv_bz,
                                    heat_capacity=cv_bz,
                                    gamma=g_bz,
                                    filename="bz",
+                                   kappa_unit_conversion=data["kappa_unit_conversion"][()],
                                    verbose=False)
     print("The data are written to %s." % filename)
                            

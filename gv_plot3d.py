@@ -13,9 +13,10 @@ plt.style.use('classic')
 plt.rcParams['font.family'] = 'Times New Roman'
 
 
-def parse_mesh(filename, dn, max_freq):
+def average_gv(filename, max_freq):
+    print "filename", filename
     f = h5py.File(filename, 'r')
-    gv = f[dn]
+    gv = f["group_velocity"]
     gvdata = gv[:, :, 2]**2
     #gvdata = abs(gv[:, :, 2])
     #gvdata = gv[:, :, 2]**2 / (gv[:, :, 0]**2 + gv[:, :, 1]**2 + gv[:, :, 2]**2)
@@ -28,7 +29,25 @@ def parse_mesh(filename, dn, max_freq):
     _gvdata = np.zeros(dim)
     _gvdata[omega < max_freq] = gvdata[omega < max_freq]
     gvdata_ave = np.sum(_gvdata, axis=1)
-    return(mesh, qp, gvdata_ave, omega[:, 0])
+    return(mesh, qp, gvdata_ave)
+
+
+def parse_kappa(filename, temp):
+    f = h5py.File(filename, 'r')
+    mesh = f["mesh"]
+    kuc = f["kappa_unit_conversion"][()]
+    gv = f["group_velocity"] # (gp, band, 3)
+    qp = f["qpoint"][:, :]  # (gp, 3)
+    omega = f["frequency"][:, :] # (gp, band)
+    gamma = f['gamma'][:] #KT, (temps, gp, band)
+    cv = f['heat_capacity'][:] # (temps, gp, band)
+    t = np.array(f['temperature'][:], dtype='double') # (temps)
+    condition = abs(t - temp) < 0.001
+    cv = np.squeeze(cv[condition, :, :])
+    gamma = np.squeeze(gamma[condition, :, :])
+    kappa = kuc * cv * gamma * gv[:, :, 2] * gv[:, :, 2]
+    print kappa.shape
+
 
 
 def getXYZD(qx, qy, qz, gvdata_ave, n):
@@ -52,19 +71,17 @@ def getXYZ(x, y, gvdata_sum, n):
 
 
 def make_diff(file1, file2, dn, max_freq, rlat1, rlat2):
-    mesh1, qp1, gvdata_ave1, omega1 = parse_mesh(file1, dn, max_freq)
-    mesh2, qp2, gvdata_ave2, omega2 = parse_mesh(file2, dn, max_freq)
+    mesh1, qp1, gvdata_ave1 = average_gv(file1, max_freq)
+    mesh2, qp2, gvdata_ave2 = average_gv(file2, max_freq)
     X1, Y1, Z1, D1 = getXYZD(qp1[:, 0], qp1[:, 1], qp1[:, 2], gvdata_ave1, mesh1[:])
     X2, Y2, Z2, D2 = getXYZD(qp2[:, 0], qp2[:, 1], qp2[:, 2], gvdata_ave2, mesh2[:])
     diff = D2 * np.linalg.det(rlat2) - D1 * np.linalg.det(rlat1)
     return diff
 
 
-def project_on_basalp(f, dn, max_freq, rlat):
-    mesh, qp, gvdata_ave, omega = parse_mesh(f, dn, max_freq)
-    gvdata_ave = gvdata_ave * np.linalg.det(rlat)
+def project_on_basalp(mesh, qp, d):
     k = 0
-    gvsum = np.zeros(((mesh[0]+1)*(mesh[1]+1)))
+    d_sum = np.zeros(((mesh[0]+1)*(mesh[1]+1)))
     x = np.zeros(((mesh[0]+1)*(mesh[1]+1)))
     y = np.zeros(((mesh[0]+1)*(mesh[1]+1)))
     qpx = qp[:, 0]
@@ -74,41 +91,44 @@ def project_on_basalp(f, dn, max_freq, rlat):
             x[k] = i * 1.0/mesh[0]
             y[k] = j * 1.0/mesh[1]
             condition = abs(qpx - x[k]) + abs(qpy - y[k]) < 0.001
-            _gvdata_ave = gvdata_ave[condition]
-            gvsum[k] = np.sum(_gvdata_ave)
+            _d = d[condition]
+            d_sum[k] = np.sum(_d)
             k += 1
     for i in range(0, mesh[0]):
         x[k] = i * 1.0/mesh[0]
         y[k] = 1.0
         condition = abs(qpx - x[k]) + abs(qpy - 0.000) < 0.001
-        _gvdata_ave = gvdata_ave[condition]
-        gvsum[k] = np.sum(_gvdata_ave)
+        _d = d[condition]
+        d_sum[k] = np.sum(_d)
         k += 1
     for i in range(0, mesh[1]):
         x[k] = 1.0
         y[k] = i * 1.0/mesh[1]
         condition = abs(qpx - 0.000) + abs(qpy - y[k]) < 0.001
-        _gvdata_ave = gvdata_ave[condition]
-        gvsum[k] = np.sum(_gvdata_ave)
+        _d = d[condition]
+        d_sum[k] = np.sum(_d)
         k += 1
     x[k] = 1.0
     y[k] = 1.0
     condition = abs(qpx - 0.000) + abs(qpy - 0.000) < 0.001
-    _gvdata_ave = gvdata_ave[condition]
-    gvsum[k] = np.sum(_gvdata_ave)
-    return x, y, mesh, gvsum
+    _d = d[condition]
+    d_sum[k] = np.sum(_d)
+    return x, y, d_sum
 
 
 def make_diffonbasalp(file1, file2, dn, max_freq, rlat1, rlat2):
-    x, y, mesh1, gvsum1 = project_on_basalp(file1, dn, max_freq, rlat1)
-    x, y, mesh2, gvsum2 = project_on_basalp(file2, dn, max_freq, rlat2)
-    xy = np.zeros(((mesh1[0]+1)*(mesh1[1]+1), 2))
-    xy[:, 0] = x
-    xy[:, 1] = y
+    mesh1, qp1, gvdata_ave1 = average_gv(file1, max_freq)
+    x1, y1, gvsum1 = project_on_basalp(mesh1, qp1, gvdata_ave1*np.linalg.det(rlat1))
+    mesh2, qp2, gvdata_ave2 = average_gv(file2, max_freq)
+    x2, y2, gvsum2 = project_on_basalp(mesh2, qp2, gvdata_ave2*np.linalg.det(rlat2))
+
+    xy = np.zeros(((mesh2[0]+1)*(mesh2[1]+1), 2))
+    xy[:, 0] = x2
+    xy[:, 1] = y2
     #ratio = gvsum2 / gvsum1
-    carxy = np.matmul(xy, rlat1[0:2, 0:2])
+    carxy = np.matmul(xy, rlat2[0:2, 0:2])
     #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], gvsum1, mesh1[:])
-    X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], (gvsum2 - gvsum1) / mesh1[2], mesh1[:])
+    X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], ((gvsum2 / mesh2[2]) - (gvsum1 / mesh1[2])), mesh1[:])
     #X, Y, Z = getXYZ(x, y, gvsum2 - gvsum1 / mesh[2], mesh1[:])
     #im=plt.pcolor(X,Y,Z,vmin=0,cmap=cm.rainbow)
     #plt.colorbar(im)
@@ -116,7 +136,7 @@ def make_diffonbasalp(file1, file2, dn, max_freq, rlat1, rlat2):
     #im = plt.contour(X, Y, Z, np.arange(0,1,0.1))
     #im = plt.contour(X, Y, Z, np.arange(30,50,1), colors='k')
     #im = plt.contour(X, Y, Z )
-    im = plt.contour(X, Y, Z, np.arange(0, 80, 2))
+    im = plt.contour(X, Y, Z, np.arange(0, 180, 5))
     plt.clabel(im, inline=1, fontsize=12, fmt='%d')
 
 
@@ -128,31 +148,43 @@ def parse_rlat(pf):
     return rlat
 
 
+def calc_modekappa(cv, gv, gamma, t, my_t):
+    condition = abs(t - my_t) < 0.01
+    print condition
+
+
 def run():
-    cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift"
-    sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
+    #cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift"
+    cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso"
+    #sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
+    sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso"
     ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334"
-    ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334_with_alphalat"
+    #ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334_with_alphalat"
     max_freq = 15
-    pc = cdir + "/phonopy.yaml"
-    ps = sdir + "/phonopy.yaml"
+    temp = 300
+    #pc = cdir + "/phonopy.yaml"
+    pc = cdir + "/phono3py.yaml"
+    #ps = sdir + "/phonopy.yaml"
+    ps = sdir + "/phono3py.yaml"
     pss = ssdir + "/phonopy.yaml"
     crlat = parse_rlat(pc)
     srlat = parse_rlat(ps)
     ssrlat = parse_rlat(pss)
     #c = cdir + "/mesh_252535.hdf5"
-    c = cdir + "/mesh.hdf5.org"
-    s = sdir + "/mesh.hdf5"
+    #c = cdir + "/mesh.hdf5.org"
+    c = cdir + "/kappa-m141416.bz.hdf5"
+    #s = sdir + "/mesh.hdf5"
+    s = sdir + "/kappa-m141432.bz.hdf5"    #kappa file with data over all mesh points, generated by expand_ibz_2_solid.py
+    parse_kappa(s, temp)
     #ss = ssdir + "/mesh_252535.hdf5"
     ss = ssdir + "/mesh.hdf5.org"
     ##For data extraction for each phase
-    #mesh, qp, gvdata_ave, omega = parse_mesh(c, "group_velocity", max_freq)
+    #mesh, qp, gvdata_ave = average_gv(c, max_freq)
     #X, Y, Z, D3 = getXYZD(qp[:, 0], qp[:, 1], qp[:, 2], gvdata_ave, mesh[:])
     #np.savetxt("array.txt", D3 * np.linalg.det(srlat), fmt="%17.11e")  #
-    
     ##Seek the difference between alpha and beta_doubled_cell
     #diff = make_diff(c, ss, "group_velocity", max_freq, crlat, ssrlat)
-    make_diffonbasalp(c, ss, "group_velocity", max_freq, crlat, ssrlat)
+    make_diffonbasalp(c, s, "group_velocity", max_freq, crlat, srlat)
     #np.savetxt("array.txt", diff, fmt="%17.11e")  #
     plt.show()
 
