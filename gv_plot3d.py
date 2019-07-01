@@ -17,8 +17,8 @@ def average_gv(filename, max_freq):
     print "filename", filename
     f = h5py.File(filename, 'r')
     gv = f["group_velocity"]
-    #gvdata = gv[:, :, 2]**2
-    gvdata = abs(gv[:, :, 2])
+    gvdata = gv[:, :, 2]**2
+    #gvdata = abs(gv[:, :, 2])
     #gvdata = gv[:, :, 2]**2 / (gv[:, :, 0]**2 + gv[:, :, 1]**2 + gv[:, :, 2]**2)
     #gvdata = (gv[:, :, 0])**2 + (gv[:, :, 1])**2
     omega = f["frequency"][:, :]
@@ -26,10 +26,10 @@ def average_gv(filename, max_freq):
     qp = f["qpoint"][:, :]
     qp[qp < 0] += 1
     dim = omega.shape
-    print gvdata.shape
     _gvdata = np.zeros(dim)
     _gvdata[omega < max_freq] = gvdata[omega < max_freq]
     gvdata_ave = np.sum(_gvdata, axis=1)
+    print np.sum(gvdata_ave)
     return(mesh, qp, gvdata_ave)
 
 
@@ -145,7 +145,8 @@ def make_diffonbasalp(file1, file2, dn, max_freq, temp, rlat1, rlat2):
     #ratio = gvsum2 / gvsum1
     carxy = np.matmul(xy, rlat2[0:2, 0:2])
     #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], gvsum1, mesh1[:])
-    X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], ((z2 / mesh2[2]) - (z1 / mesh1[2])), mesh1[:])
+    #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], ((z2 / mesh2[2]) - (z1 / mesh1[2])), mesh1[:])
+    X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], ((z2 / mesh2[2]) - (z1 / mesh1[2])) / np.average(((z2 / mesh2[2]) - (z1 / mesh1[2]))) , mesh1[:])
     #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], z1, mesh1[:])
     #X, Y, Z = getXYZ(x, y, gvsum2 - gvsum1 / mesh[2], mesh1[:])
     #im=plt.pcolor(X,Y,Z,vmin=0,cmap=cm.rainbow)
@@ -156,6 +157,7 @@ def make_diffonbasalp(file1, file2, dn, max_freq, temp, rlat1, rlat2):
     im = plt.contour(X, Y, Z )
     #im = plt.contour(X, Y, Z, np.arange(0, 180, 5))
     plt.clabel(im, inline=1, fontsize=12, fmt='%3.1f')
+    plt.title(dn)
 
 
 def parse_rlat(pf):
