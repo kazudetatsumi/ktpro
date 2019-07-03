@@ -13,10 +13,22 @@ plt.style.use('classic')
 plt.rcParams['font.family'] = 'Times New Roman'
 
 
+def parse_mesh(filename):
+    f = h5py.File(filename, 'r')
+    gv = f["group_velocity"]
+    qp = f["qpoint"][:, :]
+    return gv, qp
+
+
 def average_gv(filename, max_freq):
     print "filename", filename
     f = h5py.File(filename, 'r')
-    gv = f["group_velocity"]
+    if filename == "/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk/kappa-m141416.bz.hdf5":
+        print "chk", filename,"does not contain proper gv"
+        gv, qpm = parse_mesh("/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk/mesh_m141416.hdf5")
+    else:
+        gv = f["group_velocity"]
+
     gvdata = gv[:, :, 2]**2
     #gvdata = abs(gv[:, :, 2])
     #gvdata = gv[:, :, 2]**2 / (gv[:, :, 0]**2 + gv[:, :, 1]**2 + gv[:, :, 2]**2)
@@ -38,8 +50,18 @@ def average_kappa(filename, max_freq, temp):
     mesh = f["mesh"]
     print f.keys()
     kuc = f["kappa_unit_conversion"][()]
-    gv = f["group_velocity"] # (gp, band, 3)
     qp = f["qpoint"][:, :]  # (gp, 3)
+    print "qp",qp.shape
+    if filename == "/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk/kappa-m141416.bz.hdf5":
+        print "chk", filename,"does not contain proper gv"
+        gv, qpm = parse_mesh("/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk/mesh_m141416.hdf5")
+        qpm[qpm < 0] += 1
+        print "qpm", qpm.shape
+        print np.where((qp - qpm) > 0.01)
+        print qpm[86,:], qp[86,:]
+    else:
+        gv = f["group_velocity"]
+    #gv = f["group_velocity"] # (gp, band, 3)
     qp[qp < 0] += 1
     omega = f["frequency"][:, :] # (gp, band)
     gamma = f['gamma'][:] #KT, (temps, gp, band)
@@ -93,30 +115,38 @@ def make_diff(file1, file2, dn, max_freq, rlat1, rlat2):
 def project_on_plane(mesh, qp, d, plane):
     k = 0
     if plane == "basal":
-        d_sum = np.zeros(((mesh[0]+1)*(mesh[1]+1)))
-        x = np.zeros(((mesh[0]+1)*(mesh[1]+1)))
-        y = np.zeros(((mesh[0]+1)*(mesh[1]+1)))
+        meshx=mesh[0]
+        meshy=mesh[1]
+        meshz=mesh[2]
         qpx = qp[:, 0]
         qpy = qp[:, 1]
-        numz = mesh[2]
-    for i in range(0, mesh[0]):
-        for j in range(0, mesh[1]):
-            x[k] = i * 1.0/mesh[0]
-            y[k] = j * 1.0/mesh[1]
+    elif plane == "prismatic":
+        meshx=mesh[1]
+        meshy=mesh[2]
+        meshz=mesh[0]
+        qpx = qp[:, 1]
+        qpy = qp[:, 2]
+    d_sum = np.zeros(((meshx+1)*(meshy+1)))
+    x = np.zeros(((meshx+1)*(meshy+1)))
+    y = np.zeros(((meshx+1)*(meshy+1)))
+    for i in range(0, meshx):
+        for j in range(0, meshy):
+            x[k] = i * 1.0/meshx
+            y[k] = j * 1.0/meshy
             condition = abs(qpx - x[k]) + abs(qpy - y[k]) < 0.001
             _d = d[condition]
             d_sum[k] = np.sum(_d)
             k += 1
-    for i in range(0, mesh[0]):
-        x[k] = i * 1.0/mesh[0]
+    for i in range(0, meshx):
+        x[k] = i * 1.0/meshx
         y[k] = 1.0
         condition = abs(qpx - x[k]) + abs(qpy - 0.000) < 0.001
         _d = d[condition]
         d_sum[k] = np.sum(_d)
         k += 1
-    for i in range(0, mesh[1]):
+    for i in range(0, meshy):
         x[k] = 1.0
-        y[k] = i * 1.0/mesh[1]
+        y[k] = i * 1.0/meshy
         condition = abs(qpx - 0.000) + abs(qpy - y[k]) < 0.001
         _d = d[condition]
         d_sum[k] = np.sum(_d)
@@ -126,7 +156,7 @@ def project_on_plane(mesh, qp, d, plane):
     condition = abs(qpx - 0.000) + abs(qpy - 0.000) < 0.001
     _d = d[condition]
     d_sum[k] = np.sum(_d)
-    return x, y, d_sum / numz
+    return x, y, d_sum / meshz
 
 
 def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
@@ -143,22 +173,30 @@ def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
         mesh2, qp2, kappadata_ave2 = average_kappa(file2, max_freq, temp)
         x2, y2, z2 = project_on_plane(mesh2, qp2, kappadata_ave2, plane)
 
-    xy = np.zeros(((mesh2[0]+1)*(mesh2[1]+1), 2))
-    xy[:, 0] = x2
-    xy[:, 1] = y2
-    #ratio = gvsum2 / gvsum1
-    carxy = np.matmul(xy, rlat2[0:2, 0:2])
+    if plane == "basal": 
+        xy = np.zeros(((mesh2[0]+1)*(mesh2[1]+1), 2))
+        xy[:, 0] = x2
+        xy[:, 1] = y2
+        carxy = np.matmul(xy, rlat2[0:2, 0:2])
+    if plane == "prismatic": 
+        xy = np.zeros(((mesh2[1]+1)*(mesh2[2]+1), 2))
+        xy[:, 0] = x2
+        xy[:, 1] = y2
+        carxy = np.matmul(xy, rlat2[1:3, 1:3])
     #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], gvsum1, mesh1[:])
     #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], ((z2 / mesh2[2]) - (z1 / mesh1[2])), mesh1[:])
     X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], (z2 - z1) / np.average(z2 - z1) , mesh1[:])
+    #X, Y, Z = getXYZ(x2, y2, (z2 - z1) / np.average(z2 - z1) , mesh1[:])
     #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], z1, mesh1[:])
     #X, Y, Z = getXYZ(x, y, gvsum2 - gvsum1 / mesh[2], mesh1[:])
+    #X, Y, Z = getXYZ(x1, y1, (z2 - z1) / np.average(z2 - z1) , mesh1[:])
+    #X, Y, Z = getXYZ(x2, y2, z2, mesh2[:])
     #im=plt.pcolor(X,Y,Z,vmin=0,cmap=cm.rainbow)
     #plt.colorbar(im)
     #im = plt.contour(X, Y, Z, np.arange(0,1,0.1), colors='k')
     #im = plt.contour(X, Y, Z, np.arange(0,1,0.1))
     #im = plt.contour(X, Y, Z, np.arange(30,50,1), colors='k')
-    im = plt.contour(X, Y, Z )
+    im = plt.contour(X, Y, Z , np.arange(0, 3, 0.1))
     #im = plt.contour(X, Y, Z, np.arange(0, 180, 5))
     plt.clabel(im, inline=1, fontsize=12, fmt='%3.1f')
     plt.title(dn)
@@ -180,8 +218,8 @@ def calc_modekappa(cv, gv, gamma, t, my_t):
 def run():
     #cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift"
     cdir = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso"
-    #sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift"
     sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso"
+    #sdir = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/noiso"
     ssdir = "/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk"
     #ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334"
     #ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334_with_alphalat"
@@ -199,11 +237,13 @@ def run():
     #c = cdir + "/mesh_252535.hdf5"
     #c = cdir + "/mesh.hdf5.org"
     c = cdir + "/kappa-m141416.bz.hdf5"
-    #s = sdir + "/mesh.hdf5"
-    s = sdir + "/kappa-m141432.bz.hdf5"    #kappa file with data over all mesh points, generated by expand_ibz_2_solid.py
+    #s = sdir + "/mesh.hdf5.gonze"
+    s = sdir + "/kappa-m141432.bz.hdf5"
+    #s = sdir + "/gpjob_m101026_with_recent_version/kappa-m101026.bz.hdf5"    #kappa file with data over all mesh points, generated by expand_ibz_2_solid.py
     ss = ssdir + "/kappa-m141416.bz.hdf5"    #kappa file with data over all mesh points, generated by expand_ibz_2_solid.py
+    #ss = ssdir + "/mesh_m141416.hdf5"    #kappa file with data over all mesh points, generated by expand_ibz_2_solid.py
     #ss = ssdir + "/mesh_252535.hdf5"
-    #ss = ssdir + "/mesh.hdf5.org"
+    #ss = ssdir + "/mesh_m101014.hdf5"
     ##For data extraction for each phase
     #mesh, qp, gvdata_ave = average_gv(c, max_freq)
     #X, Y, Z, D3 = getXYZD(qp[:, 0], qp[:, 1], qp[:, 2], gvdata_ave, mesh[:])
@@ -211,9 +251,10 @@ def run():
     ##Seek the difference between alpha and beta_doubled_cell
     #diff = make_diff(c, ss, "group_velocity", max_freq, crlat, ssrlat)
     plt.figure()
-    make_diffonplane(c, s, "kappa", max_freq, temp, crlat, srlat, "basal")
+    #make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
+    make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
     plt.figure()
-    make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "basal")
+    make_diffonplane(c, ss, "group_velocity", max_freq, temp, crlat, ssrlat, "prismatic")
     #make_diffonplane(c, s, "kappa", max_freq, temp, crlat, srlat, "basal")
     #np.savetxt("array.txt", diff, fmt="%17.11e")  #
     plt.show()
