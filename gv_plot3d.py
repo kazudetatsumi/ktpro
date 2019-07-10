@@ -252,9 +252,9 @@ def run():
     #diff = make_diff(c, ss, "group_velocity", max_freq, crlat, ssrlat)
     plt.figure()
     #make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
-    make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
+    make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "basal")
     plt.figure()
-    make_diffonplane(c, ss, "group_velocity", max_freq, temp, crlat, ssrlat, "prismatic")
+    make_diffonplane(c, ss, "group_velocity", max_freq, temp, crlat, ssrlat, "basal")
     #make_diffonplane(c, s, "kappa", max_freq, temp, crlat, srlat, "basal")
     #np.savetxt("array.txt", diff, fmt="%17.11e")  #
     plt.show()

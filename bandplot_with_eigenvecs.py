@@ -86,10 +86,16 @@ def lineplotdata(x, y, z, i, j, title):
             z3 = z2[:, l, :]
             for k in np.arange(x.shape[0]-1):
                 if z[k,l] > 0.20:
-                    ax[i, j].plot([x[k],x[k+1]], [y2[k],y2[k+1]], c=z3[k], linewidth=0.5 )
-    #plt.colorbar(sc)
+                    im = ax[i, j].plot([x[k],x[k+1]], [y2[k],y2[k+1]], c=z3[k], linewidth=0.5 )
 
     ax[i, j].set_facecolor('k')
+    #from matplotlib.colors import Normalize
+    #norm = Normalize(vmin=0, vmax=1)
+    #from matplotlib.cm import ScalarMappable, get_cmap
+    #cmap = get_cmap("jet")
+    #mappable=ScalarMappable(norm=norm,cmap=cmap)
+    #mappable._A = []
+    #plt.colorbar(mappable)
     print "sum_of_z_values:",np.sum(z)
 
 
@@ -254,6 +260,13 @@ def run():
     caserun(sxdata, sydata, szdata, scelldata, 1, 1, "beta_Nperp_II", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 3, "beta_Npara_II", bondlenlim)
     #plt.savefig("band-alpha-beta-gamma2.eps")
+    from matplotlib.colors import Normalize
+    norm = Normalize(vmin=0, vmax=1)
+    from matplotlib.cm import ScalarMappable, get_cmap
+    cmap = get_cmap("jet")
+    mappable=ScalarMappable(norm=norm,cmap=cmap)
+    mappable._A = []
+    plt.colorbar(mappable)
 
 THztoKayser = 33.35641
 run()
