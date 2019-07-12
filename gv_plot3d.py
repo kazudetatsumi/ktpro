@@ -200,6 +200,8 @@ def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
     #im = plt.contour(X, Y, Z, np.arange(0, 180, 5))
     plt.clabel(im, inline=1, fontsize=12, fmt='%3.1f')
     plt.title(dn)
+    ax = plt.gca()
+    ax.set_facecolor('k')
 
 
 def parse_rlat(pf):
@@ -223,7 +225,7 @@ def run():
     ssdir = "/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk"
     #ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334"
     #ssdir = "/home/kazu/bsi3n4_m/phonopy_doubled_334_with_alphalat"
-    max_freq = 15
+    max_freq = 45
     temp = 300
     #pc = cdir + "/phonopy.yaml"
     pc = cdir + "/phono3py.yaml"
@@ -252,9 +254,9 @@ def run():
     #diff = make_diff(c, ss, "group_velocity", max_freq, crlat, ssrlat)
     plt.figure()
     #make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
-    make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "basal")
+    make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
     plt.figure()
-    make_diffonplane(c, ss, "group_velocity", max_freq, temp, crlat, ssrlat, "basal")
+    make_diffonplane(c, ss, "group_velocity", max_freq, temp, crlat, ssrlat, "prismatic")
     #make_diffonplane(c, s, "kappa", max_freq, temp, crlat, srlat, "basal")
     #np.savetxt("array.txt", diff, fmt="%17.11e")  #
     plt.show()
