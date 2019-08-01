@@ -78,7 +78,7 @@ def average_kappa(filename, max_freq, temp):
     _kappa = np.zeros(dim)
     _kappa[omega < max_freq] = kappa[omega < max_freq]
     kappa_ave = np.sum(_kappa, axis=1)
-    print "kappa with omega < 15 THz", np.sum(kappa_ave) / (mesh[0]*mesh[1]*mesh[2])
+    print "kappa with omega < %s THz = %f" %  (max_freq, np.sum(kappa_ave) / (mesh[0]*mesh[1]*mesh[2]) )
     return(mesh, qp, kappa_ave)
 
 
@@ -93,6 +93,16 @@ def getXYZD(qx, qy, qz, gvdata_ave, n):
     D2 = np.transpose(D, (2, 1, 0))             # The output format is adjusted to the CHGCAR file.
     D3 = D2.reshape(n[0]*n[1]*n[2] / 5, 5)      # The transposing is nescessary for it. 
     return X, Y, Z, D3
+
+
+def getXYZD2(q, kappadata, mesh):
+    xlin = np.linspace(min(q[:, 0]), max(q[:, 0]), mesh[0])
+    ylin = np.linspace(min(q[:, 1]), max(q[:, 1]), mesh[1])
+    zlin = np.linspace(min(q[:, 2]), max(q[:, 2]), mesh[2])
+    X, Y, Z = np.meshgrid(xlin, ylin, zlin)
+    D = griddata((q[:, 0], q[:, 1], q[:, 2]), kappadata, (X, Y, Z), method='linear')
+
+    return X, Y, Z, D
 
 
 def getXYZ(x, y, gvdata_sum, n):
@@ -112,8 +122,7 @@ def make_diff(file1, file2, dn, max_freq, rlat1, rlat2):
     return diff
 
 
-def project_on_plane(mesh, qp, d, plane):
-    k = 0
+def set_direction(mesh, qp, plane):
     if plane == "basal":
         meshx=mesh[0]
         meshy=mesh[1]
@@ -126,6 +135,11 @@ def project_on_plane(mesh, qp, d, plane):
         meshz=mesh[0]
         qpx = qp[:, 1]
         qpy = qp[:, 2]
+    return meshx, meshy, meshz, qpx, qpy
+
+def project_on_plane(mesh, qp, d, plane):
+    k = 0
+    meshx, meshy, meshz, qpx, qpy = set_direction(mesh, qp, plane)
     d_sum = np.zeros(((meshx+1)*(meshy+1)))
     x = np.zeros(((meshx+1)*(meshy+1)))
     y = np.zeros(((meshx+1)*(meshy+1)))
@@ -159,19 +173,47 @@ def project_on_plane(mesh, qp, d, plane):
     return x, y, d_sum / meshz
 
 
+def project_on_axis(mesh, qp, d, plane):
+    k = 0
+    meshx, meshy, meshz, qpx, qpy = set_direction(mesh, qp, plane)
+    d_sum = np.zeros(((meshx+1)*(meshy+1)))
+    x = np.zeros(((meshx+1)*(meshy+1)))
+    y = np.zeros(((meshx+1)*(meshy+1)))
+    for j in range(0, meshy):
+        y[k] = j * 1.0/meshy
+        condition = abs(qpy - y[k]) < 0.001
+        _d = d[condition]
+        d_sum[k] = np.sum(_d)
+        k += 1
+    y[k] = 1.0
+    d_sum[k] = d_sum[0]
+    return y, d_sum / (meshz * meshx)
+
+
 def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
     if dn == "group_velocity":
         mesh1, qp1, gvdata_ave1 = average_gv(file1, max_freq)
-        print "gv_sum within omega < 15 THz", np.sum(gvdata_ave1) / (mesh1[0]*mesh1[1]*mesh1[2]) * np.linalg.det(rlat1)
+        print "gv_sum within omega < %s THz = %f" % (max_freq, np.sum(gvdata_ave1) / (mesh1[0]*mesh1[1]*mesh1[2]) * np.linalg.det(rlat1))
         x1, y1, z1 = project_on_plane(mesh1, qp1, gvdata_ave1*np.linalg.det(rlat1), plane)
         mesh2, qp2, gvdata_ave2 = average_gv(file2, max_freq)
-        print "gv_sum within omega < 15 THz", np.sum(gvdata_ave2) / (mesh2[0]*mesh2[1]*mesh2[2]) * np.linalg.det(rlat2)
+        print "gv_sum within omega < %s THz = %f" % (max_freq, np.sum(gvdata_ave2) / (mesh2[0]*mesh2[1]*mesh2[2]) * np.linalg.det(rlat2))
         x2, y2, z2 = project_on_plane(mesh2, qp2, gvdata_ave2*np.linalg.det(rlat2), plane)
     if dn == "kappa":
         mesh1, qp1, kappadata_ave1 = average_kappa(file1, max_freq, temp)
         x1, y1, z1 = project_on_plane(mesh1, qp1, kappadata_ave1, plane)
         mesh2, qp2, kappadata_ave2 = average_kappa(file2, max_freq, temp)
         x2, y2, z2 = project_on_plane(mesh2, qp2, kappadata_ave2, plane)
+        XX, YY, ZZ, DD = getXYZD2(qp1, (kappadata_ave2 - kappadata_ave1) / np.average(kappadata_ave2 - kappadata_ave1), mesh1)
+        DDave = np.average(DD, axis=(0,1))
+        DDave2 = np.tile(DDave, mesh1[0]*mesh1[1]).reshape(mesh1[0],mesh1[1],mesh1[2])
+        plt.figure()
+        plt.plot(DDave2[0, 0,:], ZZ[0,0,:])
+        plt.plot(DDave, ZZ[0,0,:])
+
+        SD = np.sum((DD - DDave2)**2, axis=2)
+        loc = np.unravel_index(np.argmin(SD), SD.shape)
+        plt.plot(DD[loc[0], loc[1], :], ZZ[0,0,:])
+        
 
     if plane == "basal": 
         xy = np.zeros(((mesh2[0]+1)*(mesh2[1]+1), 2))
@@ -183,21 +225,14 @@ def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
         xy[:, 0] = x2
         xy[:, 1] = y2
         carxy = np.matmul(xy, rlat2[1:3, 1:3])
-    #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], gvsum1, mesh1[:])
-    #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], ((z2 / mesh2[2]) - (z1 / mesh1[2])), mesh1[:])
-    X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], (z2 - z1) / np.average(z2 - z1) , mesh1[:])
-    #X, Y, Z = getXYZ(x2, y2, (z2 - z1) / np.average(z2 - z1) , mesh1[:])
-    #X, Y, Z = getXYZ(carxy[:,0], carxy[:,1], z1, mesh1[:])
-    #X, Y, Z = getXYZ(x, y, gvsum2 - gvsum1 / mesh[2], mesh1[:])
-    #X, Y, Z = getXYZ(x1, y1, (z2 - z1) / np.average(z2 - z1) , mesh1[:])
-    #X, Y, Z = getXYZ(x2, y2, z2, mesh2[:])
-    #im=plt.pcolor(X,Y,Z,vmin=0,cmap=cm.rainbow)
-    #plt.colorbar(im)
-    #im = plt.contour(X, Y, Z, np.arange(0,1,0.1), colors='k')
-    #im = plt.contour(X, Y, Z, np.arange(0,1,0.1))
-    #im = plt.contour(X, Y, Z, np.arange(30,50,1), colors='k')
-    im = plt.contour(X, Y, Z , np.arange(0, 3, 0.1))
-    #im = plt.contour(X, Y, Z, np.arange(0, 180, 5))
+    X, Y, Z = getXYZ(carxy[:, 0], carxy[:, 1], (z2 - z1) / np.average(z2 - z1), mesh1[:])
+    #Zave = np.average(Z[0:279,0:279], axis=1)
+    #Zave = np.append(Zave, Zave[0])
+    #plt.figure()
+    #plt.plot(Zave, Y[:,0])
+    #plt.plot(Z[:,0],Y[:,0])
+    plt.figure()
+    im = plt.contour(X, Y, Z, np.arange(0, 3, 0.1))
     plt.clabel(im, inline=1, fontsize=12, fmt='%3.1f')
     plt.title(dn)
     ax = plt.gca()
@@ -252,10 +287,10 @@ def run():
     #np.savetxt("array.txt", D3 * np.linalg.det(srlat), fmt="%17.11e")  #
     ##Seek the difference between alpha and beta_doubled_cell
     #diff = make_diff(c, ss, "group_velocity", max_freq, crlat, ssrlat)
-    plt.figure()
+    #plt.figure()
     #make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
     make_diffonplane(c, ss, "kappa", max_freq, temp, crlat, ssrlat, "prismatic")
-    plt.figure()
+    #plt.figure()
     make_diffonplane(c, ss, "group_velocity", max_freq, temp, crlat, ssrlat, "prismatic")
     #make_diffonplane(c, s, "kappa", max_freq, temp, crlat, srlat, "basal")
     #np.savetxt("array.txt", diff, fmt="%17.11e")  #
