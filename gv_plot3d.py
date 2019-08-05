@@ -212,6 +212,7 @@ def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
 
         SD = np.sum((DD - DDave2)**2, axis=2)
         loc = np.unravel_index(np.argmin(SD), SD.shape)
+        print "loc=",loc,"mesh=",DD.shape
         plt.plot(DD[loc[0], loc[1], :], ZZ[0,0,:])
         
 
@@ -226,6 +227,7 @@ def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
         xy[:, 1] = y2
         carxy = np.matmul(xy, rlat2[1:3, 1:3])
     X, Y, Z = getXYZ(carxy[:, 0], carxy[:, 1], (z2 - z1) / np.average(z2 - z1), mesh1[:])
+    print "FUCK",X.size, Y.size, Z.size
     #Zave = np.average(Z[0:279,0:279], axis=1)
     #Zave = np.append(Zave, Zave[0])
     #plt.figure()

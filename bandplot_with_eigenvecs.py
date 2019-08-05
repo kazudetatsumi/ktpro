@@ -219,6 +219,20 @@ def get_files(bfile, pfile):
     return xdata, ydata, zdata, celldata
 
 
+def binimage(x,y):
+    nx = 20
+    ny = 30
+    xlin = np.linspace(np.min(x), np.max(x), nx)
+    ylin = np.linspace(0,  np.max(x), ny)
+    X, Y = np.meshgrid(xlin, ylin)
+
+
+    print "FUCK", x.shape, y.shape
+    #for i in range(Nx+1):
+    #    for j in range(Ny+1):
+    #        for xx, yy in zip(x,y):
+
+
 def run():
     bondlenlim = 2.0
 
@@ -226,13 +240,14 @@ def run():
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_00501.hdf5"
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_055045.hdf5"
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_0505.hdf5"
-    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_0000.hdf5"
+    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_4-14_1-14.hdf5"
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_031006.hdf5"
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_032032.hdf5"
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_K-H.hdf5"
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_043015.hdf5"
     cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
     cxdata, cydata, czdata, ccelldata = get_files(cbfile, cpfile)
+    binimage(cxdata, cydata)
     caserun(cxdata, cydata, czdata, ccelldata, 0, 0, "alpha_Nperp", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata,  0, 1, "alpha_Npara", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata, 0, 2, "alpha_Nz", bondlenlim)
@@ -246,7 +261,7 @@ def run():
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_00501.hdf5"
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_055045.hdf5"
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_0505.hdf5"
-    sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_0000.hdf5"
+    sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_4-14_1-14.hdf5"
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_031006.hdf5"
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_032032.hdf5"
     #sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_K-H.hdf5"
