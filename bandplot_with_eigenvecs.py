@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import yaml
 import matplotlib.cm as cm
+from scipy.interpolate import griddata
+from scipy import stats
 
 plt.style.use('classic')
 plt.rcParams['font.family'] = 'Times New Roman'
@@ -219,22 +221,38 @@ def get_files(bfile, pfile):
     return xdata, ydata, zdata, celldata
 
 
-def binimage(x,y):
-    nx = 20
-    ny = 30
-    xlin = np.linspace(np.min(x), np.max(x), nx)
-    ylin = np.linspace(0,  np.max(x), ny)
+def getXYZ(x, y, z, n):
+    xlin = np.linspace(min(x), max(x), n[0])
+    ylin = np.linspace(min(y), max(y), n[1])
     X, Y = np.meshgrid(xlin, ylin)
+    Z = griddata((x, y), z, (X, Y), method='linear')
+    return X, Y, Z
 
 
-    print "FUCK", x.shape, y.shape
-    #for i in range(Nx+1):
-    #    for j in range(Ny+1):
-    #        for xx, yy in zip(x,y):
+def binimage(x, y, nb):
+    x = np.squeeze(x)
+    y = np.squeeze(y)
+    ylin = np.linspace(-1.0, 40.0, nb+1)
+    nsize = y.shape
+    nc = np.zeros((nsize[0], nb))
+    values = np.ones(nsize[1])
+    for i in range(0, nsize[0]):
+        nc[i, :], res2, res3 = stats.binned_statistic(y[i, :], values, "sum", ylin)
+
+    X, Y = np.meshgrid(x, ylin)
+    nc = np.transpose(nc)
+    for i in range(0, nsize[0]):
+        print "CHK", np.sum(nc[:, i])
+    plt.figure()
+    plt.pcolor(X, Y, nc, cmap=cm.gray)
+
+
+
 
 
 def run():
     bondlenlim = 2.0
+    nybin = 40
 
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_00501.hdf5"
@@ -247,12 +265,12 @@ def run():
     #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_043015.hdf5"
     cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
     cxdata, cydata, czdata, ccelldata = get_files(cbfile, cpfile)
-    binimage(cxdata, cydata)
+    binimage(cxdata, cydata, nybin)
     caserun(cxdata, cydata, czdata, ccelldata, 0, 0, "alpha_Nperp", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata,  0, 1, "alpha_Npara", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata, 0, 2, "alpha_Nz", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata, 0, 3, "alpha_Nxy", bondlenlim)
-    caserun(cxdata, cydata, czdata, ccelldata, 0, 1, "alpha_Nperp_II", bondlenlim)
+    ##caserun(cxdata, cydata, czdata, ccelldata, 0, 1, "alpha_Nperp_II", bondlenlim)
     #caserun(cxdata, cydata, czdata, ccelldata, 0, 3, "alpha_Npara_II", bondlenlim)
 
     #sbfile = "/home/kazu/bsi3n4_m/phono3py_113_fc2_338_sym_monk/band.hdf5"
@@ -269,10 +287,11 @@ def run():
     spfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
     sxdata, sydata, szdata, scelldata = get_files(sbfile, spfile)
     caserun(sxdata, sydata, szdata, scelldata, 1, 0, "beta_Nperp", bondlenlim)
+    binimage(sxdata, sydata, nybin)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 1, "beta_Npara", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 2, "beta_Nz", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 3, "beta_Nxy", bondlenlim)
-    caserun(sxdata, sydata, szdata, scelldata, 1, 1, "beta_Nperp_II", bondlenlim)
+    ##caserun(sxdata, sydata, szdata, scelldata, 1, 1, "beta_Nperp_II", bondlenlim)
     #caserun(sxdata, sydata, szdata, scelldata, 1, 3, "beta_Npara_II", bondlenlim)
     #plt.savefig("band-alpha-beta-gamma2.eps")
     from matplotlib.colors import Normalize

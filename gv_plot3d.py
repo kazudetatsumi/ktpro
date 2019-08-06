@@ -106,6 +106,7 @@ def getXYZD2(q, kappadata, mesh):
 
 
 def getXYZ(x, y, gvdata_sum, n):
+    print "TEST",n
     xlin = np.linspace(min(x), max(x), n[0]*20)
     ylin = np.linspace(min(y), max(y), n[1]*20)
     X, Y = np.meshgrid(xlin, ylin)
@@ -190,6 +191,22 @@ def project_on_axis(mesh, qp, d, plane):
     return y, d_sum / (meshz * meshx)
 
 
+def find_location(q, z, mesh):
+    XX, YY, ZZ, DD = getXYZD2(q, z, mesh)
+    DDave = np.average(DD, axis=(0,1))
+    DDave2 = np.tile(DDave, mesh[0]*mesh[1]).reshape(mesh[0],mesh[1],mesh[2])
+    plt.figure()
+    plt.plot(DDave2[0, 0,:], ZZ[0,0,:])
+    plt.plot(DDave, ZZ[0,0,:])
+
+    SD = np.sum((DD - DDave2)**2, axis=2)
+    loc = np.unravel_index(np.argmin(SD), SD.shape)
+    print "loc=",loc,"mesh=",DD.shape
+    plt.plot(DD[loc[0], loc[1], :], ZZ[0,0,:])
+        
+
+
+
 def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
     if dn == "group_velocity":
         mesh1, qp1, gvdata_ave1 = average_gv(file1, max_freq)
@@ -203,17 +220,7 @@ def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
         x1, y1, z1 = project_on_plane(mesh1, qp1, kappadata_ave1, plane)
         mesh2, qp2, kappadata_ave2 = average_kappa(file2, max_freq, temp)
         x2, y2, z2 = project_on_plane(mesh2, qp2, kappadata_ave2, plane)
-        XX, YY, ZZ, DD = getXYZD2(qp1, (kappadata_ave2 - kappadata_ave1) / np.average(kappadata_ave2 - kappadata_ave1), mesh1)
-        DDave = np.average(DD, axis=(0,1))
-        DDave2 = np.tile(DDave, mesh1[0]*mesh1[1]).reshape(mesh1[0],mesh1[1],mesh1[2])
-        plt.figure()
-        plt.plot(DDave2[0, 0,:], ZZ[0,0,:])
-        plt.plot(DDave, ZZ[0,0,:])
-
-        SD = np.sum((DD - DDave2)**2, axis=2)
-        loc = np.unravel_index(np.argmin(SD), SD.shape)
-        print "loc=",loc,"mesh=",DD.shape
-        plt.plot(DD[loc[0], loc[1], :], ZZ[0,0,:])
+        find_location(qp1, (kappadata_ave2 - kappadata_ave1) / np.average(kappadata_ave2 - kappadata_ave1), mesh1)
         
 
     if plane == "basal": 
@@ -227,7 +234,6 @@ def make_diffonplane(file1, file2, dn, max_freq, temp, rlat1, rlat2, plane):
         xy[:, 1] = y2
         carxy = np.matmul(xy, rlat2[1:3, 1:3])
     X, Y, Z = getXYZ(carxy[:, 0], carxy[:, 1], (z2 - z1) / np.average(z2 - z1), mesh1[:])
-    print "FUCK",X.size, Y.size, Z.size
     #Zave = np.average(Z[0:279,0:279], axis=1)
     #Zave = np.append(Zave, Zave[0])
     #plt.figure()
