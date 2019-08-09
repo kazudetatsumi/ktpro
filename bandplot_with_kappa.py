@@ -25,6 +25,13 @@ def parse_band(bfile):
     return(xdata, ydata, zdata)
 
 
+def parse_cell(pfile):
+    with open(pfile) as f:
+        data = yaml.load(f)
+        celldata = data["primitive_cell"]
+    return celldata
+
+
 def parse_mesh(filename):
     f = h5py.File(filename, 'r')
     gv = f["group_velocity"]
@@ -64,27 +71,20 @@ def parse_kappa(filename,  temp):
 
 
 
-def get_files(bfile, pfile):
-    xdata, ydata, zdata = parse_band(bfile)
-    with open(pfile) as f:
-        data = yaml.load(f)
-        celldata = data["primitive_cell"]
-    return xdata, ydata, zdata, celldata
-
-
 
 def binimage(x, y, k, nb):
-    x = np.squeeze(x)
-    y = np.squeeze(y)
+    x = np.squeeze(x) #(gp)
+    y = np.squeeze(y) #(gp, band)
+    print "Y", y.shape
     ylin = np.linspace(-1.0, 40.0, nb+1)
     nsize = y.shape
-    nc = np.zeros((nsize[0], nb))
+    nc = np.zeros((nsize[0], nb)) #(gp, nb)
     #values = np.ones(nsize[1])
     for i in range(0, nsize[0]):
         nc[i, :], res2, res3 = stats.binned_statistic(y[i, :], k[i,:], "sum", ylin)
 
     X, Y = np.meshgrid(x, ylin)
-    nc = np.transpose(nc)
+    nc = np.transpose(nc)  #(nb, gp)
     for i in range(0, nsize[0]):
         print "nc_CHK", np.sum(nc[:, i])
     #plt.figure()
@@ -111,6 +111,30 @@ def oned_kappa(qp, kappa, omega):
     return onedk
 
 
+def find_jc(ic, celldata, bondlenlim):
+    latvec = np.array(celldata["lattice"])
+    numa = len(celldata["points"])
+    frac = np.zeros((numa, 3))
+    for i in range(0, numa):
+        frac[i, :] = np.array(celldata["points"][i]["coordinates"])
+    lll = np.zeros((27, 3))
+    ttt1 = np.tile(np.array([1]), 9)
+    ttt2 = np.tile(np.array([0]), 9)
+    ttt3 = np.tile(np.array([-1]), 9)
+    lll[:, 0] = np.r_[ttt1, ttt2, ttt3]
+    lll[:, 1] = np.tile(np.array([1, 1, 1, 0, 0, 0, -1, -1, -1]), 3)
+    lll[:, 2] = np.tile(np.array([1, 0, -1]), 9)
+    llll=np.tile(lll,numa).reshape((27,numa,3))
+    ffff=np.tile(frac, 27).reshape((numa,27,3))
+    ffff=np.transpose(ffff,(1,0,2))
+    ffffs = llll + ffff
+
+
+
+
+
+
+
 
 def run():
     bondlenlim = 2.0
@@ -118,37 +142,41 @@ def run():
     temp = 300
 
     cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_4-14_1-14.hdf5"
+    cxdata, cydata, czdata = parse_band(cbfile)
     cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
-    cxdata, cydata, czdata, ccelldata = get_files(cbfile, cpfile)
+    ccelldata = parse_cell(cpfile)
     ckfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m141416.bz.hdf5"
-    qp1, kappa1, gv1, omega1 = parse_kappa(ckfile, temp)
-    #kappa1= oned_kappa(qp1, kappa1, omega1)
-    kappa1= oned_kappa(qp1, gv1*gv1, omega1)
+    ###qp1, kappa1, gv1, omega1 = parse_kappa(ckfile, temp)
+    ###kappa1= oned_kappa(qp1, kappa1, omega1)
+    #kappa1= oned_kappa(qp1, gv1*gv1, omega1)
+
+    find_jc(0, ccelldata, bondlenlim)
+
+    ###cX,cY,cnc = binimage(cxdata, cydata, kappa1, nybin)
+
+    ###sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_4-14_1-14.hdf5"
+    ###sxdata, sydata, szdata = parse_band(sbfile)
+    ###spfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
+    ###scelldata = parse_cell(spfile)
+    ###skfile = "/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk/kappa-m141416.bz.hdf5"
+    ###qp2, kappa2, gv2, omega2 = parse_kappa(skfile, temp)
+    ###kappa2= oned_kappa(qp2, kappa2, omega2)
+    #kappa2= oned_kappa(qp2, gv2*gv2, omega2)
 
 
-    cX,cY,cnc = binimage(cxdata, cydata, kappa1, nybin)
-    sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_4-14_1-14.hdf5"
-    spfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
-    sxdata, sydata, szdata, scelldata = get_files(sbfile, spfile)
-    skfile = "/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk/kappa-m141416.bz.hdf5"
-    qp2, kappa2, gv2, omega2 = parse_kappa(skfile, temp)
-    #kappa2= oned_kappa(qp2, kappa2, omega2)
-    kappa2= oned_kappa(qp2, gv2*gv2, omega2)
-
-
-    sX,sY,snc = binimage(sxdata, sydata, kappa2, nybin)
-    maxs=np.max(snc)
-    im=ax[0].pcolor(cX, cY, cnc,vmin=0, vmax=maxs, cmap=cm.gray)
-    im=ax[1].pcolor(sX, sY, snc,vmin=0, vmax=maxs, cmap=cm.gray)
-    plt.figure()
-    from matplotlib.colors import Normalize
-    norm = Normalize(vmin=0, vmax=maxs)
-    from matplotlib.cm import ScalarMappable, get_cmap
-    cmap = get_cmap("gray")
-    mappable=ScalarMappable(norm=norm,cmap=cmap)
-    mappable._A = []
-    plt.colorbar(mappable)
+    ###sX,sY,snc = binimage(sxdata, sydata, kappa2, nybin)
+    ###maxs=np.max(snc)
+    ###im=ax[0].pcolor(cX, cY, cnc,vmin=0, vmax=maxs, cmap=cm.gray)
+    ###im=ax[1].pcolor(sX, sY, snc,vmin=0, vmax=maxs, cmap=cm.gray)
+    ###plt.figure()
+    ###from matplotlib.colors import Normalize
+    ###norm = Normalize(vmin=0, vmax=maxs)
+    ###from matplotlib.cm import ScalarMappable, get_cmap
+    ###cmap = get_cmap("gray")
+    ###mappable=ScalarMappable(norm=norm,cmap=cmap)
+    ###mappable._A = []
+    ###plt.colorbar(mappable)
 
 #THztoKayser = 33.35641
 run()
-plt.show()
+#plt.show()
