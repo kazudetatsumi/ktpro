@@ -4,6 +4,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import yaml
+import math, cmath
 import matplotlib.cm as cm
 from scipy.interpolate import griddata
 from scipy import stats
@@ -111,23 +112,52 @@ def oned_kappa(qp, kappa, omega):
     return onedk
 
 
-def find_jc(ic, celldata, bondlenlim):
+def tst(ic, celldata, bondlenlim, ydata, zdata):
     latvec = np.array(celldata["lattice"])
     numa = len(celldata["points"])
     frac = np.zeros((numa, 3))
     for i in range(0, numa):
         frac[i, :] = np.array(celldata["points"][i]["coordinates"])
-    lll = np.zeros((27, 3))
+    ttt = np.zeros((27, 3))
     ttt1 = np.tile(np.array([1]), 9)
     ttt2 = np.tile(np.array([0]), 9)
     ttt3 = np.tile(np.array([-1]), 9)
-    lll[:, 0] = np.r_[ttt1, ttt2, ttt3]
-    lll[:, 1] = np.tile(np.array([1, 1, 1, 0, 0, 0, -1, -1, -1]), 3)
-    lll[:, 2] = np.tile(np.array([1, 0, -1]), 9)
-    llll=np.tile(lll,numa).reshape((27,numa,3))
+    ttt[:, 0] = np.r_[ttt1, ttt2, ttt3]
+    ttt[:, 1] = np.tile(np.array([1, 1, 1, 0, 0, 0, -1, -1, -1]), 3)
+    ttt[:, 2] = np.tile(np.array([1, 0, -1]), 9)
+    tttt=np.tile(ttt, numa).reshape((27, numa, 3))  # (27, numa, 3)
     ffff=np.tile(frac, 27).reshape((numa,27,3))
     ffff=np.transpose(ffff,(1,0,2))
-    ffffs = llll + ffff
+    ffffs = tttt + ffff   #(27, numa, 3)
+    cars = np.matmul(ffffs, latvec)
+    ics = np.tile(np.tile(frac[ic,:], numa),27).reshape((27, numa, 3))
+    carics = np.matmul(ics, latvec)
+    norm = np.linalg.norm(carics - cars, axis=2)
+    nn = np.where((norm < bondlenlim)) # (trans indices, atom indices)
+
+
+
+    rm = cars[13, ic, :]
+    rk = cars[nn[0][0], nn[1][0], :]
+    rmk = rm - rk
+
+    zdata = np.squeeze(zdata)
+    Em = zdata[:, ic*3 : (ic+1)*3, :]
+    Ek = zdata[:, nn[1][0]*3 : (nn[1][0]+1)*3, :] # (gp, 3, band)
+    theta = np.linspace(0, 2*math.pi, 100)
+
+    q = np.array([0.1,0.2,0.3])
+    argm =  np.dot(rm,q) - theta
+    argk =  np.dot(rk,q) - theta
+    expm = np.real(np.exp(argm*1j))
+    expk = np.real(np.exp(argk*1j))
+    em = np.real(np.tensordot(Em, expm, axes=0)) # (gp, 3, band, theta)
+    ek = np.real(np.tensordot(Ek, expk, axes=0)) # (gp, 3, band, theta)
+    t = np.ones_like(np.squeeze(em[:,0,:,:]))
+    trmk = np.tensordot(t, rmk, axes=0)
+    trmk = np.transpose(trmk, (0, 3, 1, 2)) 
+    stmk = np.abs(np.linalg.norm(trmk + em - ek, axis=1) - np.linalg.norm(trmk, axis=1))/np.linalg.norm(rmk) # (gp, band, theta)
+    avestmk = np.sum(stmk, axis=2)/math.pi # (gp, band)
 
 
 
@@ -150,7 +180,10 @@ def run():
     ###kappa1= oned_kappa(qp1, kappa1, omega1)
     #kappa1= oned_kappa(qp1, gv1*gv1, omega1)
 
-    find_jc(0, ccelldata, bondlenlim)
+    tst(0, ccelldata, bondlenlim, cydata, czdata)
+
+
+
 
     ###cX,cY,cnc = binimage(cxdata, cydata, kappa1, nybin)
 
