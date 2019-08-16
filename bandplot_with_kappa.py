@@ -2,20 +2,20 @@
 
 import h5py
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import yaml
 import math, cmath
-import matplotlib.cm as cm
+#import matplotlib.cm as cm
 from scipy.interpolate import griddata
 from scipy import stats
 
-plt.style.use('classic')
-plt.rcParams['font.family'] = 'Times New Roman'
-plt.rcParams['font.size'] = 12
-plt.rcParams['axes.linewidth'] = 1
-plt.rcParams['ytick.major.width'] = 1
-plt.rcParams['ytick.major.size'] = 5
-fig, ax = plt.subplots(1,2,  figsize=(14, 14))
+#plt.style.use('classic')
+#plt.rcParams['font.family'] = 'Times New Roman'
+#plt.rcParams['font.size'] = 12
+#plt.rcParams['axes.linewidth'] = 1
+#plt.rcParams['ytick.major.width'] = 1
+#plt.rcParams['ytick.major.size'] = 5
+#fig, ax = plt.subplots(1,2,  figsize=(14, 14))
 
 
 def parse_band(bfile):
@@ -315,8 +315,8 @@ def run():
          for i in range(0,12):
              avestmk += tst2(i, trans[l, :], ccelldata, bondlenlim, cydata, czdata) / (12*7*14*16)
     
-    with h5py.File('avestmk.hdf5', 'w') as hf:
-        hf.create_dataset('asi3n4_avestmk', data=avestmk)
+    with h5py.File('asi3n4_avestmk.hdf5', 'w') as hf:
+        hf.create_dataset('avestmk', data=avestmk)
 
 
 
