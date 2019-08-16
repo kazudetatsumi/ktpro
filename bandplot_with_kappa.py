@@ -205,7 +205,7 @@ def tst(ic, celldata, bondlenlim, ydata, zdata):
 
 
 
-def tst2(ic, celldata, bondlenlim, ydata, zdata):
+def tst2(ic, trans, celldata, bondlenlim, ydata, zdata):
     latvec = np.array(celldata["lattice"])
     numa = len(celldata["points"])
     frac = np.zeros((numa, 3))
@@ -236,8 +236,8 @@ def tst2(ic, celldata, bondlenlim, ydata, zdata):
     q = np.zeros((9,3)); q[:, 0] = 4.0/14.0; q[:, 1] = 1.0/14.0; q[:, 2] = np.arange(0,9)/16.0
 
     # vectorize variables with respect to  # (coord, gp, 3,  band, theta)
-    rm = carics[0, 0, :] # (3)
-    rk = cars[nn[0], nn[1], :] # (coord, 3)
+    rm = carics[0, 0, :] + np.matmul(trans, latvec) # (3)
+    rk = cars[nn[0], nn[1], :] + np.matmul(trans, latvec) # (coord, 3)
 
 
     theta = np.tensordot(np.ones((crd, 9, 3, numa*3)), np.linspace(0, 2*math.pi, 100), axes=0) # (coord, gp, 3, band, theta)
@@ -292,50 +292,32 @@ def run():
     cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
     ccelldata = parse_cell(cpfile)
     ckfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m141416.bz.hdf5"
-    ###qp1, kappa1, gv1, omega1 = parse_kappa(ckfile, temp)
-    ###kappa1= oned_kappa(qp1, kappa1, omega1)
-    #kappa1= oned_kappa(qp1, gv1*gv1, omega1)
 
     numa = len(ccelldata["points"])
     print numa
 
+
+    trans = np.zeros((7*14*16, 3))
+    l = 0
+    for i in range(0, 7):
+        for j in range(0, 14):
+            for k in range(0, 16):
+                trans[l, :] = np.array([i, j, k])
+                l += 1
+
     avestmk = np.zeros((9, numa*3))
-    for j in range(0, 3136):
-        print j
-        import datetime
-        d = datetime.datetime.today()
-        print('d:', d)
-        for i in range(0,12):
-             avestmk += tst2(i, ccelldata, bondlenlim, cydata, czdata)
+    for l in range(0, 7*14*16):
+    #    print j
+    #    import datetime
+    #    d = datetime.datetime.today()
+    #    print('d:', d)
+         print l, avestmk[0, 0]
+         for i in range(0,12):
+             avestmk += tst2(i, trans[l, :], ccelldata, bondlenlim, cydata, czdata) / (12*7*14*16)
+    
+    with h5py.File('avestmk.hdf5', 'w') as hf:
+        hf.create_dataset('asi3n4_avestmk', data=avestmk)
 
 
 
-
-    ###cX,cY,cnc = binimage(cxdata, cydata, kappa1, nybin)
-
-    ###sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_4-14_1-14.hdf5"
-    ###sxdata, sydata, szdata = parse_band(sbfile)
-    ###spfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
-    ###scelldata = parse_cell(spfile)
-    ###skfile = "/home/kazu/bsi3n4_m/phono3py_doubled_112_fc2_334_sym_monk/kappa-m141416.bz.hdf5"
-    ###qp2, kappa2, gv2, omega2 = parse_kappa(skfile, temp)
-    ###kappa2= oned_kappa(qp2, kappa2, omega2)
-    #kappa2= oned_kappa(qp2, gv2*gv2, omega2)
-
-
-    ###sX,sY,snc = binimage(sxdata, sydata, kappa2, nybin)
-    ###maxs=np.max(snc)
-    ###im=ax[0].pcolor(cX, cY, cnc,vmin=0, vmax=maxs, cmap=cm.gray)
-    ###im=ax[1].pcolor(sX, sY, snc,vmin=0, vmax=maxs, cmap=cm.gray)
-    ###plt.figure()
-    ###from matplotlib.colors import Normalize
-    ###norm = Normalize(vmin=0, vmax=maxs)
-    ###from matplotlib.cm import ScalarMappable, get_cmap
-    ###cmap = get_cmap("gray")
-    ###mappable=ScalarMappable(norm=norm,cmap=cmap)
-    ###mappable._A = []
-    ###plt.colorbar(mappable)
-
-#THztoKayser = 33.35641
 run()
-#plt.show()
