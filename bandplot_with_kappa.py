@@ -93,6 +93,20 @@ def binimage(x, y, k, nb):
     return X, Y, nc
 
 
+
+def parse_dgdq(gfile):
+    f = h5py.File(gfile)
+    avest = f["avestmk"]
+    size = avest.shape
+    ngp = size[0]
+    nband = size[1]
+    dgdq = np.zeros((ngp, nband))
+    print "dgdq size", dgdq.shape
+    for i in range(1, ngp):
+        dgdq[i, :] = avest[i, :] - avest[i-1, :]
+    return dgdq
+
+
 def oned_kappa(qp, kappa, omega):
     qpx = qp[:, 0]
     qpy = qp[:, 1]
@@ -126,10 +140,16 @@ def run():
     ckfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m141416.bz.hdf5"
     qp1, kappa1, gv1, omega1 = parse_kappa(ckfile, temp)
     kappa1= oned_kappa(qp1, kappa1, omega1)
+    print "kappa1 size",kappa1.shape
+    cgfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/asi3n4_avestmk.hdf5"
+    dgdq1 = parse_dgdq(cgfile)
     #kappa1= oned_kappa(qp1, gv1*gv1, omega1)
 
 
     cX,cY,cnc = binimage(cxdata, cydata, kappa1, nybin)
+    cX,cY,cnd = binimage(cxdata, cydata, dgdq1, nybin)
+
+
 
     sbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_4-14_1-14.hdf5"
     sxdata, sydata, szdata = parse_band(sbfile)
@@ -139,13 +159,20 @@ def run():
     qp2, kappa2, gv2, omega2 = parse_kappa(skfile, temp)
     kappa2= oned_kappa(qp2, kappa2, omega2)
     #kappa2= oned_kappa(qp2, gv2*gv2, omega2)
-
+    sgfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/bsi3n4_avestmk.hdf5"
+    dgdq2 = parse_dgdq(sgfile)
 
     sX,sY,snc = binimage(sxdata, sydata, kappa2, nybin)
+    sX,sY,snd = binimage(sxdata, sydata, dgdq2, nybin)
+
     maxs=np.max(snc)
     maxsc=np.max(snc-cnc)
-    im=ax[0].pcolor(cX, cY, cnc,vmin=0, vmax=maxs, cmap=cm.gray)
-    im=ax[1].pcolor(sX, sY, snc-cnc,vmin=0, vmax=maxsc, cmap=cm.gray)
+    maxscd=np.max(snd-cnd)
+    #im=ax[0].pcolor(cX, cY, cnc,vmin=0, vmax=maxs, cmap=cm.gray)
+    im=ax[0].pcolor(sX, sY, snc-cnc,vmin=0, vmax=maxsc, cmap=cm.gray)
+    im=ax[1].pcolor(sX, sY, snd-cnd,vmin=0, vmax=maxscd, cmap=cm.gray)
+    ax[0].set_title('diff kappa')
+    ax[1].set_title('diff geometry')
     plt.figure()
     from matplotlib.colors import Normalize
     norm = Normalize(vmin=0, vmax=maxsc)
