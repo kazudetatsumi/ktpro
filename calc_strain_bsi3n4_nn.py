@@ -313,17 +313,17 @@ def run():
                 l += 1
 
     avestmk = np.zeros((9, numa*3))
-    ###for l in range(0, 7*14*16):
-    for l in range(0, 12):
-         import datetime
-         d = datetime.datetime.today()
-         print('d:', d)
+    for l in range(0, 7*14*16):
+    #for l in range(0, 12):
+        # import datetime
+        # d = datetime.datetime.today()
+        # print('d:', d)
          print l, avestmk[0, 0]
          for i in range(0, 16):
              avestmk += tst2(i, trans[l, :], ccelldata, bondlenlim, cydata, czdata) / (12*7*14*16)
     
-    ###with h5py.File('asi3n4_avestmk_nn.hdf5', 'w') as hf:
-    ###    hf.create_dataset('avestmk', data=avestmk)
+    with h5py.File('bsi3n4_avestmk_nn.hdf5', 'w') as hf:
+        hf.create_dataset('avestmk', data=avestmk)
     #for i in range(0, 16):
     #    avestmk += tst2(i, trans[0, :], ccelldata, bondlenlim, cydata, czdata) / (12*7*14*16)
 
