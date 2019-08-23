@@ -288,11 +288,11 @@ def run():
     nybin = 90
     temp = 300
 
-    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_4-14_1-14.hdf5"
-    #cbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_4-14_1-14.hdf5"
+    #cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_4-14_1-14.hdf5"
+    cbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band_4-14_1-14.hdf5"
     cxdata, cydata, czdata = parse_band(cbfile)
-    cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
-    #cpfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
+    #cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
+    cpfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
     ccelldata = parse_cell(cpfile)
     #ckfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m141416.bz.hdf5"
 
