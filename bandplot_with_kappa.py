@@ -78,16 +78,17 @@ def binimage(x, y, k, nb):
     y = np.squeeze(y) #(gp, band)
     print "Y", y.shape
     ylin = np.linspace(-1.0, 40.0, nb+1)
+    print "ylin",ylin.shape
     nsize = y.shape
-    nc = np.zeros((nsize[0], nb)) #(gp, nb)
+    nc = np.zeros((nsize[0], nb+1)) #(gp, nb)
     #values = np.ones(nsize[1])
     for i in range(0, nsize[0]):
-        nc[i, :], res2, res3 = stats.binned_statistic(y[i, :], k[i,:], "sum", ylin)
+        nc[i,0:nb], res2, res3 = stats.binned_statistic(y[i, :], k[i,:], "sum", ylin)
 
     X, Y = np.meshgrid(x, ylin)
     nc = np.transpose(nc)  #(nb, gp)
-    for i in range(0, nsize[0]):
-        print "nc_CHK", np.sum(nc[:, i])
+    #for i in range(0, nsize[0]):
+        #print "nc_CHK", np.sum(nc[:, i])
     #plt.figure()
     #plt.pcolor(X, Y, nc, cmap=cm.gray)
     return X, Y, nc
@@ -101,9 +102,33 @@ def parse_dgdq(gfile):
     ngp = size[0]
     nband = size[1]
     dgdq = np.zeros((ngp, nband))
-    print "dgdq size", dgdq.shape
+    #print "dgdq size", dgdq.shape
     for i in range(1, ngp):
         dgdq[i, :] = avest[i, :] - avest[i-1, :]
+    return dgdq
+
+
+def parse_dgdq_fine(gfile):
+    f = h5py.File(gfile)
+    avest = f["avestmk"]
+    size = avest.shape
+    print "size", size
+    ngp = size[0]
+    nband = size[1]
+    n = ( size[0] + 2 ) / 3
+    print "n", n
+    dgdq = np.zeros((n, nband))
+    #print "dgdq size", dgdq.shape
+    j = 0
+    for i in range(1, ngp):
+        if i == 1 or i == ngp - 1:
+           dgdq[j, 0:20] = np.abs(avest[i, 0:20] - avest[i-1, 0:20])
+           j += 1
+        elif i % 3 == 0:  
+           dgdq[j, 0:20] = np.abs((avest[i+1, 0:20] - avest[i-1, 0:20]) / 2.0)
+           j += 1
+    print dgdq[:, 0]
+    print dgdq[:, 1]
     return dgdq
 
 
@@ -115,7 +140,7 @@ def oned_kappa(qp, kappa, omega):
     onedk = np.zeros((9, nsize[1]))
     for i in range(0, 9):
         condition = abs(qpx - (4.0/14.0)) + abs(qpy - (1.0/14.0)) + abs(qpz - (i/16.0)) < 0.01
-        print qp[condition, :]
+        #print qp[condition, :]
         _k = kappa[condition, :]
         _o = omega[condition, :]
         _o = np.squeeze(_o)
@@ -130,7 +155,7 @@ def oned_kappa(qp, kappa, omega):
 
 def run():
     bondlenlim = 2.0
-    nybin = 90
+    nybin = 20
     temp = 300
 
     cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band_4-14_1-14.hdf5"
@@ -140,8 +165,8 @@ def run():
     ckfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/noiso/kappa-m141416.bz.hdf5"
     qp1, kappa1, gv1, omega1 = parse_kappa(ckfile, temp)
     kappa1= oned_kappa(qp1, kappa1, omega1)
-    print "kappa1 size",kappa1.shape
-    cgfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/asi3n4_avestmk.hdf5"
+    #print "kappa1 size",kappa1.shape
+    cgfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/asi3n4_avestmk_nn.hdf5"
     dgdq1 = parse_dgdq(cgfile)
     #kappa1= oned_kappa(qp1, gv1*gv1, omega1)
 
@@ -159,23 +184,32 @@ def run():
     qp2, kappa2, gv2, omega2 = parse_kappa(skfile, temp)
     kappa2= oned_kappa(qp2, kappa2, omega2)
     #kappa2= oned_kappa(qp2, gv2*gv2, omega2)
-    sgfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/bsi3n4_avestmk.hdf5"
-    dgdq2 = parse_dgdq(sgfile)
+    #sgfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/bsi3n4_avestmk_nn.hdf5"
+    sgfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/bsi3n4_avestmk_fine.hdf5"
+    #dgdq2 = parse_dgdq(sgfile)
+    dgdq2 = parse_dgdq_fine(sgfile)
 
     sX,sY,snc = binimage(sxdata, sydata, kappa2, nybin)
     sX,sY,snd = binimage(sxdata, sydata, dgdq2, nybin)
+    print sX.shape
+    print sY.shape
+    print snd.shape
 
     maxs=np.max(snc)
     maxsc=np.max(snc-cnc)
-    maxscd=np.max(snd-cnd)
-    #im=ax[0].pcolor(cX, cY, cnc,vmin=0, vmax=maxs, cmap=cm.gray)
-    im=ax[0].pcolor(sX, sY, snc-cnc,vmin=0, vmax=maxsc, cmap=cm.gray)
-    im=ax[1].pcolor(sX, sY, snd-cnd,vmin=0, vmax=maxscd, cmap=cm.gray)
-    ax[0].set_title('diff kappa')
-    ax[1].set_title('diff geometry')
+    #maxscd=np.max(snd-cnd)
+    maxscd=np.max(snd)
+    print "maxscd", np.max(snd)
+    minscd=np.min(snd)
+    #im=ax[0].pcolor(cX, cY, snc, vmin=0, vmax=maxs, cmap=cm.gray)
+    im=ax[0].pcolor(snc, vmin=0, vmax=maxs, cmap=cm.gray)
+    #im=ax[0].pcolor(sX, sY, snc-cnc,vmin=0, vmax=maxsc, cmap=cm.gray)
+    im=ax[1].pcolor(snd, vmin=0, vmax=maxscd, cmap=cm.gray)
+    ax[0].set_title('kappa beta ')
+    ax[1].set_title('geometry beta ')
     plt.figure()
     from matplotlib.colors import Normalize
-    norm = Normalize(vmin=0, vmax=maxsc)
+    norm = Normalize(vmin=0, vmax=maxs)
     from matplotlib.cm import ScalarMappable, get_cmap
     cmap = get_cmap("gray")
     mappable=ScalarMappable(norm=norm,cmap=cmap)
