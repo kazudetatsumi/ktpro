@@ -137,12 +137,12 @@ def run():
                 l += 1
 
     avestmk = np.zeros((nrb, numa*3))
-    #for l in range(0, 7*14*16):
-    for l in range(0, 10):
+    for l in range(0, 7*14*160):
+    #for l in range(0, 10):
     #    print j
-         import datetime
-         d = datetime.datetime.today()
-         print('d:', d)
+         #import datetime
+         #d = datetime.datetime.today()
+         #print('d:', d)
          print l, avestmk[0, 0]
          for i in range(0,12):
              avestmk += tst2(i, trans[l, :], ccelldata, bondlenlim, czdata, nb, nrb) / (12*7*14*160)
