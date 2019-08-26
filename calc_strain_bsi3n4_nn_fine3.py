@@ -137,7 +137,10 @@ def run():
                 l += 1
 
     avestmk = np.zeros((nrb, numa*3))
-    for l in range(0, 7*14*160):
+    #for l in range(0, 7*14*160/4):
+    #for l in range(7*14*160/4, 7*14*160*2/4):
+    for l in range(7*14*160*2/4, 7*14*160*3/4):
+    #for l in range(7*14*160*3/4, 7*14*160*4/4):
     #for l in range(0, 10):
         #print j
          import datetime

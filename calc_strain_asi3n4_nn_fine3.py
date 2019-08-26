@@ -119,9 +119,9 @@ def run():
     nb = 81
     nrb = (nb - 11) / 10 * 3 + 2*2
 
-    cbfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/band.hdf5"
+    cbfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/band.hdf5"
     czdata = parse_band(cbfile, nb, nrb)
-    cpfile = "/home/kazu/bsi3n4_m/phonopy_doubled_334/primitive.yaml"
+    cpfile = "/home/kazu/asi3n4/phono3py_112_fc2_334_sym_monk_shift/primitive.yaml"
     ccelldata = parse_cell(cpfile)
 
     numa = len(ccelldata["points"])
@@ -137,7 +137,10 @@ def run():
                 l += 1
 
     avestmk = np.zeros((nrb, numa*3))
-    for l in range(0, 7*14*160):
+    #for l in range(0, 7*14*160/4):
+    #for l in range(7*14*160/4, 7*14*160*2/4):
+    for l in range(7*14*160*2/4, 7*14*160*3/4):
+    #for l in range(7*14*160*3/4, 7*14*160*4/4):
     #for l in range(0, 10):
         #print j
          import datetime
@@ -147,8 +150,8 @@ def run():
          for i in range(0, 16):
              avestmk += tst2(i, trans[l, :], ccelldata, bondlenlim, czdata, nb, nrb) / (16*7*14*160)
     
-    with h5py.File('bsi3n4_avestmk_nn_fine.hdf5', 'w') as hf:
-         hf.create_dataset('avestmk', data=avestmk)
+    with h5py.File('bsi3n4_avestmk_nn_fine3.hdf5', 'w') as hf:
+        hf.create_dataset('avestmk', data=avestmk)
 
 
 
