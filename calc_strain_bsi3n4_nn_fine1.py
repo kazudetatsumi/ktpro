@@ -150,7 +150,7 @@ def run():
          for i in range(0, 16):
              avestmk += tst2(i, trans[l, :], ccelldata, bondlenlim, czdata, nb, nrb) / (16*7*14*160)
     
-    with h5py.File('bsi3n4_avestmk_nn_fine.hdf5', 'w') as hf:
+    with h5py.File('bsi3n4_avestmk_nn_fine1.hdf5', 'w') as hf:
          hf.create_dataset('avestmk', data=avestmk)
 
 
