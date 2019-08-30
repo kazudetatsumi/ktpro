@@ -5,15 +5,16 @@ import sys
 
 argvs = sys.argv
 
+i=1
+sfile = argvs[1]+str(i)+".hdf5"
+f = h5py.File(sfile)
+avestmk = np.squeeze(f["avestmk"])
 
-for i in range(1,5):
-    sfile = argvs[1]+i+".hdf5"
+for i in range(2,5):
+    sfile = argvs[1]+str(i)+".hdf5"
     f = h5py.File(sfile)
-    sdata = f["avestmk"]
-    if i == 0:
-        avestmk=np.zeros_like(sdata)
-    else:
-        avestmk += sdata
+    avestmk += np.squeeze(f["avestmk"])
+
 
 with h5py.File(argvs[1]+'1-4.hdf5', 'w') as hf: 
      hf.create_dataset('avestmk', data=avestmk)
