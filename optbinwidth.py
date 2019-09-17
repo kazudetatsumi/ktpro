@@ -10,9 +10,9 @@ def get2ddata(f):
     z = data[:, 2]
     dx = 0.005
     dy = 0.1
-    xlin = np.arange(min(x), max(x), dx)
+    xlin = np.arange(min(x), max(x)+dx, dx)
     nx = xlin.shape[0]
-    ylin = np.arange(min(y), max(y), dy)
+    ylin = np.arange(min(y), max(y)+dy, dy)
     ny = ylin.shape[0]
     print nx, ny
     
@@ -21,12 +21,17 @@ def get2ddata(f):
     for _x, _y, _z in zip(x, y, z):
        xx =  np.where(abs(xlin - _x) < 0.0000001)
        yy =  np.where(abs(ylin - _y) < 0.0000001)
+       #print "check xx yy", xx, yy
        #karr[xx, yy] = _z
-       karr[xx, yy] = _z + 0.00000001
+       karr[xx, yy] = _z + 0.00000000001
 
-    condition = karr > 0.000001
+    condition = karr > 0.000000000001
     karrnonzero = np.extract(condition, karr)
-    print "nonzero karr", karrnonzero.shape
+    if karrnonzero.shape[0] != x.shape[0]:
+         print "num of nonzero karr is not num of data", karrnonzero.shape
+    else:
+         print "num of nonzero karr matches  num of data", karrnonzero.shape
+
 
     #return karr[100:225,75:]
     #data = karr[100:225, 75:]
@@ -102,5 +107,12 @@ def run2d():
     plt.pcolor(np.transpose(k), vmax=np.max(k), cmap='jet')
     plt.figure(figsize=(16, 8))
     plt.pcolor(np.transpose(data), vmax=np.max(data)/100, cmap='jet')
-run2d()
-plt.show()
+
+
+def run_tst():
+    txtfile = "/home/kazu/data/20min_fine.txt"
+    data = get2ddata(txtfile)
+
+run_tst()
+#run2d()
+#plt.show()
