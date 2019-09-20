@@ -54,9 +54,10 @@ def get2ddata(f):
     #data = np.concatenate((data, np.zeros_like(data)), axis = 0)
     #print "dummy_zero", data.shape
     #return karr[20:685, 105:]
-    return karr[119:218, 45:340]
-    #return karr[:, :]
-    #return karr[10:690, 139:]
+    #return karr[100:560, 0:300]
+    return karr[:, :]
+    #return karr[75:450, :]
+    #return karr[10:690, 117:]
     #return karr3, ndata
     #return data
 
@@ -84,8 +85,6 @@ def calc_hist2d(A, nw0, nw1):
 
 def calc_cost2d(A, maxw):
     Cn = np.zeros((maxw))
-    kaves = np.zeros((maxw))
-    deltas = np.zeros((maxw))
     for i in range(1, maxw[0]):
        for j in range(1, maxw[1]):
           k = calc_hist2d(A, i, j)
@@ -101,11 +100,9 @@ def calc_cost2d(A, maxw):
           #kf = k.flatten()                            
           #kave = np.average(kf)/fracdata
           #v =  np.sum((kf - kave)**2)/(kf.shape[0]*1.0*fracdata)
-          cost = (2 * kave - v) / ((i*j)**2*1.0)
+          cost = (2 * kave - v) / ((i*j)**2)
           Cn[i, j] = cost
-          kaves[i, j] = kave
-          deltas[i, j] = (i*j*1.0)
-    return Cn, kaves, deltas
+    return Cn
 
 def make_mappable(maxvalue):
     from matplotlib.colors import Normalize
@@ -120,14 +117,12 @@ def make_mappable(maxvalue):
 def run2d():
     txtfile = "/home/kazu/data/20min_fine.txt"
     data = get2ddata(txtfile)
-    n = np.sum(data)
-    print "n=", n
     maxw =  np.array([int(data.shape[0] / 2), int(data.shape[1]) / 2])
     print maxw
     #print data[0:10]
     A = np.cumsum(np.cumsum(data, axis=0), axis=1)
 
-    Cn, kaves, delstas = calc_cost2d(A, maxw)
+    Cn = calc_cost2d(A, maxw)
     print "opt bin index", np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
     opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
     k = calc_hist2d(A, opt_indx[0], opt_indx[1]) 
@@ -151,52 +146,10 @@ def run2d():
     mappable = make_mappable(np.max(data)/500)
     plt.colorbar(mappable)
 
-def runex():
-    txtfile = "/home/kazu/data/20min_fine.txt"
-    data = get2ddata(txtfile)
-    n = np.sum(data)*1.0
-    print "n=", n
-    maxw = np.array([int(data.shape[0] / 2), int(data.shape[1]) / 2])
-    print maxw
-    A = np.cumsum(np.cumsum(data, axis=0), axis=1)
-
-    Cn, kaves, delstas = calc_cost2d(A, maxw)
-    Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
-
-    m = 4.0*n
-
-    ex = (1/m - 1/n) * kaves / (delstas**2*n) 
-    ex[0, :] = 0.0
-    ex[:, 0] = 0.0
-
-    #print "ex, size",ex.shape
-    #print "ex", ex[0:5, 0:5]
-    #print Cn[0:5, 0:5]
-    Cm = ex + Cn
-
-    print "opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-    opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-    k = calc_hist2d(A, opt_indx[0], opt_indx[1]) 
-    #plt.figure(figsize=(16, 8))
-    #plt.plot(Cn[10,:])
-    #plt.plot(Cm[10,:])
-
-    plt.figure(figsize=(16, 8))
-    plt.pcolor(np.transpose(k), vmax=np.max(k), cmap='jet')
-    mappable = make_mappable(np.max(k))
-    plt.colorbar(mappable)
-    plt.figure(figsize=(16, 8))
-    plt.pcolor(np.transpose(data), vmax=np.max(data)/1000, cmap='jet')
-
-    mappable = make_mappable(np.max(data)/1000)
-    plt.colorbar(mappable)
-
 def run_tst():
     txtfile = "/home/kazu/data/20min_fine.txt"
     data = get2ddata(txtfile)
-    plt.pcolor(np.transpose(data), vmax=np.max(data)/1000, cmap='jet')
 
 #run_tst()
-#run2d()
-runex()
+run2d()
 plt.show()
