@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-def get2ddata(f):
+def get2ddata(f, xi, xf, yi, yf):
     data = np.genfromtxt(f,  delimiter=',', dtype=None)
     x = data[:, 0]
     y = data[:, 1]
@@ -18,6 +18,11 @@ def get2ddata(f):
     print nx, ny
     
     karr = np.zeros((nx, ny))
+    karr2 = np.zeros((nx, ny))
+
+
+    # here we check whether we correctly read the whole lines in the input file
+    # and generate a matrix "condition" which describes whether the element location is included in the input file or not.
 
     for _x, _y, _z in zip(x, y, z):
        xx =  np.where(abs(xlin - _x) < 0.0000001)
@@ -25,6 +30,7 @@ def get2ddata(f):
        karr[xx, yy] = _z + 0.00000001 
 
     condition = karr > 0.0000000001
+    print condition.shape
     karrnonzero = np.extract(condition, karr)
     ndata = x.shape[0]
     if karrnonzero.shape[0] != x.shape[0]:
@@ -32,41 +38,26 @@ def get2ddata(f):
     else:
          print "num of nonzero karr matches  num of data", karrnonzero.shape
 
-    #karr2 = karr[10:690, 115:]
-    #karr2 = karr
-    #condition = karr2 > 0.0000000000001
-    #karr2nonzero = np.extract(condition, karr2)
-    #ndata = karr2nonzero.shape[0]
 
-    #for _x, _y, _z in zip(x, y, z):
-    #   xx =  np.where(abs(xlin - _x) < 0.0000001)
-    #   yy =  np.where(abs(ylin - _y) < 0.0000001)
-    #   karr[xx, yy] = _z - 0.00000000001 
+    #here we regenerate the data matrix purely.
 
-    #karr3 = karr
+    for _x, _y, _z in zip(x, y, z):
+       xx =  np.where(abs(xlin - _x) < 0.0000001)
+       yy =  np.where(abs(ylin - _y) < 0.0000001)
+       karr2[xx, yy] = _z 
 
 
-
-    #return karr[100:225,75:]
-    #data = karr[100:225, 75:]
-    #print "orig_data",data.shape
-    #data = np.concatenate((data, np.zeros_like(data)), axis = 0)
-    #data = np.concatenate((data, np.zeros_like(data)), axis = 0)
-    #print "dummy_zero", data.shape
-    #return karr[20:685, 105:]
-    return karr[119:218, 45:340]
-    #return karr[:, :]
-    #return karr[10:690, 139:]
-    #return karr3, ndata
+    return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
     #return data
 
 
 
-def calc_hist2d(A, nw0, nw1):
+def calc_hist2d(A, nw0, nw1, condition):
     Nmax = A.shape
     N0 = int((Nmax[0] - (Nmax[0] % nw0)) / nw0)  
     N1 = int((Nmax[1] - (Nmax[1] % nw1)) / nw1)  
     k = np.zeros((N0, N1))
+    kcond = np.zeros((N0, N1))
     for i in range(0, N0):
         ihead = (i+1)*nw0 - 1
         for j in range(0, N1):
@@ -79,21 +70,27 @@ def calc_hist2d(A, nw0, nw1):
                 k[i, j] = A[ihead, jhead] - A[ihead, jhead - nw1] 
             else:
                 k[i, j] = A[ihead, jhead] - A[ihead - nw0, jhead] - A[ihead, jhead - nw1] + A[ihead - nw0, jhead - nw1]
-    return k
+    for i in range(0, N0):
+        for j in range(0, N1):
+            kcond[i, j] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1])
+    return k, kcond
         
 
-def calc_cost2d(A, maxw):
+def calc_cost2d(A, maxw, condition):
     Cn = np.zeros((maxw))
     kaves = np.zeros((maxw))
     deltas = np.zeros((maxw))
     for i in range(1, maxw[0]):
        for j in range(1, maxw[1]):
-          k = calc_hist2d(A, i, j)
-          condition = k > 0.000000000001
-          knonzero = np.extract( condition , k)   # eliminate zero value element 
+          k, kcond = calc_hist2d(A, i, j, condition)
+          #strict condition for nonzero,  probably better.
+          knonzero = np.extract(np.max(kcond) == kcond, k)
+          # soft condition for nonzero
+          #knonzero = np.extract(kcond, k)
           if i == 1 and j ==1:
              print "shape of k matrix with zero elements",k.shape
-             print "number of nonzero k",knonzero.shape
+             print "total number of k is", k.shape[0]*k.shape[1]
+             print "number of nonzero k is",knonzero.shape 
           kave = np.average(knonzero)
           v = np.var(knonzero)
           
@@ -119,7 +116,11 @@ def make_mappable(maxvalue):
 
 def run2d():
     txtfile = "/home/kazu/data/20min_fine.txt"
-    data = get2ddata(txtfile)
+    xi = 119
+    xf = 218
+    yi = 25
+    yf = 340
+    data, condition = get2ddata(txtfile, xi, xf, yi, yf)
     n = np.sum(data)
     print "n=", n
     maxw =  np.array([int(data.shape[0] / 2), int(data.shape[1]) / 2])
@@ -127,7 +128,7 @@ def run2d():
     #print data[0:10]
     A = np.cumsum(np.cumsum(data, axis=0), axis=1)
 
-    Cn, kaves, delstas = calc_cost2d(A, maxw)
+    Cn, kaves, delstas = calc_cost2d(A, maxw, condition)
     print "opt bin index", np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
     opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
     k = calc_hist2d(A, opt_indx[0], opt_indx[1]) 
@@ -153,17 +154,30 @@ def run2d():
 
 def runex():
     txtfile = "/home/kazu/data/20min_fine.txt"
-    data = get2ddata(txtfile)
+    #xi = 119
+    xi = 119
+    xf = 222
+    yi = 25
+    #yf = 340
+    yf = 530
+    
+    data, condition = get2ddata(txtfile, xi, xf, yi, yf)
     n = np.sum(data)*1.0
     print "n=", n
-    maxw = np.array([int(data.shape[0] / 2), int(data.shape[1]) / 2])
+
+
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 2
+    maxywidth = np.min(np.sum(condition, axis=1)) / 2
+    
+    #maxw = np.array([int(data.shape[0] / 2), int(data.shape[1]) / 2])
+    maxw = np.array([maxxwidth, maxywidth])
     print maxw
     A = np.cumsum(np.cumsum(data, axis=0), axis=1)
 
-    Cn, kaves, delstas = calc_cost2d(A, maxw)
+    Cn, kaves, delstas = calc_cost2d(A, maxw, condition)
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
 
-    m = 4.0*n
+    m = 15.0*n
 
     ex = (1/m - 1/n) * kaves / (delstas**2*n) 
     ex[0, :] = 0.0
@@ -176,7 +190,7 @@ def runex():
 
     print "opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
     opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-    k = calc_hist2d(A, opt_indx[0], opt_indx[1]) 
+    k, kcond = calc_hist2d(A, opt_indx[0], opt_indx[1], condition) 
     #plt.figure(figsize=(16, 8))
     #plt.plot(Cn[10,:])
     #plt.plot(Cm[10,:])
