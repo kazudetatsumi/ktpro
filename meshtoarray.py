@@ -61,7 +61,11 @@ def get_data(fn):
 
 
 def get_coord(n):
-    x = np.arange(-n/2 + 1, n-n/2)/(n*1.0) 
+    if n%2 == 1:
+        x = np.arange(-n/2.0 + 1, n-n/2.0)/(n*1.0) 
+    if n%2 == 0:
+        x = np.arange(-n/2.0 - 1/2.0 + 1, n-n/2.0 + 1/2.0)/(n*1.0) 
+    print x.shape[0]
     return x
 
 
