@@ -2,6 +2,7 @@
 import numpy as np
 import h5py
 import yaml
+from matplotlib import pyplot as plt
 
 
 def get_data(fn):
@@ -9,7 +10,7 @@ def get_data(fn):
     q = f["qpoint"]      # (nqps, 3)
     o = f["frequency"] # (nqps, 3natom)
     # we patch negative frequencies with zero.
-    o[o < 0] = 0
+    #o[o < 0] = 0
     mesh = f["mesh"] # (nqps, 3natom)
     x = q[:, 0]
     y = q[:, 1]
@@ -73,16 +74,24 @@ def parse_rlat(my):
 
 
 def conv_lore(data, gamma, do):
-    x = np.arange(min(data), max(data)+do, do)
+    x = np.arange(np.min(data), np.max(data)+5+do, do)
     nx = data.shape[0]
     ny = data.shape[1]
     nz = data.shape[2]
     no = data.shape[3]
-    data2 = np.zeros((nx, ny, nz,
+    noo = x.shape[0]
+    data2 = np.zeros((nx, ny, nz, noo))
     for i in range(0, nx):
         for j in range(0, ny):
             for k in range(0, nz):
                 for h in range(0, no):
+                    data2[i, j, k, :] += fun_lore(x, gamma, data[i, j, k, h])
+    data2 = data2/(np.sum(data2)*do)
+    return data2, x
+
+
+#def poisson_sample(data, n):
+#    pdata = np.zeros_like(data)
 
 
 
@@ -96,7 +105,8 @@ def fun_lore(x, gamma, mean):
 
 def run():
     gamma = 0.2
-    do = 0.01
+    do = 0.02
+    n = 10000000
     #py = "/home/kazu/cscl/phonopy_222/phonopy.yaml"
     #rlat = parse_rlat(py)
     #ra = (np.sum(rlat[0,:]*rlat[0,:]))**0.5
@@ -105,12 +115,20 @@ def run():
     fn = "/home/kazu/cscl/phonopy_222/mesh.hdf5"
     #q, omega, mesh = get_data(fn)
     data = get_data(fn)
+    data2, x = conv_lore(data, gamma, do)
+    data3 = np.random.poisson(data2*n)
+    print data3.shape
+    
 
-    data2 = conv_lore(data, gamma, do)
     #print x
     #print q[0:21,0]
+    plt.figure(figsize=(16, 8))
+    #plt.pcolor(data3[:, 10, 10, :])
+    #plt.scatter(x, data3[10, 5, 7, :])
+    plt.plot(x, data2[10, 10, 10, :])
 
 
 
 
 run()
+plt.show()
