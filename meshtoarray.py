@@ -93,25 +93,32 @@ def conv_lore(data, gamma, do, n):
     noo = x.shape[0]
     data2 = np.zeros((nx/2, ny/2, nz/2, noo))
     for i in range(0, nx/2):
-        print i
         for j in range(0, ny/2):
             for k in range(0, nz/2):  
                 for h in range(0, no):
                     data2[i, j, k, :] += fun_lore(x, gamma, data[i, j, k, h]) 
     data2 = data2 / (8.0*np.sum(data2)*do)
+    print "probablity distribution is created."
     #data2[:, :, nz/2:nz, :] = np.flip(data2, axis=2)[:, :, nz/2:nz,:]
     #data2[:, ny/2:ny, :, :] = np.flip(data2, axis=1)[:, ny/2:ny, :,:]
     #data2[nx/2:nx, :, :, :] = np.flip(data2, axis=0)[nx/2:nx, :, :,:]
     #data2 = data2/(np.sum(data2)*do)
-    data3 = np.zeros((nx, ny, nz, noo))
-    data3[0:nx/2, 0:ny/2, 0:nz/2, :] =  np.random.poisson(data2*n)
-    data3[nx/2:nx, 0:ny/2, 0:nz/2, :] =  np.random.poisson(np.flip(data2, axis=0)*n)
-    data3[0:nx/2, ny/2:ny, 0:nz/2, :] =  np.random.poisson(np.flip(data2, axis=1)*n)
-    data3[0:nx/2, 0:ny/2, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=2)*n)
-    data3[nx/2:nx, ny/2:ny, 0:nz/2, :] =  np.random.poisson(np.flip(data2, axis=(0,1))*n)
-    data3[nx/2:nx, 0:ny/2, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=(0,2))*n)
-    data3[0:nx/2, ny/2:ny, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=(1,2))*n)
-    data3[nx/2:nx, ny/2:ny, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=(0,1,2))*n)
+    ##From here, if you want to obtain the data over the whole BZ
+    ##data3 = np.zeros((nx, ny, nz, noo))
+    ##data3[0:nx/2, 0:ny/2, 0:nz/2, :] =  np.random.poisson(data2*n)
+    ##data3[nx/2:nx, 0:ny/2, 0:nz/2, :] =  np.random.poisson(np.flip(data2, axis=0)*n)
+    ##data3[0:nx/2, ny/2:ny, 0:nz/2, :] =  np.random.poisson(np.flip(data2, axis=1)*n)
+    ##data3[0:nx/2, 0:ny/2, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=2)*n)
+    ##data3[nx/2:nx, ny/2:ny, 0:nz/2, :] =  np.random.poisson(np.flip(data2, axis=(0,1))*n)
+    ##data3[nx/2:nx, 0:ny/2, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=(0,2))*n)
+    ##data3[0:nx/2, ny/2:ny, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=(1,2))*n)
+    ##data3[nx/2:nx, ny/2:ny, nz/2:nz, :] =  np.random.poisson(np.flip(data2, axis=(0,1,2))*n)
+    ##till here, if you want to obtain the data over the whole BZ
+
+    ##If you want to obtain the data over a octant of the whole BZ.
+    
+    data3 =  np.random.poisson(data2*n)
+    print "4D data is created."
     return data3, data2, x
 
 
@@ -134,7 +141,7 @@ def run():
     THzTomev = PlanckConstant * 1e15  # [meV]
     gamma = 0.8 # FWHM [meV]
     do = 0.1  # dE  [meV]
-    n = 1000000000 # [1]
+    n = 100000000 # [1]
     #py = "/home/kazu/cscl/phonopy_222/phonopy.yaml"
     #rlat = parse_rlat(py)
     #ra = (np.sum(rlat[0,:]*rlat[0,:]))**0.5
@@ -143,14 +150,20 @@ def run():
     fn = "/home/kazu/cscl/phonopy_222/m200200200/mesh.hdf5"
     #q, omega, mesh = get_data(fn)
     data = get_data(fn)*THzTomev # [meV]
+    #data3, data2, x = conv_lore(data, gamma, do, n)
     data3, data2, x = conv_lore(data, gamma, do, n)
-    print data3.shape
+
+    with h5py.File('data3.hdf5', 'w') as hf:
+        hf.create_dataset('data3', data=data3)
+
+    #print data3.shape
+    print "4D data is saved in data3.hdf5"
     
 
     #print x
     #print q[0:21,0]
-    plt.figure(figsize=(16, 8))
-    plt.pcolor(data3[0, 0, :, :])
+    #plt.figure(figsize=(16, 8))
+    #plt.pcolor(data3[0, 0, :, :])
     #plt.scatter(x, data3[10, 5, 7, :])
     #plt.plot(x, data2[8, 11, 12, :])
 
@@ -158,4 +171,4 @@ def run():
 
 
 run()
-plt.show()
+#plt.show()
