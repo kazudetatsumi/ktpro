@@ -6,57 +6,63 @@ from matplotlib import pyplot as plt
 
 
 def get_data(fn):
-    f = h5py.File(fn)
-    q = f["qpoint"]      # (nqps, 3)
-    o = f["frequency"] # (nqps, 3natom)
+    f = h5py.File(fn, 'r')
+    ##q = f["qpoint"]      # (nqps, 3)
+    ##o = f["frequency"] # (nqps, 3natom)
     # we patch negative frequencies with zero.
-    #o[o < 0] = 0
-    mesh = f["mesh"] # (nqps, 3natom)
-    x = q[:, 0]
-    y = q[:, 1]
-    z = q[:, 2]
-    xlin = get_coord(mesh[0]) 
-    ylin = get_coord(mesh[1]) 
-    zlin = get_coord(mesh[2]) 
-    nx = xlin.shape[0]
-    ny = ylin.shape[0]
-    nz = zlin.shape[0]
-    no = o.shape[1]
-    karr = np.zeros((nx, ny, nz, no))
-    karr2 = np.zeros((nx, ny, nz, no))
+    ##o[o < 0] = 0
+    ##mesh = f["mesh"] # (nqps, 3natom)
+    ##x = q[:, 0]
+    ##y = q[:, 1]
+    ##z = q[:, 2]
+    ##xlin = get_coord(mesh[0]) 
+    ##ylin = get_coord(mesh[1]) 
+    ##zlin = get_coord(mesh[2]) 
+    ##nx = xlin.shape[0]
+    ##ny = ylin.shape[0]
+    ##nz = zlin.shape[0]
+    ##no = o.shape[1]
+    ##karr = np.zeros((nx, ny, nz, no))
+    ##karr2 = np.zeros((nx, ny, nz, no))
 
     # here we check whether we correctly read the whole lines in the input file
     # and generate a matrix "condition" which describes whether the element location is included in the input file or not.
 
-    i = 0
+    ##i = 0
 
-    for _x, _y, _z in zip(x, y, z):
-       xx =  np.where(abs(xlin - _x) < 0.0000001)
-       yy =  np.where(abs(ylin - _y) < 0.0000001)
-       zz =  np.where(abs(zlin - _z) < 0.0000001)
-       karr[xx, yy, zz, :] = o[i, :] + 0.00000001
-       i += 1
+    ##for _x, _y, _z in zip(x, y, z):
+    ##   xx =  np.where(abs(xlin - _x) < 0.0000001)
+    ##   yy =  np.where(abs(ylin - _y) < 0.0000001)
+    ##   zz =  np.where(abs(zlin - _z) < 0.0000001)
+    ##   karr[xx, yy, zz, :] = o[i, :] + 0.00000001
+    ##   i += 1
+    ##   print i
 
-    condition = karr > 0.0000000001
-    print condition.shape
-    karrnonzero = np.extract(condition, karr)
-    ndata = x.shape[0]
-    if karrnonzero.shape[0] != x.shape[0]*no:
-         print "num of nonzero karr is not num of data", karrnonzero.shape, x.shape[0]*no
-    else:
-         print "num of nonzero karr matches  num of data", karrnonzero.shape, x.shape[0]*no
+    ##condition = karr > 0.0000000001
+    ##print condition.shape
+    ##karrnonzero = np.extract(condition, karr)
+    ##ndata = x.shape[0]
+    ##if karrnonzero.shape[0] != x.shape[0]*no:
+    ##     print "num of nonzero karr is not num of data", karrnonzero.shape, x.shape[0]*no
+    ##else:
+    ##     print "num of nonzero karr matches  num of data", karrnonzero.shape, x.shape[0]*no
 
     #here we regenerate the data matrix purely.
 
-    i = 0
+    ##i = 0
 
-    for _x, _y, _z in zip(x, y, z):
-       xx =  np.where(abs(xlin - _x) < 0.0000001)
-       yy =  np.where(abs(ylin - _y) < 0.0000001)
-       zz =  np.where(abs(zlin - _z) < 0.0000001)
-       karr2[xx, yy, zz, :] = o[i, :] + 0.00000001
-       i += 1
-    return karr2
+    ##for _x, _y, _z in zip(x, y, z):
+    ##   xx =  np.where(abs(xlin - _x) < 0.0000001)
+    ##   yy =  np.where(abs(ylin - _y) < 0.0000001)
+    ##   zz =  np.where(abs(zlin - _z) < 0.0000001)
+    ##   karr2[xx, yy, zz, :] = o[i, :] + 0.00000001
+    ##   i += 1
+    mesh = f["mesh"]
+    n = f["frequency"].shape[1]
+    o = np.reshape(f["frequency"][:], [mesh[0], mesh[1], mesh[2], n], order='F')
+    o[ o< 0] = 0.0
+
+    return o
     #return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
 
 
@@ -86,6 +92,7 @@ def conv_lore(data, gamma, do):
     noo = x.shape[0]
     data2 = np.zeros((nx, ny, nz, noo))
     for i in range(0, nx):
+        print i
         for j in range(0, ny):
             for k in range(0, nz):
                 for h in range(0, no):
@@ -116,7 +123,7 @@ def run():
     #ra = (np.sum(rlat[0,:]*rlat[0,:]))**0.5
     #print ra
 
-    fn = "/home/kazu/cscl/phonopy_222/mesh.hdf5"
+    fn = "/home/kazu/cscl/phonopy_222/m200200200/mesh.hdf5"
     #q, omega, mesh = get_data(fn)
     data = get_data(fn)
     data2, x = conv_lore(data, gamma, do)
@@ -127,9 +134,9 @@ def run():
     #print x
     #print q[0:21,0]
     plt.figure(figsize=(16, 8))
-    #plt.pcolor(data3[:, 10, 10, :])
+    plt.pcolor(data2[:, 0, 0, :])
     #plt.scatter(x, data3[10, 5, 7, :])
-    plt.plot(x, data2[10, 10, 10, :])
+    #plt.plot(x, data2[8, 11, 12, :])
 
 
 
