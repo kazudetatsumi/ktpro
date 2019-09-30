@@ -142,9 +142,8 @@ def run():
     THzTomev = PlanckConstant * 1e15  # [meV]
     gamma = 0.8 # FWHM [meV]
     do = 0.1  # dE  [meV]
-    n = 100000000 # [1]
-    h5filename = 'data3_'+str(n)+'.hdf5'
-    print h5filename
+    n = 100 # [1]
+    outfile = 'data3_'+str(n)+'.hdf5'
     #py = "/home/kazu/cscl/phonopy_222/phonopy.yaml"
     #rlat = parse_rlat(py)
     #ra = (np.sum(rlat[0,:]*rlat[0,:]))**0.5
@@ -157,11 +156,11 @@ def run():
     data3, data2, x = conv_lore(data, gamma, do, n)
     
 
-    with h5py.File('data3.hdf5', 'w') as hf:
+    with h5py.File(outfile, 'w') as hf:
         hf.create_dataset('data3', data=data3)
 
     #print data3.shape
-    print "4D data is saved in data3.hdf5"
+    print "4D data is saved in ", outfile
     
 
     #print x

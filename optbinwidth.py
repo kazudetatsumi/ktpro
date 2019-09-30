@@ -110,7 +110,7 @@ def calc_hist3d(A, nw0, nw1, nw2, condition):
                 else:
                     k[i, j, h] = A[ihead, jhead, hhead] \
                               - A[ihead - nw0, jhead, hhead] - A[ihead, jhead - nw1, hhead] - A[ihead, jhead, hhead - nw2] \
-                              + A[ihead - nw0, jhead - nw1, hhead] - A[ihead, jhead - nw1, hhead - nw2] - A[ihead -nw0, jhead, hhead - nw2] \
+                              + A[ihead - nw0, jhead - nw1, hhead] + A[ihead, jhead - nw1, hhead - nw2] + A[ihead - nw0, jhead, hhead - nw2] \
                               - A[ihead - nw0, jhead - nw1, hhead - nw2]
                 
     for i in range(0, N0):
@@ -143,6 +143,7 @@ def calc_cost2d(A, maxw, condition):
           #kave = np.average(kf)/fracdata
           #v =  np.sum((kf - kave)**2)/(kf.shape[0]*1.0*fracdata)
           cost = (2 * kave - v) / ((i*j)**2*1.0)
+          print "cost with (i, j) = ", i, j, ":", cost, "kave", kave, "v", v
           Cn[i, j] = cost
           kaves[i, j] = kave
           deltas[i, j] = (i*j*1.0)
@@ -157,7 +158,6 @@ def calc_cost3d(A, maxw, condition):
     for i in range(1, maxw[0]):
         for j in range(1, maxw[1]):
             for h in range(1, maxw[2]):
-                print i, j, h
                 k, kcond = calc_hist3d(A, i, j, h, condition)
                 #strict condition for nonzero,  probably better.
                 knonzero = np.extract(np.max(kcond) == kcond, k)
@@ -171,6 +171,7 @@ def calc_cost3d(A, maxw, condition):
                 v = np.var(knonzero)
           
                 cost = (2 * kave - v) / ((i*j*h)**2*1.0)
+                print "cost with (i, j, h) = ", i, j, h, ":", cost, "kave", kave, "v", v
                 Cn[i, j, h] = cost
                 kaves[i, j, h] = kave
                 deltas[i, j, h] = (i*j*h*1.0)
@@ -303,7 +304,7 @@ def run_simu():
     Cn, kaves, delstas = calc_cost2d(A, maxw, condition)
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
 
-    m = 1000*n
+    m = 1*n
 
     ex = (1/m - 1/n) * kaves / (delstas**2*n) 
     ex[0, :] = 0.0
@@ -326,19 +327,20 @@ def run_simu():
     plt.colorbar(mappable)
 
 def run_simu3d():
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
+    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
+    datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
-    data = data[:, :, 0, :]
+    data = np.sum(data[:, :, 0:5, :],axis=2)
     condition = np.ones(data.shape, dtype=bool)
     
     n = np.sum(data)*1.0
     print "n=", n
 
 
-    maxxwidth = np.min(np.sum(condition, axis=0)) / 8
-    maxywidth = np.min(np.sum(condition, axis=1)) / 8
-    maxzwidth = np.min(np.sum(condition, axis=2)) / 8
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 12
+    maxywidth = np.min(np.sum(condition, axis=1)) / 12
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 12
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth])
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
@@ -377,14 +379,16 @@ def run_tst3d():
     
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
 
-    k, kcond = calc_hist3d(A, 5, 5, 13, condition) 
+    k, kcond = calc_hist3d(A, 2, 2, 2, condition) 
+    #for i in range(0,100):
+    #    print i,np.average(k[:,i,:])
 
     plt.figure(figsize=(8, 16))
-    plt.pcolor(np.transpose(k[:,0,:]), vmax=np.max(k[:,0,:]), cmap='jet')
+    plt.pcolor(np.transpose(k[:,:,1]), vmax=np.max(k[:,:,1]), cmap='jet')
     mappable = make_mappable(np.max(k))
     plt.colorbar(mappable)
     plt.figure(figsize=(8, 16))
-    plt.pcolor(np.transpose(data[:, 0, :]), vmax=np.max(data[:, 0, :]), cmap='jet')
+    plt.pcolor(np.transpose(data[:, :, 1]), vmax=np.max(data[:, :, 1]), cmap='jet')
 
     mappable = make_mappable(np.max(data))
     plt.colorbar(mappable)
@@ -400,6 +404,6 @@ def run_tst3d():
 #run2d()
 #runex()
 #run_simu()
-#run_simu3d()
-run_tst3d()
+run_simu3d()
+#run_tst3d()
 plt.show()
