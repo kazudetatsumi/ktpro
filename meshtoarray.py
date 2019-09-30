@@ -3,6 +3,7 @@ import numpy as np
 import h5py
 import yaml
 from matplotlib import pyplot as plt
+import sys
 
 
 def get_data(fn):
@@ -142,6 +143,8 @@ def run():
     gamma = 0.8 # FWHM [meV]
     do = 0.1  # dE  [meV]
     n = 100000000 # [1]
+    h5filename = 'data3_'+str(n)+'.hdf5'
+    print h5filename
     #py = "/home/kazu/cscl/phonopy_222/phonopy.yaml"
     #rlat = parse_rlat(py)
     #ra = (np.sum(rlat[0,:]*rlat[0,:]))**0.5
@@ -152,6 +155,7 @@ def run():
     data = get_data(fn)*THzTomev # [meV]
     #data3, data2, x = conv_lore(data, gamma, do, n)
     data3, data2, x = conv_lore(data, gamma, do, n)
+    
 
     with h5py.File('data3.hdf5', 'w') as hf:
         hf.create_dataset('data3', data=data3)

@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import h5py
 
 def get2ddata(f, xi, xf, yi, yf):
     data = np.genfromtxt(f,  delimiter=',', dtype=None)
@@ -74,7 +75,50 @@ def calc_hist2d(A, nw0, nw1, condition):
         for j in range(0, N1):
             kcond[i, j] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1])
     return k, kcond
-        
+
+
+def calc_hist3d(A, nw0, nw1, nw2, condition):
+    Nmax = A.shape
+    N0 = int((Nmax[0] - (Nmax[0] % nw0)) / nw0)
+    N1 = int((Nmax[1] - (Nmax[1] % nw1)) / nw1)
+    N2 = int((Nmax[2] - (Nmax[2] % nw2)) / nw2)
+    k = np.zeros((N0, N1, N2))
+    kcond = np.zeros((N0, N1, N2))
+    for i in range(0, N0):
+        ihead = (i+1)*nw0 - 1
+        for j in range(0, N1):
+            jhead = (j+1)*nw1 - 1
+            for h in range(0, N2):
+                hhead = (h+1)*nw2 - 1
+                if i == 0 and j == 0 and h == 0:
+                    k[i, j, h] = A[ihead, jhead, hhead]
+
+                elif i != 0 and j == 0 and h == 0:                                            # procedure like 1D
+                    k[i, j, h] = A[ihead, jhead, hhead] - A[ihead - nw0, jhead, hhead]
+                elif i == 0 and j != 0 and h == 0:                                            # procedure like 1D
+                    k[i, j, h] = A[ihead, jhead, hhead] - A[ihead, jhead - nw1, hhead]
+                elif i == 0 and j == 0 and h != 0:                                            # procedure like 1D
+                    k[i, j, h] = A[ihead, jhead, hhead] - A[ihead, jhead, hhead - nw2]
+
+                elif i != 0 and j != 0 and h == 0:                                                                                                         # procedure like 2D
+                    k[i, j, h] = A[ihead, jhead, hhead] - A[ihead - nw0, jhead, hhead] - A[ihead, jhead - nw1, hhead] + A[ihead - nw0, jhead - nw1, hhead]
+                elif i != 0 and j == 0 and h != 0:                                                                                                         # procedure like 2D
+                    k[i, j, h] = A[ihead, jhead, hhead] - A[ihead - nw0, jhead, hhead] - A[ihead, jhead, hhead - nw2] + A[ihead - nw0, jhead, hhead - nw2]
+                elif i == 0 and j != 0 and h != 0:                                                                                                         # procedure like 2D
+                    k[i, j, h] = A[ihead, jhead, hhead] - A[ihead, jhead - nw1, hhead] - A[ihead, jhead, hhead - nw2] + A[ihead, jhead - nw1, hhead - nw2]
+
+                else:
+                    k[i, j, h] = A[ihead, jhead, hhead] \
+                              - A[ihead - nw0, jhead, hhead] - A[ihead, jhead - nw1, hhead] - A[ihead, jhead, hhead - nw2] \
+                              + A[ihead - nw0, jhead - nw1, hhead] - A[ihead, jhead - nw1, hhead - nw2] - A[ihead -nw0, jhead, hhead - nw2] \
+                              - A[ihead - nw0, jhead - nw1, hhead - nw2]
+                
+    for i in range(0, N0):
+        for j in range(0, N1):
+            for h in range(0, N2):
+                kcond[i, j, h] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1, h*nw2:(h+1)*nw2])
+    return k, kcond
+
 
 def calc_cost2d(A, maxw, condition):
     Cn = np.zeros((maxw))
@@ -103,6 +147,35 @@ def calc_cost2d(A, maxw, condition):
           kaves[i, j] = kave
           deltas[i, j] = (i*j*1.0)
     return Cn, kaves, deltas
+
+
+def calc_cost3d(A, maxw, condition):
+    Cn = np.zeros((maxw))
+    kaves = np.zeros((maxw))
+    deltas = np.zeros((maxw))
+    print maxw
+    for i in range(1, maxw[0]):
+        for j in range(1, maxw[1]):
+            for h in range(1, maxw[2]):
+                print i, j, h
+                k, kcond = calc_hist3d(A, i, j, h, condition)
+                #strict condition for nonzero,  probably better.
+                knonzero = np.extract(np.max(kcond) == kcond, k)
+                # soft condition for nonzero
+                #knonzero = np.extract(kcond, k)
+                if i == 1 and j == 1 and h == 1:
+                    print "shape of k matrix with zero elements",k.shape
+                    print "total number of k is", k.shape[0]*k.shape[1]*k.shape[2]
+                    print "number of nonzero k is",knonzero.shape 
+                kave = np.average(knonzero)
+                v = np.var(knonzero)
+          
+                cost = (2 * kave - v) / ((i*j*h)**2*1.0)
+                Cn[i, j, h] = cost
+                kaves[i, j, h] = kave
+                deltas[i, j, h] = (i*j*h*1.0)
+    return Cn, kaves, deltas
+
 
 def make_mappable(maxvalue):
     from matplotlib.colors import Normalize
@@ -210,7 +283,123 @@ def run_tst():
     data = get2ddata(txtfile)
     plt.pcolor(np.transpose(data), vmax=np.max(data)/1000, cmap='jet')
 
+def run_simu():
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
+    f = h5py.File(datafile)
+    data = f["data3"][:] # nqx, nqy, nqz, nomega
+    data = data[:, 0, 0, :]
+    condition = np.ones(data.shape, dtype=bool)
+    
+    n = np.sum(data)*1.0
+    print "n=", n
+
+
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 2
+    maxywidth = np.min(np.sum(condition, axis=1)) / 2
+    
+    maxw = np.array([maxxwidth, maxywidth])
+    A = np.cumsum(np.cumsum(data, axis=0), axis=1)
+
+    Cn, kaves, delstas = calc_cost2d(A, maxw, condition)
+    Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
+
+    m = 1000*n
+
+    ex = (1/m - 1/n) * kaves / (delstas**2*n) 
+    ex[0, :] = 0.0
+    ex[:, 0] = 0.0
+
+    Cm = ex + Cn
+
+    print "opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+    opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+    k, kcond = calc_hist2d(A, opt_indx[0], opt_indx[1], condition) 
+
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(k), vmax=np.max(k), cmap='jet')
+    mappable = make_mappable(np.max(k))
+    plt.colorbar(mappable)
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(data), vmax=np.max(data), cmap='jet')
+
+    mappable = make_mappable(np.max(data))
+    plt.colorbar(mappable)
+
+def run_simu3d():
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
+    f = h5py.File(datafile)
+    data = f["data3"][:] # nqx, nqy, nqz, nomega
+    data = data[:, :, 0, :]
+    condition = np.ones(data.shape, dtype=bool)
+    
+    n = np.sum(data)*1.0
+    print "n=", n
+
+
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 8
+    maxywidth = np.min(np.sum(condition, axis=1)) / 8
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 8
+    
+    maxw = np.array([maxxwidth, maxywidth, maxzwidth])
+    A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
+    Cn, kaves, delstas = calc_cost3d(A, maxw, condition)
+
+    m = 1.0*n
+
+    ex = (1/m - 1/n) * kaves / (delstas**2*n) 
+    ex[0, :, :] = 0.0
+    ex[:, 0, :] = 0.0
+    ex[:, :, 0] = 0.0
+
+    Cm = ex + Cn
+
+    print "opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+    opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+    k, kcond = calc_hist3d(A, opt_indx[0], opt_indx[1], opt_indx[2], condition) 
+
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(k[:,0,:]), vmax=np.max(k[:,0,:]), cmap='jet')
+    mappable = make_mappable(np.max(k))
+    plt.colorbar(mappable)
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(data[:, 0, :]), vmax=np.max(data[:, 0, :]), cmap='jet')
+
+    mappable = make_mappable(np.max(data))
+    plt.colorbar(mappable)
+
+
+def run_tst3d():
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
+    f = h5py.File(datafile)
+    data = f["data3"][:] # nqx, nqy, nqz, nomega
+    data = data[:, :, 0, :]
+    condition = np.ones(data.shape, dtype=bool)
+    
+    A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
+
+    k, kcond = calc_hist3d(A, 5, 5, 13, condition) 
+
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(k[:,0,:]), vmax=np.max(k[:,0,:]), cmap='jet')
+    mappable = make_mappable(np.max(k))
+    plt.colorbar(mappable)
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(data[:, 0, :]), vmax=np.max(data[:, 0, :]), cmap='jet')
+
+    mappable = make_mappable(np.max(data))
+    plt.colorbar(mappable)
+
+
 #run_tst()
 #run2d()
-runex()
+#runex()
+#run_simu()
+#run_simu3d()
+
+#run_tst()
+#run2d()
+#runex()
+#run_simu()
+#run_simu3d()
+run_tst3d()
 plt.show()
