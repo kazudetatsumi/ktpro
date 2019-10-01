@@ -120,7 +120,7 @@ def calc_hist3d(A, nw0, nw1, nw2, condition):
     return k, kcond
 
 
-def calc_hist4d(A, nw0, nw1, nw2, nw3, condition):
+def calc_hist4d(A, data, nw0, nw1, nw2, nw3, condition):
     Nmax = A.shape
     N0 = int((Nmax[0] - (Nmax[0] % nw0)) / nw0)
     N1 = int((Nmax[1] - (Nmax[1] % nw1)) / nw1)
@@ -128,73 +128,79 @@ def calc_hist4d(A, nw0, nw1, nw2, nw3, condition):
     N3 = int((Nmax[3] - (Nmax[3] % nw3)) / nw3)
     k = np.zeros((N0, N1, N2, N3))
     kcond = np.zeros((N0, N1, N2, N3))
-    for i in range(0, N0):
-        ihead = (i+1)*nw0 - 1
-        for j in range(0, N1):
-            jhead = (j+1)*nw1 - 1
-            for h in range(0, N2):
-                hhead = (h+1)*nw2 - 1
-                for l in range(0, N3):
-                    lhead = (l+1)*nw3 - 1
-                    if i == 0 and j == 0 and h == 0 and l==0 :
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead]
+    
+    if nw0 == 1 and nw1 == 1  and nw2 == 1 and nw3 ==1:
+        k = data
+        kcond = condition
+    else:
+        for i in range(0, N0):
+            for j in range(0, N1):
+                for h in range(0, N2):
+                    for l in range(0, N3):
+                        kcond[i, j, h, l] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1, h*nw2:(h+1)*nw2, l*nw3:(l+1)*nw3])
+        for i in range(0, N0):
+            ihead = (i+1)*nw0 - 1
+            for j in range(0, N1):
+                jhead = (j+1)*nw1 - 1
+                for h in range(0, N2):
+                    hhead = (h+1)*nw2 - 1
+                    for l in range(0, N3):
+                        lhead = (l+1)*nw3 - 1
+                        if i == 0 and j == 0 and h == 0 and l==0 :
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead]
 
-                    elif i != 0 and j == 0 and h == 0 and l == 0:                                            # procedure like 1D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead]
-                    elif i == 0 and j != 0 and h == 0 and l == 0:                                            # procedure like 1D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead]
-                    elif i == 0 and j == 0 and h != 0 and l == 0:                                            # procedure like 1D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead]
-                    elif i == 0 and j == 0 and h == 0 and l != 0:                                            # procedure like 1D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3]
+                        elif i != 0 and j == 0 and h == 0 and l == 0:                                            # procedure like 1D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead]
+                        elif i == 0 and j != 0 and h == 0 and l == 0:                                            # procedure like 1D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead]
+                        elif i == 0 and j == 0 and h != 0 and l == 0:                                            # procedure like 1D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead]
+                        elif i == 0 and j == 0 and h == 0 and l != 0:                                            # procedure like 1D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3]
 
-                    elif i != 0 and j != 0 and h == 0 and l == 0:                                                                                                         # procedure like 2D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] + A[ihead - nw0, jhead - nw1, hhead, lhead]
-                    elif i != 0 and j == 0 and h != 0 and l == 0:                                                                                                         # procedure like 2D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] + A[ihead - nw0, jhead, hhead - nw2, lhead]
-                    elif i == 0 and j != 0 and h != 0 and l == 0:                                                                                                         # procedure like 2D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] + A[ihead, jhead - nw1, hhead - nw2, lhead]
-                    elif i != 0 and j == 0 and h == 0 and l != 0:                                                                                                         # procedure like 2D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3] + A[ihead - nw0, jhead, hhead, lhead - nw3]
-                    elif i == 0 and j != 0 and h == 0 and l != 0:                                                                                                         # procedure like 2D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3] + A[ihead, jhead - nw1, hhead, lhead - nw3]
-                    elif i == 0 and j == 0 and h != 0 and l != 0:                                                                                                         # procedure like 2D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] + A[ihead, jhead, hhead - nw2, lhead - nw3]
+                        elif i != 0 and j != 0 and h == 0 and l == 0:                                                                                                         # procedure like 2D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] + A[ihead - nw0, jhead - nw1, hhead, lhead]
+                        elif i != 0 and j == 0 and h != 0 and l == 0:                                                                                                         # procedure like 2D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] + A[ihead - nw0, jhead, hhead - nw2, lhead]
+                        elif i == 0 and j != 0 and h != 0 and l == 0:                                                                                                         # procedure like 2D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] + A[ihead, jhead - nw1, hhead - nw2, lhead]
+                        elif i != 0 and j == 0 and h == 0 and l != 0:                                                                                                         # procedure like 2D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3] + A[ihead - nw0, jhead, hhead, lhead - nw3]
+                        elif i == 0 and j != 0 and h == 0 and l != 0:                                                                                                         # procedure like 2D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3] + A[ihead, jhead - nw1, hhead, lhead - nw3]
+                        elif i == 0 and j == 0 and h != 0 and l != 0:                                                                                                         # procedure like 2D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] + A[ihead, jhead, hhead - nw2, lhead - nw3]
 
-                    elif i != 0 and j != 0 and h != 0 and l == 0:                                                                                                         # procedure like 3D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
-                                  - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] \
-                                  + A[ihead - nw0, jhead - nw1, hhead, lhead] + A[ihead, jhead - nw1, hhead - nw2, lhead] + A[ihead - nw0, jhead, hhead - nw2, lhead] \
-                                  - A[ihead - nw0, jhead - nw1, hhead - nw2, lhead]
-                    elif i != 0 and j != 0 and h == 0 and l != 0:                                                                                                         # procedure like 3D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
-                                  - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
-                                  + A[ihead - nw0, jhead - nw1, hhead, lhead] + A[ihead, jhead - nw1, hhead, lhead - nw3] + A[ihead - nw0, jhead, hhead, lhead - nw3] \
-                                  - A[ihead - nw0, jhead - nw1, hhead, lhead - nw3]
-                    elif i != 0 and j == 0 and h != 0 and l != 0:                                                                                                         # procedure like 3D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
-                                  - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
-                                  + A[ihead - nw0, jhead, hhead - nw2, lhead] + A[ihead, jhead, hhead - nw2, lhead - nw3] + A[ihead - nw0, jhead, hhead, lhead - nw3] \
-                                  - A[ihead - nw0, jhead, hhead - nw2, lhead - nw3]
-                    elif i == 0 and j != 0 and h != 0 and l != 0:                                                                                                         # procedure like 3D
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
-                                  - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
-                                  + A[ihead, jhead - nw1, hhead - nw2, lhead] + A[ihead, jhead, hhead - nw2, lhead - nw3] + A[ihead, jhead - nw1, hhead, lhead - nw3] \
-                                  - A[ihead, jhead - nw1, hhead - nw2, lhead - nw3]
+                        elif i != 0 and j != 0 and h != 0 and l == 0:                                                                                                         # procedure like 3D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
+                                      - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] \
+                                      + A[ihead - nw0, jhead - nw1, hhead, lhead] + A[ihead, jhead - nw1, hhead - nw2, lhead] + A[ihead - nw0, jhead, hhead - nw2, lhead] \
+                                      - A[ihead - nw0, jhead - nw1, hhead - nw2, lhead]
+                        elif i != 0 and j != 0 and h == 0 and l != 0:                                                                                                         # procedure like 3D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
+                                      - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
+                                      + A[ihead - nw0, jhead - nw1, hhead, lhead] + A[ihead, jhead - nw1, hhead, lhead - nw3] + A[ihead - nw0, jhead, hhead, lhead - nw3] \
+                                      - A[ihead - nw0, jhead - nw1, hhead, lhead - nw3]
+                        elif i != 0 and j == 0 and h != 0 and l != 0:                                                                                                         # procedure like 3D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
+                                      - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
+                                      + A[ihead - nw0, jhead, hhead - nw2, lhead] + A[ihead, jhead, hhead - nw2, lhead - nw3] + A[ihead - nw0, jhead, hhead, lhead - nw3] \
+                                      - A[ihead - nw0, jhead, hhead - nw2, lhead - nw3]
+                        elif i == 0 and j != 0 and h != 0 and l != 0:                                                                                                         # procedure like 3D
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
+                                      - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
+                                      + A[ihead, jhead - nw1, hhead - nw2, lhead] + A[ihead, jhead, hhead - nw2, lhead - nw3] + A[ihead, jhead - nw1, hhead, lhead - nw3] \
+                                      - A[ihead, jhead - nw1, hhead - nw2, lhead - nw3]
 
-                    else:
-                        k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
-                                  - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
-                                  + A[ihead - nw0, jhead - nw1, hhead, lhead] + A[ihead - nw0, jhead, hhead - nw2, lhead] + A[ihead - nw0, jhead, hhead, lhead - nw3] \
-                                  + A[ihead, jhead - nw1, hhead - nw2, lhead] + A[ihead, jhead - nw1, hhead, lhead - nw3] + A[ihead, jhead, hhead - nw2, lhead - nw3] \
-                                  - A[ihead, jhead - nw1, hhead - nw2, lhead - nw3] - A[ihead - nw0, jhead, hhead - nw2, lhead - nw3] - A[ihead - nw0, jhead - nw1, hhead, lhead - nw3] - A[ihead - nw0, jhead - nw1, hhead - nw2, lhead] \
-                                  + A[ihead - nw0, jhead - nw1, hhead - nw2, lhead - nw3]
+                        else:
+                            k[i, j, h, l] = A[ihead, jhead, hhead, lhead] \
+                                      - A[ihead - nw0, jhead, hhead, lhead] - A[ihead, jhead - nw1, hhead, lhead] - A[ihead, jhead, hhead - nw2, lhead] - A[ihead, jhead, hhead, lhead - nw3] \
+                                      + A[ihead - nw0, jhead - nw1, hhead, lhead] + A[ihead - nw0, jhead, hhead - nw2, lhead] + A[ihead - nw0, jhead, hhead, lhead - nw3] \
+                                      + A[ihead, jhead - nw1, hhead - nw2, lhead] + A[ihead, jhead - nw1, hhead, lhead - nw3] + A[ihead, jhead, hhead - nw2, lhead - nw3] \
+                                      - A[ihead, jhead - nw1, hhead - nw2, lhead - nw3] - A[ihead - nw0, jhead, hhead - nw2, lhead - nw3] - A[ihead - nw0, jhead - nw1, hhead, lhead - nw3] - A[ihead - nw0, jhead - nw1, hhead - nw2, lhead] \
+                                      + A[ihead - nw0, jhead - nw1, hhead - nw2, lhead - nw3]
 
-    for i in range(0, N0):
-        for j in range(0, N1):
-            for h in range(0, N2):
-                for l in range(0, N3):
-                    kcond[i, j, h, l] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1, h*nw2:(h+1)*nw2, l*nw3:(l+1)*nw3])
+
     return k, kcond
 
 
@@ -256,16 +262,16 @@ def calc_cost3d(A, maxw, condition):
     return Cn, kaves, deltas
 
 
-def calc_cost4d(A, maxw, condition):
+def calc_cost4d(A, data, maxw, condition):
     Cn = np.zeros((maxw))
     kaves = np.zeros((maxw))
     deltas = np.zeros((maxw))
     print maxw
-    for i in range(2, maxw[0]):
-        for j in range(2, maxw[1]):
-            for h in range(2, maxw[2]):
-                for l in range(2, maxw[3]):
-                    k, kcond = calc_hist4d(A, i, j, h, l, condition)
+    for i in range(1, maxw[0]):
+        for j in range(1, maxw[1]):
+            for h in range(1, maxw[2]):
+                for l in range(1, maxw[3]):
+                    k, kcond = calc_hist4d(A, data, i, j, h, l, condition)
                     #strict condition for nonzero,  probably better.
                     knonzero = np.extract(np.max(kcond) == kcond, k)
                     # soft condition for nonzero
@@ -479,9 +485,11 @@ def run_simu3d():
 
 def run_simu4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
+    #print "size of data is", data.shape
     #data = np.sum(data[:, :, :, :],axis=2)
     condition = np.ones(data.shape, dtype=bool)
     
@@ -489,18 +497,18 @@ def run_simu4d():
     print "n=", n
 
 
-    #maxxwidth = np.min(np.sum(condition, axis=0)) / 15
-    #maxywidth = np.min(np.sum(condition, axis=1)) / 15
-    #maxzwidth = np.min(np.sum(condition, axis=2)) / 15
-    #maxowidth = np.min(np.sum(condition, axis=3)) / 26
-    maxxwidth = 5
-    maxywidth = 5
-    maxzwidth = 5
-    maxowidth = 5
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 4
+    maxywidth = np.min(np.sum(condition, axis=1)) / 4
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 4
+    maxowidth = np.min(np.sum(condition, axis=3)) / 4
+    #maxxwidth = 5
+    #maxywidth = 5
+    #maxzwidth = 5
+    #maxowidth = 5
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
-    Cn, kaves, delstas = calc_cost4d(A, maxw, condition)
+    Cn, kaves, delstas = calc_cost4d(A, data, maxw, condition)
 
     m = 1.0*n
 
@@ -516,7 +524,7 @@ def run_simu4d():
 
     print "opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
     opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-    k, kcond = calc_hist4d(A, opt_indx[0], opt_indx[1], opt_indx[2], opt_indx[3], condition) 
+    k, kcond = calc_hist4d(A, data, opt_indx[0], opt_indx[1], opt_indx[2], opt_indx[3], condition) 
 
     plt.figure(figsize=(8, 16))
     plt.pcolor(np.transpose(k[:, 0, 0, :]), vmax=np.max(k[:, 0, 0, :]), cmap='jet')
@@ -555,7 +563,7 @@ def run_tst3d():
 
 def run_tst4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
     condition = np.ones(data.shape, dtype=bool)
@@ -563,7 +571,8 @@ def run_tst4d():
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
     print "cumsum finished"
 
-    k, kcond = calc_hist4d(A, 6, 6, 6, 6, condition) 
+    k, kcond = calc_hist4d(A, data, 1, 1, 1, 1, condition) 
+    print "hist finished"
     #for i in range(0,100):
     #    print i,np.average(k[:,i,:])
 
