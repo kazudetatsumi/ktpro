@@ -264,7 +264,7 @@ def calc_cost4d(A, maxw, condition):
     for i in range(2, maxw[0]):
         for j in range(2, maxw[1]):
             for h in range(2, maxw[2]):
-                for l in range(2, maxw[3]):
+                for l in range(3, maxw[3]):
                     k, kcond = calc_hist4d(A, i, j, h, l, condition)
                     #strict condition for nonzero,  probably better.
                     knonzero = np.extract(np.max(kcond) == kcond, k)
