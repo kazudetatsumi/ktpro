@@ -26,9 +26,9 @@ def get2ddata(f, xi, xf, yi, yf):
     # and generate a matrix "condition" which describes whether the element location is included in the input file or not.
 
     for _x, _y, _z in zip(x, y, z):
-       xx =  np.where(abs(xlin - _x) < 0.0000001)
-       yy =  np.where(abs(ylin - _y) < 0.0000001)
-       karr[xx, yy] = _z + 0.00000001 
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr[xx, yy] = _z + 0.00000001
 
     condition = karr > 0.0000000001
     print condition.shape
@@ -43,20 +43,35 @@ def get2ddata(f, xi, xf, yi, yf):
     #here we regenerate the data matrix purely.
 
     for _x, _y, _z in zip(x, y, z):
-       xx =  np.where(abs(xlin - _x) < 0.0000001)
-       yy =  np.where(abs(ylin - _y) < 0.0000001)
-       karr2[xx, yy] = _z 
-
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr2[xx, yy] = _z
 
     return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
     #return data
 
 
+def calc_hist1d(A, nw, condition):
+    Nmax = A.shape[0]
+    N = int((Nmax - (Nmax % nw)) / nw)
+    k = np.zeros((N))
+    kcond = np.zeros((N))
+    for i in range(0, N):
+        ihead = (i+1)*nw - 1
+        if i == 0:
+            k[i] = A[ihead]
+        else:
+            k[i] = A[ihead] - A[ihead - nw]
+
+    for i in range(0, N):
+        kcond[i] = np.sum(condition[i*nw:(i+1)*nw])
+    return k, kcond
+
 
 def calc_hist2d(A, nw0, nw1, condition):
     Nmax = A.shape
-    N0 = int((Nmax[0] - (Nmax[0] % nw0)) / nw0)  
-    N1 = int((Nmax[1] - (Nmax[1] % nw1)) / nw1)  
+    N0 = int((Nmax[0] - (Nmax[0] % nw0)) / nw0)
+    N1 = int((Nmax[1] - (Nmax[1] % nw1)) / nw1)
     k = np.zeros((N0, N1))
     kcond = np.zeros((N0, N1))
     for i in range(0, N0):
@@ -66,9 +81,9 @@ def calc_hist2d(A, nw0, nw1, condition):
             if i == 0 and j == 0:
                 k[i, j] = A[ihead, jhead]
             elif j == 0 and i != 0:
-                k[i, j] = A[ihead, jhead] - A[ihead - nw0, jhead] 
+                k[i, j] = A[ihead, jhead] - A[ihead - nw0, jhead]
             elif i == 0 and j != 0:
-                k[i, j] = A[ihead, jhead] - A[ihead, jhead - nw1] 
+                k[i, j] = A[ihead, jhead] - A[ihead, jhead - nw1]
             else:
                 k[i, j] = A[ihead, jhead] - A[ihead - nw0, jhead] - A[ihead, jhead - nw1] + A[ihead - nw0, jhead - nw1]
     for i in range(0, N0):
@@ -129,9 +144,35 @@ def calc_hist4d(A, data, nw0, nw1, nw2, nw3, condition):
     k = np.zeros((N0, N1, N2, N3))
     kcond = np.zeros((N0, N1, N2, N3))
     
-    if nw0 == 1 and nw1 == 1  and nw2 == 1 and nw3 ==1:
+    ## make process faster and more complicated from here
+    if nw0 == 1 and nw1 == 1 and nw2 == 1 and nw3 == 1:
         k = data
         kcond = condition
+    elif nw0 != 1 and nw1 == 1 and nw2 == 1 and nw3 == 1:
+        B = np.cumsum(data, axis=0)
+        for j in range(0, N1):
+            for h in range(0, N2):
+                for l in range(0, N3):
+                    k[:, j, h, l], kcond[:, j, h, l] = calc_hist1d(B[:, j, h, l], nw0, condition[:, j, h, l])
+    elif nw0 == 1 and nw1 != 1 and nw2 == 1 and nw3 == 1:
+        B = np.cumsum(data, axis=1)
+        for i in range(0, N0):
+            for h in range(0, N2):
+                for l in range(0, N3):
+                    k[i, :, h, l], kcond[i, :, h, l] = calc_hist1d(B[i, :, h, l], nw1, condition[i, :, h, l])
+    elif nw0 == 1 and nw1 == 1 and nw2 != 1 and nw3 == 1:
+        B = np.cumsum(data, axis=2)
+        for i in range(0, N0):
+            for j in range(0, N1):
+                for l in range(0, N3):
+                    k[i, j, :, l], kcond[i, j, :, l] = calc_hist1d(B[i, j, :, ;], nw2, condition[i, j, :, l])
+    elif nw0 == 1 and nw1 == 1 and nw2 == 1 and nw3 != 1:
+        B = np.cumsum(data, axis=3)
+        for i in range(0, N0):
+            for j in range(0, N1):
+                for h in range(0, N2):
+                    k[i, j, h, :], kcond[i, j, h, :] = calc_hist1d(B[i, j, h, :], nw3, condition[i, j, h, :])
+    ## make process faster and more complicated up to here
     else:
         for i in range(0, N0):
             for j in range(0, N1):
@@ -501,10 +542,10 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 4
     maxzwidth = np.min(np.sum(condition, axis=2)) / 4
     maxowidth = np.min(np.sum(condition, axis=3)) / 4
-    #maxxwidth = 5
-    #maxywidth = 5
-    #maxzwidth = 5
-    #maxowidth = 5
+    maxxwidth = 2
+    maxywidth = 2
+    maxzwidth = 2
+    maxowidth = 3
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
