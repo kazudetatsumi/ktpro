@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
+lib = ctypes.CDLL("./histfort.so")
 
 
 def get2ddata(f, xi, xf, yi, yf):
@@ -71,22 +72,30 @@ def calc_hist1d(A, nw, condition):
 
 
 def calc_hist1d_f90(A, nw0, condition):
-    lib = ctypes.CDLL(".histfort.so")
+    #lib = ctypes.CDLL("./histfort.so")
     class result(ctypes.Structure):
         _fields_ =[("len0", ctypes.c_int), ("arr", ctypes.POINTER(ctypes.c_double))]
+
     lib.hist1d.restype = result
-    lib.hist1d.rgtypes = [ctypes.POINTER(ctypes.c_int),np.ctypeslib.ndpointer(dtype=np.float64,ndim=1)]
-    lib.delete_array.restype = None
-    lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
-    Nmax = A.shape
-    result = lib.hist1d(ctypes.byref(ctypes.c_int(Nmax[O])), ctypes.byref(ctypes.c_int(nw0)), A)
-    k_len0 = result.len0
-    k = np.ctypeslib.as_array(result.arr, shape=(k_len0, ))
-    lib.delete_array(ctypes.byref(ctypes.c_int(k_lenO)), k)
-    kcond = np.zeros((k_len0))
-    for i in range(0, k_len0):
+    lib.hist1d.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
+
+    #lib.delete_array.restype = None
+    #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
+
+    Nmax = A.shape[0]
+    print "Nmax", Nmax
+    print "nw0", nw0
+    result = lib.hist1d(ctypes.byref(ctypes.c_int(nw0)), ctypes.byref(ctypes.c_int(Nmax)), A)
+    result_len0 = result.len0
+    result_vec = np.ctypeslib.as_array(result.arr, shape=(result_len0, ))
+    print result_vec
+
+    #lib.delete_array(ctypes.byref(ctypes.c_int(result_len0)), result_vec)
+
+    kcond = np.zeros((result_len0))
+    for i in range(0, result_len0):
         kcond[i] = np.sum(condition[i*nw0:(i+1)*nw0])
-    return k, kcond
+    return result_vec, result_len0, kcond
 
 
 def calc_hist2d(A, nw0, nw1, condition):
@@ -784,23 +793,26 @@ def run_tst4d():
 
 
 def run_tst1d():
-    datafile = "data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
-    data = data[0, 0, 0, :]
+    data = data[0, 0, 0, :]*1.0
     condition = np.ones(data.shape, dtype=bool)
     
     A = np.cumsum(data)
 
-    #k, kcond = calc_hist4d(A, data, 1, 1, 1, 1, condition) 
-    k, kcond = calc_hist1d_f90(A, 5, condition) 
-    print "hist finished"
+    k, klen, kcond = calc_hist1d_f90(A, 8, condition) 
+    k, klen, kcond = calc_hist1d_f90(A, 4, condition) 
+    #lib = ctypes.CDLL("./histfort.so")
+    #print "hist finished"
     #for i in range(0,100):
     #    print i,np.average(k[:,i,:])
 
-    plt.figure(figsize=(8, 16))
-    plt.plot(k)
-    plt.plot(data)
+    #plt.figure(figsize=(8, 16))
+    #plt.plot(data)
+    #plt.figure(figsize=(8, 16))
+    #plt.plot(k)
+    return k, klen
 
 
 #run_tst()
@@ -814,5 +826,10 @@ def run_tst1d():
 #runex()
 #run_simu()
 #run_simu4d()
-run_tst1d()
-plt.show()
+k, klen = run_tst1d()
+lib.delete_array.restype = None
+lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
+lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
+#plt.show()
+
+

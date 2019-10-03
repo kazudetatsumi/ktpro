@@ -8,45 +8,44 @@ module histfort
 
 contains
 
-  function hist1d(A, Al0, nw0) bind(C, name="hist1d")
+  function hist1d(nw0, Al0, A) bind(C, name="hist1d")
     !DEC$ ATTRIBUTES DLLEXPORT :: plus
-    integer(c_int), intent(in) :: Al0
     integer(c_int), intent(in) :: nw0
+    integer(c_int), intent(in) :: Al0
     real(c_double), intent(in) :: A(Al0)                         
     type(result) :: hist1d                                  
-    real(c_double), pointer :: k(:)                    
+    real(c_double), pointer :: work_array(:)                    
     integer N0
     integer i, ihead
     N0 = (Al0 - mod(Al0, nw0)) / nw0
-    allocate(k(N0))
+    allocate(work_array(N0))
 
     do i = 1, N0
-       ihead = (i+1)*nw0 - 1
-       if ( i == 0) then
-           k(i) = A(ihead)
+       ihead = i*nw0 
+       if ( i == 1) then
+           work_array(i) = A(ihead)
        else
-           k(i) = A(ihead) - A(ihead - nw0)
+           work_array(i) = A(ihead) - A(ihead - nw0)
        end if
     end do
 
     hist1d%len0 =  N0
-    hist1d%arr = C_loc(k)
+    hist1d%arr = C_loc(work_array)
   end function hist1d
 
 
 
 
-  subroutine delete_array(Bl0, darray) bind(C, name="delete_array")
+  subroutine delete_array(arr_length, array) bind(C, name="delete_array")
     !DEC$ ATTRIBUTES DLLEXPORT :: delete_array
-    integer(c_int), intent(in) :: Bl0
-    type(c_ptr), value :: darray
-    real(c_double), pointer :: k(:)
+    integer(c_int), intent(in) :: arr_length
+    type(c_ptr), value :: array
+    real(c_double), pointer :: work_array(:)
 
-    call C_F_pointer(darray, k, [Bl0])
-    print *, "k:",k
-    deallocate(k)
-    darray = C_NULL_PTR
-    print *, "Is work_array freed ?, work_array: ",k
+    call C_F_pointer(array, work_array, [arr_length])
+    deallocate(work_array)
+    array = C_NULL_PTR
+    print *, "Is work_array freed ?, work_array: ",work_array
   end subroutine delete_array
 
 end module histfort
