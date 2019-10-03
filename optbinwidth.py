@@ -70,6 +70,25 @@ def calc_hist1d(A, nw, condition):
     return k, kcond
 
 
+def calc_hist1d_f90(A, nw0, condition):
+    lib = ctypes.CDLL(".histfort.so")
+    class result(ctypes.Structure):
+        _fields_ =[("len0", ctypes.c_int), ("arr", ctypes.POINTER(ctypes.c_double))]
+    lib.hist1d.restype = result
+    lib.hist1d.rgtypes = [ctypes.POINTER(ctypes.c_int),np.ctypeslib.ndpointer(dtype=np.float64,ndim=1)]
+    lib.delete_array.restype = None
+    lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
+    Nmax = A.shape
+    result = lib.hist1d(ctypes.byref(ctypes.c_int(Nmax[O])), ctypes.byref(ctypes.c_int(nw0)), A)
+    k_len0 = result.len0
+    k = np.ctypeslib.as_array(result.arr, shape=(k_len0, ))
+    lib.delete_array(ctypes.byref(ctypes.c_int(k_lenO)), k)
+    kcond = np.zeros((k_len0))
+    for i in range(0, k_len0):
+        kcond[i] = np.sum(condition[i*nw0:(i+1)*nw0])
+    return k, kcond
+
+
 def calc_hist2d(A, nw0, nw1, condition):
     Nmax = A.shape
     N0 = int((Nmax[0] - (Nmax[0] % nw0)) / nw0)
@@ -167,7 +186,7 @@ def calc_hist4d(A, data, nw0, nw1, nw2, nw3, condition):
         for i in range(0, N0):
             for j in range(0, N1):
                 for l in range(0, N3):
-                    k[i, j, :, l], kcond[i, j, :, l] = calc_hist1d(B[i, j, :, ;], nw2, condition[i, j, :, l])
+                    k[i, j, :, l], kcond[i, j, :, l] = calc_hist1d(B[i, j, :, l], nw2, condition[i, j, :, l])
     elif nw0 == 1 and nw1 == 1 and nw2 == 1 and nw3 != 1:
         B = np.cumsum(data, axis=3)
         for i in range(0, N0):
@@ -267,7 +286,6 @@ def calc_hist4d_f90(A, data, nw0, nw1, nw2, nw3, condition):
 
     B = np.ctypeslib.as_array(result.arr, shape=(N0, N1, N2, N3, ))
 
-    lib.free_array(ctypes.c_int(NO)), ctypes.byref(ctypes.c_int(N1)), ctypes.byref(ctypes.c_int(N2)), ctypes.byref(ctypes.c_int(N3)), B)
 
 
 
@@ -301,7 +319,7 @@ def calc_hist4d_f90(A, data, nw0, nw1, nw2, nw3, condition):
         for i in range(0, N0):
             for j in range(0, N1):
                 for l in range(0, N3):
-                    k[i, j, :, l], kcond[i, j, :, l] = calc_hist1d(B[i, j, :, ;], nw2, condition[i, j, :, l])
+                    k[i, j, :, l], kcond[i, j, :, l] = calc_hist1d(B[i, j, :, :], nw2, condition[i, j, :, l])
     elif nw0 == 1 and nw1 == 1 and nw2 == 1 and nw3 != 1:
         B = np.cumsum(data, axis=3)
         for i in range(0, N0):
@@ -765,6 +783,26 @@ def run_tst4d():
     plt.colorbar(mappable)
 
 
+def run_tst1d():
+    datafile = "data3_100000000.hdf5"
+    f = h5py.File(datafile)
+    data = f["data3"][:] # nqx, nqy, nqz, nomega
+    data = data[0, 0, 0, :]
+    condition = np.ones(data.shape, dtype=bool)
+    
+    A = np.cumsum(data)
+
+    #k, kcond = calc_hist4d(A, data, 1, 1, 1, 1, condition) 
+    k, kcond = calc_hist1d_f90(A, 5, condition) 
+    print "hist finished"
+    #for i in range(0,100):
+    #    print i,np.average(k[:,i,:])
+
+    plt.figure(figsize=(8, 16))
+    plt.plot(k)
+    plt.plot(data)
+
+
 #run_tst()
 #run2d()
 #runex()
@@ -776,5 +814,5 @@ def run_tst4d():
 #runex()
 #run_simu()
 #run_simu4d()
-run_tst4d()
+run_tst1d()
 plt.show()
