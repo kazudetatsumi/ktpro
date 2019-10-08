@@ -89,32 +89,25 @@ def calc_cost3d(A, data, maxw, condition, fflag):
     for i in range(1, maxw[0]):
         for j in range(1, maxw[1]):
             for h in range(1, maxw[2]):
+                if fflag == 1:
+                    k, klen0, klen1, klen2, kcond = calc_hist3d_f90(A, i, j, h, condition)
+                else:
+                    k, kcond = calc_hist3d(A, i, j, h, condition)
+
+                knonzero = np.extract(np.max(kcond) == kcond, k)
                 if i == 1 and j == 1 and h == 1:
-                    k = data
-                    kcond = condition
-                    #strict condition for nonzero,  probably better.
-                    knonzero = np.extract(np.max(kcond) == kcond, k)
-                    #soft condition for nonzero
-                    #knonzero = np.extract(kcond, k)
                     print "shape of k matrix with zero elements",k.shape
                     print "total number of k is", k.shape[0]*k.shape[1]*k.shape[2]
                     print "number of nonzero k is",knonzero.shape 
-                    kave = np.average(knonzero)
-                    v = np.var(knonzero)
-                    cost = (2 * kave - v) / ((i*j*h)**2*1.0)
-                else:
-                    if fflag == 1:
-                        k, klen0, klen1, klen2, kcond = calc_hist3d_f90(A, i, j, h, condition)
-                    else:
-                        k, kcond = calc_hist3d(A, i, j, h, condition)
-                    kave = np.average(knonzero)
-                    v = np.var(knonzero)
-                    cost = (2 * kave - v) / ((i*j*h)**2*1.0)
-                    if fflag == 1:
-                        lib.delete_array3.restype = None
-                        lib.delete_array3.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+
+                kave = np.average(knonzero)
+                v = np.var(knonzero)
+                cost = (2 * kave - v) / ((i*j*h)**2*1.0)
+                if fflag == 1:
+                    lib.delete_array3.restype = None
+                    lib.delete_array3.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
                                                       ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=3)]
-                        lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)),
+                    lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)),
                                          ctypes.byref(ctypes.c_int(klen2)), k)
                 Cn[i, j, h] = cost
                 kaves[i, j, h] = kave
@@ -139,7 +132,7 @@ def run_simu3d():
     #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
-    data = np.sum(data[:, :, :, 0:5],axis=3)*1.0
+    data = np.sum(data[:, :, 0:5, :],axis=2)*1.0
     #data = data[:, :, 0, :]*1.0
     fflag = 1
     condition = np.ones(data.shape, dtype=bool)
@@ -148,9 +141,9 @@ def run_simu3d():
     print "n=", n
 
 
-    maxxwidth = np.min(np.sum(condition, axis=0)) / 24
-    maxywidth = np.min(np.sum(condition, axis=1)) / 24
-    maxzwidth = np.min(np.sum(condition, axis=2)) / 24
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 12
+    maxywidth = np.min(np.sum(condition, axis=1)) / 12
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 12
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth])
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
@@ -158,7 +151,7 @@ def run_simu3d():
 
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
 
-    m = n
+    m = 1.0*n
 
     ex = (1/m - 1/n) * kaves / (deltas**2*n) 
     ex[0, :, :] = 1000.0
