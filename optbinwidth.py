@@ -109,6 +109,7 @@ def calc_hist2d_f90(A, nw0, nw1,  condition):
 
     Nmax0 = A.shape[0]
     Nmax1 = A.shape[1]
+    print nw0, nw1, Nmax0, Nmax1
 
     result = lib.hist2d(ctypes.byref(ctypes.c_int(nw0)), ctypes.byref(ctypes.c_int(nw1)),
                         ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), A)
@@ -146,6 +147,35 @@ def calc_hist2d(A, nw0, nw1, condition):
         for j in range(0, N1):
             kcond[i, j] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1])
     return k, kcond
+
+
+def calc_hist3d_f90(A, nw0, nw1, nw2, condition):
+
+    class result(ctypes.Structure):
+        _fields_ = [("len0", ctypes.c_int), ("len1", ctypes.c_int), ("len2", ctypes.c_int), ("arr", ctypes.POINTER(ctypes.c_double))]
+
+    lib.hist3d.restype = result
+    lib.hist3d.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                           ctypes.POINTER(ctypes.c_int),  ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=3)]
+
+    Nmax0 = A.shape[0]
+    Nmax1 = A.shape[1]
+    Nmax2 = A.shape[2]
+
+    result = lib.hist3d(ctypes.byref(ctypes.c_int(nw0)), ctypes.byref(ctypes.c_int(nw1)), ctypes.byref(ctypes.c_int(nw2)),
+                        ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), A)
+    result_len0 = result.len0
+    result_len1 = result.len1
+    result_len2 = result.len2
+    result_vec = np.ctypeslib.as_array(result.arr, shape=(result_len0, result_len1, result_len2,))
+    #print result_vec
+
+    kcond = np.zeros((result_len0, result_len1, result_len2))
+    for i in range(0, result_len0):
+        for j in range(0, result_len1):
+            for h in range(0, result_len2):
+                kcond[i, j, h] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1, h*nw2:(h+1)*nw2])
+    return result_vec, result_len0, result_len1, result_len2, kcond
 
 
 def calc_hist3d(A, nw0, nw1, nw2, condition):
@@ -489,30 +519,37 @@ def calc_cost2d(A, maxw, condition):
     return Cn, kaves, deltas
 
 
-def calc_cost2d_f90(A, maxw, condition):
+def calc_cost2d_f90(A, maxw, condition, fflag):
     Cn = np.zeros((maxw))
     kaves = np.zeros((maxw))
     deltas = np.zeros((maxw))
     for i in range(1, maxw[0]):
-       for j in range(1, maxw[1]):
-          k, klen0, klen1, kcond = calc_hist2d_f90(A, i, j, condition)
-          knonzero = np.extract(np.max(kcond) == kcond, k)
-          if i == 1 and j ==1:
-             print "shape of k matrix with zero elements",k.shape
-             print "total number of k is", k.shape[0]*k.shape[1]
-             print "number of nonzero k is",knonzero.shape 
-          kave = np.average(knonzero)
-          v = np.var(knonzero)
+        for j in range(1, maxw[1]):
+            if fflag == 1:
+                k, klen0, klen1, kcond = calc_hist2d_f90(A, i, j, condition)
+            else:
+                k, kcond = calc_hist2d(A, i, j, condition)
+            knonzero = np.extract(np.max(kcond) == kcond, k)
+            if i == 1 and j == 1:
+                print "shape of k matrix with zero elements", k.shape
+                print "total number of k is", k.shape[0]*k.shape[1]
+                print "number of nonzero k is", knonzero.shape
+            kave = np.average(knonzero)
+            v = np.var(knonzero)
           
-          cost = (2 * kave - v) / ((i*j)**2*1.0)
-          print "cost with (i, j) = ", i, j, ":", cost, "kave", kave, "v", v
-          Cn[i, j] = cost
-          kaves[i, j] = kave
-          deltas[i, j] = (i*j*1.0)
+            cost = (2 * kave - v) / ((i*j)**2*1.0)
+            print "cost with (i, j) = ", i, j, ":", cost, "kave", kave, "v", v
+            Cn[i, j] = cost
+            kaves[i, j] = kave
+            deltas[i, j] = (i*j*1.0)
+            if fflag == 1:
+                lib.delete_array2.restype = None
+                lib.delete_array2.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)]
+                lib.delete_array2(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), k)
     return Cn, kaves, deltas
 
 
-def calc_cost3d(A, maxw, condition):
+def calc_cost3d(A, data, maxw, condition, fflag):
     Cn = np.zeros((maxw))
     kaves = np.zeros((maxw))
     deltas = np.zeros((maxw))
@@ -520,23 +557,37 @@ def calc_cost3d(A, maxw, condition):
     for i in range(1, maxw[0]):
         for j in range(1, maxw[1]):
             for h in range(1, maxw[2]):
-                k, kcond = calc_hist3d(A, i, j, h, condition)
-                #strict condition for nonzero,  probably better.
-                knonzero = np.extract(np.max(kcond) == kcond, k)
-                # soft condition for nonzero
-                #knonzero = np.extract(kcond, k)
                 if i == 1 and j == 1 and h == 1:
+                    k = data
+                    kcond = condition
+                    #strict condition for nonzero,  probably better.
+                    knonzero = np.extract(np.max(kcond) == kcond, k)
+                    #soft condition for nonzero
+                    #knonzero = np.extract(kcond, k)
                     print "shape of k matrix with zero elements",k.shape
                     print "total number of k is", k.shape[0]*k.shape[1]*k.shape[2]
                     print "number of nonzero k is",knonzero.shape 
-                kave = np.average(knonzero)
-                v = np.var(knonzero)
-          
-                cost = (2 * kave - v) / ((i*j*h)**2*1.0)
-                print "cost with (i, j, h) = ", i, j, h, ":", cost, "kave", kave, "v", v
+                    kave = np.average(knonzero)
+                    v = np.var(knonzero)
+                    cost = (2 * kave - v) / ((i*j*h)**2*1.0)
+                else:
+                    if fflag == 1:
+                        k, klen0, klen1, klen2, kcond = calc_hist3d_f90(A, i, j, h, condition)
+                    else:
+                        k, kcond = calc_hist3d(A, i, j, h, condition)
+                    kave = np.average(knonzero)
+                    v = np.var(knonzero)
+                    cost = (2 * kave - v) / ((i*j*h)**2*1.0)
+                    if fflag == 1:
+                        lib.delete_array3.restype = None
+                        lib.delete_array3.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                                                      ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=3)]
+                        lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)),
+                                         ctypes.byref(ctypes.c_int(klen2)), k)
                 Cn[i, j, h] = cost
                 kaves[i, j, h] = kave
                 deltas[i, j, h] = (i*j*h*1.0)
+                print "cost with (i, j, h) = ", i, j, h, ":", cost, "kave", kave, "v", v
     return Cn, kaves, deltas
 
 
@@ -718,28 +769,30 @@ def run_simu():
     plt.colorbar(mappable)
 
 def run_simu3d():
-    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
-    data = f["data3"][:] # nqx, nqy, nqz, nomega
-    data = np.sum(data[:, :, 0:5, :],axis=2)
+    data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
+    data = np.sum(data[:, :, 0:5, :],axis=2)*1.0
+    fflag = 1
     condition = np.ones(data.shape, dtype=bool)
     
     n = np.sum(data)*1.0
     print "n=", n
 
 
-    maxxwidth = np.min(np.sum(condition, axis=0)) / 12
-    maxywidth = np.min(np.sum(condition, axis=1)) / 12
-    maxzwidth = np.min(np.sum(condition, axis=2)) / 12
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 24
+    maxywidth = np.min(np.sum(condition, axis=1)) / 24
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 24
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth])
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
-    Cn, kaves, delstas = calc_cost3d(A, maxw, condition)
+    Cn, kaves, deltas = calc_cost3d(A, data, maxw, condition, fflag)
 
-    m = 1.0*n
+    Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
+    m = 10*n
 
-    ex = (1/m - 1/n) * kaves / (delstas**2*n) 
+    ex = (1/m - 1/n) * kaves / (deltas**2*n) 
     ex[0, :, :] = 0.0
     ex[:, 0, :] = 0.0
     ex[:, :, 0] = 0.0
@@ -748,7 +801,10 @@ def run_simu3d():
 
     print "opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
     opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-    k, kcond = calc_hist3d(A, opt_indx[0], opt_indx[1], opt_indx[2], condition) 
+    if fflag == 1:
+        k, klen0, klen1, klen2, kcond = calc_hist3d_f90(A, opt_indx[0], opt_indx[1], opt_indx[2], condition) 
+    else:
+        k, kcond = calc_hist3d(A, opt_indx[0], opt_indx[1], opt_indx[2], condition) 
 
     plt.figure(figsize=(8, 16))
     plt.pcolor(np.transpose(k[:,0,:]), vmax=np.max(k[:,0,:]), cmap='jet')
@@ -759,6 +815,13 @@ def run_simu3d():
 
     mappable = make_mappable(np.max(data))
     plt.colorbar(mappable)
+
+    if fflag == 1:
+        lib.delete_array3.restype = None
+        lib.delete_array3.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                                      ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=3)]
+        lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)),
+                          ctypes.byref(ctypes.c_int(klen2)), k)
 
 
 def run_simu4d():
@@ -819,17 +882,21 @@ def run_tst3d():
     datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
-    data = data[:, :, 0, :]
+    data = data[:, :, 0, :]*1.0
+    fflag = 1
     condition = np.ones(data.shape, dtype=bool)
     
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
 
-    k, kcond = calc_hist3d(A, 2, 2, 2, condition) 
+    if fflag == 1:
+        k, klen0, klen1, klen2,  kcond = calc_hist3d_f90(A, 4, 4, 4, condition) 
+    else:
+        k, kcond = calc_hist3d(A, 2, 2, 2, condition) 
+
     #for i in range(0,100):
     #    print i,np.average(k[:,i,:])
-
     plt.figure(figsize=(8, 16))
-    plt.pcolor(np.transpose(k[:,:,1]), vmax=np.max(k[:,:,1]), cmap='jet')
+    plt.pcolor(np.transpose(k[:, :, 1]), vmax=np.max(k[:, :, 1]), cmap='jet')
     mappable = make_mappable(np.max(k))
     plt.colorbar(mappable)
     plt.figure(figsize=(8, 16))
@@ -837,6 +904,11 @@ def run_tst3d():
 
     mappable = make_mappable(np.max(data))
     plt.colorbar(mappable)
+
+    if fflag == 1:
+        lib.delete_array3.restype = None
+        lib.delete_array3.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=3)]
+        lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), ctypes.byref(ctypes.c_int(klen2)), k)
 
 
 def run_tst4d():
@@ -934,15 +1006,17 @@ def run1d():
 def run_tst2d():
     datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
     f = h5py.File(datafile)
+    fflag = 1
     data = f["data3"][:] # nqx, nqy, nqz, nomega
     data = data[0, :, 0, :]*1.0
     condition = np.ones(data.shape, dtype=bool)
-    
+   
     A = np.cumsum(np.cumsum(data, axis=0), axis=1)
 
-    k, klen0, klen1,  kcond = calc_hist2d_f90(A, 2, 2, condition) 
-    #k,   kcond = calc_hist2d(A, 2, 2, condition) 
-
+    if fflag == 1:
+        k, klen0, klen1,  kcond = calc_hist2d_f90(A, 2, 2, condition)
+    else:
+        k, kcond = calc_hist2d(A, 2, 2, condition)
 
     plt.figure(figsize=(8, 16))
     plt.pcolor(np.transpose(k), vmax=np.max(k), cmap='jet')
@@ -954,16 +1028,19 @@ def run_tst2d():
     mappable = make_mappable(np.max(data))
     plt.colorbar(mappable)
 
-    lib.delete_array2.restype = None
-    lib.delete_array2.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)]
-    lib.delete_array2(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), k)
+    if fflag == 1:
+        lib.delete_array2.restype = None
+        lib.delete_array2.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)]
+        lib.delete_array2(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), k)
 
 
 def run2d_f90():
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
-    data = data[0, :, 0, :]*1.0
+    data = data[:, 0, 0, :]*1.0
+    fflag = 1
     condition = np.ones(data.shape, dtype=bool)
     n = np.sum(data)*1.0
     print "n=", n
@@ -973,31 +1050,41 @@ def run2d_f90():
     print maxw
     A = np.cumsum(np.cumsum(data, axis=0), axis=1)
 
-    Cn, kaves, deltas = calc_cost2d_f90(A, maxw, condition)
+    Cn, kaves, deltas = calc_cost2d_f90(A, maxw, condition, fflag)
 
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
     print "argmin(Cn)",np.argmin(Cn)
-    k, klen, kcond = calc_hist1d_f90(cumdata, 3, condition) 
 
     m = 1.0*n
 
     ex = (1/m - 1/n) * kaves / (deltas**2*n) 
-    ex[0] = 0.0
+    ex[0, :] = 0.0
+    ex[:, 0] = 0.0
 
     Cm = ex + Cn
 
-    print "argmin(Cm)",np.argmin(Cm)
+    opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+    print "opt_indx", opt_indx
 
+    if fflag == 1:
+        k, klen0, klen1, kcond = calc_hist2d_f90(A, 9, 2, condition) 
+    else:
+        k, kcond = calc_hist2d(A, 9, 2, condition)
 
-    #plt.figure(figsize=(16, 8)) 
-    #plt.plot(k)
-    #plt.figure(figsize=(16, 8)) 
-    #plt.plot(data)
-    #plt.plot(Cm)
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(k), vmax=np.max(k), cmap='jet')
+    mappable = make_mappable(np.max(k))
+    plt.colorbar(mappable)
+    plt.figure(figsize=(8, 16))
+    plt.pcolor(np.transpose(data), vmax=np.max(data), cmap='jet')
 
-    lib.delete_array.restype = None
-    lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
-    lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
+    mappable = make_mappable(np.max(data))
+    plt.colorbar(mappable)
+
+    if fflag == 1:
+        lib.delete_array2.restype = None
+        lib.delete_array2.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)]
+        lib.delete_array2(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), k)
 
 
 def runex():
@@ -1012,6 +1099,8 @@ def runex():
     data, condition = get2ddata(txtfile, xi, xf, yi, yf)
     n = np.sum(data)*1.0
     print "n=", n
+    fflag = 1
+
 
 
     maxxwidth = np.min(np.sum(condition, axis=0)) / 2
@@ -1022,7 +1111,7 @@ def runex():
     print maxw
     A = np.cumsum(np.cumsum(data, axis=0), axis=1)
 
-    Cn, kaves, delstas = calc_cost2d(A, maxw, condition)
+    Cn, kaves, delstas = calc_cost2d_f90(A, maxw, condition, fflag)
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
 
     m = 15.0*n
@@ -1038,7 +1127,11 @@ def runex():
 
     print "opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
     opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-    k, kcond = calc_hist2d(A, opt_indx[0], opt_indx[1], condition) 
+
+    if fflag == 1:
+        k, klen0, klen1, kcond = calc_hist2d_f90(A, opt_indx[0], opt_indx[1], condition) 
+    else:
+        k, kcond = calc_hist2d(A, opt_indx[0], opt_indx[1], condition) 
     #plt.figure(figsize=(16, 8))
     #plt.plot(Cn[10,:])
     #plt.plot(Cm[10,:])
@@ -1053,15 +1146,21 @@ def runex():
 
     mappable = make_mappable(np.max(data)/1000)
     plt.colorbar(mappable)
+
+    if fflag == 1:
+        lib.delete_array2.restype = None
+        lib.delete_array2.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)]
+        lib.delete_array2(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), k)
 #run_tst()
-run_tst2d()
+#run_tst2d()
 #run2d()
-#run2d_f90
+#run2d_f90()
 #runex()
 #run_simu()
 #run_simu3d()
-#run1d()
+run1d()
 #run_tst()
+#run_tst3d()
 #run2d()
 #runex()
 #run_simu()
