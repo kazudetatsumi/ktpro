@@ -1,15 +1,13 @@
-module histfort2d
+module histfort
   use ISO_C_binding
   implicit none
   type, bind(C) :: result
     integer(c_int) :: len0
     integer(c_int) :: len1
-    integer(c_int) :: len2
     type(c_ptr) :: arr
   end type result
 
 contains
-
 
   function hist2d(nw1, nw0, Al1, Al0, A) bind(C, name="hist2d")
     !DEC$ ATTRIBUTES DLLEXPORT :: hist2d
@@ -25,7 +23,6 @@ contains
     N0 = (Al0 - mod(Al0, nw0)) / nw0
     N1 = (Al1 - mod(Al1, nw1)) / nw1
     allocate(work_array(N0, N1))
-    print *, nw0, nw1, Al1, Al0, Al1
 
     do i = 1, N0
        ihead = i*nw0 
@@ -49,9 +46,6 @@ contains
     hist2d%arr = C_loc(work_array)
   end function hist2d
 
-
-
-
   subroutine delete_array2(arr_length0, arr_length1, array) bind(C, name="delete_array2")
     !DEC$ ATTRIBUTES DLLEXPORT :: delete_array2
     integer(c_int), intent(in) :: arr_length0
@@ -65,5 +59,4 @@ contains
     print *, "Is work_array freed ?, work_array: ",work_array
   end subroutine delete_array2
 
-
-end module histfort2d
+end module histfort
