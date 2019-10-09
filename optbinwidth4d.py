@@ -6,7 +6,7 @@ import h5py
 import ctypes
 lib = ctypes.CDLL("./histfort4d.so")
 
-def calc_hist4d_f90(A, nw0, nw1, nw2, nw3,  condition):
+def calc_hist4d_f90(A, data, nw0, nw1, nw2, nw3,  condition):
 
     class result(ctypes.Structure):
         _fields_ = [("len0", ctypes.c_int), ("len1", ctypes.c_int), ("len2", ctypes.c_int),  ("len3", ctypes.c_int), ("arr", ctypes.POINTER(ctypes.c_double))]
@@ -156,10 +156,14 @@ def calc_cost4d(A, data, maxw, condition, fflag):
         for j in range(1, maxw[1]):
             for h in range(1, maxw[2]):
                 for l in range(1, maxw[3]):
-                    if fflag == 1:
-                        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, i, j, h, l, condition)
+                    if i == 1 and j == 1 and h == 1 and l == 1:
+                        k = data
+                        kcond = condition
                     else:
-                        k, kcond = calc_hist4d(A, data, i, j, h, l, condition)
+                        if fflag == 1:
+                            k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, i, j, h, l, condition)
+                        else:
+                            k, kcond = calc_hist4d(A, data, i, j, h, l, condition)
                     #strict condition for nonzero,  probably better.
                     knonzero = np.extract(np.max(kcond) == kcond, k)
                     # soft condition for nonzero
@@ -171,7 +175,7 @@ def calc_cost4d(A, data, maxw, condition, fflag):
                     kave = np.average(knonzero)
                     v = np.var(knonzero)
                     cost = (2 * kave - v) / ((i*j*h*l)**2*1.0)
-                    if fflag == 1:
+                    if fflag == 1 and i*j*h*l != 1:
                         lib.delete_array4.restype = None
                         lib.delete_array4.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
                                                           ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
@@ -215,10 +219,10 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 4
     maxzwidth = np.min(np.sum(condition, axis=2)) / 4
     maxowidth = np.min(np.sum(condition, axis=3)) / 4
-    maxxwidth = 2
-    maxywidth = 2
-    maxzwidth = 2
-    maxowidth = 3
+    maxxwidth = 3
+    maxywidth = 3
+    maxzwidth = 3
+    maxowidth = 4
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
@@ -275,7 +279,7 @@ def run_tst4d():
     print "cumsum finished"
 
     if fflag == 1:
-        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, 2, 2, 2, 2, condition)
+        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, 2, 2, 2, 2, condition)
     else:
         k, kcond = calc_hist4d(A, data, 2, 2, 2, 2, condition)
     print "hist finished"

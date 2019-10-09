@@ -25,7 +25,6 @@ def calc_hist1d(A, nw, condition):
 
 
 def calc_hist1d_f90(A, nw0, condition):
-    #lib = ctypes.CDLL("./histfort.so")
     class result(ctypes.Structure):
         _fields_ =[("len0", ctypes.c_int), ("arr", ctypes.POINTER(ctypes.c_double))]
 
@@ -74,7 +73,6 @@ def calc_cost1d(cumdata, maxw, condition, fflag):
 
     deltas[0] = 1.0
     return Cn, kaves, deltas
-
 
 
 def make_mappable(maxvalue):
