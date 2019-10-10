@@ -103,12 +103,12 @@ def calc_cost3d(A, data, maxw, condition, fflag):
                 kave = np.average(knonzero)
                 v = np.var(knonzero)
                 cost = (2 * kave - v) / ((i*j*h)**2*1.0)
-                if fflag == 1:
-                    lib.delete_array3.restype = None
-                    lib.delete_array3.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
-                                                      ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=3)]
-                    lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)),
-                                         ctypes.byref(ctypes.c_int(klen2)), k)
+                #if fflag == 1:
+                #    lib.delete_array3.restype = None
+                #    lib.delete_array3.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                #                                      ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=3)]
+                #    lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)),
+                #                         ctypes.byref(ctypes.c_int(klen2)), k)
                 Cn[i, j, h] = cost
                 kaves[i, j, h] = kave
                 deltas[i, j, h] = (i*j*h*1.0)
@@ -128,7 +128,8 @@ def make_mappable(maxvalue):
 
 
 def run_simu3d():
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega

@@ -1,4 +1,4 @@
-module costfort2d
+module costfort3d
   use ISO_C_binding
   implicit none
   type, bind(C) :: result
@@ -38,31 +38,51 @@ contains
     kaves(:,:,:) = 0.0
     deltas(:,:,:) = 0.0
     do nw0 = 1, maxw0
-       N0 = (Al0 - mod(Al0, nw0)) / nw0
-       do nw1 = 1, maxw1
-          N1 = (Al1 - mod(Al1, nw1)) / nw1
-          do i = 1, N0
-             ihead = i*nw0 
-             do j = 1, N1
-                jhead = j*nw1 
-                if ( i == 1 .and. j == 1) then
-                    k(i, j) = A(ihead, jhead)
-                else if ( i /= 1 .and. j == 1) then
-                    k(i, j) = A(ihead, jhead) - A(ihead - nw0, jhead)
-                else if ( i == 1 .and. j /= 1) then
-                    k(i, j) = A(ihead, jhead) - A(ihead, jhead - nw1)
-                else 
-                    k(i, j) = A(ihead, jhead) - A(ihead - nw0, jhead) - A(ihead, jhead - nw1) + A(ihead - nw0, jhead - nw1)
-                end if
-             end do
-          end do
-          kave = sum(k(1:N0, 1:N1)) / real(N0*N1)
-          v = sum((k(1:N0, 1:N1) - kave)**2) / real(N0*N1)
-          !print *, "cost for ", nw0, nw1, ":", (2.0 * kave - v) / (real(nw0*nw1)**2)
-          Cn(nw0, nw1) = (2.0 * kave - v) / (real(nw0*nw1)**2)
-          deltas(nw0, nw1) = real(nw0*nw1)
-          kaves(nw0, nw1) = kave
+    N0 = (Al0 - mod(Al0, nw0)) / nw0
+    do nw1 = 1, maxw1
+    N1 = (Al1 - mod(Al1, nw1)) / nw1
+    do nw2 = 1, maxw2
+    N2 = (Al2 - mod(Al2, nw2)) / nw2
+       do i = 1, N0
+       ihead = i*nw0 
+       do j = 1, N1
+       jhead = j*nw1 
+       do h = 1, N2
+       hhead = h*nw2 
+          if ( i == 1 .and. j == 1 .and. h == 1) then
+             k(i, j, h) = A(ihead, jhead, hhead)
+          else if ( j == 1 .and. i /= 1 .and. h == 1 ) then
+             k(i, j, h) = A(ihead, jhead, hhead) - A(ihead - nw0, jhead, hhead)
+          else if ( i == 1 .and. j /= 1 .and. h == 1 ) then
+             k(i, j, h) = A(ihead, jhead, hhead) - A(ihead, jhead - nw1, hhead)
+          else if ( i == 1 .and. h /= 1 .and. j == 1 ) then
+             k(i, j, h) = A(ihead, jhead, hhead) - A(ihead, jhead, hhead - nw2)
+          else if ( i /= 1 .and. j /= 1 .and. h == 1 ) then
+             k(i, j, h) = A(ihead, jhead, hhead) - A(ihead - nw0, jhead, hhead) - A(ihead, jhead - nw1, hhead) &
+                        + A(ihead - nw0, jhead - nw1, hhead)
+          else if ( i /= 1 .and. j == 1 .and. h /= 1 ) then
+             k(i, j, h) = A(ihead, jhead, hhead) - A(ihead - nw0, jhead, hhead) - A(ihead, jhead, hhead - nw2) &
+                        + A(ihead - nw0, jhead, hhead - nw2)
+          else if ( i == 1 .and. j /= 1 .and. h /= 1 ) then
+             k(i, j, h) = A(ihead, jhead, hhead) - A(ihead, jhead - nw1, hhead) - A(ihead, jhead, hhead - nw2) &
+                        + A(ihead, jhead - nw1, hhead - nw2)
+          else
+             k(i, j, h) = A(ihead, jhead, hhead) &
+                        - A(ihead - nw0, jhead, hhead) - A(ihead, jhead - nw1, hhead) - A(ihead, jhead, hhead - nw2) &
+                        + A(ihead, jhead - nw1, hhead - nw2) + A(ihead - nw0, jhead, hhead - nw2) &
+                        + A(ihead - nw0, jhead - nw1, hhead) - A(ihead - nw0, jhead - nw1, hhead - nw2)
+          end if
        end do
+       end do
+       end do
+       kave = sum(k(1:N0, 1:N1, 1:N2)) / real(N0*N1*N2)
+       v = sum((k(1:N0, 1:N1, 1:N2) - kave)**2) / real(N0*N1*N2)
+       !print *, "cost for ", nw0, nw1, ":", (2.0 * kave - v) / (real(nw0*nw1)**2)
+       Cn(nw0, nw1, nw2) = (2.0 * kave - v) / (real(nw0*nw1*nw2)**2)
+       deltas(nw0, nw1, nw2) = real(nw0*nw1*nw2)
+       kaves(nw0, nw1, nw2) = kave
+    end do
+    end do
     end do
 
     print *, "minloc Cn:", minloc(Cn)
