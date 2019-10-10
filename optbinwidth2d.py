@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#/usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -235,7 +235,8 @@ def run_tst2d():
 
 def run2d_f90():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
     data = data[:, 0, 0, :]*1.0

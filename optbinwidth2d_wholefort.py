@@ -32,7 +32,8 @@ def calc_cost2d_f90(A, maxw, condition):
 
 def run2d_f90():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
     data = data[:, 0, 0, :]*1.0
@@ -51,15 +52,17 @@ def run2d_f90():
 
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
     opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
+    opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1 )
     print "opt_indx", opt_indx
 
-    m = 1.0*n
+    m = 0.1*n
 
     ex = (1/m - 1/n) * kaves / (deltas**2*n) 
 
     Cm = ex + Cn
 
     opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+    opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1 )
     print "opt_indx", opt_indx
 
 
