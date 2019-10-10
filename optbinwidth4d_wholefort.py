@@ -36,7 +36,7 @@ def calc_cost4d_f90(A, maxw, data):
 
 def run_simu4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
@@ -53,10 +53,10 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 4
     maxzwidth = np.min(np.sum(condition, axis=2)) / 4
     maxowidth = np.min(np.sum(condition, axis=3)) / 4
-    maxxwidth = 8
-    maxywidth = 8
-    maxzwidth = 8
-    maxowidth = 10
+    maxxwidth = 3
+    maxywidth = 3
+    maxzwidth = 3
+    maxowidth = 3
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)

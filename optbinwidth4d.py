@@ -152,9 +152,9 @@ def calc_cost4d(A, data, maxw, condition, fflag):
     kaves = np.zeros((maxw))
     deltas = np.zeros((maxw))
     print maxw
-    for i in range(4, maxw[0]):
-        for j in range(4, maxw[1]):
-            for h in range(4, maxw[2]):
+    for i in range(2, maxw[0]):
+        for j in range(2, maxw[1]):
+            for h in range(2, maxw[2]):
                 for l in range(2, maxw[3]):
                     if i == 1 and j == 1 and h == 1 and l == 1:
                         k = data
@@ -175,12 +175,12 @@ def calc_cost4d(A, data, maxw, condition, fflag):
                     kave = np.average(knonzero)
                     v = np.var(knonzero)
                     cost = (2 * kave - v) / ((i*j*h*l)**2*1.0)
-                    if fflag == 1 and i*j*h*l != 1:
-                        lib.delete_array4.restype = None
-                        lib.delete_array4.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
-                                                          ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
-                        lib.delete_array4(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), ctypes.byref(ctypes.c_int(klen2)),
-                                             ctypes.byref(ctypes.c_int(klen3)), k)
+                    #if fflag == 1 and i*j*h*l != 1:
+                    #    lib.delete_array4.restype = None
+                    #    lib.delete_array4.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                    #                                      ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
+                    #    lib.delete_array4(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), ctypes.byref(ctypes.c_int(klen2)),
+                    #                         ctypes.byref(ctypes.c_int(klen3)), k)
                     print "cost with (i, j, h, l) = ", i, j, h, l, ":", cost, "kave", kave, "v", v
                     Cn[i, j, h, l] = cost
                     kaves[i, j, h, l] = kave
@@ -202,7 +202,7 @@ def make_mappable(maxvalue):
 
 def run_simu4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
     #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
@@ -219,10 +219,10 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 4
     maxzwidth = np.min(np.sum(condition, axis=2)) / 4
     maxowidth = np.min(np.sum(condition, axis=3)) / 4
-    maxxwidth = 8
-    maxywidth = 8
-    maxzwidth = 8
-    maxowidth = 10
+    maxxwidth = 4
+    maxywidth = 4
+    maxzwidth = 4
+    maxowidth = 4
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
@@ -259,17 +259,17 @@ def run_simu4d():
     mappable = make_mappable(np.max(data))
     plt.colorbar(mappable)
 
-    if fflag == 1:
-        lib.delete_array4.restype = None
-        lib.delete_array4.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
-                                      ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
-        lib.delete_array4(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), ctypes.byref(ctypes.c_int(klen2)),
-                          ctypes.byref(ctypes.c_int(klen3)), k)
+    #if fflag == 1:
+    #    lib.delete_array4.restype = None
+    #    lib.delete_array4.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+    #                                  ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
+    #    lib.delete_array4(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), ctypes.byref(ctypes.c_int(klen2)),
+    #                      ctypes.byref(ctypes.c_int(klen3)), k)
 
 
 def run_tst4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
     condition = np.ones(data.shape, dtype=bool)
