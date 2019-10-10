@@ -239,7 +239,7 @@ def run2d_f90():
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
     data = data[:, 0, 0, :]*1.0
-    fflag = 1
+    fflag = 0
     condition = np.ones(data.shape, dtype=bool)
     n = np.sum(data)*1.0
     print "n=", n
@@ -253,6 +253,7 @@ def run2d_f90():
 
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
     print "argmin(Cn)",np.argmin(Cn)
+    print kaves[1, 1:], kaves.shape
 
     m = 1.0*n
 
@@ -264,6 +265,7 @@ def run2d_f90():
 
     opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
     print "opt_indx", opt_indx
+
 
     if fflag == 1:
         k, klen0, klen1, kcond = calc_hist2d_f90(A, 9, 2, condition) 

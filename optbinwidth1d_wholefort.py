@@ -75,31 +75,18 @@ def run1d():
 
     Cn, kaves, deltas = calc_cost1d_f90(A, maxw, condition)
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
-    print "Cn", Cn
-    print "argmin(Cn)",np.argmin(Cn)
+    print "Cn:", Cn
+    print "argmin(Cn)",np.argmin(Cn)+1 # Because fortran array is 1-origin while python array is 0-origin.
 
-    m = 1.0*n
+    m = 0.1*n
 
     ex = (1/m - 1/n) * kaves / (deltas**2*n) 
-    ex[0] = 0.0
 
     Cm = ex + Cn
-    print "Cm", Cm[:]
-    print maxw
-    print "Cm.size", Cm.shape
 
-    print "argmin(Cm)",np.argmin(Cm)
+    print "Cm with m = ", m, Cm
+    print "argmin(Cm)",np.argmin(Cm)+1 # Because fortran array is 1-origin while python array is 0-origin.
 
-    #!if fflag == 1:
-    #    k, klen, kcond = calc_hist1d_f90(cumdata, 3, condition) 
-    #else:
-    #    k, cond = calc_hist1d(cumdata, 3, condition)
-
-    #plt.figure(figsize=(16, 8)) 
-    #plt.plot(k)
-    plt.figure(figsize=(16, 8)) 
-    #plt.plot(data)
-    plt.plot(Cm)
 
 run1d()
 #k, klen = run_tst1d()

@@ -152,10 +152,10 @@ def calc_cost4d(A, data, maxw, condition, fflag):
     kaves = np.zeros((maxw))
     deltas = np.zeros((maxw))
     print maxw
-    for i in range(1, maxw[0]):
-        for j in range(1, maxw[1]):
-            for h in range(1, maxw[2]):
-                for l in range(1, maxw[3]):
+    for i in range(4, maxw[0]):
+        for j in range(4, maxw[1]):
+            for h in range(4, maxw[2]):
+                for l in range(2, maxw[3]):
                     if i == 1 and j == 1 and h == 1 and l == 1:
                         k = data
                         kcond = condition
@@ -219,10 +219,10 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 4
     maxzwidth = np.min(np.sum(condition, axis=2)) / 4
     maxowidth = np.min(np.sum(condition, axis=3)) / 4
-    maxxwidth = 3
-    maxywidth = 3
-    maxzwidth = 3
-    maxowidth = 4
+    maxxwidth = 8
+    maxywidth = 8
+    maxzwidth = 8
+    maxowidth = 10
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)

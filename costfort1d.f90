@@ -48,11 +48,14 @@ contains
        deltas(nw0) = real(nw0)
        kaves(nw0) = kave
     end do
+    print *, 'size of Cn',size(Cn)
+    print *, 'len0', nw0
+    print *, 'maxw', maxw
 
-    cost1d%len0 =  nw0
-    cost1d%arr = C_loc(Cn(1:nw0))
-    cost1d%kavearr = C_loc(kaves(1:nw0))
-    cost1d%darr = C_loc(deltas(1:nw0))
+    cost1d%len0 =  maxw
+    cost1d%arr = C_loc(Cn(1:maxw))
+    cost1d%kavearr = C_loc(kaves(1:maxw))
+    cost1d%darr = C_loc(deltas(1:maxw))
   end function cost1d
 
 !  subroutine delete_array(arr_length, array) bind(C, name="delete_array")
