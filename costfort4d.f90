@@ -36,7 +36,7 @@ contains
     integer N0, N1, N2, N3
     integer i, ihead, j, jhead, h, hhead, l, lhead
     real kave, v
-    allocate(k(Al0, Al1, Al2, Al3))
+    !allocate(k(Al0, Al1, Al2, Al3))
     allocate(Cn(maxw0, maxw1, maxw2, maxw3))
     allocate(kaves(maxw0, maxw1, maxw2, maxw3))
     allocate(deltas(maxw0, maxw1, maxw2, maxw3))
@@ -51,6 +51,7 @@ contains
     N2 = (Al2 - mod(Al2, nw2)) / nw2
     do nw3 = 1, maxw3
     N3 = (Al3 - mod(Al3, nw3)) / nw3
+    allocate(k(N0, N1, N2, N3))
        if (nw0*nw1*nw2*nw3 == 1) then
        k = D
        else
@@ -142,18 +143,19 @@ contains
        end do
        end do
        end if
-       kave = sum(k(1:N0, 1:N1, 1:N2, 1:N3)) / real(N0*N1*N2*N3)
-       v = sum((k(1:N0, 1:N1, 1:N2, 1:N3) - kave)**2) / real(N0*N1*N2*N3)
+       kave = sum(k) / real(N0*N1*N2*N3)
+       v = sum((k - kave)**2) / real(N0*N1*N2*N3)
        print *, "Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
        deltas(nw0, nw1, nw2, nw3) = real(nw0*nw1*nw2*nw3)
        kaves(nw0, nw1, nw2, nw3) = kave
+       deallocate(k)
     end do
     end do
     end do
     end do
 
-    deallocate(k)
+    !deallocate(k)
 
     print *, "minloc Cn:", minloc(Cn)
     cost4d%len0 =  maxw3

@@ -53,10 +53,10 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 9
     maxzwidth = np.min(np.sum(condition, axis=2)) / 9
     maxowidth = np.min(np.sum(condition, axis=3)) / 9
-    ##maxxwidth = 5
-    #maxywidth = 3
-    #maxzwidth = 4
-    #maxowidth = 2
+    maxxwidth = 3
+    maxywidth = 2
+    maxzwidth = 2
+    maxowidth = 2
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
