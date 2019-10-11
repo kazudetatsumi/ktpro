@@ -26,14 +26,15 @@ contains
     real(c_double), intent(in) :: A(Al0, Al1, Al2, Al3)                         
     real(c_double), intent(in) :: D(Al0, Al1, Al2, Al3)                         
     type(result) :: cost4d                                  
-    real(c_double), pointer :: k(:,:,:,:)                    
+    !real(c_double), pointer :: k(:,:,:,:)                    
+    real, allocatable :: k(:,:,:,:)                    
     real(c_double), pointer :: Cn(:,:,:,:)                    
     real(c_double), pointer :: kaves(:,:,:,:)                    
     real(c_double), pointer :: deltas(:,:,:,:)                    
     integer nw0, nw1, nw2, nw3
     integer N0, N1, N2, N3
     integer i, ihead, j, jhead, h, hhead, l, lhead
-    real kave,v
+    real kave, v
     allocate(k(Al0, Al1, Al2, Al3))
     allocate(Cn(maxw0, maxw1, maxw2, maxw3))
     allocate(kaves(maxw0, maxw1, maxw2, maxw3))
@@ -151,6 +152,8 @@ contains
     end do
     end do
 
+    deallocate(k)
+
     print *, "minloc Cn:", minloc(Cn)
     cost4d%len0 =  maxw3
     cost4d%len1 =  maxw2
@@ -161,16 +164,29 @@ contains
     cost4d%darr = C_loc(deltas(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
   end function cost4d
 
-!  subroutine delete_array(arr_length, array) bind(C, name="delete_array")
-!    !DEC$ ATTRIBUTES DLLEXPORT :: delete_array
-!    integer(c_int), intent(in) :: arr_length
-!    type(c_ptr), value :: array
-!    real(c_double), pointer :: work_array(:)
-!
-!    call C_F_pointer(array, work_array, [arr_length])
-!    deallocate(work_array)
-!    array = C_NULL_PTR
-!    print *, "Is work_array freed ?, work_array: ",work_array
-!  end subroutine delete_array
+  subroutine delete_array(arr_length3, arr_length2, arr_length1, arr_length0, carray, karray, darray) bind(C, name="delete_array")
+    !DEC$ ATTRIBUTES DLLEXPORT :: delete_array
+    integer(c_int), intent(in) :: arr_length0
+    integer(c_int), intent(in) :: arr_length1
+    integer(c_int), intent(in) :: arr_length2
+    integer(c_int), intent(in) :: arr_length3
+    type(c_ptr), value :: carray
+    type(c_ptr), value :: karray
+    type(c_ptr), value :: darray
+    real(c_double), pointer :: Cn(:,:,:,:)
+    real(c_double), pointer :: kaves(:,:,:,:)
+    real(c_double), pointer :: deltas(:,:,:,:)
+
+    call C_F_pointer(carray, Cn, [arr_length0, arr_length1, arr_length2, arr_length3])
+    call C_F_pointer(karray, kaves, [arr_length0, arr_length1, arr_length2, arr_length3])
+    call C_F_pointer(darray, deltas, [arr_length0, arr_length1, arr_length2, arr_length3])
+    deallocate(Cn)
+    deallocate(kaves)
+    deallocate(deltas)
+    carray = C_NULL_PTR
+    karray = C_NULL_PTR
+    darray = C_NULL_PTR
+    print *, "Is work_array freed ?, work_array: ",Cn, kaves, deltas
+  end subroutine delete_array
 
 end module costfort4d

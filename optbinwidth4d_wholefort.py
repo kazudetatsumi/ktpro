@@ -53,14 +53,14 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 4
     maxzwidth = np.min(np.sum(condition, axis=2)) / 4
     maxowidth = np.min(np.sum(condition, axis=3)) / 4
-    maxxwidth = 3
-    maxywidth = 3
-    maxzwidth = 3
-    maxowidth = 3
+    #maxxwidth = 10
+    #maxywidth = 10
+    #maxzwidth = 10
+    #maxowidth = 5
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
-    Cn, kaves, delstas = calc_cost4d_f90(A, maxw, data)
+    Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data)
     opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
     opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
     print "opt_indx for Cn", opt_indx
@@ -68,13 +68,24 @@ def run_simu4d():
 
     m = 1.0*n
 
-    ex = (1/(m*1.0) - 1/(n*1.0)) * kaves / (delstas**2*n) 
+    ex = (1/(m*1.0) - 1/(n*1.0)) * kaves / (deltas**2*n) 
 
     Cm = ex + Cn
 
     opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
     opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
     print "opt_indx for Cm with m/n=", m/n, ":", opt_indx
+
+
+    len0 = Cn.shape[0]
+    len1 = Cn.shape[1]
+    len2 = Cn.shape[2]
+    len3 = Cn.shape[3]
+
+    lib.delete_array.restype = None
+    lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                                 np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
+    lib.delete_array(ctypes.byref(ctypes.c_int(len0)), ctypes.byref(ctypes.c_int(len1)), ctypes.byref(ctypes.c_int(len2)), ctypes.byref(ctypes.c_int(len3)), Cn, kaves, deltas)
 
 
 
