@@ -13,7 +13,7 @@ module costfort4d
 
 contains
 
-  function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D) bind(C, name="cost4d")
+  function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D, CD) bind(C, name="cost4d")
     !DEC$ ATTRIBUTES DLLEXPORT :: cost4d
     integer(c_int), intent(in) :: maxw0
     integer(c_int), intent(in) :: maxw1
@@ -25,6 +25,7 @@ contains
     integer(c_int), intent(in) :: Al3
     real(c_double), intent(in) :: A(Al0, Al1, Al2, Al3)                         
     real(c_double), intent(in) :: D(Al0, Al1, Al2, Al3)                         
+    real(c_double), intent(in) :: CD(Al0, Al1, Al2, Al3)                         
     type(result) :: cost4d                                  
     !real(c_double), pointer :: k(:,:,:,:)                    
     real, allocatable :: k(:,:,:,:)                    

@@ -6,15 +6,15 @@ import h5py
 import ctypes
 lib = ctypes.CDLL("./costfort4d.so")
 
-def calc_cost4d_f90(A, maxw, data):
+def calc_cost4d_f90(A, maxw, data, condition):
     class result(ctypes.Structure):
         _fields_ =[("len0", ctypes.c_int), ("len1", ctypes.c_int), ("len2", ctypes.c_int), ("len3", ctypes.c_int),
                   ("arr", ctypes.POINTER(ctypes.c_double)), ("kavearr", ctypes.POINTER(ctypes.c_double)), ("darr", ctypes.POINTER(ctypes.c_double))]
 
     lib.cost4d.restype = result
     lib.cost4d.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
-                           ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), 
-                           np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
+                           ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                           np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.bool, ndim=4)]
 
     Nmax0 = A.shape[0]
     Nmax1 = A.shape[1]
@@ -22,7 +22,7 @@ def calc_cost4d_f90(A, maxw, data):
     Nmax3 = A.shape[3]
 
     result = lib.cost4d(ctypes.byref(ctypes.c_int(maxw[0])), ctypes.byref(ctypes.c_int(maxw[1])), ctypes.byref(ctypes.c_int(maxw[2])), ctypes.byref(ctypes.c_int(maxw[3])),
-                        ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), ctypes.byref(ctypes.c_int(Nmax3)), A, data)
+                        ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), ctypes.byref(ctypes.c_int(Nmax3)), A, data, condition)
     result_len0 = result.len0
     result_len1 = result.len1
     result_len2 = result.len2
@@ -49,18 +49,18 @@ def run_simu4d():
     print "n=", n
 
 
-    maxxwidth = np.min(np.sum(condition, axis=0)) / 4
-    maxywidth = np.min(np.sum(condition, axis=1)) / 4
-    maxzwidth = np.min(np.sum(condition, axis=2)) / 4
-    maxowidth = np.min(np.sum(condition, axis=3)) / 4
-    #maxxwidth = 10
-    #maxywidth = 10
-    #maxzwidth = 10
-    #maxowidth = 5
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 9
+    maxywidth = np.min(np.sum(condition, axis=1)) / 9
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 9
+    maxowidth = np.min(np.sum(condition, axis=3)) / 9
+    ##maxxwidth = 5
+    #maxywidth = 3
+    #maxzwidth = 4
+    #maxowidth = 2
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
-    Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data)
+    Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
     opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
     opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
     print "opt_indx for Cn", opt_indx
