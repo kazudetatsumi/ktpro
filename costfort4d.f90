@@ -28,14 +28,14 @@ contains
     real(c_double), intent(in) :: CD(Al0, Al1, Al2, Al3)                         
     type(result) :: cost4d                                  
     !real(c_double), pointer :: k(:,:,:,:)                    
-    real, allocatable :: k(:,:,:,:)                    
+    double precision, allocatable :: k(:,:,:,:)                    
     real(c_double), pointer :: Cn(:,:,:,:)                    
     real(c_double), pointer :: kaves(:,:,:,:)                    
     real(c_double), pointer :: deltas(:,:,:,:)                    
     integer nw0, nw1, nw2, nw3
     integer N0, N1, N2, N3
     integer i, ihead, j, jhead, h, hhead, l, lhead
-    real kave, v
+    double precision kave, v
     !allocate(k(Al0, Al1, Al2, Al3))
     allocate(Cn(maxw0, maxw1, maxw2, maxw3))
     allocate(kaves(maxw0, maxw1, maxw2, maxw3))
@@ -55,15 +55,16 @@ contains
        if (nw0*nw1*nw2*nw3 == 1) then
        k = D
        else
+       !$omp parallel do
        do i = 1, N0
        ihead = i*nw0 
        do j = 1, N1
        jhead = j*nw1 
        do h = 1, N2
        hhead = h*nw2 
-       !$omp parallel do
        do l = 1, N3
        lhead = l*nw3 
+          !k(i, j, h, l) = sum(D(ihead-nw0+1:ihead, jhead-nw1+1:jhead,  hhead-nw2+1:hhead, lhead-nw3+1:lhead))
           if ( i == 1 .and. j == 1 .and. h == 1 .and. l == 1 ) then
              k(i, j, h, l) = A(ihead, jhead, hhead, lhead)
           else if ( j == 1 .and. i /= 1 .and. h == 1 .and. l == 1 ) then
@@ -189,7 +190,6 @@ contains
     carray = C_NULL_PTR
     karray = C_NULL_PTR
     darray = C_NULL_PTR
-    print *, "Is work_array freed ?, work_array: ",Cn, kaves, deltas
   end subroutine delete_array
 
 end module costfort4d
