@@ -59,97 +59,10 @@ contains
     allocate(k(N0, N1, N2, N3))
     allocate(kcond(N0, N1, N2, N3))
        if (nw0*nw1*nw2*nw3 == 1) then
-       k = D
-       kcond = CD
+          k = D
+          kcond = CD
        else
-       !$omp parallel do
-       do i = 1, N0
-       ihead = i*nw0 
-       do j = 1, N1
-       jhead = j*nw1 
-       do h = 1, N2
-       hhead = h*nw2 
-       do l = 1, N3
-       lhead = l*nw3 
-          !k(i, j, h, l) = sum(D(ihead-nw0+1:ihead, jhead-nw1+1:jhead,  hhead-nw2+1:hhead, lhead-nw3+1:lhead))
-          if ( i == 1 .and. j == 1 .and. h == 1 .and. l == 1 ) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead)
-          else if ( j == 1 .and. i /= 1 .and. h == 1 .and. l == 1 ) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead - nw0, jhead, hhead, lhead)
-          else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l == 1 ) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead)
-          else if ( j == 1 .and. h /= 1 .and. i == 1 .and. l == 1 ) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead)
-          else if ( j == 1 .and. l /= 1 .and. h == 1 .and. i == 1 ) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3)
-          else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l == 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead)
-          else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l == 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead, hhead - nw2, lhead)
-          else if ( i /= 1 .and. j == 1 .and. h == 1 .and. l /= 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead, hhead, lhead - nw3)
-          else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead)
-          else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3)
-          else if ( i == 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3)
-          else if ( i /= 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead)
-          else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3)
-          else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3)
-          else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l /= 1) then
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead, jhead - nw1, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3)
-          else
-             k(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead, hhead, lhead - nw3) + A(ihead, jhead - nw1, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3) + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead - nw2, lhead - nw3)
-          end if
-       end do
-       end do
-       end do
-       end do
+          k = hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
        end if
        kave = sum(k) / real(N0*N1*N2*N3)
        v = sum((k - kave)**2) / real(N0*N1*N2*N3)
@@ -255,7 +168,99 @@ contains
       end if
    end function cumsum4d       
 
-
+   function hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
+       double precision, intent(in) :: A(:,:,:,:) 
+       integer, intent(in) :: N0, N1, N2, N3, nw0, nw1, nw2, nw3
+       integer :: i, j, h, l, ihead, jhead, hhead, lhead
+       double precision :: hist4d(N0,N1,N2,N3)
+       !$omp parallel do
+       do i = 1, N0
+       ihead = i*nw0 
+       do j = 1, N1
+       jhead = j*nw1 
+       do h = 1, N2
+       hhead = h*nw2 
+       do l = 1, N3
+       lhead = l*nw3 
+          if ( i == 1 .and. j == 1 .and. h == 1 .and. l == 1 ) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead)
+          else if ( j == 1 .and. i /= 1 .and. h == 1 .and. l == 1 ) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead - nw0, jhead, hhead, lhead)
+          else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l == 1 ) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead)
+          else if ( j == 1 .and. h /= 1 .and. i == 1 .and. l == 1 ) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead)
+          else if ( j == 1 .and. l /= 1 .and. h == 1 .and. i == 1 ) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3)
+          else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l == 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
+                           + A(ihead - nw0, jhead - nw1, hhead, lhead)
+          else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l == 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
+                           + A(ihead - nw0, jhead, hhead - nw2, lhead)
+          else if ( i /= 1 .and. j == 1 .and. h == 1 .and. l /= 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
+                           + A(ihead - nw0, jhead, hhead, lhead - nw3)
+          else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
+                           + A(ihead, jhead - nw1, hhead - nw2, lhead)
+          else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
+                           + A(ihead, jhead - nw1, hhead, lhead - nw3)
+          else if ( i == 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
+                           + A(ihead, jhead, hhead - nw2, lhead - nw3)
+          else if ( i /= 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
+                           - A(ihead, jhead, hhead - nw2, lhead) &
+                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
+                           + A(ihead - nw0, jhead - nw1, hhead, lhead) - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead)
+          else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
+                           - A(ihead, jhead, hhead, lhead - nw3) &
+                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
+                           + A(ihead, jhead - nw1, hhead, lhead - nw3) &
+                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3)
+          else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
+                           - A(ihead, jhead, hhead, lhead - nw3) &
+                           + A(ihead - nw0, jhead, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
+                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
+                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3)
+          else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l /= 1) then
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
+                           - A(ihead, jhead, hhead, lhead - nw3) &
+                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead, jhead - nw1, hhead, lhead - nw3) &
+                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
+                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3)
+          else
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
+                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
+                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
+                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
+                           + A(ihead - nw0, jhead, hhead, lhead - nw3) + A(ihead, jhead - nw1, hhead - nw2, lhead) &
+                           + A(ihead, jhead - nw1, hhead, lhead - nw3) + A(ihead, jhead, hhead - nw2, lhead - nw3) &
+                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3) &
+                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3) &
+                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3) &
+                           - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead) &
+                           + A(ihead - nw0, jhead - nw1, hhead - nw2, lhead - nw3)
+          end if
+       end do
+       end do
+       end do
+       end do
+   end function hist4d
 
 
 
