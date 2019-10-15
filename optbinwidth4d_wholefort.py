@@ -57,7 +57,6 @@ def run_simu4d():
     #print "size of data is", data.shape
     #data = np.sum(data[:, :, :, :],axis=2)
     condition = np.ones(data.shape, dtype=np.int32)
-    print condition.dtype
     
     n = np.sum(data)*1.0
     print "n=", n
@@ -67,19 +66,23 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 9
     maxzwidth = np.min(np.sum(condition, axis=2)) / 9
     maxowidth = np.min(np.sum(condition, axis=3)) / 9
-    #maxxwidth = 3
-    #maxywidth = 2
-    #maxzwidth = 2
-    #maxowidth = 2
+    maxxwidth = 3
+    maxywidth = 2
+    maxzwidth = 2
+    maxowidth = 2
+
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
+    CDA = np.cumsum(np.cumsum(np.cumsum(np.cumsum(condition, axis=0,
+        dtype='int32'), axis=1, dtype='int32'), axis=2, dtype='int32'), axis=3,
+        dtype='int32')
     B = np.zeros((4, data.shape[0],data.shape[1],data.shape[2],data.shape[3]))
     B[0,:,:,:] = np.cumsum(data, axis=0)
     B[1,:,:,:] = np.cumsum(data, axis=1)
     B[2,:,:,:] = np.cumsum(data, axis=2)
     B[3,:,:,:] = np.cumsum(data, axis=3)
-    Cn, kaves, deltas = calc_cost4d_f90(A, B, maxw, data, condition)
+    Cn, kaves, deltas = calc_cost4d_f90(A, B, maxw, data, CDA)
     #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
     #Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition)
     opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
