@@ -14,6 +14,7 @@ module costfort4d
 contains
 
   function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, B, D, CDA) bind(C, name="cost4d")
+  !function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D, CDA) bind(C, name="cost4d")
     !DEC$ ATTRIBUTES DLLEXPORT :: cost4d
     integer(c_int), intent(in) :: maxw0
     integer(c_int), intent(in) :: maxw1
@@ -38,6 +39,13 @@ contains
     integer i, ihead, j, jhead, h, hhead, l, lhead
     double precision kave, v
     double precision, allocatable :: knonzero(:)
+    double precision, allocatable :: BB(:,:,:,:,:)
+    !allocate(BB(Al0,Al1,Al2,Al3,4))
+
+    !BB(:,:,:,:,1) = cumsum4d(d,1)
+    !BB(:,:,:,:,2) = cumsum4d(d,2)
+    !BB(:,:,:,:,3) = cumsum4d(d,3)
+    !BB(:,:,:,:,4) = cumsum4d(d,4)
     
     allocate(Cn(maxw0, maxw1, maxw2, maxw3))
     allocate(kaves(maxw0, maxw1, maxw2, maxw3))
@@ -46,9 +54,13 @@ contains
     kaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
 
-    
-       
 
+
+    call help1d(D, B, 0, 1, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
+    call help1d(D, B, 1, maxw0, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
+    call help1d(D, B, 2, maxw1, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
+    call help1d(D, B, 3, maxw2, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
+    call help1d(D, B, 4, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
 
 
     do nw0 = 1, maxw0
@@ -59,23 +71,28 @@ contains
     N2 = (Al2 - mod(Al2, nw2)) / nw2
     do nw3 = 1, maxw3
     N3 = (Al3 - mod(Al3, nw3)) / nw3
-    allocate(k(N0, N1, N2, N3))
-    allocate(kcond(N0, N1, N2, N3))
+    !allocate(k(N0, N1, N2, N3))
+    !allocate(kcond(N0, N1, N2, N3))
        if (nw0*nw1*nw2*nw3 == 1) then
-          k = D
-          kcond = CDA
+       !   k = D
+       !   kcond = CDA
        else if (nw0*nw1*nw2 == 1 .and. nw3 /= 1) then
-          k = hist1d4(B(:,:,:,:,1), N3, nw3)
+       !   !k = hist1d4(B(:,:,:,:,1), N3, nw3)
+       !   k = hist1d4(BB(:,:,:,:,4), N3, nw3)
        else if (nw0*nw1*nw3 == 1 .and. nw2 /= 1) then
-          k = hist1d3(B(:,:,:,:,2), N2, nw2)
+       !   !k = hist1d3(B(:,:,:,:,2), N2, nw2)
+       !   k = hist1d3(BB(:,:,:,:,3), N2, nw2)
        else if (nw0*nw2*nw3 == 1 .and. nw1 /= 1) then
-          k = hist1d2(B(:,:,:,:,3), N1, nw1)
+       !   !k = hist1d2(B(:,:,:,:,3), N1, nw1)
+       !   k = hist1d2(BB(:,:,:,:,2), N1, nw1)
        else if (nw1*nw2*nw3 == 1 .and. nw0 /= 1) then
-          k = hist1d1(B(:,:,:,:,4), N0, nw0)
+       !   !k = hist1d1(B(:,:,:,:,4), N0, nw0)
+       !   k = hist1d1(BB(:,:,:,:,1), N0, nw0)
        else
+       allocate(k(N0, N1, N2, N3))
+       allocate(kcond(N0, N1, N2, N3))
        k = hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
        !kcond = hist4di(CDA, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
-       end if
        !knonzero = pack(k, kcond == maxval(kcond))
        kave = sum(k) / real(N0*N1*N2*N3)
        !kave = sum(knonzero) / real(size(knonzero))
@@ -87,6 +104,7 @@ contains
        kaves(nw0, nw1, nw2, nw3) = kave
        deallocate(k)
        deallocate(kcond)
+       end if
        !deallocate(knonzero)
     end do
     end do
@@ -104,6 +122,102 @@ contains
     cost4d%kavearr = C_loc(kaves(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
     cost4d%darr = C_loc(deltas(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
   end function cost4d
+
+
+
+  subroutine help1d(D, B,  axis, maxw, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
+    double precision, intent(in) :: D(:,:,:,:)
+    double precision, intent(in) :: B(:,:,:,:,:)
+    integer, intent(in) :: axis, maxw, Al0, Al1, Al2, Al3
+    !double precision, allocatable :: B(:,:,:,:)
+    double precision, allocatable :: k(:,:,:,:)
+    double precision kave, v
+    integer nw0, nw1, nw2, nw3, N0, N1, N2, N3
+    real(c_double), pointer :: Cn(:,:,:,:)                    
+    real(c_double), pointer :: kaves(:,:,:,:)                    
+    real(c_double), pointer :: deltas(:,:,:,:)                    
+    if (axis == 0) then
+        nw0 = 1; nw1 = 1; nw2 = 1; nw3 = 1
+        N0 = (Al0 - mod(Al0, nw0)) / nw0
+        N1 = (Al1 - mod(Al1, nw1)) / nw1
+        N2 = (Al2 - mod(Al2, nw2)) / nw2
+        N3 = (Al3 - mod(Al3, nw3)) / nw3
+        kave = sum(d) / real(N0*N1*N2*N3); v = sum((d - kave)**2) / real(N0*N1*N2*N3)
+        print *, "help1d Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        kaves(nw0, nw1, nw2, nw3) = kave
+        deltas(nw0, nw1, nw2, nw3) = nw0*nw1*nw2*nw3
+        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+    elseif (axis == 1) then
+      !B = cumsum4d(d, axis)
+      do nw0 = 2, maxw
+        nw1 = 1; nw2 = 1; nw3 = 1
+        N0 = (Al0 - mod(Al0, nw0)) / nw0
+        N1 = (Al1 - mod(Al1, nw1)) / nw1
+        N2 = (Al2 - mod(Al2, nw2)) / nw2
+        N3 = (Al3 - mod(Al3, nw3)) / nw3
+        allocate(k(N0, N1, N2,N3))
+        k = hist1d1(B(:,:,:,:,1), N0, nw0); kave = sum(k) / real(N0*N1*N2*N3); v = sum((k - kave)**2) / real(N0*N1*N2*N3)
+        print *, "help1d Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        kaves(nw0, nw1, nw2, nw3) = kave
+        deltas(nw0, nw1, nw2, nw3) = nw0*nw1*nw2*nw3
+        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        deallocate(k)
+      enddo
+      !deallocate(B)
+    elseif (axis == 2) then
+      !B = cumsum4d(d, axis)
+      do nw1 = 2, maxw
+        nw0 = 1; nw2 = 1; nw3 = 1
+        N0 = (Al0 - mod(Al0, nw0)) / nw0
+        N1 = (Al1 - mod(Al1, nw1)) / nw1
+        N2 = (Al2 - mod(Al2, nw2)) / nw2
+        N3 = (Al3 - mod(Al3, nw3)) / nw3
+        allocate(k(N0, N1, N2,N3))
+        k = hist1d2(B(:,:,:,:,2), N1, nw1); kave = sum(k) / real(N0*N1*N2*N3); v = sum((k - kave)**2) / real(N0*N1*N2*N3)
+        print *, "help1d Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        kaves(nw0, nw1, nw2, nw3) = kave
+        deltas(nw0, nw1, nw2, nw3) = nw0*nw1*nw2*nw3
+        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        deallocate(k)
+      enddo
+      !deallocate(B)
+    elseif (axis == 3) then
+      !B = cumsum4d(d, axis)
+      do nw2 = 2, maxw
+        nw0 = 1; nw1 = 1; nw3 = 1
+        N0 = (Al0 - mod(Al0, nw0)) / nw0
+        N1 = (Al1 - mod(Al1, nw1)) / nw1
+        N2 = (Al2 - mod(Al2, nw2)) / nw2
+        N3 = (Al3 - mod(Al3, nw3)) / nw3
+        allocate(k(N0, N1, N2,N3))
+        k = hist1d3(B(:,:,:,:,3), N2, nw2); kave = sum(k) / real(N0*N1*N2*N3); v = sum((k - kave)**2) / real(N0*N1*N2*N3)
+        print *, "help1d Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        kaves(nw0, nw1, nw2, nw3) = kave
+        deltas(nw0, nw1, nw2, nw3) = nw0*nw1*nw2*nw3
+        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        deallocate(k)
+      enddo
+      !deallocate(B)
+    elseif (axis == 4) then
+      !B = cumsum4d(d, axis)
+      do nw3 = 2, maxw
+        nw0 = 1; nw1 = 1; nw2 = 1
+        N0 = (Al0 - mod(Al0, nw0)) / nw0
+        N1 = (Al1 - mod(Al1, nw1)) / nw1
+        N2 = (Al2 - mod(Al2, nw2)) / nw2
+        N3 = (Al3 - mod(Al3, nw3)) / nw3
+        allocate(k(N0, N1, N2,N3))
+        k = hist1d4(B(:,:,:,:,4), N3, nw3); kave = sum(k) / real(N0*N1*N2*N3); v = sum((k - kave)**2) / real(N0*N1*N2*N3)
+        print *, "help1d Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        kaves(nw0, nw1, nw2, nw3) = kave
+        deltas(nw0, nw1, nw2, nw3) = nw0*nw1*nw2*nw3
+        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+        deallocate(k)
+      enddo
+      !deallocate(B)
+    endif
+  end subroutine help1d
+    
 
 
   subroutine delete_array(arr_length3, arr_length2, arr_length1, arr_length0, carray, karray, darray) bind(C, name="delete_array")
@@ -183,6 +297,59 @@ contains
          end do
       end if
    end function cumsum4d       
+
+  function cumsum4dII(d, axis)
+      integer, intent(in) :: axis
+      double precision, intent(in) :: d(:,:,:,:)
+      double precision :: cumsum4dII(size(d,1), size(d,2), size(d,3), size(d,4))
+      integer :: i, j, k, l 
+
+      if (axis == 4) then
+         !$omp parallel do
+         do i = 1, size(d,1)
+         do j = 1, size(d,2)
+         do k = 1, size(d,3)
+         do l = 1, size(d,4) 
+            cumsum4dII(i, j, k, l) = sum(d(i,j,k,1:l))
+         end do
+         end do
+         end do
+         end do
+      else if (axis == 3) then
+         !$omp parallel do
+         do i = 1, size(d,1)
+         do j = 1, size(d,2)
+         do k = 1, size(d,3) 
+         do l = 1, size(d,4)
+            cumsum4dII(i, j, k, l) = sum(d(i,j,1:k,l))
+         end do
+         end do
+         end do
+         end do
+      else if (axis == 2) then
+         !$omp parallel do
+         do i = 1, size(d,1)
+         do j = 1, size(d,2) 
+         do k = 1, size(d,3)
+         do l = 1, size(d,4)
+            cumsum4dII(i, j, k, l) = sum(d(i, 1:j, k, l))
+         end do
+         end do
+         end do
+         end do
+      else if (axis == 1) then
+         !$omp parallel do
+         do i = 1, size(d,1) 
+         do j = 1, size(d,2) 
+         do k = 1, size(d,3)
+         do l = 1, size(d,4)
+            cumsum4dII(i, j, k, l) = sum(d(1:i, j, k, l))
+         end do
+         end do
+         end do
+         end do
+      end if
+   end function cumsum4dII     
 
    function hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
        double precision, intent(in) :: A(:,:,:,:) 

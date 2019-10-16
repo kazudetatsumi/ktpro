@@ -32,6 +32,7 @@ def calc_cost4d_f90(A, B, maxw, data, condition):
                         ctypes.byref(ctypes.c_int(Nmax0)),
                         ctypes.byref(ctypes.c_int(Nmax1)),
                         ctypes.byref(ctypes.c_int(Nmax2)),
+                        #ctypes.byref(ctypes.c_int(Nmax3)), A, data, condition)
                         ctypes.byref(ctypes.c_int(Nmax3)), A, B, data, condition)
     #result = lib.cost4d(ctypes.byref(ctypes.c_int(maxw[0])), ctypes.byref(ctypes.c_int(maxw[1])), ctypes.byref(ctypes.c_int(maxw[2])), ctypes.byref(ctypes.c_int(maxw[3])),
     #                    ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), ctypes.byref(ctypes.c_int(Nmax3)),  data, condition)
@@ -66,10 +67,10 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 9
     maxzwidth = np.min(np.sum(condition, axis=2)) / 9
     maxowidth = np.min(np.sum(condition, axis=3)) / 9
-    maxxwidth = 3
-    maxywidth = 2
-    maxzwidth = 2
-    maxowidth = 2
+    #maxxwidth = 3
+    #maxywidth = 2
+    #maxzwidth = 2
+    #maxowidth = 2
 
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
@@ -82,6 +83,7 @@ def run_simu4d():
     B[1,:,:,:] = np.cumsum(data, axis=1)
     B[2,:,:,:] = np.cumsum(data, axis=2)
     B[3,:,:,:] = np.cumsum(data, axis=3)
+    #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, CDA)
     Cn, kaves, deltas = calc_cost4d_f90(A, B, maxw, data, CDA)
     #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
     #Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition)
