@@ -5,6 +5,7 @@ import matplotlib.cm as cm
 import h5py
 import ctypes
 lib = ctypes.CDLL("./costfort4d.so")
+lib1d = ctypes.CDLL("./costfort1d.so")
 
 def calc_cost4d_f90(A, B, maxw, data, condition):
 #def calc_cost4d_f90(A, maxw, data, condition):
@@ -47,6 +48,39 @@ def calc_cost4d_f90(A, B, maxw, data, condition):
     return Cn, kaves, deltas
 
 
+def calc_cost1d_f90(B, maxw, CDB):
+    class result(ctypes.Structure):
+        _fields_ =[("len0", ctypes.c_int), ("len1", ctypes.c_int), ("len2", ctypes.c_int), ("len3", ctypes.c_int),
+                  ("arr", ctypes.POINTER(ctypes.c_double)), ("kavearr", ctypes.POINTER(ctypes.c_double)), ("darr", ctypes.POINTER(ctypes.c_double))]
+
+    lib1d.cost1d.restype = result1d
+    lib1d.cost1d.argtypes = [ctypes.POINTER(ctypes.c_int), 
+                           ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+                           np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
+                           np.ctypeslib.ndpointer(dtype=np.int32, ndim=4)]
+
+    Nmax0 = B.shape[0]
+    Nmax1 = B.shape[1]
+    Nmax2 = B.shape[2]
+    Nmax3 = B.shape[3]
+
+    result = lib.cost4d(ctypes.byref(ctypes.c_int(maxw)),
+                        ctypes.byref(ctypes.c_int(Nmax0)),
+                        ctypes.byref(ctypes.c_int(Nmax1)),
+                        ctypes.byref(ctypes.c_int(Nmax2)),
+                        ctypes.byref(ctypes.c_int(Nmax3)), B, CDB)
+    result1d_len0 = result1d.len0
+    result1d_len1 = result1d.len1
+    result1d_len2 = result1d.len2
+    result1d_len3 = result1d.len3
+    Cn = np.ctypeslib.as_array(result1d.arr, shape=(result1d_len0, result1d_len1, result1d_len2, result1d_len3, ))
+    Cn = np.ctypeslib.as_array(result.arr, shape=(result1d_len0, result1d_len1, result1d_len2, result1d_len3, ))
+    kaves = np.ctypeslib.as_array(result.kavearr, shape=(result_len0, result_len1, result_len2, result_len3, ))
+    deltas = np.ctypeslib.as_array(result.darr, shape=(result_len0, result_len1, result_len2, result_len3, ))
+
+    return Cn, kaves, deltas
+
+
 def run_simu4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
@@ -66,13 +100,43 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 9
     maxzwidth = np.min(np.sum(condition, axis=2)) / 9
     maxowidth = np.min(np.sum(condition, axis=3)) / 9
-    maxxwidth = 3
-    maxywidth = 2
-    maxzwidth = 2
-    maxowidth = 2
+    maxxwidth = 4
+    maxywidth = 4
+    maxzwidth = 4
+    maxowidth = 4
+    maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
+    Cn = np.zeros((maxw))
+    kaves = np.zeros((maxw))
+    deltas = np.zeros((maxw))
+
+
+    # First, in the case of all of the widths are 1.
+    deltas[0,0,0,0] = 1
+    knonzero=np.extract(np.max(condition) == condition, k)
+    kave = np.average(knonzero)
+    v = np.var(knonzero)
+    cost = (2 * kave - v) / ((deltas)**2*1.0)
+    kaves[0,0,0,0] = kave
+    Cn[0,0,0,0] = cost
+
+
+    # Next, in the case that one of the witdsh is not 1.
+
+    B = np.cumsum(data, axis=0)
+    CDB = np.cumsum(condition, axis=0, dtype='int32')
+    Cn[:,0,0,0], kaves[:,0,0,0], deltas[:,0,0,0] = calc_cost1d_f90(B, maxw, CDB)
+    B = np.transpose(np.cumsum(data, axis=1), (1, 0, 2, 3))
+    CDB = np.transpose(np.cumsum(condition, axis=1, dtype='int32'), (1, 0, 2, 3))
+    Cn[0,:,0,0], kaves[0,:,0,0], deltas[0,:,0,0] = calc_cost1d_f90(B, np.transpose(maxw, (1, 0, 2, 3)), CDB)
+    B = np.transpose(np.cumsum(data, axis=2), (2, 1, 0, 3))
+    CDB = np.transpose(np.cumsum(condition, axis=2, dtype='int32'), (2, 1, 0, 3))
+    Cn[0,0,:,0], kaves[0,0,:,0], deltas[0,0,:,0] = calc_cost1d_f90(B, np.transpose(maxw, (2, 1, 0, 3)), CDB)
+    B = np.transpose(np.cumsum(data, axis=3), (3, 1, 2, 0))
+    CDB = np.transpose(np.cumsum(condition, axis=3, dtype='int32'), (3, 1, 2, 0))
+    Cn[0,0,0,:], kaves[0,0,0,:], deltas[0,0,0,:] = calc_cost1d_f90(B, np.transpose(maxw, (3, 1, 2, 0)), CDB)
+
 
     
-    maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
     CDA = np.cumsum(np.cumsum(np.cumsum(np.cumsum(condition, axis=0,
         dtype='int32'), axis=1, dtype='int32'), axis=2, dtype='int32'), axis=3,
