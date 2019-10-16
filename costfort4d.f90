@@ -61,33 +61,33 @@ contains
     N3 = (Al3 - mod(Al3, nw3)) / nw3
     allocate(k(N0, N1, N2, N3))
     allocate(kcond(N0, N1, N2, N3))
-       !if (nw0*nw1*nw2*nw3 == 1) then
-       !   k = D
-       !   kcond = CD
-       !else if (nw0*nw1*nw2 == 1 .and. nw3 /= 1) then
-       !   k = hist1d4(B(:,:,:,:,1), N3, nw3)
-       !else if (nw0*nw1*nw3 == 1 .and. nw2 /= 1) then
-       !   k = hist1d3(B(:,:,:,:,2), N2, nw2)
-       !else if (nw0*nw2*nw3 == 1 .and. nw1 /= 1) then
-       !   k = hist1d2(B(:,:,:,:,3), N1, nw1)
-       !else if (nw1*nw2*nw3 == 1 .and. nw0 /= 1) then
-       !   k = hist1d1(B(:,:,:,:,4), N0, nw0)
-       !else
+       if (nw0*nw1*nw2*nw3 == 1) then
+          k = D
+          kcond = CDA
+       else if (nw0*nw1*nw2 == 1 .and. nw3 /= 1) then
+          k = hist1d4(B(:,:,:,:,1), N3, nw3)
+       else if (nw0*nw1*nw3 == 1 .and. nw2 /= 1) then
+          k = hist1d3(B(:,:,:,:,2), N2, nw2)
+       else if (nw0*nw2*nw3 == 1 .and. nw1 /= 1) then
+          k = hist1d2(B(:,:,:,:,3), N1, nw1)
+       else if (nw1*nw2*nw3 == 1 .and. nw0 /= 1) then
+          k = hist1d1(B(:,:,:,:,4), N0, nw0)
+       else
        k = hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
-       kcond = hist4di(CDA, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
-       !end if
-       knonzero = pack(k, kcond == maxval(kcond))
-       !kave = sum(k) / real(N0*N1*N2*N3)
-       kave = sum(knonzero) / real(size(knonzero))
-       !v = sum((k - kave)**2) / real(N0*N1*N2*N3)
-       v = sum((knonzero - kave)**2) / real(size(knonzero))
+       !kcond = hist4di(CDA, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
+       end if
+       !knonzero = pack(k, kcond == maxval(kcond))
+       kave = sum(k) / real(N0*N1*N2*N3)
+       !kave = sum(knonzero) / real(size(knonzero))
+       v = sum((k - kave)**2) / real(N0*N1*N2*N3)
+       !v = sum((knonzero - kave)**2) / real(size(knonzero))
        print *, "Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
        deltas(nw0, nw1, nw2, nw3) = real(nw0*nw1*nw2*nw3)
        kaves(nw0, nw1, nw2, nw3) = kave
        deallocate(k)
        deallocate(kcond)
-       deallocate(knonzero)
+       !deallocate(knonzero)
     end do
     end do
     end do
