@@ -737,7 +737,7 @@ contains
              else if ( i /= 1 .and. h == 1) then
                  hist2d14(i, :, :, h) = B(ihead, :, :, hhead) - B(ihead - nw0, :, :, hhead)
              else if ( i == 1 .and. h /= 1) then
-                 hist2d14(i, :, :, h) = B(ihead, :, hhead, :) - B(ihead, :, hhead - nw3, :)
+                 hist2d14(i, :, :, h) = B(ihead, :, :, hhead) - B(ihead, :, :, hhead - nw3)
              else 
                  hist2d14(i, :, :, h) = B(ihead, :, :, hhead) - B(ihead - nw0, :, :, hhead) - B(ihead, :, :, hhead - nw3) &
                                       + B(ihead - nw0, :, :, hhead - nw3)
