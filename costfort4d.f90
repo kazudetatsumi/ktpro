@@ -303,7 +303,7 @@ contains
     real(c_double), pointer :: deltas(:,:,:,:)                    
     double precision kave, v
        kave = sum(k) / real(size(k)); v = sum((k - kave)**2) / real(size(k))
-       print *, "helpxd Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+       print *, "Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
        kaves(nw0, nw1, nw2, nw3) = kave
        deltas(nw0, nw1, nw2, nw3) = nw0*nw1*nw2*nw3
        Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
