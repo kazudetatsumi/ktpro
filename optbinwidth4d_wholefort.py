@@ -62,10 +62,10 @@ def run_simu4d():
     print "n=", n
 
 
-    maxxwidth = np.min(np.sum(condition, axis=0)) / 4
-    maxywidth = np.min(np.sum(condition, axis=1)) / 4
-    maxzwidth = np.min(np.sum(condition, axis=2)) / 4
-    maxowidth = np.min(np.sum(condition, axis=3)) / 4
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 2
+    maxywidth = np.min(np.sum(condition, axis=1)) / 2
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 2
+    maxowidth = np.min(np.sum(condition, axis=3)) / 2
     #maxxwidth = np.min(np.sum(condition, axis=0)) / 15
     #maxywidth = np.min(np.sum(condition, axis=1)) / 15
     #maxzwidth = np.min(np.sum(condition, axis=2)) / 15
@@ -105,6 +105,12 @@ def run_simu4d():
     opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
     print "opt_indx for Cm with m/n=", m/n, ":", opt_indx
 
+    print "---save results in Cn.hdf5---"
+    outfile = "Cn.hdf5"
+    with h5py.File(outfile, 'w') as hf:
+        hf.create_dataset('Cn', data=Cn)
+        hf.create_dataset('kave', data=kaves)
+        hf.create_dataset('delta', data=deltas)
 
     len0 = Cn.shape[0]
     len1 = Cn.shape[1]
@@ -125,6 +131,7 @@ run_simu4d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
 #lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
-plt.show()
+#plt.show()
+
 
 
