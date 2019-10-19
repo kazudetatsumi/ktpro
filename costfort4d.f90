@@ -27,15 +27,14 @@ contains
     integer(c_int), intent(in) :: CDA(Al0, Al1, Al2, Al3)                         
     type(result) :: cost4d                                  
     double precision, allocatable :: k(:,:,:,:)                    
-    integer, allocatable :: kcond(:,:,:,:)                    
+    !integer, allocatable :: kcond(:,:,:,:)                    
     real(c_double), pointer :: Cn(:,:,:,:)                    
     real(c_double), pointer :: kaves(:,:,:,:)                    
     real(c_double), pointer :: deltas(:,:,:,:)                    
     integer nw0, nw1, nw2, nw3
     integer N0, N1, N2, N3
     integer i, ihead, j, jhead, h, hhead, l, lhead
-    double precision kave, v
-    double precision, allocatable :: knonzero(:)
+    !double precision, allocatable :: knonzero(:)
 
     
     allocate(Cn(maxw0, maxw1, maxw2, maxw3))
@@ -73,29 +72,16 @@ contains
     do nw3 = 1, maxw3
     N3 = (Al3 - mod(Al3, nw3)) / nw3
        if (nw0 /= 1 .and. nw1 /= 1 .and. nw2 /=1 .and. nw3 /=1) then
-          allocate(k(N0, N1, N2, N3))
-          allocate(kcond(N0, N1, N2, N3))
           k = hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
        !kcond = hist4di(CDA, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
        !knonzero = pack(k, kcond == maxval(kcond))
-          kave = sum(k) / real(N0*N1*N2*N3)
-       !kave = sum(knonzero) / real(size(knonzero))
-          v = sum((k - kave)**2) / real(N0*N1*N2*N3)
-       !v = sum((knonzero - kave)**2) / real(size(knonzero))
-          print *, "Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
-          Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
-          deltas(nw0, nw1, nw2, nw3) = real(nw0*nw1*nw2*nw3)
-          kaves(nw0, nw1, nw2, nw3) = kave
-       deallocate(k)
-       deallocate(kcond)
+         call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
        end if
-       !deallocate(knonzero)
     end do
     end do
     end do
     end do
 
-    !deallocate(k)
 
     print *, "minloc Cn:", minloc(Cn(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
     cost4d%len0 =  maxw3
@@ -112,7 +98,6 @@ contains
     integer, intent(in) :: axis, maxw, Al0, Al1, Al2, Al3
     double precision, allocatable :: B(:,:,:,:)
     double precision, allocatable :: k(:,:,:,:)
-    double precision kave, v
     integer nw0, nw1, nw2, nw3, N0, N1, N2, N3
     real(c_double), pointer :: Cn(:,:,:,:)                    
     real(c_double), pointer :: kaves(:,:,:,:)                    
@@ -341,15 +326,17 @@ contains
       integer, intent(in) :: axis
       double precision, intent(in) :: d(:,:,:,:)
       double precision :: cumsum4d(size(d,1), size(d,2), size(d,3), size(d,4))
-      integer :: i, j, k, l 
+      integer :: i, j, k, l, N1, N2, N3, N4
       cumsum4d = d
+      N1 = size(d,1); N2 = size(d,2); N3 = size(d,3); N4 = size(d,4)
+
 
       if (axis == 4) then
          !$omp parallel do
-         do i = 1, size(d,1)
-         do j = 1, size(d,2)
-         do k = 1, size(d,3)
-         do l = 1, size(d,4) - 1
+         do i = 1, N1
+         do j = 1, N2
+         do k = 1, N3
+         do l = 1, N4 - 1
             cumsum4d(i, j, k, l + 1) = cumsum4d(i, j, k, l) + d(i, j, k, l + 1)
          end do
          end do
@@ -357,10 +344,10 @@ contains
          end do
       else if (axis == 3) then
          !$omp parallel do
-         do i = 1, size(d,1)
-         do j = 1, size(d,2)
-         do l = 1, size(d,4)
-         do k = 1, size(d,3) - 1
+         do i = 1, N1
+         do j = 1, N2
+         do l = 1, N4
+         do k = 1, N3 - 1
             cumsum4d(i, j, k + 1, l) = cumsum4d(i, j, k, l) + d(i, j, k + 1, l)
          end do
          end do
@@ -368,10 +355,10 @@ contains
          end do
       else if (axis == 2) then
          !$omp parallel do
-         do i = 1, size(d,1)
-         do k = 1, size(d,3)
-         do l = 1, size(d,4)
-         do j = 1, size(d,2) - 1
+         do i = 1, N1
+         do k = 1, N3
+         do l = 1, N4
+         do j = 1, N2 - 1
             cumsum4d(i, j + 1, k, l) = cumsum4d(i, j, k, l) + d(i, j + 1, k, l)
          end do
          end do
@@ -379,10 +366,10 @@ contains
          end do
       else if (axis == 1) then
          !$omp parallel do
-         do j = 1, size(d,2) 
-         do k = 1, size(d,3)
-         do l = 1, size(d,4)
-         do i = 1, size(d,1) - 1
+         do j = 1, N2 
+         do k = 1, N3
+         do l = 1, N4
+         do i = 1, N1 - 1
             cumsum4d(i + 1, j, k, l) = cumsum4d(i, j, k, l) + d(i + 1, j, k, l)
          end do
          end do

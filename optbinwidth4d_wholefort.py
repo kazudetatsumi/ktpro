@@ -62,18 +62,18 @@ def run_simu4d():
     print "n=", n
 
 
-    maxxwidth = np.min(np.sum(condition, axis=0)) / 2
-    maxywidth = np.min(np.sum(condition, axis=1)) / 2
-    maxzwidth = np.min(np.sum(condition, axis=2)) / 2
-    maxowidth = np.min(np.sum(condition, axis=3)) / 2
+    maxxwidth = np.min(np.sum(condition, axis=0)) / 6
+    maxywidth = np.min(np.sum(condition, axis=1)) / 6
+    maxzwidth = np.min(np.sum(condition, axis=2)) / 6
+    maxowidth = np.min(np.sum(condition, axis=3)) / 6
     #maxxwidth = np.min(np.sum(condition, axis=0)) / 15
     #maxywidth = np.min(np.sum(condition, axis=1)) / 15
     #maxzwidth = np.min(np.sum(condition, axis=2)) / 15
     #maxowidth = np.min(np.sum(condition, axis=3)) / 15
-    maxxwidth = 2
-    maxywidth = 2
-    maxzwidth = 2
-    maxowidth = 2
+    #maxxwidth = 2
+    #maxywidth = 2
+    #maxzwidth = 2
+    #maxowidth = 2
 
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
