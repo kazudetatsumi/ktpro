@@ -332,49 +332,53 @@ contains
 
 
       if (axis == 4) then
-         !$omp parallel do
-         do i = 1, N1
-         do j = 1, N2
-         do k = 1, N3
+         !!$omp parallel do
+         !do i = 1, N1
+         !do j = 1, N2
+         !do k = 1, N3
          do l = 1, N4 - 1
-            cumsum4d(i, j, k, l + 1) = cumsum4d(i, j, k, l) + d(i, j, k, l + 1)
+            !cumsum4d(i, j, k, l + 1) = cumsum4d(i, j, k, l) + d(i, j, k, l + 1)
+            cumsum4d(:, :, :, l + 1) = cumsum4d(:, :, :, l) + d(:, :, :, l + 1)
          end do
-         end do
-         end do
-         end do
+         !end do
+         !end do
+         !end do
       else if (axis == 3) then
-         !$omp parallel do
-         do i = 1, N1
-         do j = 1, N2
-         do l = 1, N4
+         !!$omp parallel do
+         !do i = 1, N1
+         !do j = 1, N2
+         !do l = 1, N4
          do k = 1, N3 - 1
-            cumsum4d(i, j, k + 1, l) = cumsum4d(i, j, k, l) + d(i, j, k + 1, l)
+            !cumsum4d(i, j, k + 1, l) = cumsum4d(i, j, k, l) + d(i, j, k + 1, l)
+            cumsum4d(:, :, k + 1, :) = cumsum4d(:, :, k, :) + d(:, :, k + 1, :)
          end do
-         end do
-         end do
-         end do
+         !end do
+         !end do
+         !end do
       else if (axis == 2) then
-         !$omp parallel do
-         do i = 1, N1
-         do k = 1, N3
-         do l = 1, N4
+         !!$omp parallel do
+         !do i = 1, N1
+         !do k = 1, N3
+         !do l = 1, N4
          do j = 1, N2 - 1
-            cumsum4d(i, j + 1, k, l) = cumsum4d(i, j, k, l) + d(i, j + 1, k, l)
+            !cumsum4d(i, j + 1, k, l) = cumsum4d(i, j, k, l) + d(i, j + 1, k, l)
+            cumsum4d(:, j + 1, :, :) = cumsum4d(:, j, :, :) + d(:, j + 1, :, :)
          end do
-         end do
-         end do
-         end do
+         !end do
+         !end do
+         !end do
       else if (axis == 1) then
-         !$omp parallel do
-         do j = 1, N2 
-         do k = 1, N3
-         do l = 1, N4
+         !!$omp parallel do
+         !do j = 1, N2 
+         !do k = 1, N3
+         !do l = 1, N4
          do i = 1, N1 - 1
-            cumsum4d(i + 1, j, k, l) = cumsum4d(i, j, k, l) + d(i + 1, j, k, l)
+            !cumsum4d(i + 1, j, k, l) = cumsum4d(i, j, k, l) + d(i + 1, j, k, l)
+            cumsum4d(i + 1, :, :, :) = cumsum4d(i, :, :, :) + d(i + 1, :, :, :)
          end do
-         end do
-         end do
-         end do
+         !end do
+         !end do
+         !end do
       end if
    end function cumsum4d       
 
