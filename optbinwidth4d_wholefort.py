@@ -19,7 +19,8 @@ def calc_cost4d_f90(A, maxw, data, condition):
                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
                            #np.ctypeslib.ndpointer(dtype=np.float64, ndim=5),
                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
-                           np.ctypeslib.ndpointer(dtype=np.int32, ndim=4)]
+                           #np.ctypeslib.ndpointer(dtype=np.int32, ndim=4)]
+                           np.ctypeslib.ndpointer(dtype=np.bool, ndim=4)]
 
     Nmax0 = data.shape[0]
     Nmax1 = data.shape[1]
@@ -56,7 +57,8 @@ def run_simu4d():
     data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
     #print "size of data is", data.shape
     #data = np.sum(data[:, :, :, :],axis=2)
-    condition = np.ones(data.shape, dtype=np.int32)
+    #condition = np.ones(data.shape, dtype=np.int32)
+    condition = np.ones(data.shape, dtype=np.bool)
     
     n = np.sum(data)*1.0
     print "n=", n
@@ -78,15 +80,16 @@ def run_simu4d():
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
-    CDA = np.cumsum(np.cumsum(np.cumsum(np.cumsum(condition, axis=0,
-        dtype='int32'), axis=1, dtype='int32'), axis=2, dtype='int32'), axis=3,
-        dtype='int32')
+    #CDA = np.cumsum(np.cumsum(np.cumsum(np.cumsum(condition, axis=0,
+    #    dtype='int32'), axis=1, dtype='int32'), axis=2, dtype='int32'), axis=3,
+    #    dtype='int32')
     #B = np.zeros((4, data.shape[0],data.shape[1],data.shape[2],data.shape[3]))
     #B[0,:,:,:] = np.cumsum(data, axis=0)
     #B[1,:,:,:] = np.cumsum(data, axis=1)
     #B[2,:,:,:] = np.cumsum(data, axis=2)
     #B[3,:,:,:] = np.cumsum(data, axis=3)
-    Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, CDA)
+    #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, CDA)
+    Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
     #Cn, kaves, deltas = calc_cost4d_f90(A, B, maxw, data, CDA)
     #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
     #Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition)

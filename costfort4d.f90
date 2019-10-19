@@ -13,7 +13,8 @@ module costfort4d
 
 contains
 
-  function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D, CDA) bind(C, name="cost4d")
+  !function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D, CDA) bind(C, name="cost4d")
+  function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D, condition) bind(C, name="cost4d")
     integer(c_int), intent(in) :: maxw0
     integer(c_int), intent(in) :: maxw1
     integer(c_int), intent(in) :: maxw2
@@ -24,9 +25,11 @@ contains
     integer(c_int), intent(in) :: Al3
     real(c_double), intent(in) :: A(Al0, Al1, Al2, Al3)                         
     real(c_double), intent(in) :: D(Al0, Al1, Al2, Al3)                         
-    integer(c_int), intent(in) :: CDA(Al0, Al1, Al2, Al3)                         
+    !integer(c_int), intent(in) :: CDA(Al0, Al1, Al2, Al3)                         
+    logical(c_bool), intent(in) :: condition(Al0, Al1, Al2, Al3)                         
     type(result) :: cost4d                                  
     double precision, allocatable :: k(:,:,:,:)                    
+    logical, allocatable :: kcond(:,:,:,:)
     !integer, allocatable :: kcond(:,:,:,:)                    
     real(c_double), pointer :: Cn(:,:,:,:)                    
     real(c_double), pointer :: kaves(:,:,:,:)                    
@@ -74,6 +77,7 @@ contains
        if (nw0 /= 1 .and. nw1 /= 1 .and. nw2 /=1 .and. nw3 /=1) then
           k = hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
        !kcond = hist4di(CDA, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
+          !! now !! kcond = hist4dcond(condition, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
        !knonzero = pack(k, kcond == maxval(kcond))
          call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
        end if
