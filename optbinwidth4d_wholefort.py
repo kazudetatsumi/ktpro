@@ -7,7 +7,9 @@ import ctypes
 lib = ctypes.CDLL("./costfort4d.so")
 
 #def calc_cost4d_f90(A, B, maxw, data, condition):
-def calc_cost4d_f90(A, maxw, data, condition):
+#def calc_cost4d_f90(A, maxw, data, condition):
+#def calc_cost4d_f90(A, maxw, data, condition, usecond):
+def calc_cost4d_f90(maxw, data, condition, usecond):
 #def calc_cost4d_f90(maxw, data, condition):
     class result(ctypes.Structure):
         _fields_ =[("len0", ctypes.c_int), ("len1", ctypes.c_int), ("len2", ctypes.c_int), ("len3", ctypes.c_int),
@@ -15,8 +17,8 @@ def calc_cost4d_f90(A, maxw, data, condition):
 
     lib.cost4d.restype = result
     lib.cost4d.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
-                           ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
-                           np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
+                           ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_bool),
+                           #np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
                            #np.ctypeslib.ndpointer(dtype=np.float64, ndim=5),
                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
                            #np.ctypeslib.ndpointer(dtype=np.int32, ndim=4)]
@@ -33,7 +35,9 @@ def calc_cost4d_f90(A, maxw, data, condition):
                         ctypes.byref(ctypes.c_int(Nmax0)),
                         ctypes.byref(ctypes.c_int(Nmax1)),
                         ctypes.byref(ctypes.c_int(Nmax2)),
-                        ctypes.byref(ctypes.c_int(Nmax3)), A, data, condition)
+                        ctypes.byref(ctypes.c_int(Nmax3)),
+                        #ctypes.byref(ctypes.c_bool(usecond)), A, data, condition)
+                        ctypes.byref(ctypes.c_bool(usecond)), data, condition)
                         #ctypes.byref(ctypes.c_int(Nmax3)), A, B, data, condition)
     #result = lib.cost4d(ctypes.byref(ctypes.c_int(maxw[0])), ctypes.byref(ctypes.c_int(maxw[1])), ctypes.byref(ctypes.c_int(maxw[2])), ctypes.byref(ctypes.c_int(maxw[3])),
     #                    ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), ctypes.byref(ctypes.c_int(Nmax3)),  data, condition)
@@ -58,6 +62,7 @@ def run_simu4d():
     #print "size of data is", data.shape
     #data = np.sum(data[:, :, :, :],axis=2)
     #condition = np.ones(data.shape, dtype=np.int32)
+    usecond = True
     condition = np.ones(data.shape, dtype=np.bool)
     
     n = np.sum(data)*1.0
@@ -68,10 +73,6 @@ def run_simu4d():
     maxywidth = np.min(np.sum(condition, axis=1)) / 6
     maxzwidth = np.min(np.sum(condition, axis=2)) / 6
     maxowidth = np.min(np.sum(condition, axis=3)) / 6
-    #maxxwidth = np.min(np.sum(condition, axis=0)) / 15
-    #maxywidth = np.min(np.sum(condition, axis=1)) / 15
-    #maxzwidth = np.min(np.sum(condition, axis=2)) / 15
-    #maxowidth = np.min(np.sum(condition, axis=3)) / 15
     maxxwidth = 2
     maxywidth = 2
     maxzwidth = 2
@@ -79,7 +80,7 @@ def run_simu4d():
 
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
-    A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
+    #A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
     #CDA = np.cumsum(np.cumsum(np.cumsum(np.cumsum(condition, axis=0,
     #    dtype='int32'), axis=1, dtype='int32'), axis=2, dtype='int32'), axis=3,
     #    dtype='int32')
@@ -89,7 +90,8 @@ def run_simu4d():
     #B[2,:,:,:] = np.cumsum(data, axis=2)
     #B[3,:,:,:] = np.cumsum(data, axis=3)
     #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, CDA)
-    Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
+    #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition, usecond)
+    Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition, usecond)
     #Cn, kaves, deltas = calc_cost4d_f90(A, B, maxw, data, CDA)
     #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
     #Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition)
