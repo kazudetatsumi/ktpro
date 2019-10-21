@@ -13,8 +13,6 @@ module costfort4d
 
 contains
 
-  !function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D, CDA) bind(C, name="cost4d")
-  !function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, usecond,  A, D, condition) bind(C, name="cost4d")
   function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, usecond, D, condition) bind(C, name="cost4d")
     integer(c_int), intent(in) :: maxw0
     integer(c_int), intent(in) :: maxw1
@@ -24,9 +22,7 @@ contains
     integer(c_int), intent(in) :: Al1
     integer(c_int), intent(in) :: Al2
     integer(c_int), intent(in) :: Al3
-    !real(c_double), intent(in) :: A(Al0, Al1, Al2, Al3)                         
     real(c_double), intent(in) :: D(Al0, Al1, Al2, Al3)                         
-    !integer(c_int), intent(in) :: CDA(Al0, Al1, Al2, Al3)                         
     logical(c_bool), intent(in) :: condition(Al0, Al1, Al2, Al3)                         
     logical(c_bool), intent(in) :: usecond
     type(result) :: cost4d                                  
@@ -46,16 +42,12 @@ contains
     Al = (/Al0, Al1, Al2, Al3/)
     maxw = (/maxw0, maxw1, maxw2, maxw3/)
    
-
-    
     allocate(Cn(maxw(1), maxw(2), maxw(3), maxw(4)))
     allocate(kaves(maxw(1), maxw(2), maxw(3), maxw(4)))
     allocate(deltas(maxw(1), maxw(2), maxw(3), maxw(4)))
     Cn(:,:,:,:) = 0.0
     kaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
-
-
 
     call help1d(D, 0, 1, condition, Al, usecond, Cn, kaves, deltas)
     do i=1,4
@@ -157,43 +149,43 @@ contains
     end if
  end subroutine help1d
 
-  subroutine help2d(D, ax, maxw,  condition, Al, usecond, Cn, kaves, deltas)
-    double precision, intent(in) :: D(:,:,:,:)
-    integer, intent(in) :: ax(:), maxw(:), Al(:)
-    logical(1), intent(in) :: condition(:,:,:,:)
-    logical(1), intent(in) :: usecond
-    double precision, allocatable :: B(:,:,:,:)
-    double precision, allocatable :: k(:,:,:,:)
-    integer i, j, nw(4), N(4)
-    real(c_double), pointer :: Cn(:,:,:,:)                    
-    real(c_double), pointer :: kaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
-    nw = 1
-    B = cumsum4d(cumsum4d(d, ax(1)), ax(2))
-    if (ax(1) == 1 .and. ax(2) == 3) then
-      B = reshape(B, (/Al(1), Al(3), Al(2), Al(4)/), order = (/1, 3, 2, 4/))
-    elseif (ax(1) == 1 .and. ax(2) == 4) then
-      B = reshape(B, (/Al(1), Al(4), Al(3), Al(2)/), order = (/1, 4, 3, 2/))
-    elseif (ax(1) == 2 .and. ax(2) == 3) then
-      B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
-      B = reshape(B, (/Al(2), Al(3), Al(1), Al(4)/), order = (/1, 3, 2, 4/))
-    elseif (ax(1) == 2 .and. ax(2) == 4) then
-      B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
-      B = reshape(B, (/Al(2), Al(4), Al(3), Al(1)/), order = (/1, 4, 3, 2/))
-    elseif (ax(1) == 3 .and. ax(2) == 4) then
-      B = reshape(B, (/Al(3), Al(2), Al(1), Al(4)/), order = (/3, 2, 1, 4/))
-      B = reshape(B, (/Al(3), Al(4), Al(1), Al(2)/), order = (/1, 4, 3, 2/))
-    endif 
-    do i = 2, maxw(ax(1))
-      nw(ax(1)) = i
-    do j = 2, maxw(ax(2))
-      nw(ax(2)) = j
-      N = (Al - mod(Al, nw)) / nw
-      k = hist2d(B, [N(ax(1)), N(ax(2))], [nw(ax(1)), nw(ax(2))])
-      call stat(k, Cn, kaves, deltas, nw)
-    enddo
-    enddo
-  end subroutine help2d
+ subroutine help2d(D, ax, maxw,  condition, Al, usecond, Cn, kaves, deltas)
+   double precision, intent(in) :: D(:,:,:,:)
+   integer, intent(in) :: ax(:), maxw(:), Al(:)
+   logical(1), intent(in) :: condition(:,:,:,:)
+   logical(1), intent(in) :: usecond
+   double precision, allocatable :: B(:,:,:,:)
+   double precision, allocatable :: k(:,:,:,:)
+   integer i, j, nw(4), N(4)
+   real(c_double), pointer :: Cn(:,:,:,:)                    
+   real(c_double), pointer :: kaves(:,:,:,:)                    
+   real(c_double), pointer :: deltas(:,:,:,:)                    
+   nw = 1
+   B = cumsum4d(cumsum4d(d, ax(1)), ax(2))
+   if (ax(1) == 1 .and. ax(2) == 3) then
+     B = reshape(B, (/Al(1), Al(3), Al(2), Al(4)/), order = (/1, 3, 2, 4/))
+   elseif (ax(1) == 1 .and. ax(2) == 4) then
+     B = reshape(B, (/Al(1), Al(4), Al(3), Al(2)/), order = (/1, 4, 3, 2/))
+   elseif (ax(1) == 2 .and. ax(2) == 3) then
+     B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
+     B = reshape(B, (/Al(2), Al(3), Al(1), Al(4)/), order = (/1, 3, 2, 4/))
+   elseif (ax(1) == 2 .and. ax(2) == 4) then
+     B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
+     B = reshape(B, (/Al(2), Al(4), Al(3), Al(1)/), order = (/1, 4, 3, 2/))
+   elseif (ax(1) == 3 .and. ax(2) == 4) then
+     B = reshape(B, (/Al(3), Al(2), Al(1), Al(4)/), order = (/3, 2, 1, 4/))
+     B = reshape(B, (/Al(3), Al(4), Al(1), Al(2)/), order = (/1, 4, 3, 2/))
+   endif 
+   do i = 2, maxw(ax(1))
+     nw(ax(1)) = i
+   do j = 2, maxw(ax(2))
+     nw(ax(2)) = j
+     N = (Al - mod(Al, nw)) / nw
+     k = hist2d(B, [N(ax(1)), N(ax(2))], [nw(ax(1)), nw(ax(2))])
+     call stat(k, Cn, kaves, deltas, nw)
+   enddo
+   enddo
+ end subroutine help2d
 
 
   subroutine help3d(D, axis, maxw1, maxw2, maxw3, Al, Cn, kaves, deltas)
