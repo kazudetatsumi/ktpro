@@ -58,10 +58,13 @@ contains
       call help2d(D, [i, j], maxw, condition, Al, usecond, Cn, kaves, deltas)
     enddo
     enddo
-    !call help3d(D, 1, maxw1, maxw2, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    !call help3d(D, 2, maxw0, maxw2, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    !call help3d(D, 3, maxw0, maxw1, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    !call help3d(D, 4, maxw0, maxw1, maxw2, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
+    do i=1,2
+    do j=i+1,3
+    do h=j+1,4
+      call help3d(D, [i,j,h], maxw, Al, Cn, kaves, deltas)
+    enddo
+    enddo
+    enddo
 
 
     do i = 1, maxw(1)
@@ -187,77 +190,39 @@ contains
    enddo
  end subroutine help2d
 
-
-  subroutine help3d(D, axis, maxw1, maxw2, maxw3, Al, Cn, kaves, deltas)
-    double precision, intent(in) :: D(:,:,:,:)
-    integer, intent(in) :: axis, maxw1, maxw2, maxw3, Al(4)
-    double precision, allocatable :: B(:,:,:,:)
-    double precision, allocatable :: k(:,:,:,:)
-    integer nw(4), N(4), i, j, l
-    real(c_double), pointer :: Cn(:,:,:,:)                    
-    real(c_double), pointer :: kaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
-    nw = 1
-    if (axis == 4) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 1),2),3)
-      do i = 2, maxw1
-        nw(1) = i
-      do j = 2, maxw2
-        nw(2) = j
-      do l = 2, maxw3
-        nw(3) = l
-        N = (Al - mod(Al, nw)) / nw
-        k = hist3d(B, [N(1), N(2), N(3)], [nw(1), nw(2), nw(3)])
-        call stat(k, Cn, kaves, deltas, nw) 
-      enddo
-      enddo
-      enddo
-    elseif (axis == 3) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 1),2),4)
-      B = reshape(B, (/size(B,1), size(B,2), size(B,4), size(B,3)/), order = (/1, 2, 4, 3/))
-      do i = 2, maxw1
-        nw(1) = i
-      do j = 2, maxw2
-        nw(2) = j
-      do l = 2, maxw3
-        nw(4) = l
-        N = (Al - mod(Al, nw)) / nw
-        k = hist3d(B, [N(1), N(2), N(4)], [nw(1), nw(2), nw(4)]); call stat(k, Cn, kaves, deltas, nw) 
-      enddo
-      enddo
-      enddo
-    elseif (axis == 2) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 1),3),4)
-      B = reshape(B, (/size(B,1), size(B,3), size(B,2), size(B,4)/), order = (/1, 3, 2, 4/))
-      B = reshape(B, (/size(B,1), size(B,2), size(B,4), size(B,3)/), order = (/1, 2, 4, 3/))
-      do i = 2, maxw1
-        nw(1) = i
-      do j = 2, maxw2
-        nw(3) = j
-      do l = 2, maxw3
-        nw(4) = l
-        N = (Al - mod(Al, nw)) / nw
-        k = hist3d(B, [N(1), N(3), N(4)], [nw(1), nw(3), nw(4)]); call stat(k, Cn, kaves, deltas, nw) 
-      enddo
-      enddo
-      enddo
-    elseif (axis == 1) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 2),3),4)
-      B = reshape(B, (/size(B,2), size(B,1), size(B,3), size(B,4)/), order = (/2, 1, 3, 4/))
-      B = reshape(B, (/size(B,1), size(B,3), size(B,2), size(B,4)/), order = (/1, 3, 2, 4/))
-      B = reshape(B, (/size(B,1), size(B,2), size(B,4), size(B,3)/), order = (/1, 2, 4, 3/))
-      do i = 2, maxw1
-        nw(2) = i
-      do j = 2, maxw2
-        nw(3) = j
-      do l = 2, maxw3
-        nw(4) = l
-        N = (Al - mod(Al, nw)) / nw
-        k = hist3d(B, [N(2), N(3), N(4)], [nw(2), nw(3), nw(4)]); call stat(k, Cn, kaves, deltas, nw) 
-      enddo
-      enddo
-      enddo
-    end if
+ subroutine help3d(D, ax, maxw, Al, Cn, kaves, deltas)
+   double precision, intent(in) :: D(:,:,:,:)
+   integer, intent(in) :: ax(:), maxw(:), Al(:)
+   double precision, allocatable :: B(:,:,:,:)
+   double precision, allocatable :: k(:,:,:,:)
+   integer nw(4), N(4), i, j, l
+   real(c_double), pointer :: Cn(:,:,:,:)                    
+   real(c_double), pointer :: kaves(:,:,:,:)                    
+   real(c_double), pointer :: deltas(:,:,:,:)                    
+   nw = 1
+   B = cumsum4d(cumsum4d(cumsum4d(d, ax(1)),ax(2)),ax(3))
+   if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 4) then
+     B = reshape(B, (/Al(1), Al(2), Al(4), Al(3)/), order = (/1, 2, 4, 3/))
+   elseif (ax(1) == 1 .and. ax(2) == 3 .and. ax(3) == 4) then
+     B = reshape(B, (/Al(1), Al(3), Al(2), Al(4)/), order = (/1, 3, 2, 4/))
+     B = reshape(B, (/Al(1), Al(3), Al(4), Al(2)/), order = (/1, 3, 4, 2/))
+   elseif (ax(1) == 2 .and. ax(2) == 3 .and. ax(3) == 4) then
+     B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
+     B = reshape(B, (/Al(2), Al(3), Al(1), Al(4)/), order = (/1, 3, 2, 4/))
+     B = reshape(B, (/Al(2), Al(3), Al(4), Al(1)/), order = (/1, 2, 4, 3/))
+   end if
+   do i = 2, maxw(ax(1))
+     nw(ax(1)) = i
+   do j = 2, maxw(ax(2))
+     nw(ax(2)) = j
+   do l = 2, maxw(ax(3))
+     nw(ax(3)) = l
+     N = (Al - mod(Al, nw)) / nw
+     k = hist3d(B, [N(ax(1)), N(ax(2)), N(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
+     call stat(k, Cn, kaves, deltas, nw) 
+   enddo
+   enddo
+   enddo
   end subroutine help3d
 
   subroutine stat(k, Cn, kaves, deltas, nw)
@@ -571,6 +536,24 @@ contains
        mask1d(i,:,:,:) = all(CD(is:ie,:,:,:),1)
     end do
   end function mask1d
+
+  function mask2d(cd, N, nw)
+    logical(1), intent(in) :: CD(:,:,:,:) 
+    integer, intent(in) :: N(:), nw(:)
+    integer :: i, is, ie, j, js, je
+    logical(1) :: mask2d(N(1), N(2), size(CD,3), size(CD,4))
+    logical(1), allocatable :: tmpmask(:,:,:)
+    do i = 1, N(1)
+       is = (i-1)*nw(1) + 1
+       ie = i*nw(1)
+    do j = 1, N(2)
+       js = (j-1)*nw(2) + 1
+       je = j*nw(2)
+       tmpmask(:,:,:) = all(CD(is:ie,:,:,:),1)
+       mask2d(i,j,:,:) = all(tmpmask(js:je,:,:),1)
+    enddo
+    enddo
+  end function mask2d
 
   function hist2d(B, N, nw)
     double precision, intent(in) :: B(:,:,:,:) 
