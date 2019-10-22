@@ -23,7 +23,8 @@ contains
     integer(c_int), intent(in) :: Al2
     integer(c_int), intent(in) :: Al3
     real(c_double), intent(in) :: D(Al0, Al1, Al2, Al3)                         
-    logical(c_bool), intent(in) :: condition(Al0, Al1, Al2, Al3)                         
+    !logical(c_bool), intent(in) :: condition(Al0, Al1, Al2, Al3)                         
+    integer(c_int), intent(in) :: condition(Al0, Al1, Al2, Al3)                         
     logical(c_bool), intent(in) :: usecond
     type(result) :: cost4d                                  
     double precision :: A(Al0, Al1, Al2, Al3)
@@ -49,19 +50,19 @@ contains
     kaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
 
-    call help1d(D, 0, 1, condition, Al, usecond, Cn, kaves, deltas)
-    do i=1,4
-      call help1d(D, i, maxw(i), condition, Al, usecond, Cn, kaves, deltas)
-    enddo
-    do i=1,3
-    do j=i+1,4
-      call help2d(D, [i, j], maxw, condition, Al, usecond, Cn, kaves, deltas)
-    enddo
-    enddo
+    !call help1d(D, 0, 1, condition, Al, usecond, Cn, kaves, deltas)
+    !do i=1,4
+    !  call help1d(D, i, maxw(i), condition, Al, usecond, Cn, kaves, deltas)
+    !enddo
+    !do i=1,3
+    !do j=i+1,4
+    !  call help2d(D, [i, j], maxw, condition, Al, usecond, Cn, kaves, deltas)
+    !enddo
+    !enddo
     do i=1,2
     do j=i+1,3
     do h=j+1,4
-      call help3d(D, [i,j,h], maxw, Al, Cn, kaves, deltas)
+      call help3d(D, [i,j,h], maxw,  condition, Al, usecond, Cn, kaves, deltas)
     enddo
     enddo
     enddo
@@ -105,11 +106,13 @@ contains
   subroutine help1d(D, axis, mxw, condition, Al, usecond,  Cn, kaves, deltas)
     double precision, intent(in) :: D(:,:,:,:)
     integer, intent(in) :: axis, mxw, Al(4)
-    logical(1), intent(in) :: condition(Al(1), Al(2), Al(3), Al(4))
-    logical(1), allocatable :: cd2(:,:,:,:)
+    integer, intent(in) :: condition(Al(1), Al(2), Al(3), Al(4))
     logical(1), intent(in) :: usecond
+    logical(1) :: IsBshapeAllocated
     double precision, allocatable :: B(:,:,:,:)
+    integer, allocatable :: C(:,:,:,:)
     double precision, allocatable :: k(:,:,:,:)
+    integer, allocatable :: kcond(:,:,:,:)
     integer i, N, nw(4),  bshape(4), border(4)
     real(c_double), pointer :: Cn(:,:,:,:)                    
     real(c_double), pointer :: kaves(:,:,:,:)                    
@@ -118,15 +121,15 @@ contains
     if (axis == 0) then
         k = D
         if (usecond) then
-          call stat1(pack(k, condition), Cn, kaves, deltas, nw)
+          call stat1(pack(k, condition == maxval(condition)), Cn, kaves, deltas, nw)
         else
           call stat(k, Cn, kaves, deltas, nw)
         end if
     else
+      IsBshapeAllocated = .true.
       B = cumsum4d(d, axis)
       if (axis == 1) then
-        bshape = (/Al(1), Al(2), Al(3), Al(4)/) 
-        border = (/1, 2, 3, 4/)
+        IsBshapeAllocated = .false.
       elseif (axis == 2) then
         bshape = (/Al(2), Al(1), Al(3), Al(4)/) 
         border = (/2, 1, 3, 4/)
@@ -137,14 +140,20 @@ contains
         bshape = (/Al(4), Al(2), Al(3), Al(1)/) 
         border = (/4, 2, 3, 1/)
       endif
-      B = reshape(B, bshape, order = border)
-      cd2 = reshape(condition, bshape, order = border)
+      if (IsBshapeAllocated) then
+        B = reshape(B, bshape, order = border)
+      endif
       do i = 2, mxw
         nw(axis) = i
         N = (Al(axis) - mod(Al(axis), nw(axis))) / nw(axis)
         k = hist1d(B, N, nw(axis))
         if (usecond) then
-          call stat1(pack(k, mask1d(cd2, N, nw(axis))),  Cn, kaves, deltas, nw)
+          C = cumsum4di(condition, axis)
+          if (IsBshapeAllocated) then
+            C = reshape(C, bshape, order = border)
+          endif
+          kcond = hist1di(C, N, nw(axis))
+          call stat1(pack(k, kcond == maxval(kcond)),  Cn, kaves, deltas, nw)
         else
           call stat(k, Cn, kaves, deltas, nw)
         end if
@@ -155,62 +164,125 @@ contains
  subroutine help2d(D, ax, maxw,  condition, Al, usecond, Cn, kaves, deltas)
    double precision, intent(in) :: D(:,:,:,:)
    integer, intent(in) :: ax(:), maxw(:), Al(:)
-   logical(1), intent(in) :: condition(:,:,:,:)
+   integer, intent(in) :: condition(:,:,:,:)
    logical(1), intent(in) :: usecond
+   logical(1) :: IsBshapeAllocated
    double precision, allocatable :: B(:,:,:,:)
+   integer, allocatable :: C(:,:,:,:)
    double precision, allocatable :: k(:,:,:,:)
-   integer i, j, nw(4), N(4)
+   integer, allocatable :: kcond(:,:,:,:)
+   integer i, j, l, nw(4), N(4)
+   integer, allocatable ::  bshape(:,:),border(:,:)
    real(c_double), pointer :: Cn(:,:,:,:)                    
    real(c_double), pointer :: kaves(:,:,:,:)                    
    real(c_double), pointer :: deltas(:,:,:,:)                    
    nw = 1
    B = cumsum4d(cumsum4d(d, ax(1)), ax(2))
-   if (ax(1) == 1 .and. ax(2) == 3) then
-     B = reshape(B, (/Al(1), Al(3), Al(2), Al(4)/), order = (/1, 3, 2, 4/))
-   elseif (ax(1) == 1 .and. ax(2) == 4) then
-     B = reshape(B, (/Al(1), Al(4), Al(3), Al(2)/), order = (/1, 4, 3, 2/))
-   elseif (ax(1) == 2 .and. ax(2) == 3) then
-     B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
-     B = reshape(B, (/Al(2), Al(3), Al(1), Al(4)/), order = (/1, 3, 2, 4/))
-   elseif (ax(1) == 2 .and. ax(2) == 4) then
-     B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
-     B = reshape(B, (/Al(2), Al(4), Al(3), Al(1)/), order = (/1, 4, 3, 2/))
-   elseif (ax(1) == 3 .and. ax(2) == 4) then
-     B = reshape(B, (/Al(3), Al(2), Al(1), Al(4)/), order = (/3, 2, 1, 4/))
-     B = reshape(B, (/Al(3), Al(4), Al(1), Al(2)/), order = (/1, 4, 3, 2/))
-   endif 
+   if (ax(1) == 1 .and. ax(2) == 2) then
+     IsBshapeAllocated = .false.
+   else
+     IsBshapeAllocated = .true.
+     if (ax(1) == 1 .and. ax(2) == 3) then
+       allocate(bshape(1,4), border(1,4))
+       bshape(1,:) = (/Al(1), Al(3), Al(2), Al(4)/)
+       border(1,:) = (/1, 3, 2, 4/)
+     elseif (ax(1) == 1 .and. ax(2) == 4) then
+       allocate(bshape(1,4), border(1,4))
+       bshape(1,:) = (/Al(1), Al(4), Al(3), Al(2)/)
+       border(1,:) = (/1, 4, 3, 2/)
+     elseif (ax(1) == 2 .and. ax(2) == 3) then
+       allocate(bshape(2,4), border(2,4))
+       bshape(1,:) = (/Al(2), Al(1), Al(3), Al(4)/)
+       border(1,:) = (/2, 1, 3, 4/)
+       bshape(2,:) = (/Al(2), Al(3), Al(1), Al(4)/)
+       border(2,:) = (/1, 3, 2, 4/)
+     elseif (ax(1) == 2 .and. ax(2) == 4) then
+       allocate(bshape(2,4), border(2,4))
+       bshape(1,:) = (/Al(2), Al(1), Al(3), Al(4)/)
+       border(1,:) = (/2, 1, 3, 4/)
+       bshape(2,:) = (/Al(2), Al(4), Al(3), Al(1)/)
+       border(2,:) = (/1, 4, 3, 2/)
+     elseif (ax(1) == 3 .and. ax(2) == 4) then
+       allocate(bshape(2,4), border(2,4))
+       bshape(1,:) = (/Al(3), Al(2), Al(1), Al(4)/)
+       border(1,:) = (/3, 2, 1, 4/)
+       bshape(2,:) = (/Al(3), Al(4), Al(1), Al(2)/)
+       border(2,:) = (/1, 4, 3, 2/)
+     endif 
+   endif
+   if (IsBshapeAllocated) then
+     do i = 1, size(bshape,1)
+        B = reshape(B, bshape(i,1:4), order = border(i,1:4))
+     enddo
+   endif
    do i = 2, maxw(ax(1))
      nw(ax(1)) = i
    do j = 2, maxw(ax(2))
      nw(ax(2)) = j
      N = (Al - mod(Al, nw)) / nw
      k = hist2d(B, [N(ax(1)), N(ax(2))], [nw(ax(1)), nw(ax(2))])
-     call stat(k, Cn, kaves, deltas, nw)
+     if (usecond) then
+       C = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
+       if (IsBshapeAllocated) then
+         do l = 1, size(bshape,1)
+            C = reshape(C, bshape(l,1:4), order = border(l,1:4))
+         enddo
+       endif
+       kcond = hist2di(C, [N(ax(1)), N(ax(2))], [nw(ax(1)), nw(ax(2))])
+       call stat1(pack(k, kcond == maxval(kcond)), Cn, kaves, deltas, nw)
+     else
+       call stat(k, Cn, kaves, deltas, nw)
+     endif
    enddo
    enddo
  end subroutine help2d
 
- subroutine help3d(D, ax, maxw, Al, Cn, kaves, deltas)
+ subroutine help3d(D, ax, maxw,  condition, Al, usecond, Cn, kaves, deltas)
    double precision, intent(in) :: D(:,:,:,:)
    integer, intent(in) :: ax(:), maxw(:), Al(:)
+   integer, intent(in) :: condition(:,:,:,:)
+   logical(1), intent(in) :: usecond
+   logical(1) :: IsBshapeAllocated
    double precision, allocatable :: B(:,:,:,:)
+   integer, allocatable :: C(:,:,:,:)
    double precision, allocatable :: k(:,:,:,:)
-   integer nw(4), N(4), i, j, l
+   integer, allocatable :: kcond(:,:,:,:)
+   integer nw(4), N(4), i, j, l, h
+   integer, allocatable ::  bshape(:,:),border(:,:)
    real(c_double), pointer :: Cn(:,:,:,:)                    
    real(c_double), pointer :: kaves(:,:,:,:)                    
    real(c_double), pointer :: deltas(:,:,:,:)                    
    nw = 1
    B = cumsum4d(cumsum4d(cumsum4d(d, ax(1)),ax(2)),ax(3))
-   if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 4) then
-     B = reshape(B, (/Al(1), Al(2), Al(4), Al(3)/), order = (/1, 2, 4, 3/))
-   elseif (ax(1) == 1 .and. ax(2) == 3 .and. ax(3) == 4) then
-     B = reshape(B, (/Al(1), Al(3), Al(2), Al(4)/), order = (/1, 3, 2, 4/))
-     B = reshape(B, (/Al(1), Al(3), Al(4), Al(2)/), order = (/1, 3, 4, 2/))
-   elseif (ax(1) == 2 .and. ax(2) == 3 .and. ax(3) == 4) then
-     B = reshape(B, (/Al(2), Al(1), Al(3), Al(4)/), order = (/2, 1, 3, 4/))
-     B = reshape(B, (/Al(2), Al(3), Al(1), Al(4)/), order = (/1, 3, 2, 4/))
-     B = reshape(B, (/Al(2), Al(3), Al(4), Al(1)/), order = (/1, 2, 4, 3/))
-   end if
+   if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 3) then
+     IsBshapeAllocated = .false.
+   else
+     IsBshapeAllocated = .true.
+     if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 4) then
+       allocate(bshape(1,4), border(1,4))
+       bshape(1,:) = (/Al(1), Al(2), Al(4), Al(3)/)
+       border(1,:) = (/1, 2, 4, 3/)
+     elseif (ax(1) == 1 .and. ax(2) == 3 .and. ax(3) == 4) then
+       allocate(bshape(2,4), border(2,4))
+       bshape(1,:) = (/Al(1), Al(3), Al(2), Al(4)/)
+       border(1,:) = (/1, 3, 2, 4/)
+       bshape(2,:) = (/Al(1), Al(3), Al(4), Al(2)/)
+       border(2,:) = (/1, 2, 4, 3/)
+     elseif (ax(1) == 2 .and. ax(2) == 3 .and. ax(3) == 4) then
+       allocate(bshape(3,4), border(3,4))
+       bshape(1,:) = (/Al(2), Al(1), Al(3), Al(4)/)
+       border(1,:) = (/2, 1, 3, 4/)
+       bshape(2,:) = (/Al(2), Al(3), Al(1), Al(4)/)
+       border(2,:) = (/1, 3, 2, 4/)
+       bshape(3,:) = (/Al(2), Al(3), Al(4), Al(1)/)
+        border(3,:) = (/1, 2, 4, 3/)
+      end if
+   endif
+   if (IsBshapeAllocated) then
+     do i = 1, size(bshape,1)
+        B = reshape(B, bshape(i,1:4), order = border(i,1:4))
+     enddo
+   endif
    do i = 2, maxw(ax(1))
      nw(ax(1)) = i
    do j = 2, maxw(ax(2))
@@ -219,11 +291,22 @@ contains
      nw(ax(3)) = l
      N = (Al - mod(Al, nw)) / nw
      k = hist3d(B, [N(ax(1)), N(ax(2)), N(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
-     call stat(k, Cn, kaves, deltas, nw) 
+     if (usecond) then
+       C = cumsum4di(cumsum4di(cumsum4di(condition, ax(1)), ax(2)), ax(3))
+       if (IsBshapeAllocated) then
+         do h = 1, size(bshape,1)
+            C = reshape(C, bshape(h,1:4), order = border(h,1:4))
+         enddo
+       endif
+       kcond = hist3di(C, [N(ax(1)), N(ax(2)), N(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
+       call stat1(pack(k, kcond == maxval(kcond)), Cn, kaves, deltas, nw)
+     else
+       call stat(k, Cn, kaves, deltas, nw) 
+     endif
    enddo
    enddo
    enddo
-  end subroutine help3d
+ end subroutine help3d
 
   subroutine stat(k, Cn, kaves, deltas, nw)
     double precision, intent(in) :: k(:,:,:,:)
@@ -323,6 +406,65 @@ contains
        !end do
     end if
   end function cumsum4d       
+  function cumsum4di(d, axis)
+    integer, intent(in) :: axis
+    integer, intent(in) :: d(:,:,:,:)
+    integer :: cumsum4di(size(d,1), size(d,2), size(d,3), size(d,4))
+    integer :: i, j, k, l, N(4)
+    cumsum4di = d
+    N(1) = size(d,1); N(2) = size(d,2); N(3) = size(d,3); N(4) = size(d,4)
+
+
+    if (axis == 4) then
+       !!$omp parallel do
+       !do i = 1, N(1)
+       !do j = 1, N(3)
+       !do k = 1, N(4)
+       do l = 1, N(4) - 1
+          !cumsum4di(i, j, k, l + 1) = cumsum4di(i, j, k, l) + d(i, j, k, l + 1)
+          cumsum4di(:, :, :, l + 1) = cumsum4di(:, :, :, l) + d(:, :, :, l + 1)
+       end do
+       !end do
+       !end do
+       !end do
+    else if (axis == 3) then
+       !!$omp parallel do
+       !do i = 1, N(1)
+       !do j = 1, N(2)
+       !do l = 1, N(4)
+       do k = 1, N(3) - 1
+          !cumsum4di(i, j, k + 1, l) = cumsum4di(i, j, k, l) + d(i, j, k + 1, l)
+          cumsum4di(:, :, k + 1, :) = cumsum4di(:, :, k, :) + d(:, :, k + 1, :)
+       end do
+       !end do
+       !end do
+       !end do
+    else if (axis == 2) then
+       !!$omp parallel do
+       !do i = 1, N(1)
+       !do k = 1, N(3)
+       !do l = 1, N(4)
+       do j = 1, N(2) - 1
+          !cumsum4di(i, j + 1, k, l) = cumsum4di(i, j, k, l) + d(i, j + 1, k, l)
+          cumsum4di(:, j + 1, :, :) = cumsum4di(:, j, :, :) + d(:, j + 1, :, :)
+       end do
+       !end do
+       !end do
+       !end do
+    else if (axis == 1) then
+       !!$omp parallel do
+       !do j = 1, N(2) 
+       !do k = 1, N(3)
+       !do l = 1, N(4)
+       do i = 1, N(1) - 1
+          !cumsum4di(i + 1, j, k, l) = cumsum4di(i, j, k, l) + d(i + 1, j, k, l)
+          cumsum4di(i + 1, :, :, :) = cumsum4di(i, :, :, :) + d(i + 1, :, :, :)
+       end do
+       !end do
+       !end do
+       !end do
+    end if
+  end function cumsum4di
 
   function hist4d(A, N, nw)
     double precision, intent(in) :: A(:,:,:,:) 
@@ -524,36 +666,18 @@ contains
        hist1d(i,:,:,:) = B(ihead,:,:,:) - B(ihead - nw,:,:,:)
     end do
   end function hist1d
-
-  function mask1d(cd, N, nw)
-    logical(1), intent(in) :: CD(:,:,:,:) 
+  function hist1di(C, N, nw)
+    integer, intent(in) :: C(:,:,:,:) 
     integer, intent(in) :: N, nw
-    integer :: i, is, ie
-    logical(1) :: mask1d(N, size(CD,2), size(CD,3), size(CD,4))
-    do i = 1, N
-       is = (i-1)*nw + 1
-       ie = i*nw
-       mask1d(i,:,:,:) = all(CD(is:ie,:,:,:),1)
+    integer :: i, ihead
+    integer :: hist1di(N, size(C,2), size(C,3), size(C,4))
+    hist1di(1,:,:,:) = C(nw,:,:,:)
+    !$omp parallel do
+    do i = 2, N
+       ihead = i*nw
+       hist1di(i,:,:,:) = C(ihead,:,:,:) - C(ihead - nw,:,:,:)
     end do
-  end function mask1d
-
-  function mask2d(cd, N, nw)
-    logical(1), intent(in) :: CD(:,:,:,:) 
-    integer, intent(in) :: N(:), nw(:)
-    integer :: i, is, ie, j, js, je
-    logical(1) :: mask2d(N(1), N(2), size(CD,3), size(CD,4))
-    logical(1), allocatable :: tmpmask(:,:,:)
-    do i = 1, N(1)
-       is = (i-1)*nw(1) + 1
-       ie = i*nw(1)
-    do j = 1, N(2)
-       js = (j-1)*nw(2) + 1
-       je = j*nw(2)
-       tmpmask(:,:,:) = all(CD(is:ie,:,:,:),1)
-       mask2d(i,j,:,:) = all(tmpmask(js:je,:,:),1)
-    enddo
-    enddo
-  end function mask2d
+  end function hist1di
 
   function hist2d(B, N, nw)
     double precision, intent(in) :: B(:,:,:,:) 
@@ -578,6 +702,29 @@ contains
        end do
     end do
   end function hist2d
+  function hist2di(B, N, nw)
+    integer, intent(in) :: B(:,:,:,:) 
+    integer, intent(in) :: N(2), nw(2)
+    integer :: i, ihead, j, jhead
+    integer :: hist2di(N(1), N(2), size(B,3), size(B,4))
+    do i = 1, N(1)
+       ihead = i*nw(1) 
+       !$omp parallel do
+       do j = 1, N(2)
+          jhead = j*nw(2) 
+          if ( i == 1 .and. j == 1) then
+              hist2di(i, j, :, :) = B(ihead, jhead,:, :)
+          else if ( i /= 1 .and. j == 1) then
+              hist2di(i, j, :, :) = B(ihead, jhead, :, :) - B(ihead - nw(1), jhead, :, :)
+          else if ( i == 1 .and. j /= 1) then
+              hist2di(i, j, :, :) = B(ihead, jhead, :, :) - B(ihead, jhead - nw(2), :, :)
+          else 
+              hist2di(i, j, :, :) = B(ihead, jhead, :, :) - B(ihead - nw(1), jhead, :, :) - B(ihead, jhead - nw(2), :, :) &
+                                   + B(ihead - nw(1), jhead - nw(2), :, :)
+          end if
+       end do
+    end do
+  end function hist2di
 
   function hist3d(B, N, nw)
     double precision, intent(in) :: B(:,:,:,:) 
@@ -617,5 +764,43 @@ contains
        end do
     end do
   end function hist3d
+  function hist3di(B, N, nw)
+    integer, intent(in) :: B(:,:,:,:) 
+    integer, intent(in) :: N(3), nw(3)
+    integer :: i, ihead, j, jhead, h, hhead
+    integer :: hist3di(N(1), N(2), N(3), size(B,4))
+    do i = 1, N(1)
+       ihead = i*nw(1) 
+       do j = 1, N(2)
+          jhead = j*nw(2)
+          do h = 1, N(3)
+             hhead = h*nw(3)
+             if ( i == 1 .and. j == 1 .and. h == 1) then
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :)
+             else if ( j == 1 .and. i /= 1 .and. h == 1 ) then
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw(1), jhead, hhead, :)
+             else if ( i == 1 .and. j /= 1 .and. h == 1 ) then
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead, jhead - nw(2), hhead, :)
+             else if ( i == 1 .and. h /= 1 .and. j == 1 ) then
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead, jhead, hhead - nw(3), :)
+             else if ( i /= 1 .and. j /= 1 .and. h == 1 ) then
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw(1), jhead, hhead, :) &
+                                     - B(ihead, jhead - nw(2), hhead, :) + B(ihead - nw(1), jhead - nw(2), hhead, :)
+             else if ( i /= 1 .and. j == 1 .and. h /= 1 ) then
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw(1), jhead, hhead, :) &
+                                    - B(ihead, jhead, hhead - nw(3), :) + B(ihead - nw(1), jhead, hhead - nw(3), :)
+             else if ( i == 1 .and. j /= 1 .and. h /= 1 ) then
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead, jhead - nw(2), hhead, :) &
+                                    - B(ihead, jhead, hhead - nw(3), :) + B(ihead, jhead - nw(2), hhead - nw(3), :)
+             else
+                hist3di(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw(1), jhead, hhead, :) &
+                                    - B(ihead, jhead - nw(2), hhead, :) - B(ihead, jhead, hhead - nw(3), :) &
+                                    + B(ihead, jhead - nw(2), hhead - nw(3), :) + B(ihead - nw(1), jhead, hhead - nw(3), :) &
+                                    + B(ihead - nw(1), jhead - nw(2), hhead, :) - B(ihead - nw(1), jhead - nw(2), hhead - nw(3), :)
+             end if
+          end do
+       end do
+    end do
+  end function hist3di
 
 end module costfort4d
