@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import h5py
 from scipy import stats
 from matplotlib import rc
+plt.style.use('classic')
+plt.rcParams['font.family'] = 'Times New Roman'
 homedir = "/home/kazu/"
 cdir = homedir + "/asi3n4/phono3py_112_fc2_334_sym_monk_shift/"
 sdir = homedir + "/bsi3n4_m/phono3py_113_fc2_338_sym_monk_shift/"
@@ -23,17 +25,23 @@ jdosg2 = np.loadtxt(gdir + 'jdos-m222222-g5577-t300.dat',comments='#',dtype='flo
 dosc  = np.loadtxt(cdir + 'total_dos_m292935.dat',comments='#',dtype='float')
 doss  = np.loadtxt(sdir + 'total_dos_m292967.dat',comments='#',dtype='float')
 dosg  = np.loadtxt(gdir + 'total_dos.dat',comments='#',dtype='float')
-gc = cdir + 'noiso/kaccum.dat'
-gs = sdir + 'noiso/kaccum.dat'
+#gc = cdir + 'noiso/kaccum.dat'
+gc = cdir + 'noiso/kaccum_m101014.dat'
+#gs = sdir + 'noiso/kaccum.dat'
+gs = sdir + 'noiso/kaccum_m101026.dat'
 gg = gdir + 'noiso/kaccum.dat'
-ggc = cdir +  'noiso/gvaccum.dat'
-ggs = sdir + 'noiso/gvaccum.dat'
+#ggc = cdir +  'noiso/gvaccum.dat'
+ggc = cdir +  'noiso/gvaccum_m101014.dat'
+#ggs = sdir + 'noiso/gvaccum.dat'
+ggs = sdir + 'noiso/gvaccum_m101026.dat'
 ggg = gdir + 'noiso/gvaccum.dat'
 #c = cdir + "noiso/kappa-m8810.hdf5"
-c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+#c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+c = cdir + "noiso/kappa-m101014.noiso.hdf5"
 #c = cdir + "noiso/kappa-m141416_nu.hdf5"
 #s = sdir + "noiso/kappa-m8820.hdf5"
-s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+#s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+s = sdir + "noiso/kappa-m101026.noiso.hdf5"
 #s = sdir + "noiso/kappa-m141432_nu.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
 grc = homedir + "/asi3n4/gruneisen/gruneisen.hdf5"
@@ -48,6 +56,9 @@ apg= gdir + "gpjob_m121212_fullpp/kappa-m121212.hdf5"
 cjc= cdir + "kappa-m8810.const_ave1.hdf5"
 cjs= sdir + "kappa-m8820.const_ave1.hdf5"
 cjg= gdir + "kappa-m121212.const_ave1.hdf5"
+cv=298.78
+sv=143.78
+gv=472.14
 
 
 def parse_kaccum(filename):
@@ -277,18 +288,18 @@ def eachplot(sn,phase,omega,kaccum,dkaccum):
 def eachplot2(sn,phase,omega,dkaccum):
    plt.subplot(numr,3,sn)
    plt.title("gv_for_" + phase)
-   plt.plot(omega,dkaccum[:,0]*10,label=phase + "_dkxx")
-   plt.plot(omega,dkaccum[:,2]*10,label=phase + "_dkzz")
-   plt.ylim(0,105)
-   plt.yticks([0,50,100])
+   plt.plot(omega,dkaccum[:,0],label=phase + "_dkxx")
+   plt.plot(omega,dkaccum[:,2],label=phase + "_dkzz")
+   plt.ylim(0,10.5)
+   plt.yticks([0,5,10])
    plt.xlim(0,max_freq)
 
 def eachplot3(sn,phase,omega,dos):
    plt.subplot(numr,3,sn)
    plt.title("dos_for_" + phase)
    plt.plot(omega,dos,label=phase + "_dos")
-   plt.ylim(0,7)
-   plt.yticks([0,2,4,6])
+   plt.ylim(0,0.10)
+   plt.yticks([0,0.05,0.10])
    plt.xlim(0,max_freq)
 
 
@@ -324,15 +335,18 @@ def eachplot8(sn,phase,omega,gammau,gamman):
    plt.legend(loc="upper left")
 
 def eachplot12(sn,phase,omega,gamma,xmin,xmax,ymin,ymax,title):
-   plt.subplot(numr,3,sn)
-   plt.title( title + "_for_" +  phase)
-   plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
-   omega_a,gamma_a=sortomega(omega,gamma)
-   print omega_a.shape,gamma_a.shape
-   #plt.plot(omega_a,gamma_a,'r')
-   plt.yscale("log")
-   plt.ylim(ymin,ymax)
-   plt.xlim(xmin,xmax)
+   #with plt.style.context('classic'):
+       #rc('font', family='serif')
+       #rc('font', serif='Times New Roman')
+       plt.subplot(numr,3,sn)
+       plt.title( title + "_for_" +  phase)
+       plt.scatter(omega,gamma,c="None", s=0.1,label=phase +"_" + title)
+       omega_a,gamma_a=sortomega(omega,gamma)
+       print omega_a.shape,gamma_a.shape
+       #plt.plot(omega_a,gamma_a,'r')
+       plt.yscale("log")
+       plt.ylim(ymin,ymax)
+       plt.xlim(xmin,xmax)
 
 
 def sortomega(x,y):
@@ -385,15 +399,15 @@ def run():
 
 
 
-   plt.figure(figsize=(12,16))
-#   rc('text', usetex=True)
-   rc('font', family='serif')
-   rc('font', serif='Times New Roman')
+   plt.figure(figsize=(11,15.375))
+   #rc('text', usetex=True)
+   #rc('font', family='serif')
+   #rc('font', serif='Times New Roman')
    plt.rcParams['pdf.fonttype'] = 42
 
-   eachplot3(1,"alpha",dosc[:,0],dosc[:,1]/4)
-   eachplot3(2,"beta",doss[:,0],doss[:,1]/2)
-   eachplot3(3,"gamma",dosg[:,0],dosg[:,1]/2)
+   eachplot3(1,"alpha",dosc[:,0],dosc[:,1]/cv)
+   eachplot3(2,"beta",doss[:,0],doss[:,1]/sv)
+   eachplot3(3,"gamma",dosg[:,0],dosg[:,1]/gv*4)
    eachplot(4,"alpha",omegac,kaccumc,dkaccumc)
    eachplot(5,"beta",omegas,kaccums,dkaccums)
    eachplot(6,"gamma",omegag,kaccumg,dkaccumg)
@@ -443,6 +457,7 @@ def run():
    eachplot12(19,"alpha",omegacjc1,gammacjc1*apc1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(20,"beta",omegacjs1,gammacjs1*aps1,0,max_freq,0.0005,0.1,"wjdos*avepp")
    eachplot12(21,"gamma",omegacjg1,gammacjg1*apg1,0,max_freq,0.0005,0.1,"wjdos*avepp")
+   #plt.savefig("tst_plot.eps")
    plt.tight_layout()
    plt.figure(figsize=(12,16))
    plt.subplot(4,1,1)

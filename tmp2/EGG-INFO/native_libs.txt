@@ -1,0 +1,2 @@
+phonopy/_phonopy.so
+phonopy/_spglib.so

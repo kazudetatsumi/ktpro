@@ -1,0 +1,825 @@
+ running on   16 total cores
+ distrk:  each k-point on   16 cores,    1 groups
+ distr:  one band on    1 cores,   16 groups
+ using from now: INCAR     
+ vasp.5.4.1 05Feb16 (build Mar 26 2016 11:58:25) complex                        
+  
+ POSCAR found type information on POSCAR  Si N 
+ POSCAR found :  2 types and      56 ions
+ scaLAPACK will be used
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      For optimal performance we recommend to set                            |
+|        NCORE= 4 - approx SQRT( number of cores)                             |
+|      NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).     |
+|      This setting can  greatly improve the performance of VASP for DFT.     |
+|      The default, NPAR=number of cores might be grossly inefficient         |
+|      on modern multi-core architectures or massively parallel machines.     |
+|      Do your own testing !!!!                                               |
+|      Unfortunately you need to use the default for GW and RPA calculations. |
+|      (for HF NCORE is supported but not extensively tested yet)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|  ADVICE TO THIS USER RUNNING 'VASP/VAMP'   (HEAR YOUR MASTER'S VOICE ...):  |
+|                                                                             |
+|      You have a (more or less) 'large supercell' and for larger cells       |
+|      it might be more efficient to use real space projection operators      |
+|      So try LREAL= Auto  in the INCAR   file.                               |
+|      Mind: If you want to do a very accurate calculations keep the          |
+|      reciprocal projection scheme          (i.e. LREAL=.FALSE.)             |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ LDA part: xc-table for Pade appr. of Perdew
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ FFT: planning ...
+ WAVECAR not read
+ WARNING: random wavefunctions but no delay for mixing, default for NELMDL
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1     0.111844594490E+04    0.11184E+04   -0.12839E+05  1280   0.148E+03
+DAV:   2    -0.420433122748E+03   -0.15389E+04   -0.14843E+04  1664   0.303E+02
+DAV:   3    -0.500548299869E+03   -0.80115E+02   -0.79584E+02  1536   0.742E+01
+DAV:   4    -0.501792038080E+03   -0.12437E+01   -0.12387E+01  1568   0.977E+00
+DAV:   5    -0.501819428281E+03   -0.27390E-01   -0.27319E-01  1488   0.134E+00    0.407E+01
+DAV:   6    -0.450300171968E+03    0.51519E+02   -0.19978E+02  1456   0.300E+01    0.112E+01
+DAV:   7    -0.450012833168E+03    0.28734E+00   -0.88618E+00  1632   0.709E+00    0.709E+00
+DAV:   8    -0.449979719269E+03    0.33114E-01   -0.78126E-01  1472   0.241E+00    0.116E+00
+DAV:   9    -0.449946500492E+03    0.33219E-01   -0.25049E-01  1520   0.114E+00    0.253E-01
+DAV:  10    -0.449947834358E+03   -0.13339E-02   -0.69355E-03  1472   0.229E-01    0.131E-01
+DAV:  11    -0.449948352199E+03   -0.51784E-03   -0.21052E-03  1424   0.112E-01    0.487E-02
+DAV:  12    -0.449948338864E+03    0.13335E-04   -0.41072E-04  1520   0.482E-02    0.166E-02
+DAV:  13    -0.449948341338E+03   -0.24745E-05   -0.26648E-05  1504   0.139E-02    0.460E-03
+DAV:  14    -0.449948341933E+03   -0.59491E-06   -0.25326E-06  1472   0.375E-03    0.120E-03
+DAV:  15    -0.449948342016E+03   -0.82819E-07   -0.26804E-07  1552   0.138E-03    0.275E-04
+DAV:  16    -0.449948342063E+03   -0.47239E-07   -0.25256E-08  1120   0.367E-04    0.172E-04
+DAV:  17    -0.449948342110E+03   -0.46544E-07   -0.26684E-09   832   0.171E-04    0.102E-04
+DAV:  18    -0.449948342115E+03   -0.52314E-08   -0.10169E-10   832   0.593E-05
+   1 F= -.44994834E+03 E0= -.44994834E+03  d E =-.295112E-45
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      Your timestep is larger than 0.1 Angst.                                |
+|      For finite differences this really does not make sense. I will         |
+|      reset POTIM to 0.015. I recommend to use 0.01 to 0.02 for finite       |
+|      differences.                                                           |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ Found     3 degrees of freedom:
+ Adding 6 more for cell shape distortion
+ Finite differences POTIM= 0.01500 DOF=   9
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449980426637E+03   -0.32085E-01   -0.13190E+01  2192   0.102E+01    0.291E+00
+DAV:   2    -0.449824105620E+03    0.15632E+00   -0.53870E-01  2224   0.199E+00    0.139E+00
+DAV:   3    -0.449779078621E+03    0.45027E-01   -0.13358E-01  2320   0.890E-01    0.412E-01
+DAV:   4    -0.449775267081E+03    0.38115E-02   -0.36872E-02  2288   0.445E-01    0.220E-01
+DAV:   5    -0.449774151982E+03    0.11151E-02   -0.63617E-03  2224   0.186E-01    0.528E-02
+DAV:   6    -0.449774153724E+03   -0.17427E-05   -0.29862E-04  2240   0.500E-02    0.384E-02
+DAV:   7    -0.449774117242E+03    0.36483E-04   -0.16321E-04  2208   0.282E-02    0.621E-03
+DAV:   8    -0.449774117973E+03   -0.73100E-06   -0.17487E-05  2448   0.931E-03    0.723E-03
+DAV:   9    -0.449774116166E+03    0.18070E-05   -0.59461E-06  2192   0.527E-03    0.799E-04
+DAV:  10    -0.449774116262E+03   -0.96083E-07   -0.18885E-07  2400   0.113E-03    0.218E-04
+DAV:  11    -0.449774116253E+03    0.91568E-08   -0.19727E-08  1360   0.323E-04
+   2 F= -.44977412E+03 E0= -.44977412E+03  d E =-.632972E-46
+ Finite differences progress:
+  Degree of freedom:   1/  9
+  Displacement:        1/  2
+  Total:               1/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450568978393E+03   -0.79486E+00   -0.44917E+01  2192   0.189E+01    0.588E+00
+DAV:   2    -0.449952134612E+03    0.61684E+00   -0.19840E+00  2192   0.381E+00    0.281E+00
+DAV:   3    -0.449777040404E+03    0.17509E+00   -0.48181E-01  2288   0.172E+00    0.810E-01
+DAV:   4    -0.449762373762E+03    0.14667E-01   -0.13356E-01  2224   0.863E-01    0.405E-01
+DAV:   5    -0.449759001598E+03    0.33722E-02   -0.24355E-02  2240   0.361E-01    0.111E-01
+DAV:   6    -0.449759036859E+03   -0.35261E-04   -0.89690E-04  2256   0.894E-02    0.761E-02
+DAV:   7    -0.449758892276E+03    0.14458E-03   -0.72852E-04  2224   0.593E-02    0.106E-02
+DAV:   8    -0.449758902352E+03   -0.10076E-04   -0.45123E-05  2512   0.160E-02    0.149E-02
+DAV:   9    -0.449758897924E+03    0.44273E-05   -0.22251E-05  2208   0.101E-02    0.223E-03
+DAV:  10    -0.449758897810E+03    0.11450E-06   -0.90513E-07  2432   0.241E-03    0.232E-04
+DAV:  11    -0.449758897859E+03   -0.49105E-07   -0.38444E-08  2048   0.495E-04    0.352E-04
+DAV:  12    -0.449758897784E+03    0.74731E-07   -0.61857E-09  1232   0.219E-04    0.157E-04
+DAV:  13    -0.449758897778E+03    0.65920E-08   -0.29997E-09  1248   0.137E-04
+   3 F= -.44975890E+03 E0= -.44975890E+03  d E =-.204235E-52
+ Finite differences progress:
+  Degree of freedom:   1/  9
+  Displacement:        2/  2
+  Total:               2/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450306518613E+03   -0.54762E+00   -0.24879E+01  2192   0.140E+01    0.466E+00
+DAV:   2    -0.449858585849E+03    0.44793E+00   -0.14289E+00  2176   0.305E+00    0.180E+00
+DAV:   3    -0.449791464477E+03    0.67121E-01   -0.24910E-01  2320   0.115E+00    0.642E-01
+DAV:   4    -0.449780307394E+03    0.11157E-01   -0.11049E-01  2224   0.742E-01    0.484E-01
+DAV:   5    -0.449774143726E+03    0.61637E-02   -0.34822E-02  2224   0.412E-01    0.503E-02
+DAV:   6    -0.449774255474E+03   -0.11175E-03   -0.16063E-03  2400   0.986E-02    0.756E-02
+DAV:   7    -0.449774125375E+03    0.13010E-03   -0.40629E-04  2240   0.447E-02    0.201E-02
+DAV:   8    -0.449774116907E+03    0.84679E-05   -0.51812E-05  2400   0.158E-02    0.238E-03
+DAV:   9    -0.449774116493E+03    0.41396E-06   -0.92374E-07  2464   0.259E-03    0.567E-04
+DAV:  10    -0.449774116353E+03    0.14002E-06   -0.11361E-07  2224   0.807E-04    0.355E-04
+DAV:  11    -0.449774116299E+03    0.54393E-07   -0.73460E-09  1248   0.224E-04    0.147E-04
+DAV:  12    -0.449774116294E+03    0.45784E-08   -0.33995E-09  1248   0.137E-04
+   4 F= -.44977412E+03 E0= -.44977412E+03  d E =-.371626E-45
+ Finite differences progress:
+  Degree of freedom:   2/  9
+  Displacement:        1/  2
+  Total:               3/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450563042955E+03   -0.78893E+00   -0.47142E+01  2192   0.194E+01    0.588E+00
+DAV:   2    -0.449952135071E+03    0.61091E+00   -0.20432E+00  2192   0.386E+00    0.281E+00
+DAV:   3    -0.449777150639E+03    0.17498E+00   -0.47825E-01  2304   0.172E+00    0.812E-01
+DAV:   4    -0.449762224545E+03    0.14926E-01   -0.13088E-01  2240   0.856E-01    0.397E-01
+DAV:   5    -0.449758992928E+03    0.32316E-02   -0.23211E-02  2240   0.353E-01    0.109E-01
+DAV:   6    -0.449759028103E+03   -0.35174E-04   -0.87193E-04  2272   0.883E-02    0.737E-02
+DAV:   7    -0.449758892571E+03    0.13553E-03   -0.69942E-04  2224   0.582E-02    0.105E-02
+DAV:   8    -0.449758901898E+03   -0.93275E-05   -0.39925E-05  2512   0.152E-02    0.142E-02
+DAV:   9    -0.449758897926E+03    0.39724E-05   -0.20730E-05  2208   0.979E-03    0.202E-03
+DAV:  10    -0.449758897815E+03    0.11037E-06   -0.79808E-07  2416   0.228E-03    0.219E-04
+DAV:  11    -0.449758897859E+03   -0.43265E-07   -0.32508E-08  1712   0.469E-04    0.334E-04
+DAV:  12    -0.449758897785E+03    0.73382E-07   -0.45047E-09  1232   0.233E-04    0.174E-04
+DAV:  13    -0.449758897775E+03    0.97789E-08   -0.31661E-09  1248   0.133E-04
+   5 F= -.44975890E+03 E0= -.44975890E+03  d E =-.295741E-52
+ Finite differences progress:
+  Degree of freedom:   2/  9
+  Displacement:        2/  2
+  Total:               4/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450315058660E+03   -0.55616E+00   -0.22499E+01  2192   0.134E+01    0.469E+00
+DAV:   2    -0.449857478436E+03    0.45758E+00   -0.13880E+00  2192   0.298E+00    0.178E+00
+DAV:   3    -0.449791357044E+03    0.66121E-01   -0.23841E-01  2368   0.113E+00    0.643E-01
+DAV:   4    -0.449779594352E+03    0.11763E-01   -0.10238E-01  2208   0.720E-01    0.457E-01
+DAV:   5    -0.449774122830E+03    0.54715E-02   -0.32509E-02  2208   0.400E-01    0.519E-02
+DAV:   6    -0.449774234434E+03   -0.11160E-03   -0.13851E-03  2464   0.932E-02    0.726E-02
+DAV:   7    -0.449774119119E+03    0.11532E-03   -0.38737E-04  2240   0.436E-02    0.183E-02
+DAV:   8    -0.449774114851E+03    0.42684E-05   -0.44827E-05  2400   0.148E-02    0.220E-03
+DAV:   9    -0.449774115824E+03   -0.97330E-06   -0.79233E-07  2416   0.241E-03    0.599E-04
+DAV:  10    -0.449774116054E+03   -0.22969E-06   -0.11227E-07  2208   0.797E-04    0.329E-04
+DAV:  11    -0.449774116253E+03   -0.19906E-06   -0.74291E-09  1296   0.224E-04    0.129E-04
+DAV:  12    -0.449774116282E+03   -0.29091E-07   -0.23273E-09  1248   0.122E-04    0.906E-05
+DAV:  13    -0.449774116283E+03   -0.11187E-08   -0.96387E-11  1248   0.535E-05
+   6 F= -.44977412E+03 E0= -.44977412E+03  d E =-.443776E-45
+ Finite differences progress:
+  Degree of freedom:   3/  9
+  Displacement:        1/  2
+  Total:               5/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450577341677E+03   -0.80323E+00   -0.42816E+01  2192   0.184E+01    0.590E+00
+DAV:   2    -0.449950712399E+03    0.62663E+00   -0.19572E+00  2176   0.375E+00    0.280E+00
+DAV:   3    -0.449777228386E+03    0.17348E+00   -0.47113E-01  2336   0.170E+00    0.813E-01
+DAV:   4    -0.449762223877E+03    0.15005E-01   -0.13094E-01  2256   0.856E-01    0.397E-01
+DAV:   5    -0.449759013017E+03    0.32109E-02   -0.24446E-02  2240   0.360E-01    0.112E-01
+DAV:   6    -0.449759044858E+03   -0.31841E-04   -0.85342E-04  2256   0.871E-02    0.782E-02
+DAV:   7    -0.449758892068E+03    0.15279E-03   -0.77231E-04  2208   0.610E-02    0.106E-02
+DAV:   8    -0.449758902839E+03   -0.10770E-04   -0.46977E-05  2496   0.163E-02    0.154E-02
+DAV:   9    -0.449758897937E+03    0.49021E-05   -0.23622E-05  2224   0.104E-02    0.238E-03
+DAV:  10    -0.449758897819E+03    0.11735E-06   -0.99108E-07  2400   0.250E-03    0.226E-04
+DAV:  11    -0.449758897865E+03   -0.45460E-07   -0.36604E-08  1984   0.490E-04    0.345E-04
+DAV:  12    -0.449758897792E+03    0.73054E-07   -0.56472E-09  1248   0.227E-04    0.158E-04
+DAV:  13    -0.449758897783E+03    0.84474E-08   -0.31098E-09  1248   0.136E-04
+   7 F= -.44975890E+03 E0= -.44975890E+03  d E =-.306672E-18
+ Finite differences progress:
+  Degree of freedom:   3/  9
+  Displacement:        2/  2
+  Total:               6/ 18
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450117637587E+03   -0.35874E+00   -0.17776E+01  3712   0.120E+01    0.333E+00
+DAV:   2    -0.449909150465E+03    0.20849E+00   -0.66554E-01  3776   0.226E+00    0.169E+00
+DAV:   3    -0.449842915358E+03    0.66235E-01   -0.21674E-01  3968   0.119E+00    0.491E-01
+DAV:   4    -0.449837770561E+03    0.51448E-02   -0.44919E-02  3664   0.565E-01    0.210E-01
+DAV:   5    -0.449836915650E+03    0.85491E-03   -0.49465E-03  3744   0.201E-01    0.574E-02
+DAV:   6    -0.449836886910E+03    0.28741E-04   -0.37237E-04  3760   0.598E-02    0.328E-02
+DAV:   7    -0.449836890905E+03   -0.39951E-05   -0.14457E-04  3824   0.304E-02    0.222E-02
+DAV:   8    -0.449836879229E+03    0.11676E-04   -0.83114E-05  3728   0.273E-02    0.396E-03
+DAV:   9    -0.449836879428E+03   -0.19925E-06   -0.12464E-05  3648   0.108E-02    0.360E-03
+DAV:  10    -0.449836879484E+03   -0.56094E-07   -0.80759E-07  3792   0.239E-03    0.180E-03
+DAV:  11    -0.449836879306E+03    0.17803E-06   -0.42813E-07  3680   0.148E-03    0.446E-04
+DAV:  12    -0.449836879350E+03   -0.44311E-07   -0.22452E-08  2432   0.440E-04    0.201E-04
+DAV:  13    -0.449836879381E+03   -0.30863E-07   -0.14601E-08  2096   0.329E-04    0.183E-04
+DAV:  14    -0.449836879382E+03   -0.62573E-09   -0.23819E-09  2080   0.194E-04
+   8 F= -.44983688E+03 E0= -.44983688E+03  d E =-.267432E-27
+ Finite differences progress:
+  Degree of freedom:   4/  9
+  Displacement:        1/  2
+  Total:               7/ 18
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450125402797E+03   -0.28852E+00   -0.12567E+01  3696   0.943E+00    0.313E+00
+DAV:   2    -0.449926011858E+03    0.19939E+00   -0.47389E-01  3744   0.205E+00    0.184E+00
+DAV:   3    -0.449841379235E+03    0.84633E-01   -0.31287E-01  3904   0.156E+00    0.458E-01
+DAV:   4    -0.449837443692E+03    0.39355E-02   -0.53652E-02  3744   0.715E-01    0.258E-01
+DAV:   5    -0.449836979992E+03    0.46370E-03   -0.15887E-02  3984   0.326E-01    0.824E-02
+DAV:   6    -0.449836878597E+03    0.10140E-03   -0.13084E-03  3808   0.113E-01    0.433E-02
+DAV:   7    -0.449836880960E+03   -0.23625E-05   -0.43929E-04  3776   0.556E-02    0.195E-02
+DAV:   8    -0.449836878903E+03    0.20570E-05   -0.44347E-05  3840   0.215E-02    0.844E-03
+DAV:   9    -0.449836879267E+03   -0.36467E-06   -0.14565E-05  3936   0.102E-02    0.296E-03
+DAV:  10    -0.449836879134E+03    0.13299E-06   -0.13586E-06  3680   0.323E-03    0.195E-03
+DAV:  11    -0.449836879115E+03    0.19741E-07   -0.22140E-07  3808   0.124E-03    0.111E-03
+DAV:  12    -0.449836879085E+03    0.29993E-07   -0.15648E-07  3744   0.121E-03    0.194E-04
+DAV:  13    -0.449836879087E+03   -0.28595E-08   -0.27631E-08  2448   0.485E-04
+   9 F= -.44983688E+03 E0= -.44983688E+03  d E =-.433256E-30
+ Finite differences progress:
+  Degree of freedom:   4/  9
+  Displacement:        2/  2
+  Total:               8/ 18
+
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449969999628E+03   -0.13312E+00   -0.10986E+01  3680   0.934E+00    0.206E+00
+DAV:   2    -0.449894308353E+03    0.75691E-01   -0.32252E-01  3776   0.162E+00    0.124E+00
+DAV:   3    -0.449839229128E+03    0.55079E-01   -0.13451E-01  3952   0.107E+00    0.288E-01
+DAV:   4    -0.449838073806E+03    0.11553E-02   -0.25031E-02  3760   0.471E-01    0.194E-01
+DAV:   5    -0.449837103238E+03    0.97057E-03   -0.92874E-03  3872   0.261E-01    0.727E-02
+DAV:   6    -0.449836956985E+03    0.14625E-03   -0.12007E-03  4000   0.112E-01    0.325E-02
+DAV:   7    -0.449836889986E+03    0.66999E-04   -0.36058E-04  3744   0.506E-02    0.146E-02
+DAV:   8    -0.449836878654E+03    0.11332E-04   -0.57977E-05  3936   0.227E-02    0.629E-03
+DAV:   9    -0.449836878811E+03   -0.15698E-06   -0.32052E-05  3744   0.154E-02    0.614E-03
+DAV:  10    -0.449836878589E+03    0.22194E-06   -0.54271E-06  3776   0.722E-03    0.243E-03
+DAV:  11    -0.449836879197E+03   -0.60786E-06   -0.28650E-06  3792   0.438E-03    0.164E-03
+DAV:  12    -0.449836879330E+03   -0.13321E-06   -0.24371E-07  3936   0.158E-03    0.777E-04
+DAV:  13    -0.449836879358E+03   -0.28293E-07   -0.82012E-08  3552   0.769E-04    0.239E-04
+DAV:  14    -0.449836879365E+03   -0.69631E-08   -0.62067E-09  2080   0.232E-04
+  10 F= -.44983688E+03 E0= -.44983688E+03  d E =-.105154E-27
+ Finite differences progress:
+  Degree of freedom:   5/  9
+  Displacement:        1/  2
+  Total:               9/ 18
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450116483919E+03   -0.27960E+00   -0.15735E+01  3648   0.114E+01    0.313E+00
+DAV:   2    -0.449926531469E+03    0.18995E+00   -0.54437E-01  3792   0.220E+00    0.184E+00
+DAV:   3    -0.449841555851E+03    0.84976E-01   -0.31328E-01  3904   0.158E+00    0.470E-01
+DAV:   4    -0.449837794780E+03    0.37611E-02   -0.54869E-02  3712   0.718E-01    0.286E-01
+DAV:   5    -0.449836972452E+03    0.82233E-03   -0.19089E-02  3904   0.362E-01    0.878E-02
+DAV:   6    -0.449836889399E+03    0.83052E-04   -0.18034E-03  3776   0.131E-01    0.512E-02
+DAV:   7    -0.449836876852E+03    0.12548E-04   -0.52207E-04  3808   0.601E-02    0.175E-02
+DAV:   8    -0.449836879769E+03   -0.29169E-05   -0.49008E-05  3680   0.199E-02    0.109E-02
+DAV:   9    -0.449836879153E+03    0.61587E-06   -0.14301E-05  3808   0.106E-02    0.278E-03
+DAV:  10    -0.449836879120E+03    0.32789E-07   -0.27732E-06  3648   0.455E-03    0.190E-03
+DAV:  11    -0.449836879175E+03   -0.54773E-07   -0.40603E-07  4224   0.174E-03    0.190E-03
+DAV:  12    -0.449836879082E+03    0.93167E-07   -0.35366E-07  3920   0.186E-03    0.325E-04
+DAV:  13    -0.449836879089E+03   -0.77507E-08   -0.90982E-08  3584   0.785E-04
+  11 F= -.44983688E+03 E0= -.44983688E+03  d E =-.350426E-27
+ Finite differences progress:
+  Degree of freedom:   5/  9
+  Displacement:        2/  2
+  Total:              10/ 18
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449968898645E+03   -0.13202E+00   -0.11133E+01  3696   0.912E+00    0.205E+00
+DAV:   2    -0.449894257301E+03    0.74641E-01   -0.33017E-01  3792   0.162E+00    0.125E+00
+DAV:   3    -0.449839170282E+03    0.55087E-01   -0.13406E-01  3936   0.107E+00    0.287E-01
+DAV:   4    -0.449838016709E+03    0.11536E-02   -0.24928E-02  3760   0.470E-01    0.193E-01
+DAV:   5    -0.449837065776E+03    0.95093E-03   -0.93042E-03  3872   0.261E-01    0.728E-02
+DAV:   6    -0.449836928155E+03    0.13762E-03   -0.12039E-03  4000   0.112E-01    0.326E-02
+DAV:   7    -0.449836875029E+03    0.53126E-04   -0.36317E-04  3744   0.508E-02    0.148E-02
+DAV:   8    -0.449836869961E+03    0.50681E-05   -0.57948E-05  3936   0.228E-02    0.636E-03
+DAV:   9    -0.449836875105E+03   -0.51440E-05   -0.32719E-05  3760   0.156E-02    0.618E-03
+DAV:  10    -0.449836876854E+03   -0.17492E-05   -0.56331E-06  3776   0.735E-03    0.240E-03
+DAV:  11    -0.449836878780E+03   -0.19257E-05   -0.28373E-06  3792   0.435E-03    0.163E-03
+DAV:  12    -0.449836879229E+03   -0.44867E-06   -0.23656E-07  3920   0.155E-03    0.785E-04
+DAV:  13    -0.449836879315E+03   -0.86664E-07   -0.82183E-08  3568   0.773E-04    0.240E-04
+DAV:  14    -0.449836879330E+03   -0.14859E-07   -0.66318E-09  2080   0.239E-04    0.120E-04
+DAV:  15    -0.449836879384E+03   -0.53744E-07   -0.62085E-09  2080   0.217E-04    0.198E-04
+DAV:  16    -0.449836879386E+03   -0.21300E-08   -0.10074E-09  2032   0.131E-04
+  12 F= -.44983688E+03 E0= -.44983688E+03  d E =-.116220E-26
+ Finite differences progress:
+  Degree of freedom:   6/  9
+  Displacement:        1/  2
+  Total:              11/ 18
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+
+
+ VERY BAD NEWS! internal error in subroutine IBZKPT:
+ Reciprocal lattice and k-lattice belong to different class of lattices. Often results are still useful...      96
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450116421611E+03   -0.27954E+00   -0.15745E+01  3664   0.114E+01    0.313E+00
+DAV:   2    -0.449926531268E+03    0.18989E+00   -0.54512E-01  3776   0.220E+00    0.184E+00
+DAV:   3    -0.449841553387E+03    0.84978E-01   -0.31315E-01  3888   0.158E+00    0.470E-01
+DAV:   4    -0.449837802118E+03    0.37513E-02   -0.54832E-02  3696   0.717E-01    0.287E-01
+DAV:   5    -0.449836971863E+03    0.83026E-03   -0.19151E-02  3920   0.363E-01    0.879E-02
+DAV:   6    -0.449836889288E+03    0.82575E-04   -0.18184E-03  3776   0.132E-01    0.514E-02
+DAV:   7    -0.449836877017E+03    0.12271E-04   -0.53189E-04  3792   0.606E-02    0.177E-02
+DAV:   8    -0.449836879690E+03   -0.26737E-05   -0.49661E-05  3664   0.202E-02    0.108E-02
+DAV:   9    -0.449836879156E+03    0.53414E-06   -0.14569E-05  3792   0.107E-02    0.277E-03
+DAV:  10    -0.449836879118E+03    0.37695E-07   -0.27260E-06  3616   0.451E-03    0.188E-03
+DAV:  11    -0.449836879172E+03   -0.53134E-07   -0.39624E-07  4192   0.172E-03    0.187E-03
+DAV:  12    -0.449836879082E+03    0.89585E-07   -0.34081E-07  3904   0.183E-03    0.316E-04
+DAV:  13    -0.449836879090E+03   -0.76543E-08   -0.88592E-08  3584   0.775E-04
+  13 F= -.44983688E+03 E0= -.44983688E+03  d E =-.842618E-27
+ Finite differences progress:
+  Degree of freedom:   6/  9
+  Displacement:        2/  2
+  Total:              12/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.450013310353E+03   -0.17643E+00   -0.48763E+00  3680   0.648E+00    0.146E+00
+DAV:   2    -0.449973816999E+03    0.39493E-01   -0.15643E-01  3760   0.115E+00    0.881E-01
+DAV:   3    -0.449946482460E+03    0.27335E-01   -0.65762E-02  3824   0.748E-01    0.197E-01
+DAV:   4    -0.449945927890E+03    0.55457E-03   -0.12654E-02  3744   0.338E-01    0.125E-01
+DAV:   5    -0.449945539478E+03    0.38841E-03   -0.41241E-03  3760   0.172E-01    0.522E-02
+DAV:   6    -0.449945470160E+03    0.69318E-04   -0.49106E-04  4000   0.723E-02    0.253E-02
+DAV:   7    -0.449945434800E+03    0.35359E-04   -0.22253E-04  3712   0.405E-02    0.130E-02
+DAV:   8    -0.449945430042E+03    0.47583E-05   -0.35857E-05  3936   0.185E-02    0.599E-03
+DAV:   9    -0.449945431278E+03   -0.12362E-05   -0.23129E-05  3712   0.130E-02    0.491E-03
+DAV:  10    -0.449945431467E+03   -0.18864E-06   -0.31237E-06  3776   0.553E-03    0.261E-03
+DAV:  11    -0.449945432065E+03   -0.59772E-06   -0.16025E-06  3760   0.326E-03    0.555E-04
+DAV:  12    -0.449945432267E+03   -0.20249E-06   -0.14181E-07  3728   0.104E-03    0.629E-04
+DAV:  13    -0.449945432405E+03   -0.13801E-06   -0.13483E-08  2192   0.349E-04    0.495E-04
+DAV:  14    -0.449945432442E+03   -0.36511E-07   -0.32876E-08  2800   0.511E-04    0.110E-04
+DAV:  15    -0.449945432448E+03   -0.60445E-08   -0.59022E-09  2080   0.241E-04
+  14 F= -.44994543E+03 E0= -.44994543E+03  d E =-.917523E-28
+ Finite differences progress:
+  Degree of freedom:   7/  9
+  Displacement:        1/  2
+  Total:              13/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449944948685E+03    0.48376E-03   -0.18003E-01  3248   0.110E+00    0.130E-01
+DAV:   2    -0.449945589864E+03   -0.64118E-03   -0.11742E-02  3808   0.310E-01    0.106E-01
+DAV:   3    -0.449945475539E+03    0.11432E-03   -0.69886E-04  3808   0.813E-02    0.633E-02
+DAV:   4    -0.449945439615E+03    0.35924E-04   -0.40935E-04  3760   0.537E-02    0.214E-02
+DAV:   5    -0.449945431750E+03    0.78651E-05   -0.44633E-05  4464   0.246E-02    0.116E-02
+DAV:   6    -0.449945432624E+03   -0.87417E-06   -0.47378E-05  3680   0.184E-02    0.786E-03
+DAV:   7    -0.449945431932E+03    0.69191E-06   -0.73888E-06  3680   0.852E-03    0.238E-03
+DAV:   8    -0.449945432011E+03   -0.79472E-07   -0.14630E-06  3760   0.345E-03    0.796E-04
+DAV:   9    -0.449945432020E+03   -0.83892E-08   -0.79565E-08  3632   0.789E-04
+  15 F= -.44994543E+03 E0= -.44994543E+03  d E =-.420796E-28
+ Finite differences progress:
+  Degree of freedom:   7/  9
+  Displacement:        2/  2
+  Total:              14/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449944527695E+03    0.90432E-03   -0.12577E-01  2576   0.933E-01    0.991E-02
+DAV:   2    -0.449945202548E+03   -0.67485E-03   -0.77763E-03  3056   0.249E-01    0.805E-02
+DAV:   3    -0.449945141542E+03    0.61005E-04   -0.29965E-04  3056   0.557E-02    0.437E-02
+DAV:   4    -0.449945132566E+03    0.89766E-05   -0.17574E-04  3008   0.385E-02    0.156E-02
+DAV:   5    -0.449945128100E+03    0.44661E-05   -0.31003E-05  3312   0.190E-02    0.793E-03
+DAV:   6    -0.449945127328E+03    0.77219E-06   -0.15581E-05  2960   0.109E-02    0.433E-03
+DAV:   7    -0.449945126705E+03    0.62277E-06   -0.28035E-06  2960   0.566E-03    0.186E-03
+DAV:   8    -0.449945126312E+03    0.39241E-06   -0.11268E-06  3232   0.391E-03    0.128E-03
+DAV:   9    -0.449945126261E+03    0.50972E-07   -0.52033E-07  3072   0.207E-03    0.639E-04
+DAV:  10    -0.449945126215E+03    0.46817E-07   -0.12848E-07  3056   0.120E-03    0.308E-04
+DAV:  11    -0.449945126193E+03    0.21140E-07   -0.73030E-08  2960   0.992E-04    0.258E-04
+DAV:  12    -0.449945126196E+03   -0.29395E-08   -0.31947E-08  2288   0.501E-04
+  16 F= -.44994513E+03 E0= -.44994513E+03  d E =-.196082E-27
+ Finite differences progress:
+  Degree of freedom:   8/  9
+  Displacement:        1/  2
+  Total:              15/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449944616527E+03    0.50967E-03   -0.17993E-01  2560   0.111E+00    0.166E-01
+DAV:   2    -0.449945295128E+03   -0.67860E-03   -0.11774E-02  3056   0.317E-01    0.133E-01
+DAV:   3    -0.449945116365E+03    0.17876E-03   -0.11348E-03  3040   0.109E-01    0.516E-02
+DAV:   4    -0.449945125952E+03   -0.95866E-05   -0.23221E-04  3040   0.467E-02    0.242E-02
+DAV:   5    -0.449945125193E+03    0.75916E-06   -0.83322E-05  3248   0.293E-02    0.814E-03
+DAV:   6    -0.449945126273E+03   -0.10799E-05   -0.25688E-05  2944   0.142E-02    0.654E-03
+DAV:   7    -0.449945126226E+03    0.46795E-07   -0.39209E-06  2960   0.564E-03    0.259E-03
+DAV:   8    -0.449945126312E+03   -0.85949E-07   -0.69090E-07  3072   0.247E-03    0.207E-03
+DAV:   9    -0.449945126260E+03    0.51379E-07   -0.27261E-07  2976   0.142E-03    0.860E-04
+DAV:  10    -0.449945126254E+03    0.66775E-08   -0.77684E-08  2864   0.781E-04
+  17 F= -.44994513E+03 E0= -.44994513E+03  d E =-.122906E-27
+ Finite differences progress:
+  Degree of freedom:   8/  9
+  Displacement:        2/  2
+  Total:              16/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449945056554E+03    0.69706E-04   -0.98472E-01  3200   0.263E+00    0.152E-01
+DAV:   2    -0.449945870907E+03   -0.81435E-03   -0.15765E-02  3792   0.321E-01    0.101E-01
+DAV:   3    -0.449945597860E+03    0.27305E-03   -0.11189E-03  3808   0.109E-01    0.311E-02
+DAV:   4    -0.449945617745E+03   -0.19885E-04   -0.32032E-04  3744   0.486E-02    0.199E-02
+DAV:   5    -0.449945619335E+03   -0.15905E-05   -0.39685E-05  3808   0.177E-02    0.801E-03
+DAV:   6    -0.449945618323E+03    0.10120E-05   -0.60745E-06  3680   0.734E-03    0.497E-03
+DAV:   7    -0.449945618396E+03   -0.72770E-07   -0.21332E-06  3712   0.409E-03    0.158E-03
+DAV:   8    -0.449945618349E+03    0.47108E-07   -0.35167E-07  3984   0.207E-03    0.563E-04
+DAV:   9    -0.449945618357E+03   -0.80581E-08   -0.12997E-07  3776   0.981E-04    0.376E-04
+DAV:  10    -0.449945618356E+03    0.11678E-08   -0.12246E-08  2112   0.412E-04
+  18 F= -.44994562E+03 E0= -.44994562E+03  d E =-.811390E-28
+ Finite differences progress:
+  Degree of freedom:   9/  9
+  Displacement:        1/  2
+  Total:              17/ 18
+ bond charge predicted
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1    -0.449947812968E+03   -0.21946E-02   -0.25344E+00  3200   0.410E+00    0.274E-01
+DAV:   2    -0.449946576083E+03    0.12369E-02   -0.26424E-02  3744   0.432E-01    0.157E-01
+DAV:   3    -0.449945619410E+03    0.95667E-03   -0.52364E-03  3808   0.227E-01    0.389E-02
+DAV:   4    -0.449945683602E+03   -0.64193E-04   -0.12400E-03  3680   0.101E-01    0.348E-02
+DAV:   5    -0.449945685506E+03   -0.19040E-05   -0.18278E-04  3728   0.348E-02    0.146E-02
+DAV:   6    -0.449945679604E+03    0.59020E-05   -0.25322E-05  3664   0.138E-02    0.860E-03
+DAV:   7    -0.449945678903E+03    0.70135E-06   -0.96927E-06  3680   0.956E-03    0.204E-03
+DAV:   8    -0.449945678913E+03   -0.97607E-08   -0.16371E-06  3696   0.438E-03    0.106E-03
+DAV:   9    -0.449945678939E+03   -0.26001E-07   -0.43883E-07  3888   0.177E-03    0.793E-04
+DAV:  10    -0.449945678927E+03    0.11503E-07   -0.42831E-08  3568   0.715E-04    0.325E-04
+DAV:  11    -0.449945678926E+03    0.14152E-08   -0.11471E-08  2096   0.303E-04
+  19 F= -.44994568E+03 E0= -.44994568E+03  d E =-.829591E-30
+ Finite differences progress:
+  Degree of freedom:   9/  9
+  Displacement:        2/  2
+  Total:              18/ 18

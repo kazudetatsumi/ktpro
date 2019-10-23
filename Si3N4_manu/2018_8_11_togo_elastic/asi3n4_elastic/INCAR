@@ -1,0 +1,19 @@
+# Note that VASP uses the FIRST occurence of a keyword
+SYSTEM = POSCAR (VASP)
+  PREC = Accurate
+ IBRION = 6
+  ISIF  = 3
+  ENCUT = 500
+  EDIFF = 1.0e-08
+ ISMEAR = 0; SIGMA = 0.01
+  IALGO = 38
+  LREAL = .FALSE.
+ADDGRID = .TRUE.
+  LWAVE = .FALSE.
+ LCHARG = .FALSE.
+# LEPSILON = .TRUE.
+
+
+
+
+
