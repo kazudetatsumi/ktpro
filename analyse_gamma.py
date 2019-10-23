@@ -10,8 +10,10 @@ gdir = homedir + "/gamma-si3n4-unit/phono3py_111_fc2_222_sym_monk_k-shift/"
 Temp = 300
 max_freq = 5
 fs = 9
-c = cdir + "noiso/kappa-m141416.noiso.hdf5"
-s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+#c = cdir + "noiso/kappa-m141416.noiso.hdf5"
+c = cdir + "noiso/kappa-m101014.noiso.hdf5"
+#s = sdir + "noiso/kappa-m141432.noiso.hdf5"
+s = sdir + "noiso/kappa-m101026.noiso.hdf5"
 g = gdir + "noiso/kappa-m121212.hdf5"
 cv = cdir + "qpoints.hdf5"
 sv = sdir + "qpoints.hdf5"
@@ -129,15 +131,22 @@ def caserun(casefile,vcasefile,n,phase):
     longiamp=trans(qpointq,eigenvecq)
     omega1d,gamma1d,sqamp1d,longiamp1d=select_mode(omegak,gammak,sqamp,longiamp)
     plt.subplot(2,2,n)
-    plt.scatter(omega1d,gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase)
+    plt.scatter(omega1d,gamma1d,c=longiamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.tick_params(which='both',tickdir='in')
+    #plt.rcParams['ytick.right'] = True
+    #plt.rcParams['xtick.top'] = True
     plt.yscale("log")
     plt.ylim(0.0005,0.0050)
     plt.xlabel('omega / THz')
     plt.ylabel('gamma')
-    plt.legend()
+    #plt.legend()
     plt.colorbar(label='sum of squares of eigenvector component along q')
     plt.subplot(2,2,n+2)
-    plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase)
+    #plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.scatter(omega1d,gamma1d,c=sqamp1d,linewidth=0.01,s=5, label=phase, cmap='jet')
+    plt.tick_params(which='both',tickdir='in')
+    #plt.rcParams['ytick.right'] = True
+    #plt.rcParams['xtick.top'] = True
     if phase == "beta":
         x = 0.1*np.arange(0,50)
         y = 0.001*np.exp(0.16*(x-0.5)) 
@@ -156,12 +165,13 @@ def caserun(casefile,vcasefile,n,phase):
     plt.ylim(0.0005,0.0050)
     plt.xlabel('omega / THz')
     plt.ylabel('gamma')
-    plt.legend()
+    #plt.legend()
     plt.colorbar(label='sum of squares of eigenvector x_y_component')
 
 
 def run():
-    plt.figure(figsize=(12,12))
+    plt.rcParams['font.family'] = 'Times New Roman'
+    plt.figure(figsize=(9,7.30))
     caserun(c,cv,1,"alpha")
     caserun(s,sv,2,"beta")
     #caserun(g,gv,3,"gamma")
