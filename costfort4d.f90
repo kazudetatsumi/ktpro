@@ -50,15 +50,15 @@ contains
     kaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
 
-    !call help1d(D, 0, 1, condition, Al, usecond, Cn, kaves, deltas)
-    !do i=1,4
-    !  call help1d(D, i, maxw(i), condition, Al, usecond, Cn, kaves, deltas)
-    !enddo
-    !do i=1,3
-    !do j=i+1,4
-    !  call help2d(D, [i, j], maxw, condition, Al, usecond, Cn, kaves, deltas)
-    !enddo
-    !enddo
+    call help1d(D, 0, 1, condition, Al, usecond, Cn, kaves, deltas)
+    do i=1,4
+      call help1d(D, i, maxw(i), condition, Al, usecond, Cn, kaves, deltas)
+    enddo
+    do i=1,3
+    do j=i+1,4
+      call help2d(D, [i, j], maxw, condition, Al, usecond, Cn, kaves, deltas)
+    enddo
+    enddo
     do i=1,2
     do j=i+1,3
     do h=j+1,4
