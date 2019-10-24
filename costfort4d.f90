@@ -10,6 +10,9 @@ module costfort4d
     type(c_ptr) :: kavearr
     type(c_ptr) :: darr
   end type result
+  real(c_double), pointer :: cost(:,:,:,:)                    
+  real(c_double), pointer :: histaves(:,:,:,:)                    
+  real(c_double), pointer :: deltas(:,:,:,:)                    
 
 contains
 
@@ -31,14 +34,10 @@ contains
     integer :: cum_cond(datasize0, datasize1, datasize2, datasize3)
     double precision, allocatable :: hist_array(:,:,:,:)                    
     integer, allocatable :: hist_cond(:,:,:,:)
-    real(c_double), pointer :: cost(:,:,:,:)                    
-    real(c_double), pointer :: histaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
     integer nw(4),maxw(4)
     integer histsize(4)
     integer ax_id1, ax_id2, ax_id3, width_id1, width_id2, width_id3, width_id4
     integer :: datasize(4)
-    !double precision, allocatable :: knonzero(:)
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
     cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1, datasize), 2, datasize), 3, datasize), 4, datasize)
     if (usecond) cum_cond = & 
@@ -51,19 +50,19 @@ contains
     histaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
 
-    call help1d(data_array, 0, 1, condition, datasize, usecond, cost, histaves, deltas)
+    call help1d(data_array, 0, 1, condition, datasize, usecond)
     do ax_id1 = 1, 4
-      call help1d(data_array, ax_id1, maxw(ax_id1), condition, datasize, usecond, cost, histaves, deltas)
+      call help1d(data_array, ax_id1, maxw(ax_id1), condition, datasize, usecond)
     enddo
     do ax_id1 = 1, 3
     do ax_id2 = ax_id1 + 1, 4
-      call help2d(data_array, [ax_id1, ax_id2], maxw, condition, datasize, usecond, cost, histaves, deltas)
+      call help2d(data_array, [ax_id1, ax_id2], maxw, condition, datasize, usecond)
     enddo
     enddo
     do ax_id1 = 1, 2
     do ax_id2 = ax_id1 + 1, 3
     do ax_id3 = ax_id2 + 1, 4
-      call help3d(data_array, [ax_id1, ax_id2, ax_id3], maxw,  condition, datasize, usecond, cost, histaves, deltas)
+      call help3d(data_array, [ax_id1, ax_id2, ax_id3], maxw,  condition, datasize, usecond)
     enddo
     enddo
     enddo
@@ -85,9 +84,9 @@ contains
           hist_array = hist4d(cumdata, histsize, nw)
           if (usecond) then 
               hist_cond = hist4di(cum_cond, histsize, nw)
-              call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), cost, histaves, deltas, nw)
+              call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
           else
-            call stat(hist_array, cost, histaves, deltas, nw) 
+            call stat(hist_array, nw) 
           endif
        end if
     end do
@@ -106,7 +105,7 @@ contains
     cost4d%darr = C_loc(deltas)
   end function cost4d
 
-  subroutine help1d(data_array, ax, mxw, condition, datasize, usecond, cost, histaves, deltas)
+  subroutine help1d(data_array, ax, mxw, condition, datasize, usecond)
     integer, intent(in) :: ax, mxw, datasize(4)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
@@ -117,16 +116,13 @@ contains
     double precision, allocatable :: hist_array(:,:,:,:)
     integer, allocatable :: histcond(:,:,:,:)
     integer width_id, histsize, nw(4),  cumdata_size(4), cumdata_order(4)
-    real(c_double), pointer :: cost(:,:,:,:)                    
-    real(c_double), pointer :: histaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
     nw = 1
     if (ax == 0) then
         hist_array = data_array
         if (usecond) then
-          call stat1(pack(hist_array, condition == maxval(condition)), cost, histaves, deltas, nw)
+          call stat1(pack(hist_array, condition == maxval(condition)), nw)
         else
-          call stat(hist_array, cost, histaves, deltas, nw)
+          call stat(hist_array, nw)
         end if
     else
       Ishistsizeallocated = .true.
@@ -158,15 +154,15 @@ contains
         hist_array = hist1d(cumdata1d, histsize, nw(ax))
         if (usecond) then
           histcond = hist1di(cum_cond, histsize, nw(ax))
-          call stat1(pack(hist_array, histcond == maxval(histcond)),  cost, histaves, deltas, nw)
+          call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
         else
-          call stat(hist_array, cost, histaves, deltas, nw)
+          call stat(hist_array, nw)
         end if
       enddo
     end if
   end subroutine help1d
 
-  subroutine help2d(data_array, ax, maxw,  condition, datasize, usecond, cost, histaves, deltas)
+  subroutine help2d(data_array, ax, maxw,  condition, datasize, usecond)
     integer, intent(in) :: ax(:), maxw(:), datasize(4)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
@@ -178,9 +174,6 @@ contains
     integer, allocatable :: histcond(:,:,:,:)
     integer nw(4), histsize(4), cumdata_size_id, width_id1, width_id2
     integer, allocatable ::  cumdata_size(:,:), cumdata_order(:,:)
-    real(c_double), pointer :: cost(:,:,:,:)                    
-    real(c_double), pointer :: histaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
     nw = 1
     cumdata2d = cumsum4d(cumsum4d(data_array, ax(1), datasize), ax(2), datasize)
     if (usecond) cum_cond = cumsum4di(cumsum4di(condition, ax(1), datasize), ax(2), datasize)
@@ -231,15 +224,15 @@ contains
       hist_array = hist2d(cumdata2d, [histsize(ax(1)), histsize(ax(2))], [nw(ax(1)), nw(ax(2))])
       if (usecond) then
         histcond = hist2di(cum_cond, [histsize(ax(1)), histsize(ax(2))], [nw(ax(1)), nw(ax(2))])
-        call stat1(pack(hist_array, histcond == maxval(histcond)), cost, histaves, deltas, nw)
+        call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
       else
-        call stat(hist_array, cost, histaves, deltas, nw)
+        call stat(hist_array, nw)
       endif
     enddo
     enddo
   end subroutine help2d
 
-  subroutine help3d(data_array, ax, maxw,  condition, datasize, usecond, cost, histaves, deltas)
+  subroutine help3d(data_array, ax, maxw,  condition, datasize, usecond)
     integer, intent(in) :: ax(:), maxw(:), datasize(4)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
@@ -251,9 +244,6 @@ contains
     integer, allocatable :: histcond(:,:,:,:)
     integer nw(4), histsize(4), cumdata_size_id, width_id1, width_id2, width_id3
     integer, allocatable ::  cumdata_size(:,:),cumdata_order(:,:)
-    real(c_double), pointer :: cost(:,:,:,:)                    
-    real(c_double), pointer :: histaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
     nw = 1
     cumdata3d = cumsum4d(cumsum4d(cumsum4d(data_array, ax(1), datasize), ax(2), datasize), ax(3), datasize)
     if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1), datasize), ax(2), datasize), ax(3), datasize)
@@ -297,21 +287,18 @@ contains
       hist_array = hist3d(cumdata3d, [histsize(ax(1)), histsize(ax(2)), histsize(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
       if (usecond) then
         histcond = hist3di(cum_cond, [histsize(ax(1)), histsize(ax(2)), histsize(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
-        call stat1(pack(hist_array, histcond == maxval(histcond)), cost, histaves, deltas, nw)
+        call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
       else
-        call stat(hist_array, cost, histaves, deltas, nw) 
+        call stat(hist_array, nw) 
       endif
     enddo
     enddo
     enddo
   end subroutine help3d
 
-  subroutine stat(k, cost, histaves, deltas, nw)
+  subroutine stat(k, nw)
     double precision, intent(in) :: k(:,:,:,:)
     integer, intent(in) :: nw(4)
-    real(c_double), pointer :: cost(:,:,:,:)                    
-    real(c_double), pointer :: histaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
     double precision kave, v
     kave = sum(k) / real(size(k)); v = sum((k - kave)**2) / real(size(k))
     print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / real(product(nw)**2)
@@ -319,12 +306,9 @@ contains
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
     cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / real(product(nw)**2)
   end subroutine stat
-  subroutine stat1(knonzero, cost, histaves, deltas, nw)
+  subroutine stat1(knonzero, nw)
     double precision, intent(in) :: knonzero(:)
     integer, intent(in) :: nw(4)
-    real(c_double), pointer :: cost(:,:,:,:)                    
-    real(c_double), pointer :: histaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
     double precision kave, v
     kave = sum(knonzero) / real(size(knonzero)); v = sum((knonzero - kave)**2) / real(size(knonzero))
     print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / real(product(nw)**2)
