@@ -68,16 +68,16 @@ contains
     enddo
 
 
-    do width_id1 = 1, maxw(1)
+    do width_id1 = 14, maxw(1)
     nw(1) = width_id1
     histsize(1) = (datasize(1) - mod(datasize(1), nw(1))) / nw(1)
-    do width_id2 = 1, maxw(2)
+    do width_id2 = 14, maxw(2)
     nw(2) = width_id2
     histsize(2) = (datasize(2) - mod(datasize(2), nw(2))) / nw(2)
-    do width_id3 = 1, maxw(3)
+    do width_id3 = 14, maxw(3)
     nw(3) = width_id3
     histsize(3) = (datasize(3) - mod(datasize(3), nw(3))) / nw(3)
-    do width_id4 = 1, maxw(4)
+    do width_id4 = 14, maxw(4)
     nw(4) = width_id4
     histsize(4) = (datasize(4) - mod(datasize(4), nw(4))) / nw(4)
        if (width_id1 /= 1 .and. width_id2 /= 1 .and. width_id3 /=1 .and. width_id4 /=1) then
@@ -300,21 +300,21 @@ contains
     double precision, intent(in) :: k(:,:,:,:)
     integer, intent(in) :: nw(4)
     double precision kave, v
-    kave = sum(k) / real(size(k)); v = sum((k - kave)**2) / real(size(k))
-    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / real(product(nw)**2)
+    kave = sum(k) / dble(size(k)); v = sum((k - kave)**2) / dble(size(k))
+    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
     histaves(nw(1), nw(2), nw(3), nw(4)) = kave
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
-    cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / real(product(nw)**2)
+    cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (dble(product(nw))**2)
   end subroutine stat
   subroutine stat1(knonzero, nw)
     double precision, intent(in) :: knonzero(:)
     integer, intent(in) :: nw(4)
     double precision kave, v
     kave = sum(knonzero) / real(size(knonzero)); v = sum((knonzero - kave)**2) / real(size(knonzero))
-    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / real(product(nw)**2)
+    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
     histaves(nw(1), nw(2), nw(3), nw(4)) = kave
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
-    cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / real(product(nw)**2)
+    cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (real(product(nw))**2)
   end subroutine stat1
           
   subroutine delete_array_pointer(L3, L2, L1, L0, carray, karray, darray) bind(C, name="delete_array_pointer")
