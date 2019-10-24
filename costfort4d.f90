@@ -10,72 +10,57 @@ module costfort4d
     type(c_ptr) :: kavearr
     type(c_ptr) :: darr
   end type result
+  real(c_double), pointer :: cost(:,:,:,:)                    
+  real(c_double), pointer :: histaves(:,:,:,:)                    
+  real(c_double), pointer :: deltas(:,:,:,:)                    
 
 contains
 
-  function cost4d(maxw3, maxw2, maxw1, maxw0, Al3, Al2, Al1, Al0, A, D, CDA) bind(C, name="cost4d")
+  function cost4d(maxw3, maxw2, maxw1, maxw0, datasize3, datasize2, datasize1, datasize0, A, data_array, condition) & 
+          bind(C, name="cost4d")
     integer(c_int), intent(in) :: maxw0
     integer(c_int), intent(in) :: maxw1
     integer(c_int), intent(in) :: maxw2
     integer(c_int), intent(in) :: maxw3
-    integer(c_int), intent(in) :: Al0
-    integer(c_int), intent(in) :: Al1
-    integer(c_int), intent(in) :: Al2
-    integer(c_int), intent(in) :: Al3
-    real(c_double), intent(in) :: A(Al0, Al1, Al2, Al3)                         
-    real(c_double), intent(in) :: D(Al0, Al1, Al2, Al3)                         
-    integer(c_int), intent(in) :: CDA(Al0, Al1, Al2, Al3)                         
+    integer(c_int), intent(in) :: datasize0
+    integer(c_int), intent(in) :: datasize1
+    integer(c_int), intent(in) :: datasize2
+    integer(c_int), intent(in) :: datasize3
+    real(c_double), intent(in) :: A(datasize0, datasize1, datasize2, datasize3)                         
+    real(c_double), intent(in) :: data_array(datasize0, datasize1, datasize2, datasize3)                         
+    integer(c_int), intent(in) :: condition(datasize0, datasize1, datasize2, datasize3)                         
     type(result) :: cost4d                                  
     double precision, allocatable :: k(:,:,:,:)                    
-    !integer, allocatable :: kcond(:,:,:,:)                    
-    real(c_double), pointer :: Cn(:,:,:,:)                    
-    real(c_double), pointer :: kaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
-    integer nw0, nw1, nw2, nw3
-    integer N0, N1, N2, N3
+    double precision :: cumdata(datasize0, datasize1, datasize2, datasize3)                    
+    integer width_id1, width_id2, width_id3, width_id4
+    integer nw(4), histsize(4), datasize(4), maxw(4)
     integer i, ihead, j, jhead, h, hhead, l, lhead
-    !double precision, allocatable :: knonzero(:)
-
-    
-    allocate(Cn(maxw0, maxw1, maxw2, maxw3))
-    allocate(kaves(maxw0, maxw1, maxw2, maxw3))
+    datasize = (/datasize0, datasize1, datasize2, datasize3/)
+    maxw = (/maxw0, maxw1, maxw2, maxw3/)
+    allocate(cost(maxw0, maxw1, maxw2, maxw3))
+    allocate(histaves(maxw0, maxw1, maxw2, maxw3))
     allocate(deltas(maxw0, maxw1, maxw2, maxw3))
-    Cn(:,:,:,:) = 0.0
-    kaves(:,:,:,:) = 0.0
+    cost(:,:,:,:) = 0.0
+    histaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
 
+    cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1, datasize),2, datasize),3, datasize),4, datasize)
 
-
-    call help1d(D, 0, 1, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help1d(D, 1, maxw0, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help1d(D, 2, maxw1, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help1d(D, 3, maxw2, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help1d(D, 4, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help2d(D, 1, 2, maxw0, maxw1, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help2d(D, 1, 3, maxw0, maxw2, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help2d(D, 1, 4, maxw0, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help2d(D, 2, 3, maxw1, maxw2, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help2d(D, 2, 4, maxw1, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help2d(D, 3, 4, maxw2, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help3d(D, 1, maxw1, maxw2, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help3d(D, 2, maxw0, maxw2, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help3d(D, 3, maxw0, maxw1, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    call help3d(D, 4, maxw0, maxw1, maxw2, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-
-
-    do nw0 = 1, maxw0
-    N0 = (Al0 - mod(Al0, nw0)) / nw0
-    do nw1 = 1, maxw1
-    N1 = (Al1 - mod(Al1, nw1)) / nw1
-    do nw2 = 1, maxw2
-    N2 = (Al2 - mod(Al2, nw2)) / nw2
-    do nw3 = 1, maxw3
-    N3 = (Al3 - mod(Al3, nw3)) / nw3
-       if (nw0 /= 1 .and. nw1 /= 1 .and. nw2 /=1 .and. nw3 /=1) then
-          k = hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
-       !kcond = hist4di(CDA, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
-       !knonzero = pack(k, kcond == maxval(kcond))
-         call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
+    do width_id1 = 14, maxw(1)
+    nw(1) = width_id1
+    histsize(1) = (datasize(1) - mod(datasize(1), nw(1))) / nw(1)
+    do width_id2 = 14, maxw(2)
+    nw(2) = width_id2
+    histsize(2) = (datasize(2) - mod(datasize(2), nw(2))) / nw(2)
+    do width_id3 = 14, maxw(3)
+    nw(3) = width_id3
+    histsize(3) = (datasize(3) - mod(datasize(3), nw(3))) / nw(3)
+    do width_id4 = 14, maxw(4)
+    nw(4) = width_id4
+    histsize(4) = (datasize(4) - mod(datasize(4), nw(4))) / nw(4)
+       if (width_id1 /= 1 .and. width_id2 /= 1 .and. width_id3 /=1 .and. width_id4 /=1) then
+          k = hist4d(cumdata, histsize, nw)
+         call stat(k, nw) 
        end if
     end do
     end do
@@ -83,230 +68,28 @@ contains
     end do
 
 
-    print *, "minloc Cn:", minloc(Cn(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
+    print *, "minloc Cn:", minloc(cost(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
     cost4d%len0 =  maxw3
     cost4d%len1 =  maxw2
     cost4d%len2 =  maxw1
     cost4d%len3 =  maxw0
-    cost4d%arr = C_loc(Cn(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
-    cost4d%kavearr = C_loc(kaves(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
+    cost4d%arr = C_loc(cost(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
+    cost4d%kavearr = C_loc(histaves(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
     cost4d%darr = C_loc(deltas(1:maxw0, 1:maxw1, 1:maxw2, 1:maxw3))
   end function cost4d
 
-  subroutine help1d(D, axis, maxw, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    double precision, intent(in) :: D(:,:,:,:)
-    integer, intent(in) :: axis, maxw, Al0, Al1, Al2, Al3
-    double precision, allocatable :: B(:,:,:,:)
-    double precision, allocatable :: k(:,:,:,:)
-    integer nw0, nw1, nw2, nw3, N0, N1, N2, N3
-    real(c_double), pointer :: Cn(:,:,:,:)                    
-    real(c_double), pointer :: kaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
-    if (axis == 0) then
-        nw0 = 1; nw1 = 1; nw2 = 1; nw3 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k=d; call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-    elseif (axis == 1) then
-      B = cumsum4d(d, axis)
-      do nw0 = 2, maxw
-        nw1 = 1; nw2 = 1; nw3 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        k = hist1d(B, N0, nw0);  call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
-      enddo
-    elseif (axis == 2) then
-      B = cumsum4d(d, axis)
-      B = reshape(B, (/size(B,2), size(B,1), size(B,3), size(B,4)/), order = (/2, 1, 3, 4/))
-      do nw1 = 2, maxw
-        nw0 = 1; nw2 = 1; nw3 = 1
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        k = hist1d(B, N1, nw1);  call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-    elseif (axis == 3) then
-      B = cumsum4d(d, axis)
-      B = reshape(B, (/size(B,3), size(B,2), size(B,1), size(B,4)/), order = (/3, 2, 1, 4/))
-      do nw2 = 2, maxw
-        nw0 = 1; nw1 = 1; nw3 = 1
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        k = hist1d(B, N2, nw2); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-    elseif (axis == 4) then
-      B = cumsum4d(d, axis)
-      B = reshape(B, (/size(B,4), size(B,2), size(B,3), size(B,1)/), order = (/4, 2, 3, 1/))
-      do nw3 = 2, maxw
-        nw0 = 1; nw1 = 1; nw2 = 1
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k = hist1d(B, N3, nw3); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
-      enddo
-    endif
-  end subroutine help1d
-    
 
-  subroutine help2d(D, axis1, axis2, maxw1, maxw2, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    double precision, intent(in) :: D(:,:,:,:)
-    integer, intent(in) :: axis1, axis2, maxw1, maxw2, Al0, Al1, Al2, Al3
-    double precision, allocatable :: B(:,:,:,:)
-    double precision, allocatable :: k(:,:,:,:)
-    integer nw0, nw1, nw2, nw3, N0, N1, N2, N3
-    real(c_double), pointer :: Cn(:,:,:,:)                    
-    real(c_double), pointer :: kaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
-    if (axis1 == 1 .and. axis2 == 2) then
-      B = cumsum4d(cumsum4d(d, axis1), axis2)
-      do nw0 = 2, maxw1
-      do nw1 = 2, maxw2
-        nw2 = 1; nw3 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        k = hist2d(B, N0, N1, nw0, nw1); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-      enddo
-    elseif (axis1 == 1 .and. axis2 == 3) then
-      B = cumsum4d(cumsum4d(d, axis1), axis2)
-      B = reshape(B, (/size(B,1), size(B,3), size(B,2), size(B,4)/), order = (/1, 3, 2, 4/))
-      do nw0 = 2, maxw1
-      do nw2 = 2, maxw2
-        nw1 = 1; nw3 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        k = hist2d(B, N0, N2, nw0, nw2); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-      enddo
-    elseif (axis1 == 1 .and. axis2 == 4) then
-      B = cumsum4d(cumsum4d(d, axis1), axis2)
-      B = reshape(B, (/size(B,1), size(B,4), size(B,3), size(B,2)/), order = (/1, 4, 3, 2/))
-      do nw0 = 2, maxw1
-      do nw3 = 2, maxw2
-        nw1 = 1; nw2 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k = hist2d(B, N0, N3, nw0, nw3); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-      enddo
-    elseif (axis1 == 2 .and. axis2 == 3) then
-      B = cumsum4d(cumsum4d(d, axis1), axis2)
-      B = reshape(B, (/size(B,2), size(B,1), size(B,3), size(B,4)/), order = (/2, 1, 3, 4/))
-      B = reshape(B, (/size(B,1), size(B,3), size(B,2), size(B,4)/), order = (/1, 3, 2, 4/))
-      do nw1 = 2, maxw1
-      do nw2 = 2, maxw2
-        nw0 = 1; nw3 = 1
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        k = hist2d(B, N1, N2, nw1, nw2); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-      enddo
-    elseif (axis1 == 2 .and. axis2 == 4) then
-      B = cumsum4d(cumsum4d(d, axis1), axis2)
-      B = reshape(B, (/size(B,2), size(B,1), size(B,3), size(B,4)/), order = (/2, 1, 3, 4/))
-      B = reshape(B, (/size(B,1), size(B,4), size(B,3), size(B,2)/), order = (/1, 4, 3, 2/))
-      do nw1 = 2, maxw1
-      do nw3 = 2, maxw2
-        nw0 = 1; nw2 = 1
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k = hist2d(B, N1, N3, nw1, nw3); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-      enddo
-    elseif (axis1 == 3 .and. axis2 == 4) then
-      B = cumsum4d(cumsum4d(d, axis1), axis2)
-      B = reshape(B, (/size(B,3), size(B,2), size(B,1), size(B,4)/), order = (/3, 2, 1, 4/))
-      B = reshape(B, (/size(B,1), size(B,4), size(B,3), size(B,2)/), order = (/1, 4, 3, 2/))
-      do nw2 = 2, maxw1
-      do nw3 = 2, maxw2
-        nw0 = 1; nw1 = 1
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k = hist2d(B, N2, N3, nw2, nw3); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
-      enddo
-      enddo
-      deallocate(B)
-    endif 
-  end subroutine help2d
 
-  subroutine help3d(D, axis, maxw1, maxw2, maxw3, Al0, Al1, Al2, Al3, Cn, kaves, deltas)
-    double precision, intent(in) :: D(:,:,:,:)
-    integer, intent(in) :: axis, maxw1, maxw2, maxw3, Al0, Al1, Al2, Al3
-    double precision, allocatable :: B(:,:,:,:)
-    double precision, allocatable :: k(:,:,:,:)
-    integer nw0, nw1, nw2, nw3, N0, N1, N2, N3
-    real(c_double), pointer :: Cn(:,:,:,:)                    
-    real(c_double), pointer :: kaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
-    if (axis == 4) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 1),2),3)
-      do nw0 = 2, maxw1
-      do nw1 = 2, maxw2
-      do nw2 = 2, maxw3
-        nw3 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        k = hist3d(B, N0, N1, N2, nw0, nw1, nw2); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
-      enddo
-      enddo
-      enddo
-    elseif (axis == 3) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 1),2),4)
-      B = reshape(B, (/size(B,1), size(B,2), size(B,4), size(B,3)/), order = (/1, 2, 4, 3/))
-      do nw0 = 2, maxw1
-      do nw1 = 2, maxw2
-      do nw3 = 2, maxw3
-        nw2 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k = hist3d(B, N0, N1, N3, nw0, nw1, nw3); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
-      enddo
-      enddo
-      enddo
-    elseif (axis == 2) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 1),3),4)
-      B = reshape(B, (/size(B,1), size(B,3), size(B,2), size(B,4)/), order = (/1, 3, 2, 4/))
-      B = reshape(B, (/size(B,1), size(B,2), size(B,4), size(B,3)/), order = (/1, 2, 4, 3/))
-      do nw0 = 2, maxw1
-      do nw2 = 2, maxw2
-      do nw3 = 2, maxw3
-        nw1 = 1
-        N0 = (Al0 - mod(Al0, nw0)) / nw0
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k = hist3d(B, N0, N2, N3, nw0, nw2, nw3); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
-      enddo
-      enddo
-      enddo
-    elseif (axis == 1) then
-      B = cumsum4d(cumsum4d(cumsum4d(d, 2),3),4)
-      B = reshape(B, (/size(B,2), size(B,1), size(B,3), size(B,4)/), order = (/2, 1, 3, 4/))
-      B = reshape(B, (/size(B,1), size(B,3), size(B,2), size(B,4)/), order = (/1, 3, 2, 4/))
-      B = reshape(B, (/size(B,1), size(B,2), size(B,4), size(B,3)/), order = (/1, 2, 4, 3/))
-      do nw1 = 2, maxw1
-      do nw2 = 2, maxw2
-      do nw3 = 2, maxw3
-        nw0 = 1
-        N1 = (Al1 - mod(Al1, nw1)) / nw1
-        N2 = (Al2 - mod(Al2, nw2)) / nw2
-        N3 = (Al3 - mod(Al3, nw3)) / nw3
-        k = hist3d(B, N1, N2, N3, nw1, nw2, nw3); call stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3) 
-      enddo
-      enddo
-      enddo
-    end if
-  end subroutine help3d
 
-  subroutine stat(k, Cn, kaves, deltas, nw0, nw1, nw2, nw3)
+  subroutine stat(k, nw)
     double precision, allocatable :: k(:,:,:,:)
-    integer, intent(in) :: nw0, nw1, nw2, nw3
-    real(c_double), pointer :: Cn(:,:,:,:)                    
-    real(c_double), pointer :: kaves(:,:,:,:)                    
-    real(c_double), pointer :: deltas(:,:,:,:)                    
+    integer, intent(in) :: nw(:)
     double precision kave, v
        kave = sum(k) / real(size(k)); v = sum((k - kave)**2) / real(size(k))
-       print *, "Cn with ", nw0, nw1, nw2, nw3, ":", (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
-       kaves(nw0, nw1, nw2, nw3) = kave
-       deltas(nw0, nw1, nw2, nw3) = nw0*nw1*nw2*nw3
-       Cn(nw0, nw1, nw2, nw3) = (2.0 * kave - v) / (real(nw0*nw1*nw2*nw3)**2)
+       print *, "Cn with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
+       histaves(nw(1), nw(2), nw(3), nw(4)) = kave
+       deltas(nw(1), nw(2), nw(3), nw(4)) = real(product(nw))
+       cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (real(product(nw))**2)
        deallocate(k)
   end subroutine stat
 
@@ -322,328 +105,125 @@ contains
   end subroutine delete_array_pointer
 
 
-  function cumsum4d(d, axis)
-      integer, intent(in) :: axis
-      double precision, intent(in) :: d(:,:,:,:)
-      double precision :: cumsum4d(size(d,1), size(d,2), size(d,3), size(d,4))
-      integer :: i, j, k, l, N1, N2, N3, N4
-      cumsum4d = d
-      N1 = size(d,1); N2 = size(d,2); N3 = size(d,3); N4 = size(d,4)
-
-
+  function cumsum4d(data_array, axis, datasize)
+      integer, intent(in) :: axis, datasize(4)
+      double precision, intent(in) :: data_array(:,:,:,:)
+      double precision :: cumsum4d(datasize(1), datasize(2), datasize(3), datasize(4))
+      integer :: cum_id
+      cumsum4d = data_array
       if (axis == 4) then
-         !!$omp parallel do
-         !do i = 1, N1
-         !do j = 1, N2
-         !do k = 1, N3
-         do l = 1, N4 - 1
-            !cumsum4d(i, j, k, l + 1) = cumsum4d(i, j, k, l) + d(i, j, k, l + 1)
-            cumsum4d(:, :, :, l + 1) = cumsum4d(:, :, :, l) + d(:, :, :, l + 1)
+         do cum_id = 1, datasize(axis) - 1
+            cumsum4d(:, :, :, cum_id + 1) = cumsum4d(:, :, :, cum_id) + data_array(:, :, :, cum_id + 1)
          end do
-         !end do
-         !end do
-         !end do
       else if (axis == 3) then
-         !!$omp parallel do
-         !do i = 1, N1
-         !do j = 1, N2
-         !do l = 1, N4
-         do k = 1, N3 - 1
-            !cumsum4d(i, j, k + 1, l) = cumsum4d(i, j, k, l) + d(i, j, k + 1, l)
-            cumsum4d(:, :, k + 1, :) = cumsum4d(:, :, k, :) + d(:, :, k + 1, :)
+         do cum_id = 1, datasize(axis) - 1
+            cumsum4d(:, :, cum_id + 1, :) = cumsum4d(:, :, cum_id, :) + data_array(:, :, cum_id + 1, :)
          end do
-         !end do
-         !end do
-         !end do
       else if (axis == 2) then
-         !!$omp parallel do
-         !do i = 1, N1
-         !do k = 1, N3
-         !do l = 1, N4
-         do j = 1, N2 - 1
-            !cumsum4d(i, j + 1, k, l) = cumsum4d(i, j, k, l) + d(i, j + 1, k, l)
-            cumsum4d(:, j + 1, :, :) = cumsum4d(:, j, :, :) + d(:, j + 1, :, :)
+         do cum_id = 1, datasize(axis) - 1
+            cumsum4d(:, cum_id + 1, :, :) = cumsum4d(:, cum_id, :, :) + data_array(:, cum_id + 1, :, :)
          end do
-         !end do
-         !end do
-         !end do
       else if (axis == 1) then
-         !!$omp parallel do
-         !do j = 1, N2 
-         !do k = 1, N3
-         !do l = 1, N4
-         do i = 1, N1 - 1
-            !cumsum4d(i + 1, j, k, l) = cumsum4d(i, j, k, l) + d(i + 1, j, k, l)
-            cumsum4d(i + 1, :, :, :) = cumsum4d(i, :, :, :) + d(i + 1, :, :, :)
+         do cum_id = 1, datasize(axis) - 1
+            cumsum4d(cum_id + 1, :, :, :) = cumsum4d(cum_id, :, :, :) + data_array(cum_id + 1, :, :, :)
          end do
-         !end do
-         !end do
-         !end do
       end if
    end function cumsum4d       
 
-   function hist4d(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
-       double precision, intent(in) :: A(:,:,:,:) 
-       integer, intent(in) :: N0, N1, N2, N3, nw0, nw1, nw2, nw3
+
+   function hist4d(A, histsize, nw) 
+       double precision, intent(in) :: A(:,:,:,:)
+       integer, intent(in) :: histsize(:), nw(:)
        integer :: i, j, h, l, ihead, jhead, hhead, lhead
-       double precision :: hist4d(N0,N1,N2,N3)
-       do i = 1, N0
-       ihead = i*nw0 
-       do j = 1, N1
-       jhead = j*nw1 
-       do h = 1, N2
-       hhead = h*nw2 
+       double precision :: hist4d(histsize(1), histsize(2), histsize(3), histsize(4))
+       do i = 1, histsize(1)
+       ihead = i*nw(1)
+       do j = 1, histsize(2)
+       jhead = j*nw(2)
+       do h = 1, histsize(3)
+       hhead = h*nw(3)
        !$omp parallel do
-       do l = 1, N3
-       lhead = l*nw3 
+       do l = 1, histsize(4)
+       lhead = l*nw(4)
           if ( i == 1 .and. j == 1 .and. h == 1 .and. l == 1 ) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead)
           else if ( j == 1 .and. i /= 1 .and. h == 1 .and. l == 1 ) then
-             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead - nw0, jhead, hhead, lhead)
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead - nw(1), jhead, hhead, lhead)
           else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l == 1 ) then
-             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead)
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead - nw(2), hhead, lhead)
           else if ( j == 1 .and. h /= 1 .and. i == 1 .and. l == 1 ) then
-             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead)
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw(3), lhead)
           else if ( j == 1 .and. l /= 1 .and. h == 1 .and. i == 1 ) then
-             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3)
+             hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw(4))
           else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l == 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead)
+                           - A(ihead - nw(1), jhead, hhead, lhead) - A(ihead, jhead - nw(2), hhead, lhead) &
+                           + A(ihead - nw(1), jhead - nw(2), hhead, lhead)
           else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l == 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead, hhead - nw2, lhead)
+                           - A(ihead - nw(1), jhead, hhead, lhead) - A(ihead, jhead, hhead - nw(3), lhead) &
+                           + A(ihead - nw(1), jhead, hhead - nw(3), lhead)
           else if ( i /= 1 .and. j == 1 .and. h == 1 .and. l /= 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead, hhead, lhead - nw3)
+                           - A(ihead - nw(1), jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw(4)) &
+                           + A(ihead - nw(1), jhead, hhead, lhead - nw(4))
           else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead)
+                           - A(ihead, jhead - nw(2), hhead, lhead) - A(ihead, jhead, hhead - nw(3), lhead) &
+                           + A(ihead, jhead - nw(2), hhead - nw(3), lhead)
           else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3)
+                           - A(ihead, jhead - nw(2), hhead, lhead) - A(ihead, jhead, hhead, lhead - nw(4)) &
+                           + A(ihead, jhead - nw(2), hhead, lhead - nw(4))
           else if ( i == 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3)
+                           - A(ihead, jhead, hhead - nw(3), lhead) - A(ihead, jhead, hhead, lhead - nw(4)) &
+                           + A(ihead, jhead, hhead - nw(3), lhead - nw(4))
           else if ( i /= 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead)
+                           - A(ihead - nw(1), jhead, hhead, lhead) - A(ihead, jhead - nw(2), hhead, lhead) &
+                           - A(ihead, jhead, hhead - nw(3), lhead) &
+                           + A(ihead, jhead - nw(2), hhead - nw(3), lhead) + A(ihead - nw(1), jhead, hhead - nw(3), lhead) &
+                           + A(ihead - nw(1), jhead - nw(2), hhead, lhead) - A(ihead - nw(1), jhead - nw(2), hhead - nw(3), lhead)
           else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3)
+                           - A(ihead - nw(1), jhead, hhead, lhead) - A(ihead, jhead - nw(2), hhead, lhead) &
+                           - A(ihead, jhead, hhead, lhead - nw(4)) &
+                           + A(ihead - nw(1), jhead - nw(2), hhead, lhead) + A(ihead - nw(1), jhead, hhead, lhead - nw(4)) &
+                           + A(ihead, jhead - nw(2), hhead, lhead - nw(4)) &
+                           - A(ihead - nw(1), jhead - nw(2), hhead, lhead - nw(4))
           else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3)
+                           - A(ihead - nw(1), jhead, hhead, lhead) - A(ihead, jhead, hhead - nw(3), lhead) &
+                           - A(ihead, jhead, hhead, lhead - nw(4)) &
+                           + A(ihead - nw(1), jhead, hhead - nw(3), lhead) + A(ihead - nw(1), jhead, hhead, lhead - nw(4)) &
+                           + A(ihead, jhead, hhead - nw(3), lhead - nw(4)) &
+                           - A(ihead - nw(1), jhead, hhead - nw(3), lhead - nw(4))
           else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l /= 1) then
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead, jhead - nw1, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3)
+                           - A(ihead, jhead - nw(2), hhead, lhead) - A(ihead, jhead, hhead - nw(3), lhead) &
+                           - A(ihead, jhead, hhead, lhead - nw(4)) &
+                           + A(ihead, jhead - nw(2), hhead - nw(3), lhead) + A(ihead, jhead - nw(2), hhead, lhead - nw(4)) &
+                           + A(ihead, jhead, hhead - nw(3), lhead - nw(4)) &
+                           - A(ihead, jhead - nw(2), hhead - nw(3), lhead - nw(4))
           else
              hist4d(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead, hhead, lhead - nw3) + A(ihead, jhead - nw1, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3) + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead - nw2, lhead - nw3)
+                           - A(ihead - nw(1), jhead, hhead, lhead) - A(ihead, jhead - nw(2), hhead, lhead) &
+                           - A(ihead, jhead, hhead - nw(3), lhead) - A(ihead, jhead, hhead, lhead - nw(4)) &
+                           + A(ihead - nw(1), jhead - nw(2), hhead, lhead) + A(ihead - nw(1), jhead, hhead - nw(3), lhead) &
+                           + A(ihead - nw(1), jhead, hhead, lhead - nw(4)) + A(ihead, jhead - nw(2), hhead - nw(3), lhead) &
+                           + A(ihead, jhead - nw(2), hhead, lhead - nw(4)) + A(ihead, jhead, hhead - nw(3), lhead - nw(4)) &
+                           - A(ihead, jhead - nw(2), hhead - nw(3), lhead - nw(4)) &
+                           - A(ihead - nw(1), jhead, hhead - nw(3), lhead - nw(4)) &
+                           - A(ihead - nw(1), jhead - nw(2), hhead, lhead - nw(4)) &
+                           - A(ihead - nw(1), jhead - nw(2), hhead - nw(3), lhead) &
+                           + A(ihead - nw(1), jhead - nw(2), hhead - nw(3), lhead - nw(4))
           end if
        end do
        end do
        end do
        end do
-   end function hist4d
+  end function hist4d
 
-   function hist4di(A, N0, N1, N2, N3, nw0, nw1, nw2, nw3)
-       integer, intent(in) :: A(:,:,:,:) 
-       integer, intent(in) :: N0, N1, N2, N3, nw0, nw1, nw2, nw3
-       integer :: i, j, h, l, ihead, jhead, hhead, lhead
-       integer :: hist4di(N0,N1,N2,N3)
-       do i = 1, N0
-       ihead = i*nw0 
-       do j = 1, N1
-       jhead = j*nw1 
-       do h = 1, N2
-       hhead = h*nw2 
-       !$omp parallel do
-       do l = 1, N3
-       lhead = l*nw3 
-          if ( i == 1 .and. j == 1 .and. h == 1 .and. l == 1 ) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead)
-          else if ( j == 1 .and. i /= 1 .and. h == 1 .and. l == 1 ) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead - nw0, jhead, hhead, lhead)
-          else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l == 1 ) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead)
-          else if ( j == 1 .and. h /= 1 .and. i == 1 .and. l == 1 ) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead)
-          else if ( j == 1 .and. l /= 1 .and. h == 1 .and. i == 1 ) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3)
-          else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l == 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead)
-          else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l == 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead, hhead - nw2, lhead)
-          else if ( i /= 1 .and. j == 1 .and. h == 1 .and. l /= 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead, hhead, lhead - nw3)
-          else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead)
-          else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3)
-          else if ( i == 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3)
-          else if ( i /= 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead)
-          else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3)
-          else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead, hhead - nw2, lhead) + A(ihead - nw0, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3)
-          else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l /= 1) then
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead, jhead - nw1, hhead, lhead) - A(ihead, jhead, hhead - nw2, lhead) &
-                           - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead, jhead - nw1, hhead - nw2, lhead) + A(ihead, jhead - nw1, hhead, lhead - nw3) &
-                           + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3)
-          else
-             hist4di(i, j, h, l) = A(ihead, jhead, hhead, lhead) &
-                           - A(ihead - nw0, jhead, hhead, lhead) - A(ihead, jhead - nw1, hhead, lhead) &
-                           - A(ihead, jhead, hhead - nw2, lhead) - A(ihead, jhead, hhead, lhead - nw3) &
-                           + A(ihead - nw0, jhead - nw1, hhead, lhead) + A(ihead - nw0, jhead, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead, hhead, lhead - nw3) + A(ihead, jhead - nw1, hhead - nw2, lhead) &
-                           + A(ihead, jhead - nw1, hhead, lhead - nw3) + A(ihead, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead, jhead - nw1, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead, hhead - nw2, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead, lhead - nw3) &
-                           - A(ihead - nw0, jhead - nw1, hhead - nw2, lhead) &
-                           + A(ihead - nw0, jhead - nw1, hhead - nw2, lhead - nw3)
-          end if
-       end do
-       end do
-       end do
-       end do
-   end function hist4di
-
-   function hist1d(B, N, nw)
-       double precision, intent(in) :: B(:,:,:,:) 
-       integer, intent(in) :: N, nw
-       integer :: i, ihead
-       double precision :: hist1d(N, size(B,2), size(B,3), size(B,4))
-       hist1d(1,:,:,:) = B(nw,:,:,:)
-       !$omp parallel do
-       do i = 2, N
-          ihead = i*nw
-          hist1d(i,:,:,:) = B(ihead,:,:,:) - B(ihead - nw,:,:,:)
-       end do
-   end function hist1d
-
-   function hist2d(B, N0, N1, nw0, nw1)
-       double precision, intent(in) :: B(:,:,:,:) 
-       integer, intent(in) :: N0, N1, nw0, nw1
-       integer :: i, ihead, j, jhead
-       double precision :: hist2d(N0, N1, size(B,3), size(B,4))
-       do i = 1, N0
-          ihead = i*nw0 
-          !$omp parallel do
-          do j = 1, N1
-             jhead = j*nw1 
-             if ( i == 1 .and. j == 1) then
-                 hist2d(i, j, :, :) = B(ihead, jhead,:, :)
-             else if ( i /= 1 .and. j == 1) then
-                 hist2d(i, j, :, :) = B(ihead, jhead, :, :) - B(ihead - nw0, jhead, :, :)
-             else if ( i == 1 .and. j /= 1) then
-                 hist2d(i, j, :, :) = B(ihead, jhead, :, :) - B(ihead, jhead - nw1, :, :)
-             else 
-                 hist2d(i, j, :, :) = B(ihead, jhead, :, :) - B(ihead - nw0, jhead, :, :) - B(ihead, jhead - nw1, :, :) &
-                                      + B(ihead - nw0, jhead - nw1, :, :)
-             end if
-          end do
-       end do
-   end function hist2d
-
-   function hist3d(B, N0, N1, N2, nw0, nw1, nw2)
-       double precision, intent(in) :: B(:,:,:,:) 
-       integer, intent(in) :: N0, N1, N2, nw0, nw1, nw2
-       integer :: i, ihead, j, jhead, h, hhead
-       double precision :: hist3d(N0, N1, N2, size(B,4))
-       do i = 1, N0
-          ihead = i*nw0 
-          do j = 1, N1
-             jhead = j*nw1
-             do h = 1, N2
-                hhead = h*nw2
-                if ( i == 1 .and. j == 1 .and. h == 1) then
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :)
-                else if ( j == 1 .and. i /= 1 .and. h == 1 ) then
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw0, jhead, hhead, :)
-                else if ( i == 1 .and. j /= 1 .and. h == 1 ) then
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead, jhead - nw1, hhead, :)
-                else if ( i == 1 .and. h /= 1 .and. j == 1 ) then
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead, jhead, hhead - nw2, :)
-                else if ( i /= 1 .and. j /= 1 .and. h == 1 ) then
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw0, jhead, hhead, :) &
-                                        - B(ihead, jhead - nw1, hhead, :) + B(ihead - nw0, jhead - nw1, hhead, :)
-                else if ( i /= 1 .and. j == 1 .and. h /= 1 ) then
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw0, jhead, hhead, :) &
-                                       - B(ihead, jhead, hhead - nw2, :) + B(ihead - nw0, jhead, hhead - nw2, :)
-                else if ( i == 1 .and. j /= 1 .and. h /= 1 ) then
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead, jhead - nw1, hhead, :) &
-                                       - B(ihead, jhead, hhead - nw2, :) + B(ihead, jhead - nw1, hhead - nw2, :)
-                else
-                   hist3d(i, j, h, :) = B(ihead, jhead, hhead, :) - B(ihead - nw0, jhead, hhead, :) &
-                                       - B(ihead, jhead - nw1, hhead, :) - B(ihead, jhead, hhead - nw2, :) &
-                                       + B(ihead, jhead - nw1, hhead - nw2, :) + B(ihead - nw0, jhead, hhead - nw2, :) &
-                                       + B(ihead - nw0, jhead - nw1, hhead, :) - B(ihead - nw0, jhead - nw1, hhead - nw2, :)
-                end if
-             end do
-          end do
-       end do
-   end function hist3d
 
 end module costfort4d
