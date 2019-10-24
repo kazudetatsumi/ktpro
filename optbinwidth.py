@@ -668,14 +668,16 @@ def run2d():
     mappable = make_mappable(np.max(data)/500)
     plt.colorbar(mappable)
 
-def runex():
+
+def runexorg():
     txtfile = "/home/kazu/data/20min_fine.txt"
     #xi = 119
     xi = 119
-    xf = 222
+    #xf = 222
+    xf = 218
     yi = 25
-    #yf = 340
-    yf = 530
+    yf = 340
+    #yf = 530
     
     data, condition = get2ddata(txtfile, xi, xf, yi, yf)
     n = np.sum(data)*1.0
@@ -1091,10 +1093,11 @@ def runex():
     txtfile = "/home/kazu/data/20min_fine.txt"
     #xi = 119
     xi = 119
-    xf = 222
+    #xf = 222
+    xf = 218
     yi = 25
-    #yf = 340
-    yf = 530
+    yf = 340
+    #yf = 530
     
     data, condition = get2ddata(txtfile, xi, xf, yi, yf)
     n = np.sum(data)*1.0
@@ -1155,10 +1158,10 @@ def runex():
 #run_tst2d()
 #run2d()
 #run2d_f90()
-#runex()
+runexorg()
 #run_simu()
 #run_simu3d()
-run1d()
+#run1d()
 #run_tst()
 #run_tst3d()
 #run2d()
