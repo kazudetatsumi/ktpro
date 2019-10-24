@@ -13,6 +13,8 @@ module costfort4d
   real(c_double), pointer :: cost(:,:,:,:)                    
   real(c_double), pointer :: histaves(:,:,:,:)                    
   real(c_double), pointer :: deltas(:,:,:,:)                    
+  integer :: datasize(4)
+  integer maxw(4)
 
 contains
 
@@ -34,14 +36,12 @@ contains
     integer :: cum_cond(datasize0, datasize1, datasize2, datasize3)
     double precision, allocatable :: hist_array(:,:,:,:)                    
     integer, allocatable :: hist_cond(:,:,:,:)
-    integer nw(4),maxw(4)
+    integer nw(4)
     integer histsize(4)
     integer ax_id1, ax_id2, ax_id3, width_id1, width_id2, width_id3, width_id4
-    integer :: datasize(4)
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
-    cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1, datasize), 2, datasize), 3, datasize), 4, datasize)
-    if (usecond) cum_cond = & 
-                          cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1, datasize), 2, datasize), 3, datasize), 4, datasize)
+    cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
+    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1), 2), 3), 4)
     maxw = (/maxw0, maxw1, maxw2, maxw3/)
     allocate(cost(maxw(1), maxw(2), maxw(3), maxw(4)))
     allocate(histaves(maxw(1), maxw(2), maxw(3), maxw(4)))
@@ -50,49 +50,49 @@ contains
     histaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
 
-    call help1d(data_array, 0, 1, condition, datasize, usecond)
-    do ax_id1 = 1, 4
-      call help1d(data_array, ax_id1, maxw(ax_id1), condition, datasize, usecond)
-    enddo
+    !call help0d(data_array, condition, usecond)
+    !do ax_id1 = 1, 4
+    !  call help1d(data_array, ax_id1, condition, usecond)
+    !enddo
     do ax_id1 = 1, 3
     do ax_id2 = ax_id1 + 1, 4
-      call help2d(data_array, [ax_id1, ax_id2], maxw, condition, datasize, usecond)
+      call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
     enddo
     enddo
-    do ax_id1 = 1, 2
-    do ax_id2 = ax_id1 + 1, 3
-    do ax_id3 = ax_id2 + 1, 4
-      call help3d(data_array, [ax_id1, ax_id2, ax_id3], maxw,  condition, datasize, usecond)
-    enddo
-    enddo
-    enddo
+    !do ax_id1 = 1, 2
+    !do ax_id2 = ax_id1 + 1, 3
+    !do ax_id3 = ax_id2 + 1, 4
+    !  call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+    !enddo
+    !enddo
+    !enddo
 
 
-    do width_id1 = 14, maxw(1)
-    nw(1) = width_id1
-    histsize(1) = (datasize(1) - mod(datasize(1), nw(1))) / nw(1)
-    do width_id2 = 14, maxw(2)
-    nw(2) = width_id2
-    histsize(2) = (datasize(2) - mod(datasize(2), nw(2))) / nw(2)
-    do width_id3 = 14, maxw(3)
-    nw(3) = width_id3
-    histsize(3) = (datasize(3) - mod(datasize(3), nw(3))) / nw(3)
-    do width_id4 = 14, maxw(4)
-    nw(4) = width_id4
-    histsize(4) = (datasize(4) - mod(datasize(4), nw(4))) / nw(4)
-       if (width_id1 /= 1 .and. width_id2 /= 1 .and. width_id3 /=1 .and. width_id4 /=1) then
-          hist_array = hist4d(cumdata, histsize, nw)
-          if (usecond) then 
-              hist_cond = hist4di(cum_cond, histsize, nw)
-              call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
-          else
-            call stat(hist_array, nw) 
-          endif
-       end if
-    end do
-    end do
-    end do
-    end do
+    !do width_id1 = 14, maxw(1)
+    !nw(1) = width_id1
+    !histsize(1) = (datasize(1) - mod(datasize(1), nw(1))) / nw(1)
+    !do width_id2 = 14, maxw(2)
+    !nw(2) = width_id2
+    !histsize(2) = (datasize(2) - mod(datasize(2), nw(2))) / nw(2)
+    !do width_id3 = 14, maxw(3)
+    !nw(3) = width_id3
+    !histsize(3) = (datasize(3) - mod(datasize(3), nw(3))) / nw(3)
+    !do width_id4 = 14, maxw(4)
+    !nw(4) = width_id4
+    !histsize(4) = (datasize(4) - mod(datasize(4), nw(4))) / nw(4)
+    !   if (width_id1 /= 1 .and. width_id2 /= 1 .and. width_id3 /=1 .and. width_id4 /=1) then
+    !      hist_array = hist4d(cumdata, histsize, nw)
+    !      if (usecond) then 
+    !          hist_cond = hist4di(cum_cond, histsize, nw)
+    !          call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
+    !      else
+    !        call stat(hist_array, nw) 
+    !      endif
+    !   end if
+    !end do
+    !end do
+    !end do
+    !end do
 
 
     print *, "minloc cost:", minloc(cost)
@@ -105,8 +105,22 @@ contains
     cost4d%darr = C_loc(deltas)
   end function cost4d
 
-  subroutine help1d(data_array, ax, mxw, condition, datasize, usecond)
-    integer, intent(in) :: ax, mxw, datasize(4)
+  subroutine help0d(data_array, condition, usecond)
+    double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
+    integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
+    logical(1), intent(in) :: usecond
+    double precision, allocatable :: hist_array(:,:,:,:)
+    integer nw(4)
+    nw = 1
+    hist_array = data_array
+    if (usecond) then
+      call stat1(pack(hist_array, condition == maxval(condition)), nw)
+    else
+      call stat(hist_array, nw)
+    end if
+  end subroutine help0d
+  subroutine help1d(data_array, ax, condition, usecond)
+    integer, intent(in) :: ax
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
@@ -117,53 +131,44 @@ contains
     integer, allocatable :: histcond(:,:,:,:)
     integer width_id, histsize, nw(4),  cumdata_size(4), cumdata_order(4)
     nw = 1
-    if (ax == 0) then
-        hist_array = data_array
-        if (usecond) then
-          call stat1(pack(hist_array, condition == maxval(condition)), nw)
-        else
-          call stat(hist_array, nw)
-        end if
-    else
-      Ishistsizeallocated = .true.
-      cumdata1d = cumsum4d(data_array, ax, datasize)
+    Ishistsizeallocated = .true.
+    cumdata1d = cumsum4d(data_array, ax)
+    if (usecond) then
+        cum_cond = cumsum4di(condition, ax)
+    endif
+    if (ax == 1) then
+      Ishistsizeallocated = .false.
+    elseif (ax == 2) then
+      cumdata_size = (/datasize(2), datasize(1), datasize(3), datasize(4)/) 
+      cumdata_order = (/2, 1, 3, 4/)
+    elseif (ax == 3) then
+      cumdata_size = (/datasize(3), datasize(2), datasize(1), datasize(4)/) 
+      cumdata_order = (/3, 2, 1, 4/)
+    elseif (ax == 4) then
+      cumdata_size = (/datasize(4), datasize(2), datasize(3), datasize(1)/) 
+      cumdata_order = (/4, 2, 3, 1/)
+    endif
+    if (Ishistsizeallocated) then
+      cumdata1d = reshape(cumdata1d, cumdata_size, order = cumdata_order)
       if (usecond) then
-          cum_cond = cumsum4di(condition, ax, datasize)
+        cum_cond = reshape(cum_cond, cumdata_size, order = cumdata_order)
       endif
-      if (ax == 1) then
-        Ishistsizeallocated = .false.
-      elseif (ax == 2) then
-        cumdata_size = (/datasize(2), datasize(1), datasize(3), datasize(4)/) 
-        cumdata_order = (/2, 1, 3, 4/)
-      elseif (ax == 3) then
-        cumdata_size = (/datasize(3), datasize(2), datasize(1), datasize(4)/) 
-        cumdata_order = (/3, 2, 1, 4/)
-      elseif (ax == 4) then
-        cumdata_size = (/datasize(4), datasize(2), datasize(3), datasize(1)/) 
-        cumdata_order = (/4, 2, 3, 1/)
-      endif
-      if (Ishistsizeallocated) then
-        cumdata1d = reshape(cumdata1d, cumdata_size, order = cumdata_order)
-        if (usecond) then
-          cum_cond = reshape(cum_cond, cumdata_size, order = cumdata_order)
-        endif
-      endif
-      do width_id = 2, mxw
-        nw(ax) = width_id
-        histsize = (datasize(ax) - mod(datasize(ax), nw(ax))) / nw(ax)
-        hist_array = hist1d(cumdata1d, histsize, nw(ax))
-        if (usecond) then
-          histcond = hist1di(cum_cond, histsize, nw(ax))
-          call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
-        else
-          call stat(hist_array, nw)
-        end if
-      enddo
-    end if
+    endif
+    do width_id = 2, maxw(ax)
+      nw(ax) = width_id
+      histsize = (datasize(ax) - mod(datasize(ax), nw(ax))) / nw(ax)
+      hist_array = hist1d(cumdata1d, histsize, nw(ax))
+      if (usecond) then
+        histcond = hist1di(cum_cond, histsize, nw(ax))
+        call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
+      else
+        call stat(hist_array, nw)
+      end if
+    enddo
   end subroutine help1d
 
-  subroutine help2d(data_array, ax, maxw,  condition, datasize, usecond)
-    integer, intent(in) :: ax(:), maxw(:), datasize(4)
+  subroutine help2d(data_array, ax, condition, usecond)
+    integer, intent(in) :: ax(:)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
@@ -175,8 +180,8 @@ contains
     integer nw(4), histsize(4), cumdata_size_id, width_id1, width_id2
     integer, allocatable ::  cumdata_size(:,:), cumdata_order(:,:)
     nw = 1
-    cumdata2d = cumsum4d(cumsum4d(data_array, ax(1), datasize), ax(2), datasize)
-    if (usecond) cum_cond = cumsum4di(cumsum4di(condition, ax(1), datasize), ax(2), datasize)
+    cumdata2d = cumsum4d(cumsum4d(data_array, ax(1)), ax(2))
+    if (usecond) cum_cond = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
     if (ax(1) == 1 .and. ax(2) == 2) then
       Ishistsizeallocated = .false.
     else
@@ -232,8 +237,8 @@ contains
     enddo
   end subroutine help2d
 
-  subroutine help3d(data_array, ax, maxw,  condition, datasize, usecond)
-    integer, intent(in) :: ax(:), maxw(:), datasize(4)
+  subroutine help3d(data_array, ax, condition, usecond)
+    integer, intent(in) :: ax(:)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
@@ -245,8 +250,8 @@ contains
     integer nw(4), histsize(4), cumdata_size_id, width_id1, width_id2, width_id3
     integer, allocatable ::  cumdata_size(:,:),cumdata_order(:,:)
     nw = 1
-    cumdata3d = cumsum4d(cumsum4d(cumsum4d(data_array, ax(1), datasize), ax(2), datasize), ax(3), datasize)
-    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1), datasize), ax(2), datasize), ax(3), datasize)
+    cumdata3d = cumsum4d(cumsum4d(cumsum4d(data_array, ax(1)), ax(2)), ax(3))
+    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1)), ax(2)), ax(3))
     if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 3) then
       Ishistsizeallocated = .false.
     else
@@ -329,8 +334,8 @@ contains
   end subroutine delete_array_pointer
 
 
-  function cumsum4d(data_array, ax, datasize)
-    integer, intent(in) :: ax, datasize(4)
+  function cumsum4d(data_array, ax)
+    integer, intent(in) :: ax
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     double precision :: cumsum4d(datasize(1), datasize(2), datasize(3),datasize(4))
     integer :: cum_id
@@ -353,8 +358,8 @@ contains
        end do
     end if
   end function cumsum4d       
-  function cumsum4di(d, ax, datasize)
-    integer, intent(in) :: ax, datasize(4)
+  function cumsum4di(d, ax)
+    integer, intent(in) :: ax
     integer, intent(in) :: d(datasize(1), datasize(2), datasize(3), datasize(4))
     integer :: cumsum4di(datasize(1), datasize(2), datasize(3), datasize(4))
     integer :: cum_id
