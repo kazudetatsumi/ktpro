@@ -95,7 +95,7 @@ contains
     end do
 
 
-    print *, "minloc cost:", minloc(cost), "with its value:", minval(cost)
+    print *, "minloc Cn:", minloc(cost), "with its value:", minval(cost)
     cost4d%len0 =  maxw(4)
     cost4d%len1 =  maxw(3)
     cost4d%len2 =  maxw(2)
