@@ -101,7 +101,7 @@ def calc_cost2d(A, maxw, condition):
           #kave = np.average(kf)/fracdata
           #v =  np.sum((kf - kave)**2)/(kf.shape[0]*1.0*fracdata)
           cost = (2 * kave - v) / ((i*j)**2*1.0)
-          print "cost with (i, j) = ", i, j, ":", cost, "kave", kave, "v", v
+          #print "cost with (i, j) = ", i, j, ":", cost, "kave", kave, "v", v
           Cn[i, j] = cost
           kaves[i, j] = kave
           deltas[i, j] = (i*j*1.0)
@@ -127,7 +127,7 @@ def calc_cost2d_f90(A, maxw, condition, fflag):
             v = np.var(knonzero)
           
             cost = (2 * kave - v) / ((i*j)**2*1.0)
-            print "cost with (i, j) = ", i, j, ":", cost, "kave", kave, "v", v
+            #print "cost with (i, j) = ", i, j, ":", cost, "kave", kave, "v", v
             Cn[i, j] = cost
             kaves[i, j] = kave
             deltas[i, j] = (i*j*1.0)
@@ -260,16 +260,16 @@ def run_tst():
 
 def runex():
     txtfile = "/home/kazu/data/20min_fine.txt"
-    txtfile = "/home/kazu/desktop/191031/all.txt"
-    xi = 100
+    txtfile = "/home/kazu/desktop/191031/4h.txt"
+    xi = 110
     #xi = 109
     #xf = 222
     #xf = 218
-    xf = 212
+    xf = 217
     #yi = 25
     yi = 100
     #yf = 340
-    yf = 255
+    yf = 220
     #yf = 530
     ### for 20min_fine.txt
     ###xi = 119
@@ -292,10 +292,11 @@ def runex():
     print maxw
     A = np.cumsum(np.cumsum(data, axis=0), axis=1)
 
-    Cn, kaves, delstas = calc_cost2d_f90(A, maxw, condition, fflag)
+    #Cn, kaves, delstas = calc_cost2d_f90(A, maxw, condition, fflag)
+    Cn, kaves, delstas = calc_cost2d(A, maxw, condition)
     Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
 
-    m = 15.0*n
+    m =10005.0*n
 
     ex = (1/m - 1/n) * kaves / (delstas**2*n) 
     ex[0, :] = 0.0
@@ -317,7 +318,6 @@ def runex():
     #plt.plot(Cm[10,:])
 
     plt.figure(figsize=(16, 8))
-    #plt.pcolor(np.transpose(k), vmax=np.max(k), cmap='jet')
     plt.pcolor(np.transpose(k), vmax=np.max(k), cmap='jet')
     mappable = make_mappable(np.max(k))
     plt.colorbar(mappable)
@@ -344,6 +344,6 @@ runex()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
 #lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
-plt.show()
+#plt.show()
 
 
