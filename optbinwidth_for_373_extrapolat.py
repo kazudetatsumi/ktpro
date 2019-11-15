@@ -1,0 +1,158 @@
+#!/usr/bin/env python
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import h5py
+import ctypes
+lib = ctypes.CDLL("./histfort_.so")
+
+
+def get2ddata(f, xi, xf, yi, yf):
+    data = np.genfromtxt(f,  delimiter=',', dtype=None)
+    x = data[:, 0]
+    y = data[:, 1]
+    z = data[:, 2]
+    dx = 0.005
+    dy = 0.1
+    xlin = np.arange(min(x), max(x)+dx, dx)
+    nx = xlin.shape[0]
+    ylin = np.arange(min(y), max(y)+dy, dy)
+    ny = ylin.shape[0]
+    karr = np.zeros((nx, ny))
+    karr2 = np.zeros((nx, ny))
+
+    for _x, _y, _z in zip(x, y, z):
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr[xx, yy] = _z + 0.00000001
+
+    condition = karr > 0.0000000001
+    karrnonzero = np.extract(condition, karr)
+    ndata = x.shape[0]
+
+    for _x, _y, _z in zip(x, y, z):
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr2[xx, yy] = _z
+
+    return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
+
+
+def calc_hist2d(A, nw0, nw1, condition):
+    Nmax = A.shape
+    N0 = int((Nmax[0] - (Nmax[0] % nw0)) / nw0)
+    N1 = int((Nmax[1] - (Nmax[1] % nw1)) / nw1)
+    k = np.zeros((N0, N1))
+    kcond = np.zeros((N0, N1))
+    for i in range(0, N0):
+        ihead = (i+1)*nw0 - 1
+        for j in range(0, N1):
+            jhead = (j+1)*nw1 - 1
+            if i == 0 and j == 0:
+                k[i, j] = A[ihead, jhead]
+            elif j == 0 and i != 0:
+                k[i, j] = A[ihead, jhead] - A[ihead - nw0, jhead]
+            elif i == 0 and j != 0:
+                k[i, j] = A[ihead, jhead] - A[ihead, jhead - nw1]
+            else:
+                k[i, j] = A[ihead, jhead] - A[ihead - nw0, jhead] - A[ihead, jhead - nw1] + A[ihead - nw0, jhead - nw1]
+    for i in range(0, N0):
+        for j in range(0, N1):
+            kcond[i, j] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1])
+    return k, kcond
+
+
+def calc_cost2d(A, maxw, condition):
+    Cn = np.zeros((maxw))
+    kaves = np.zeros((maxw))
+    deltas = np.zeros((maxw))
+    for i in range(1, maxw[0]):
+        for j in range(1, maxw[1]):
+            k, kcond = calc_hist2d(A, i, j, condition)
+            knonzero = np.extract(np.max(kcond) == kcond, k)
+            kave = np.average(knonzero)
+            v = np.var(knonzero)
+            cost = (2 * kave - v) / ((i*j)**2*1.0)
+            Cn[i, j] = cost
+            kaves[i, j] = kave
+            deltas[i, j] = (i*j*1.0)
+    return Cn, kaves, deltas
+
+
+def runex():
+    head = "/home/kazu/desktop/191031/"
+    xi = 110
+    xf = 217
+    yi = 100
+    yf = 220
+    num_txtfiles = 16
+    outfile = "result.txt"
+    TotalIntensity = np.zeros((num_txtfiles))
+    opt_indx_for_x = np.zeros((num_txtfiles, num_txtfiles))
+    opt_indx_for_y = np.zeros((num_txtfiles, num_txtfiles))
+    for i in range(1, num_txtfiles + 1):
+        txtfile = head + str(i) + "h.txt"
+        data, condition = get2ddata(txtfile, xi, xf, yi, yf)
+        TotalIntensity[i-1] = np.sum(data)*1.0
+    print("I have obtained info of total intensities")
+
+    for Indx_of_txtfile in range(1, num_txtfiles + 1):
+        print("Extraporation with n = ", TotalIntensity[i-1])
+        txtfile = head + str(Indx_of_txtfile) + "h.txt"
+        data, condition = get2ddata(txtfile, xi, xf, yi, yf)
+        n = np.sum(data)*1.0
+        maxxwidth = np.min(np.sum(condition, axis=0)) // 2
+        maxywidth = np.min(np.sum(condition, axis=1)) // 2
+        maxw = np.array([maxxwidth, maxywidth])
+        cumdata = np.cumsum(np.cumsum(data, axis=0), axis=1)
+
+        Cn, kaves, deltas = calc_cost2d(cumdata, maxw, condition)
+        Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
+
+        Indx_of_TotalIntensity = 0
+        for m in TotalIntensity:
+            ex = np.zeros((deltas.shape[0], deltas.shape[1]))
+            ex[1:, 1:] = (1/m - 1/n) * kaves[1:, 1:] / (deltas[1:, 1:]**2*n) 
+            ex[0, :] = 0.0
+            ex[:, 0] = 0.0
+            Cm = ex + Cn
+            print("opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape), "for m = ", m,  " with n = ", n)
+            opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+            opt_indx_for_x[Indx_of_txtfile - 1, Indx_of_TotalIntensity] = opt_indx[0]
+            opt_indx_for_y[Indx_of_txtfile - 1, Indx_of_TotalIntensity] = opt_indx[1]
+            Indx_of_TotalIntensity += 1
+
+    with open(outfile, mode='w') as f:
+        f.write("optimization results for 373 data: n, opt_indx_x, opt_indx_y, 1/n, 1/(opt_idnx_x*opt_indx_y) \n")
+        for Indx_of_txtfile in range(0, num_txtfiles): 
+            f.write("%e %d %d %e %e\n" %
+             (
+              TotalIntensity[Indx_of_txtfile],
+              opt_indx_for_x[Indx_of_txtfile, Indx_of_txtfile],
+              opt_indx_for_y[Indx_of_txtfile, Indx_of_txtfile],
+              1/(TotalIntensity[Indx_of_txtfile]*1.0),
+              1/(opt_indx_for_x[Indx_of_txtfile,
+              Indx_of_txtfile]*opt_indx_for_y[Indx_of_txtfile,
+              Indx_of_txtfile]*1.0)
+             )
+            )
+        f.write("extraporation results for 373 data: m, opt_indx_x, opt_indx_y, 1/m, 1/(opt_idnx_x*opt_indx_y) \n")
+        for Indx_of_txtfile in range(0, num_txtfiles): 
+            f.write("For n = %e \n" % TotalIntensity[Indx_of_txtfile])
+            for Indx_of_TotalIntensity in range(0, num_txtfiles):
+                f.write("%e %d %d %e %e\n" %
+                 (
+                  TotalIntensity[Indx_of_TotalIntensity],
+                  opt_indx_for_x[Indx_of_txtfile, Indx_of_TotalIntensity],
+                  opt_indx_for_y[Indx_of_txtfile, Indx_of_TotalIntensity],
+                  1/(TotalIntensity[Indx_of_TotalIntensity]*1.0),
+                  1/(opt_indx_for_x[Indx_of_txtfile,
+                     Indx_of_TotalIntensity]*opt_indx_for_y[Indx_of_txtfile,
+                     Indx_of_TotalIntensity]*1.0)
+                 )
+                )
+
+
+runex()
+
+
