@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
-lib = ctypes.CDLL("./costfort3d.so")
+lib = ctypes.CDLL("./costfort12d.so")
 
 #def calc_cost4d_f90(A, B, maxw, data, condition):
 #def calc_cost4d_f90(A, maxw, data, condition):
@@ -111,7 +111,7 @@ def run_simu4d():
     print "opt_indx for Cm with m/n=", m/n, ":", opt_indx
 
     print "---save results in Cn.hdf5---"
-    outfile = "Cn3d.hdf5"
+    outfile = "Cn12.hdf5"
     with h5py.File(outfile, 'w') as hf:
         hf.create_dataset('Cn', data=Cn)
         hf.create_dataset('kave', data=kaves)
