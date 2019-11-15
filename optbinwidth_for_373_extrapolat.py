@@ -79,6 +79,17 @@ def calc_cost2d(A, maxw, condition):
     return Cn, kaves, deltas
 
 
+def get_optindx(m, n, Cn, kaves, deltas):
+    ex = np.zeros((deltas.shape[0], deltas.shape[1]))
+    ex[1:, 1:] = (1/m - 1/n) * kaves[1:, 1:] / (deltas[1:, 1:]**2*n) 
+    ex[0, :] = 0.0
+    ex[:, 0] = 0.0
+    Cm = ex + Cn
+    #print("opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape), "for m = ", m,  " with n = ", n)
+    opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
+    return opt_indx
+
+
 def runex():
     head = "/home/kazu/desktop/191031/"
     xi = 110
@@ -87,17 +98,21 @@ def runex():
     yf = 220
     num_txtfiles = 16
     outfile = "result.txt"
-    TotalIntensity = np.zeros((num_txtfiles))
-    opt_indx_for_x = np.zeros((num_txtfiles, num_txtfiles))
-    opt_indx_for_y = np.zeros((num_txtfiles, num_txtfiles))
+    TotalIntensity = []
+    opt_indx_for_x = []
+    opt_indx_for_y = []
+    TotalIntensity_ex = []
     for i in range(1, num_txtfiles + 1):
         txtfile = head + str(i) + "h.txt"
         data, condition = get2ddata(txtfile, xi, xf, yi, yf)
-        TotalIntensity[i-1] = np.sum(data)*1.0
+        TotalIntensity.append(np.sum(data)*1.0)
     print("I have obtained info of total intensities")
 
     for Indx_of_txtfile in range(1, num_txtfiles + 1):
         print("Extraporation with n = ", TotalIntensity[i-1])
+        local_opt_indx_for_x = []
+        local_opt_indx_for_y = []
+        local_TotalIntensity_ex = []
         txtfile = head + str(Indx_of_txtfile) + "h.txt"
         data, condition = get2ddata(txtfile, xi, xf, yi, yf)
         n = np.sum(data)*1.0
@@ -109,49 +124,92 @@ def runex():
         Cn, kaves, deltas = calc_cost2d(cumdata, maxw, condition)
         Cn = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
 
-        Indx_of_TotalIntensity = 0
         for m in TotalIntensity:
-            ex = np.zeros((deltas.shape[0], deltas.shape[1]))
-            ex[1:, 1:] = (1/m - 1/n) * kaves[1:, 1:] / (deltas[1:, 1:]**2*n) 
-            ex[0, :] = 0.0
-            ex[:, 0] = 0.0
-            Cm = ex + Cn
-            print("opt bin index", np.unravel_index(np.argmin(Cm, axis=None), Cm.shape), "for m = ", m,  " with n = ", n)
-            opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-            opt_indx_for_x[Indx_of_txtfile - 1, Indx_of_TotalIntensity] = opt_indx[0]
-            opt_indx_for_y[Indx_of_txtfile - 1, Indx_of_TotalIntensity] = opt_indx[1]
-            Indx_of_TotalIntensity += 1
-
+            opt_indx = get_optindx(m, n, Cn, kaves, deltas)
+            local_opt_indx_for_x.append(opt_indx[0])
+            local_opt_indx_for_y.append(opt_indx[1])
+            local_TotalIntensity_ex.append(m)
+            tmp_opt_x = opt_indx[0]
+            tmp_opt_y = opt_indx[1]
+        for mn_ratio in np.arange(1.1, 20.1, 0.1):
+            m = mn_ratio * TotalIntensity[Indx_of_txtfile - 1]
+            opt_indx = get_optindx(m, n, Cn, kaves, deltas)
+            if opt_indx[0] < tmp_opt_x or opt_indx[1] < tmp_opt_y:
+                tmp_opt_x = opt_indx[0]
+                tmp_opt_y = opt_indx[1]
+                local_opt_indx_for_x.append(opt_indx[0])
+                local_opt_indx_for_y.append(opt_indx[1])
+                local_TotalIntensity_ex.append(m)
+        opt_indx_for_x.append(local_opt_indx_for_x)
+        opt_indx_for_y.append(local_opt_indx_for_y)
+        TotalIntensity_ex.append(local_TotalIntensity_ex)
     with open(outfile, mode='w') as f:
         f.write("optimization results for 373 data: n, opt_indx_x, opt_indx_y, 1/n, 1/(opt_idnx_x*opt_indx_y) \n")
         for Indx_of_txtfile in range(0, num_txtfiles): 
             f.write("%e %d %d %e %e\n" %
              (
               TotalIntensity[Indx_of_txtfile],
-              opt_indx_for_x[Indx_of_txtfile, Indx_of_txtfile],
-              opt_indx_for_y[Indx_of_txtfile, Indx_of_txtfile],
+              opt_indx_for_x[Indx_of_txtfile][Indx_of_txtfile],
+              opt_indx_for_y[Indx_of_txtfile][Indx_of_txtfile],
               1/(TotalIntensity[Indx_of_txtfile]*1.0),
-              1/(opt_indx_for_x[Indx_of_txtfile,
-              Indx_of_txtfile]*opt_indx_for_y[Indx_of_txtfile,
+              1/(opt_indx_for_x[Indx_of_txtfile][
+              Indx_of_txtfile]*opt_indx_for_y[Indx_of_txtfile][
               Indx_of_txtfile]*1.0)
              )
             )
         f.write("extraporation results for 373 data: m, opt_indx_x, opt_indx_y, 1/m, 1/(opt_idnx_x*opt_indx_y) \n")
         for Indx_of_txtfile in range(0, num_txtfiles): 
             f.write("For n = %e \n" % TotalIntensity[Indx_of_txtfile])
-            for Indx_of_TotalIntensity in range(0, num_txtfiles):
+            #for Indx_of_TotalIntensity in range(0, num_txtfiles):
+            for Indx_of_TotalIntensity in range(0, len(TotalIntensity_ex[Indx_of_txtfile])):
                 f.write("%e %d %d %e %e\n" %
                  (
-                  TotalIntensity[Indx_of_TotalIntensity],
-                  opt_indx_for_x[Indx_of_txtfile, Indx_of_TotalIntensity],
-                  opt_indx_for_y[Indx_of_txtfile, Indx_of_TotalIntensity],
-                  1/(TotalIntensity[Indx_of_TotalIntensity]*1.0),
-                  1/(opt_indx_for_x[Indx_of_txtfile,
-                     Indx_of_TotalIntensity]*opt_indx_for_y[Indx_of_txtfile,
+                  TotalIntensity_ex[Indx_of_txtfile][Indx_of_TotalIntensity],
+                  opt_indx_for_x[Indx_of_txtfile][Indx_of_TotalIntensity],
+                  opt_indx_for_y[Indx_of_txtfile][Indx_of_TotalIntensity],
+                  1/(TotalIntensity_ex[Indx_of_txtfile][Indx_of_TotalIntensity]*1.0),
+                  1/(opt_indx_for_x[Indx_of_txtfile][
+                     Indx_of_TotalIntensity]*opt_indx_for_y[Indx_of_txtfile][
                      Indx_of_TotalIntensity]*1.0)
                  )
                 )
 
+    
+    plt.figure(figsize=(8, 16))
+    
+    xlist_for_each_n = []
+    ylist_for_each_n = []
+    for Indx_of_txtfile in range(0, num_txtfiles):
+        print(1/TotalIntensity[Indx_of_txtfile])
+        xlist_for_each_n.append(1/TotalIntensity[Indx_of_txtfile])
+        ylist_for_each_n.append(1/(opt_indx_for_x[Indx_of_txtfile][
+               Indx_of_txtfile]*opt_indx_for_y[Indx_of_txtfile][
+               Indx_of_txtfile]))
+    for Indx_of_txtfile in range(0, num_txtfiles):
+        xlist_for_m = []
+        ylist_for_m = []
+        for Indx_of_TotalIntensity in range(Indx_of_txtfile, len(TotalIntensity_ex[Indx_of_txtfile])):
+            xlist_for_m.append(1/(TotalIntensity_ex[Indx_of_txtfile][Indx_of_TotalIntensity]))
+            ylist_for_m.append(1/(opt_indx_for_x[Indx_of_txtfile][
+                        Indx_of_TotalIntensity]*opt_indx_for_y[Indx_of_txtfile][
+                        Indx_of_TotalIntensity]))
+        if (Indx_of_txtfile+1 <= num_txtfiles/2):
+            plt.subplot(num_txtfiles//2, 2, 2*(Indx_of_txtfile+1)-1)
+        else:
+            plt.subplot(num_txtfiles//2, 2, 2*(Indx_of_txtfile+1)-num_txtfiles)
+        plt.scatter(xlist_for_each_n[Indx_of_txtfile:], ylist_for_each_n[Indx_of_txtfile:], marker='x')
+        plt.scatter(xlist_for_m, ylist_for_m, marker='+')
+        plt.xlim(0,0.0001)
+        plt.ylim(0,0.06)
+        plt.tick_params(direction = "in")
+        plt.gca().ticklabel_format(style="sci", scilimits=(0,0), axis="y")
+        plt.gca().ticklabel_format(style="sci", scilimits=(0,0), axis="x")
+        if (Indx_of_txtfile == num_txtfiles//4 or Indx_of_txtfile == num_txtfiles//2 + num_txtfiles//4 ):
+            plt.ylabel('1/(opt_wx*opt_wy)')
+        if (Indx_of_txtfile == num_txtfiles//4 or Indx_of_txtfile == num_txtfiles ):
+            plt.xlabel('1/m or 1/n')
+ 
+    plt.show()
 
 runex()
 
