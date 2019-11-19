@@ -32,8 +32,10 @@ contains
     integer(c_int), intent(in) :: condition(datasize0, datasize1, datasize2, datasize3)                         
     logical(c_bool), intent(in) :: usecond
     type(result) :: cost4d                                  
-    double precision :: cumdata(datasize0, datasize1, datasize2, datasize3)
-    integer :: cum_cond(datasize0, datasize1, datasize2, datasize3)
+    !double precision :: cumdata(datasize0, datasize1, datasize2, datasize3)
+    !integer :: cum_cond(datasize0, datasize1, datasize2, datasize3)
+    double precision, allocatable :: cumdata(:,:,:,:)
+    integer, allocatable :: cum_cond(:,:,:,:)
     double precision, allocatable :: hist_array(:,:,:,:)                    
     integer, allocatable :: hist_cond(:,:,:,:)
     integer nw(4)
@@ -55,13 +57,23 @@ contains
     !enddo
     !do ax_id1 = 1, 3
     !do ax_id2 = ax_id1 + 1, 4
-    !  call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      !if (ax_id1 == 1 .and. ax_id2 == 2) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      !if (ax_id1 == 1 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      !if (ax_id1 == 2 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      !if (ax_id1 == 3 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      !call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
     !enddo
     !enddo
     !do ax_id1 = 1, 2
     !do ax_id2 = ax_id1 + 1, 3
     !do ax_id3 = ax_id2 + 1, 4
-    !  call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+      !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 3) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+      !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+      !if (ax_id1 == 1 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+      !if (ax_id1 == 2 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+      !call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
     !enddo
     !enddo
     !enddo
@@ -109,14 +121,16 @@ contains
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
-    double precision, allocatable :: hist_array(:,:,:,:)
+    !double precision, allocatable :: hist_array(:,:,:,:)
     integer nw(4)
     nw = 1
-    hist_array = data_array
+    !hist_array = data_array
     if (usecond) then
-      call stat1(pack(hist_array, condition == maxval(condition)), nw)
+      !call stat1(pack(hist_array, condition == maxval(condition)), nw)
+      call stat1(pack(data_array, condition == maxval(condition)), nw)
     else
-      call stat(hist_array, nw)
+      !call stat(hist_array, nw)
+      call stat(data_array, nw)
     end if
   end subroutine help0d
   subroutine help1d(data_array, ax, condition, usecond)
@@ -316,7 +330,7 @@ contains
     integer, intent(in) :: nw(4)
     double precision kave, v
     kave = sum(knonzero) / real(size(knonzero)); v = sum((knonzero - kave)**2) / real(size(knonzero))
-    !print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
+    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
     histaves(nw(1), nw(2), nw(3), nw(4)) = kave
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
     cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (real(product(nw))**2)
@@ -337,7 +351,7 @@ contains
   function cumsum4d(data_array, ax)
     integer, intent(in) :: ax
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
-    double precision :: cumsum4d(datasize(1), datasize(2), datasize(3),datasize(4))
+    double precision  :: cumsum4d(datasize(1), datasize(2), datasize(3),datasize(4))
     integer :: cum_id
     cumsum4d = data_array
     if (ax == 4) then
