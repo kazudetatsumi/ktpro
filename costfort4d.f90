@@ -13,11 +13,7 @@ module costfort4d
   real(c_double), pointer :: cost(:,:,:,:)                    
   real(c_double), pointer :: histaves(:,:,:,:)                    
   real(c_double), pointer :: deltas(:,:,:,:)                    
-<<<<<<< HEAD
-  integer :: datasize(4)
-=======
   integer datasize(4)
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
   integer maxw(4)
 
 contains
@@ -82,54 +78,7 @@ contains
     !enddo
     !enddo
 
-    !call help0d(data_array, condition, usecond)
-    !do ax_id1 = 1, 4
-    !  call help1d(data_array, ax_id1, condition, usecond)
-    !enddo
-    do ax_id1 = 1, 3
-    do ax_id2 = ax_id1 + 1, 4
-      call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-    enddo
-    enddo
-    !do ax_id1 = 1, 2
-    !do ax_id2 = ax_id1 + 1, 3
-    !do ax_id3 = ax_id2 + 1, 4
-    !  call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-    !enddo
-    !enddo
-    !enddo
 
-<<<<<<< HEAD
-
-    !do width_id1 = 14, maxw(1)
-    !nw(1) = width_id1
-    !histsize(1) = (datasize(1) - mod(datasize(1), nw(1))) / nw(1)
-    !do width_id2 = 14, maxw(2)
-    !nw(2) = width_id2
-    !histsize(2) = (datasize(2) - mod(datasize(2), nw(2))) / nw(2)
-    !do width_id3 = 14, maxw(3)
-    !nw(3) = width_id3
-    !histsize(3) = (datasize(3) - mod(datasize(3), nw(3))) / nw(3)
-    !do width_id4 = 14, maxw(4)
-    !nw(4) = width_id4
-    !histsize(4) = (datasize(4) - mod(datasize(4), nw(4))) / nw(4)
-    !   if (width_id1 /= 1 .and. width_id2 /= 1 .and. width_id3 /=1 .and. width_id4 /=1) then
-    !      hist_array = hist4d(cumdata, histsize, nw)
-    !      if (usecond) then 
-    !          hist_cond = hist4di(cum_cond, histsize, nw)
-    !          call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
-    !      else
-    !        call stat(hist_array, nw) 
-    !      endif
-    !   end if
-    !end do
-    !end do
-    !end do
-    !end do
-
-
-    print *, "minloc cost:", minloc(cost)
-=======
     !do width_id1 = 1, maxw(1)
     do width_id1 = 2, 11
     nw(1) = width_id1
@@ -159,7 +108,6 @@ contains
 
 
     print *, "minloc Cn:", minloc(cost), "with its value:", minval(cost)
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
     cost4d%len0 =  maxw(4)
     cost4d%len1 =  maxw(3)
     cost4d%len2 =  maxw(2)
@@ -382,15 +330,7 @@ contains
     integer, intent(in) :: nw(4)
     double precision kave, v
     kave = sum(knonzero) / real(size(knonzero)); v = sum((knonzero - kave)**2) / real(size(knonzero))
-<<<<<<< HEAD
     print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
-=======
-<<<<<<< HEAD
-    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
-=======
-    !print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
->>>>>>> 0ee0e45e260164c13dcf9e83f802f75062d63f7a
     histaves(nw(1), nw(2), nw(3), nw(4)) = kave
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
     cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (real(product(nw))**2)
@@ -456,104 +396,6 @@ contains
        end do
     end if
   end function cumsum4di
-<<<<<<< HEAD
-
-  function hist4d(cumdata, N, nw)
-    double precision, intent(in) :: cumdata(:,:,:,:) 
-    integer, intent(in) :: N(4), nw(4)
-    integer :: i, j, h, l, ihead, jhead, hhead, lhead
-    double precision :: hist4d(N(1), N(2), N(3),N(4))
-    do i = 1, N(1)
-    ihead = i*nw(1) 
-    do j = 1, N(2)
-    jhead = j*nw(2) 
-    do h = 1, N(3)
-    hhead = h*nw(3) 
-    !$omp parallel do
-    do l = 1, N(4)
-    lhead = l*nw(4) 
-      if ( i == 1 .and. j == 1 .and. h == 1 .and. l == 1 ) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead)
-      else if ( j == 1 .and. i /= 1 .and. h == 1 .and. l == 1 ) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) - cumdata(ihead - nw(1), jhead, hhead, lhead)
-      else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l == 1 ) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) - cumdata(ihead, jhead - nw(2), hhead, lhead)
-      else if ( j == 1 .and. h /= 1 .and. i == 1 .and. l == 1 ) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) - cumdata(ihead, jhead, hhead - nw(3), lhead)
-      else if ( j == 1 .and. l /= 1 .and. h == 1 .and. i == 1 ) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) - cumdata(ihead, jhead, hhead, lhead - nw(4))
-      else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l == 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead, hhead, lhead) - cumdata(ihead, jhead - nw(2), hhead, lhead) &
-                       + cumdata(ihead - nw(1), jhead - nw(2), hhead, lhead)
-      else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l == 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead, hhead, lhead) - cumdata(ihead, jhead, hhead - nw(3), lhead) &
-                       + cumdata(ihead - nw(1), jhead, hhead - nw(3), lhead)
-      else if ( i /= 1 .and. j == 1 .and. h == 1 .and. l /= 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead, hhead, lhead) - cumdata(ihead, jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead - nw(1), jhead, hhead, lhead - nw(4))
-      else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead, jhead - nw(2), hhead, lhead) - cumdata(ihead, jhead, hhead - nw(3), lhead) &
-                       + cumdata(ihead, jhead - nw(2), hhead - nw(3), lhead)
-      else if ( i == 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead, jhead - nw(2), hhead, lhead) - cumdata(ihead, jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead, jhead - nw(2), hhead, lhead - nw(4))
-      else if ( i == 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead, jhead, hhead - nw(3), lhead) - cumdata(ihead, jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead, jhead, hhead - nw(3), lhead - nw(4))
-      else if ( i /= 1 .and. j /= 1 .and. h /= 1 .and. l == 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead, hhead, lhead) - cumdata(ihead, jhead - nw(2), hhead, lhead) &
-                       - cumdata(ihead, jhead, hhead - nw(3), lhead) &
-                       + cumdata(ihead, jhead - nw(2), hhead - nw(3), lhead) + cumdata(ihead - nw(1), jhead, hhead - nw(3), lhead) &
-                       + cumdata(ihead - nw(1), jhead - nw(2), hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead - nw(2), hhead - nw(3), lhead)
-      else if ( i /= 1 .and. j /= 1 .and. h == 1 .and. l /= 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead, hhead, lhead) - cumdata(ihead, jhead - nw(2), hhead, lhead) &
-                       - cumdata(ihead, jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead - nw(1), jhead - nw(2), hhead, lhead) + cumdata(ihead - nw(1), jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead, jhead - nw(2), hhead, lhead - nw(4)) &
-                       - cumdata(ihead - nw(1), jhead - nw(2), hhead, lhead - nw(4))
-      else if ( i /= 1 .and. j == 1 .and. h /= 1 .and. l /= 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead, hhead, lhead) - cumdata(ihead, jhead, hhead - nw(3), lhead) &
-                       - cumdata(ihead, jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead - nw(1), jhead, hhead - nw(3), lhead) + cumdata(ihead - nw(1), jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead, jhead, hhead - nw(3), lhead - nw(4)) &
-                       - cumdata(ihead - nw(1), jhead, hhead - nw(3), lhead - nw(4))
-      else if ( i == 1 .and. j /= 1 .and. h /= 1 .and. l /= 1) then
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead, jhead - nw(2), hhead, lhead) - cumdata(ihead, jhead, hhead - nw(3), lhead) &
-                       - cumdata(ihead, jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead, jhead - nw(2), hhead - nw(3), lhead) + cumdata(ihead, jhead - nw(2), hhead, lhead - nw(4)) &
-                       + cumdata(ihead, jhead, hhead - nw(3), lhead - nw(4)) &
-                       - cumdata(ihead, jhead - nw(2), hhead - nw(3), lhead - nw(4))
-      else
-         hist4d(i, j, h, l) = cumdata(ihead, jhead, hhead, lhead) &
-                       - cumdata(ihead - nw(1), jhead, hhead, lhead) - cumdata(ihead, jhead - nw(2), hhead, lhead) &
-                       - cumdata(ihead, jhead, hhead - nw(3), lhead) - cumdata(ihead, jhead, hhead, lhead - nw(4)) &
-                       + cumdata(ihead - nw(1), jhead - nw(2), hhead, lhead) + cumdata(ihead - nw(1), jhead, hhead - nw(3), lhead) &
-                       + cumdata(ihead - nw(1), jhead, hhead, lhead - nw(4)) + cumdata(ihead, jhead - nw(2), hhead - nw(3), lhead) &
-                       + cumdata(ihead, jhead - nw(2), hhead, lhead - nw(4)) + cumdata(ihead, jhead, hhead - nw(3), lhead - nw(4)) &
-                       - cumdata(ihead, jhead - nw(2), hhead - nw(3), lhead - nw(4)) &
-                       - cumdata(ihead - nw(1), jhead, hhead - nw(3), lhead - nw(4)) &
-                       - cumdata(ihead - nw(1), jhead - nw(2), hhead, lhead - nw(4)) &
-                       - cumdata(ihead - nw(1), jhead - nw(2), hhead - nw(3), lhead) &
-                       + cumdata(ihead - nw(1), jhead - nw(2), hhead - nw(3), lhead - nw(4))
-      end if
-    end do
-    end do
-    end do
-    end do
-  end function hist4d
-
-=======
 
   function hist4d(cumdata, N, nw)
     double precision, intent(in) :: cumdata(:,:,:,:) 
@@ -650,26 +492,18 @@ contains
     end do
   end function hist4d
 
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
   function hist4di(cumdata, N, nw)
     integer, intent(in) :: cumdata(:,:,:,:) 
     integer, intent(in) :: N(4), nw(4)
     integer :: i, j, h, l, ihead, jhead, hhead, lhead
     integer :: hist4di(N(1),N(2),N(3),N(4))
-<<<<<<< HEAD
-=======
     !$omp parallel do
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
     do i = 1, N(1)
     ihead = i*nw(1) 
     do j = 1, N(2)
     jhead = j*nw(2) 
     do h = 1, N(3)
     hhead = h*nw(3) 
-<<<<<<< HEAD
-    !$omp parallel do
-=======
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
     do l = 1, N(4)
     lhead = l*nw(4) 
        if ( i == 1 .and. j == 1 .and. h == 1 .and. l == 1 ) then
@@ -790,15 +624,9 @@ contains
     integer, intent(in) :: N(2), nw(2)
     integer :: i, ihead, j, jhead
     double precision :: hist2d(N(1), N(2), size(B,3), size(B,4))
-<<<<<<< HEAD
-    do i = 1, N(1)
-       ihead = i*nw(1) 
-       !$omp parallel do
-=======
     !$omp parallel do
     do i = 1, N(1)
        ihead = i*nw(1) 
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
        do j = 1, N(2)
           jhead = j*nw(2) 
           if ( i == 1 .and. j == 1) then
@@ -819,15 +647,9 @@ contains
     integer, intent(in) :: N(2), nw(2)
     integer :: i, ihead, j, jhead
     integer :: hist2di(N(1), N(2), size(B,3), size(B,4))
-<<<<<<< HEAD
-    do i = 1, N(1)
-       ihead = i*nw(1) 
-       !$omp parallel do
-=======
     !$omp parallel do
     do i = 1, N(1)
        ihead = i*nw(1) 
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
        do j = 1, N(2)
           jhead = j*nw(2) 
           if ( i == 1 .and. j == 1) then
@@ -849,18 +671,11 @@ contains
     integer, intent(in) :: N(3), nw(3)
     integer :: i, ihead, j, jhead, h, hhead
     double precision :: hist3d(N(1), N(2), N(3), size(B,4))
-<<<<<<< HEAD
-=======
     !$omp parallel do
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
     do i = 1, N(1)
        ihead = i*nw(1) 
        do j = 1, N(2)
           jhead = j*nw(2)
-<<<<<<< HEAD
-          !$omp parallel do
-=======
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
           do h = 1, N(3)
              hhead = h*nw(3)
              if ( i == 1 .and. j == 1 .and. h == 1) then
@@ -895,18 +710,11 @@ contains
     integer, intent(in) :: N(3), nw(3)
     integer :: i, ihead, j, jhead, h, hhead
     integer :: hist3di(N(1), N(2), N(3), size(B,4))
-<<<<<<< HEAD
-=======
     !$omp parallel do
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
     do i = 1, N(1)
        ihead = i*nw(1) 
        do j = 1, N(2)
           jhead = j*nw(2)
-<<<<<<< HEAD
-          !$omp parallel do
-=======
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
           do h = 1, N(3)
              hhead = h*nw(3)
              if ( i == 1 .and. j == 1 .and. h == 1) then
