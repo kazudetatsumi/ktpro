@@ -8,7 +8,7 @@ plt.rcParams['font.family'] = 'Times New Roman'
 def run():
     num_txtfiles = 16
     infile = "result.txt.full"
-    fig=plt.figure(figsize=(8, 20))
+    fig=plt.figure(figsize=(12, 20))
     f = open(infile, 'r')
     extraFound = 0
     line = f.readline()
@@ -73,7 +73,8 @@ def run():
         if (Indx_of_txtfile == num_txtfiles//4 or Indx_of_txtfile == num_txtfiles//2 + num_txtfiles//4 ):
             ax.set_ylabel('1/(opt_wx*opt_wy)')
     plt.subplots_adjust(wspace=0.4, hspace=0.0)
-    plt.show()
+    plt.savefig("result.txt.full.pdf")
+    #plt.show()
 
 run()
 
