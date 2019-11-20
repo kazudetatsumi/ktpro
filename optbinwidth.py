@@ -54,6 +54,52 @@ def get2ddata(f, xi, xf, yi, yf):
     #return data
 
 
+def get2ddata_for_command_line(f, xi, xf, yi, yf):
+    data = np.genfromtxt(f,  delimiter=',', dtype=None)
+    x = data[:, 0]
+    y = data[:, 1]
+    z = data[:, 2]
+    print "max intensity", np.max(z)
+    dx = 0.005
+    dy = 0.1
+    xlin = np.arange(min(x), max(x)+dx, dx)
+    nx = xlin.shape[0]
+    ylin = np.arange(min(y), max(y)+dy, dy)
+    ny = ylin.shape[0]
+    print nx, ny
+    
+    karr = np.zeros((nx, ny))
+    karr2 = np.zeros((nx, ny))
+
+
+    # here we check whether we correctly read the whole lines in the input file
+    # and generate a matrix "condition" which describes whether the element location is included in the input file or not.
+
+    for _x, _y, _z in zip(x, y, z):
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr[xx, yy] = _z + 0.00000001
+
+    condition = karr > 0.0000000001
+    print condition.shape
+    karrnonzero = np.extract(condition, karr)
+    ndata = x.shape[0]
+    if karrnonzero.shape[0] != x.shape[0]:
+         print "num of nonzero karr is not num of data", karrnonzero.shape
+    else:
+         print "num of nonzero karr matches  num of data", karrnonzero.shape
+
+
+    #here we regenerate the data matrix purely.
+
+    for _x, _y, _z in zip(x, y, z):
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr2[xx, yy] = _z
+
+    return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
+    #return data
+
 def calc_hist1d(A, nw, condition):
     Nmax = A.shape[0]
     N = int((Nmax - (Nmax % nw)) / nw)
@@ -724,8 +770,8 @@ def runexorg():
     plt.colorbar(mappable)
 
 def run_tst():
-    txtfile = "/home/kazu/data/20min_fine.txt"
-    data = get2ddata(txtfile)
+    txtfile = "/home/kazu/Desktop/191120/output.txt"
+    data = get2ddata_for_commandline(txtfile)
     plt.pcolor(np.transpose(data), vmax=np.max(data)/1000, cmap='jet')
 
 def run_simu():
@@ -1154,11 +1200,11 @@ def runex():
         lib.delete_array2.restype = None
         lib.delete_array2.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)]
         lib.delete_array2(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), k)
-#run_tst()
+run_tst()
 #run_tst2d()
 #run2d()
 #run2d_f90()
-runexorg()
+#runexorg()
 #run_simu()
 #run_simu3d()
 #run1d()
