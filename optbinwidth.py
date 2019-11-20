@@ -54,11 +54,14 @@ def get2ddata(f, xi, xf, yi, yf):
     #return data
 
 
-def get2ddata_for_command_line(f, xi, xf, yi, yf):
+def get2ddata_for_commandline(f):
     data = np.genfromtxt(f,  delimiter=',', dtype=None)
-    x = data[:, 0]
-    y = data[:, 1]
-    z = data[:, 2]
+    #x = data[:, 0]
+    #y = data[:, 1]
+    #z = data[:, 2]
+    x = np.extract(data[:, 2] < 1e+100, data[:, 0])
+    y = np.extract(data[:, 2] < 1e+100, data[:, 1])
+    z = np.extract(data[:, 2] < 1e+100, data[:, 2])
     print "max intensity", np.max(z)
     dx = 0.005
     dy = 0.1
@@ -97,7 +100,7 @@ def get2ddata_for_command_line(f, xi, xf, yi, yf):
         yy = np.where(abs(ylin - _y) < 0.0000001)
         karr2[xx, yy] = _z
 
-    return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
+    return karr2[:, :]
     #return data
 
 def calc_hist1d(A, nw, condition):
