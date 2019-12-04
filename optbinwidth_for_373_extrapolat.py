@@ -28,12 +28,41 @@ def get2ddata(f, xi, xf, yi, yf):
 
     condition = karr > 0.0000000001
     karrnonzero = np.extract(condition, karr)
-    ndata = x.shape[0]
 
     for _x, _y, _z in zip(x, y, z):
         xx = np.where(abs(xlin - _x) < 0.0000001)
         yy = np.where(abs(ylin - _y) < 0.0000001)
         karr2[xx, yy] = _z
+
+    return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
+
+
+def get2ddata_for_commandline(f, xi, xf, yi, yf):
+    data = np.genfromtxt(f,  delimiter=',', dtype=None)
+    x = np.extract(data[:, 2] < 1e+100, data[:, 0])
+    y = np.extract(data[:, 2] < 1e+100, data[:, 1])
+    z = np.extract(data[:, 2] < 1e+100, data[:, 2])
+    dx = 0.005
+    dy = 0.1
+    xlin = np.arange(min(x), max(x)+dx, dx)
+    nx = xlin.shape[0]
+    ylin = np.arange(min(y), max(y)+dy, dy)
+    ny = ylin.shape[0]
+    karr = np.zeros((nx, ny)) 
+    karr2 = np.zeros((nx, ny)) 
+
+    for _x, _y, _z in zip(x, y, z):
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr[xx, yy] = _z + 0.00000001
+
+    condition = karr > 0.0000000001
+    karrnonzero = np.extract(condition, karr)
+
+    for _x, _y, _z in zip(x, y, z):
+        xx = np.where(abs(xlin - _x) < 0.0000001)
+        yy = np.where(abs(ylin - _y) < 0.0000001)
+        karr2[xx, yy] = _z 
 
     return karr2[xi:xf, yi:yf], condition[xi:xf, yi:yf]
 
@@ -91,7 +120,8 @@ def get_optindx(m, n, Cn, kaves, deltas):
 
 
 def runex():
-    head = "/home/kazu/desktop/191031/"
+    #head = "/home/kazu/desktop/191031/"
+    head = "/home/kazu/desktop/191120/"
     xi = 110
     xf = 217
     yi = 100
@@ -104,17 +134,19 @@ def runex():
     TotalIntensity_ex = []
     for i in range(1, num_txtfiles + 1):
         txtfile = head + str(i) + "h.txt"
-        data, condition = get2ddata(txtfile, xi, xf, yi, yf)
+        #data, condition = get2ddata(txtfile, xi, xf, yi, yf)
+        data, condition = get2ddata_for_commandline(txtfile, xi, xf, yi, yf)
         TotalIntensity.append(np.sum(data)*1.0)
     print("I have obtained info of total intensities")
 
     for Indx_of_txtfile in range(1, num_txtfiles + 1):
-        print("Extraporation with n = ", TotalIntensity[i-1])
+        print("Extraporation with n = ", TotalIntensity[Indx_of_txtfile-1])
         local_opt_indx_for_x = []
         local_opt_indx_for_y = []
         local_TotalIntensity_ex = []
         txtfile = head + str(Indx_of_txtfile) + "h.txt"
-        data, condition = get2ddata(txtfile, xi, xf, yi, yf)
+        #data, condition = get2ddata(txtfile, xi, xf, yi, yf)
+        data, condition = get2ddata_for_commandline(txtfile, xi, xf, yi, yf)
         n = np.sum(data)*1.0
         maxxwidth = np.min(np.sum(condition, axis=0)) // 2
         maxywidth = np.min(np.sum(condition, axis=1)) // 2
@@ -175,41 +207,62 @@ def runex():
                 )
 
     
-    plt.figure(figsize=(8, 16))
+    fig=plt.figure(figsize=(12, 20))
     
     xlist_for_each_n = []
     ylist_for_each_n = []
     for Indx_of_txtfile in range(0, num_txtfiles):
-        print(1/TotalIntensity[Indx_of_txtfile])
-        xlist_for_each_n.append(1/TotalIntensity[Indx_of_txtfile])
+        print(1/TotalIntensity[Indx_of_txtfile]*1.0)
+        xlist_for_each_n.append(1/TotalIntensity[Indx_of_txtfile]*1.0)
         ylist_for_each_n.append(1/(opt_indx_for_x[Indx_of_txtfile][
                Indx_of_txtfile]*opt_indx_for_y[Indx_of_txtfile][
-               Indx_of_txtfile]))
+               Indx_of_txtfile]*1.0))
     for Indx_of_txtfile in range(0, num_txtfiles):
         xlist_for_m = []
         ylist_for_m = []
         for Indx_of_TotalIntensity in range(Indx_of_txtfile, len(TotalIntensity_ex[Indx_of_txtfile])):
-            xlist_for_m.append(1/(TotalIntensity_ex[Indx_of_txtfile][Indx_of_TotalIntensity]))
+            xlist_for_m.append(1/(TotalIntensity_ex[Indx_of_txtfile][Indx_of_TotalIntensity]*1.0))
             ylist_for_m.append(1/(opt_indx_for_x[Indx_of_txtfile][
                         Indx_of_TotalIntensity]*opt_indx_for_y[Indx_of_txtfile][
-                        Indx_of_TotalIntensity]))
+                        Indx_of_TotalIntensity]*1.0))
         if (Indx_of_txtfile+1 <= num_txtfiles/2):
-            plt.subplot(num_txtfiles//2, 2, 2*(Indx_of_txtfile+1)-1)
+            ax=fig.add_subplot(num_txtfiles//2, 2, 2*(Indx_of_txtfile+1)-1)
         else:
-            plt.subplot(num_txtfiles//2, 2, 2*(Indx_of_txtfile+1)-num_txtfiles)
-        plt.scatter(xlist_for_each_n[Indx_of_txtfile:], ylist_for_each_n[Indx_of_txtfile:], marker='x')
-        plt.scatter(xlist_for_m, ylist_for_m, marker='+')
-        plt.xlim(0,0.0001)
-        plt.ylim(0,0.06)
-        plt.tick_params(direction = "in")
-        plt.gca().ticklabel_format(style="sci", scilimits=(0,0), axis="y")
+            ax=fig.add_subplot(num_txtfiles//2, 2, 2*(Indx_of_txtfile+1)-num_txtfiles)
+        ax.scatter(xlist_for_each_n[Indx_of_txtfile:],
+                ylist_for_each_n[Indx_of_txtfile:], marker='x', clip_on=False,
+                s=50, label="each n")
+        ax.scatter(xlist_for_m, ylist_for_m,
+                marker='+', clip_on=False, s=72, label="prediction")
+        ax.set_xlim(0,0.0001)
+        ax.set_ylim(0,0.06)
+        hour = Indx_of_txtfile + 1 
+        ax.text(0.25, 0.8, 'n at %dh'%hour,
+        transform=ax.transAxes, ha="right")
+
+        if (Indx_of_txtfile+1 == 1): 
+           ax.legend()
+
+        if (Indx_of_txtfile+1 == 1 or Indx_of_txtfile+1 == num_txtfiles//2 + 1): 
+           ax.set_yticks([0,0.02,0.04,0.06])
+        else:
+           ax.set_yticks([0,0.02,0.04])
+
+        ax.tick_params(labelbottom=False)
+        ax.tick_params(direction = "in")
+        if (Indx_of_txtfile+1 ==  num_txtfiles//2  or Indx_of_txtfile+1 == num_txtfiles):
+            ax.tick_params(labelbottom=True)
+            ax.set_xlabel('1/m or 1/n')
+
+        #plt.gca().ticklabel_format(style="sci", scilimits=(0,0), axis="y")
         plt.gca().ticklabel_format(style="sci", scilimits=(0,0), axis="x")
         if (Indx_of_txtfile == num_txtfiles//4 or Indx_of_txtfile == num_txtfiles//2 + num_txtfiles//4 ):
-            plt.ylabel('1/(opt_wx*opt_wy)')
-        if (Indx_of_txtfile == num_txtfiles//4 or Indx_of_txtfile == num_txtfiles ):
-            plt.xlabel('1/m or 1/n')
- 
+            ax.set_ylabel('1/(opt_wx*opt_wy)')
+    plt.subplots_adjust(wspace=0.4, hspace=0.0)
+    #plt.savefig("result.txt.full.pdf")
     plt.show()
+
+      
 
 runex()
 

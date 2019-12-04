@@ -76,7 +76,7 @@ def get2ddata_for_commandline(f):
 
 
     # here we check whether we correctly read the whole lines in the input file
-    # and generate a matrix "condition" which describes whether the element location is included in the input file or not.
+    # and generate a matrix "condition" which describes whether the element location has measured intensity or not.
 
     for _x, _y, _z in zip(x, y, z):
         xx = np.where(abs(xlin - _x) < 0.0000001)
@@ -86,7 +86,7 @@ def get2ddata_for_commandline(f):
     condition = karr > 0.0000000001
     print condition.shape
     karrnonzero = np.extract(condition, karr)
-    ndata = x.shape[0]
+    #ndata = x.shape[0]
     if karrnonzero.shape[0] != x.shape[0]:
          print "num of nonzero karr is not num of data", karrnonzero.shape
     else:

@@ -7,8 +7,9 @@ plt.rcParams['font.family'] = 'Times New Roman'
 
 def run():
     num_txtfiles = 16
+    #num_txtfiles = 2 # we assume num_txtfiles > 1
     infile = "result.txt.full"
-    fig=plt.figure(figsize=(12, 20))
+    fig=plt.figure(figsize=(12, 20/16.0*num_txtfiles))
     f = open(infile, 'r')
     extraFound = 0
     line = f.readline()
