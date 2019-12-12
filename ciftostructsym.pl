@@ -222,6 +222,7 @@ for($i=1;$i<=$numatom;$i++)
  if($ele[$ne[$i]] eq "Ba"){$znum=56;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "Ca"){$znum=20;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "P"){$znum=15;$numC++;$sortnum=$numC;}
+ if($ele[$ne[$i]] eq "Cl"){$znum=17;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "As"){$znum=33;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "Mg"){$znum=12;$numMg++;$sortnum=$numMg;}
  if($ele[$ne[$i]] eq "Zn"){$znum=30;$numC++;$sortnum=$numC;}
@@ -232,6 +233,7 @@ for($i=1;$i<=$numatom;$i++)
  if($ele[$ne[$i]] eq "Y"){$znum=39;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "Al"){$znum=13;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "Rh"){$znum=45;$numC++;$sortnum=$numC;}
+ if($ele[$ne[$i]] eq "Cs"){$znum=55;$numC++;$sortnum=$numC;}
 
  
 # if($x[$i] >=0.0){$x[$i]=$x[$i]-int($x[$i]);} else{$x[$i]=$x[$i]-int($x[$i]-1);}  
