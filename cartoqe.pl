@@ -1,14 +1,11 @@
 #!/usr/bin/perl
-# Description: This script converts atomic coordinations of crystal in a .car 
-# file to VASP input POSCAR.
-# The motivation is as follows:  The accuracy of .cif file is NOT enough for the VASP symmetry-finding routine,
-# for example, trigonal symmetry cannot be found using a .cif file. This is broken down using more accurate files, c.f.
-# .car or .msi files. 
-#  Kazuyoshi TATSUMI 2005 10
+# Description: This script converts atomic coordinations of a crystal stored in a .car 
+# file to those in a Quantum Espresso input .in.
+# Kazuyoshi TATSUMI 2019 12
 
 $infile="$ARGV[0]";
 @values=split(/\./,$infile);
-$outfile=$values[0].".qe";
+$outfile=$values[0].".pw.in";
 open(IN,"$infile")||die "cannot open $infile\n";
 $PBCFound=0;
 while($PBCFound!=1)
@@ -69,6 +66,8 @@ for($i=1;$i<=$NumEle;$i++)
    $ELename[$i]=chop($Elename[$i]);
    print "$Elename[$i]\n";
    $Num[$i]=0;
+   if ($Elename[$i] eq "Na"){$AM[$i]=22.98976928;$pseu[$i]="Na.pbe-spn-kjpaw_psl.0.2.UPF";}
+   elsif ($Elename[$i] eq "Cl") {$AM[$i]=35.453;$pseu[$i]="Cl.pbe-n-kjpaw_psl.0.1.UPF";}
  }
 print "please enter the TOTAL number of atoms \n";
 $NumAtom=<STDIN>;
@@ -97,7 +96,6 @@ for($i=1;$i<=$NumEle;$i++)
    close(IN);
  }
 print "$k\n";
-#if($NumAtom != $k){die "Number of atoms is unmatched !";}
 
 for($i=1;$i<=$NumAtom;$i++)
  {
@@ -133,24 +131,36 @@ for($i=1;$i<=$NumEle;$i++)
 
 #OUTPUT
 open (OUT, ">$outfile");
+  print OUT "&control\n";
   print OUT "    calculation = 'scf'\n";
   print OUT "    tprnfor = .true.\n";
   print OUT "    tstress = .true.\n";
   print OUT "    pseudo_dir = '/home/kazu/code/q-e-qe-6.4.1/pseudo/'\n";
-  
+  print OUT "/\n";
+  print OUT "&system\n";
+  print OUT "    ibrav = 0\n";
+  print OUT "    nat = 8\n";
+  printf (OUT "    ntyp = %d \n", $NumEle);
+  print OUT "    ecutwfc = 70.0\n";
+  print OUT "/\n";
+  print OUT "&electrons\n";
+  print OUT "    diagonalization = 'david'\n";
+  print OUT "    conv_thr = 1.0d-9\n";
+  print OUT "/\n";   
   print OUT "ATOMIC_SPECIES\n";
   for($i=1;$i<=$NumEle;$i++)
    { 
-     printf (OUT " %s \n", $Elename[$i]);
+     printf (OUT " %s %12.8f  %s \n", $Elename[$i],$AM[$i],$pseu[$i]);
   }
   print OUT "ATOMIC_POSITIONS crystal\n";
   for($i=1;$i<=$NumAtom;$i++)
    { 
-     printf (OUT " %s %12.8f%12.8f%12.8f  \n", $Ele[$i], $u[$i],$v[$i],$w[$i]);
+     printf (OUT " %s %22.16f%22.16f%22.16f  \n", $Ele[$i], $u[$i],$v[$i],$w[$i]);
   }
   print OUT "CELL_PARAMETERS angstrom \n";
   printf (OUT "%22.16f%22.16f%22.16f \n",$a1,$a2,$a3);
   printf (OUT "%22.16f%22.16f%22.16f \n",$b1,$b2,$b3);
   printf (OUT "%22.16f%22.16f%22.16f \n",$c1,$c2,$c3);
-  printf (OUT " %s \n",$particles);
+  print OUT "K_POINTS automatic\n";
+  print OUT " 8 8 8 1 1 1\n";
 close(OUT);
