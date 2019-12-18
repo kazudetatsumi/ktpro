@@ -17,7 +17,7 @@ while(!eof(ELE))
   if ($ele[$j] eq "Na"){$AM[$j]=22.98976928;$pseu[$j]="Na.pbe-spn-kjpaw_psl.0.2.UPF";}
   elsif ($ele[$j] eq "Cl") {$AM[$j]=35.453;$pseu[$j]="Cl.pbe-n-kjpaw_psl.0.1.UPF";}  
   elsif ($ele[$j] eq "Ni") {$AM[$j]=58.6934;$pseu[$j]="Ni.pbe-n-kjpaw_psl.0.1.UPF";}  
-  elsif ($ele[$j] eq "La") {$AM[$j]=138.90547;$pseu[$j]="La.pbe-spfn-kjpaw_psl.1.0.0.UPF";}
+  elsif ($ele[$j] eq "La") {$AM[$j]=138.90547;$pseu[$j]="La.GGA-PBE-paw-v1.0.UPF";}
 }
 $numele=$j;
 close(ELE);

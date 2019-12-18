@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 #This script read the qe output xml file and create a qe new input file with the calculated atomic structure
 #The generated input file is used to obtain further accurate atomic/electronic structure calculation.
-#Kazuyoshi TATSUMI 2019 12 12
+#Kazuyoshi TATSUMI 2019 12 18
+#latmat was transposed to work correctly.
 use XML::TreePP;
 use PDL;
 use PDL::Matrix;
@@ -22,9 +23,10 @@ $cell = $output_str->{cell};
 @values1 = split(/\ +/, $cell->{a1}); 
 @values2 = split(/\ +/, $cell->{a2}); 
 @values3 = split(/\ +/, $cell->{a3}); 
-$latmat = mpdl [$values1[0], $values1[1], $values1[2]],[$values2[0], $values2[1], $values2[2]], [$values3[0], $values3[1], $values3[2]];
-$inv_latmat = matinv $latmat;
+$latmat = transpose mpdl [$values1[0], $values1[1], $values1[2]],[$values2[0], $values2[1], $values2[2]], [$values3[0], $values3[1], $values3[2]];
+$inv_latmat =  matinv $latmat;
 $latmat_angs = $latmat * $atoangs;
+print $latmat_angs;
 
 $atoms = $output_str->{atomic_positions}{atom};
 for ($cnt = 0; $cnt < @$atoms; $cnt++) {
