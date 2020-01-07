@@ -52,10 +52,15 @@ open (OUT, ">$outfile");
   printf (OUT "    nat = %d\n", $NumAtom);
   printf (OUT "    ntyp = %d \n", $NumEle);
   print OUT "    ecutwfc = 70.0\n";
+  print OUT "    occupations='smearing',\n";
+  print OUT "    smearing='mv',\n";
+  print OUT "    degauss=0.01,\n";
   print OUT "/\n";
   print OUT "&electrons\n";
   print OUT "    diagonalization = 'david'\n";
   print OUT "    conv_thr = 1.0d-9\n";
+  print OUT "    mixing_beta = 0.4\n";
+  print OUT "    mixing_ndim = 45\n";
   print OUT "/\n";
   print OUT "&ions\n";
   print OUT "/\n";
@@ -76,7 +81,7 @@ open (OUT, ">$outfile");
   printf (OUT "%22.16f%22.16f%22.16f \n",$latmat_angs->at(0,1),$latmat_angs->at(1,1),$latmat_angs->at(2,1));
   printf (OUT "%22.16f%22.16f%22.16f \n",$latmat_angs->at(0,2),$latmat_angs->at(1,2),$latmat_angs->at(2,2));
   print OUT "K_POINTS automatic\n";
-  print OUT " 8 8 8 1 1 1\n";
+  print OUT " 5 5 3 0 0 0\n";
 close(OUT);
 }
 else{
