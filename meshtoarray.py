@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+#This script convert  phonopy ouput (hdf5) to a simulated neutron inelastic scattering intensities distributed in the 4d space.
+#the convolution function is similar to that in JPSJ2019.
+#Kazuyoshi TATSUMI 2019.
 import numpy as np
 import h5py
 import yaml
