@@ -11,17 +11,16 @@ def get3ddata(f):
     y = data[:, 1]
     z = data[:, 2]
     intensity = data[:, 4]
-    dx = 0.02
-    dy = 0.02
-    dz = 0.02
+    dx = 0.05
+    dy = 0.05
+    dz = 0.05
     #xlin = np.arange(min(x), max(x)+dx, dx)
-    xlin = np.arange(-1.64, 4.10, dx)
+    xlin = np.arange(-1.65, 4.1, dx)
     nx = xlin.shape[0]
     #ylin = np.arange(min(y), max(y)+dy, dy)
-    ylin = np.arange(-2.10, 2.78, dy)
-    ny = ylin.shape[0]
-    #zlin = np.arange(min(z), max(z)+dz, dz)
-    zlin = np.arange(-0.84, 0.90, dz)
+    ylin = np.arange(-2.1, 2.8, dy)
+    ny = ylin.shape[0] #zlin = np.arange(min(z), max(z)+dz, dz)
+    zlin = np.arange(-0.85, 0.9, dz)
     nz = zlin.shape[0]
     karr = np.zeros((nx, ny, nz))
     karr2 = np.zeros((nx, ny, nz))
@@ -56,19 +55,61 @@ def make_mappable(maxvalue):
     return mappable
 
 
-def run():
-    head = "/home/kazu/desktop/200108/"
-    txtfile = head + "out_hw_0.1_0.2.txt"
-    outfile = head + "data.hdf5"
-    data3, condition = get3ddata(txtfile)
+def gen_hdf5(num_txtfiles, head):
+    for i in range(0, num_txtfiles):
+        txtfile = head + "out_hw_" + str(i) + "_" + str(i+1) + ".txt"
+        outfile = head + "out_hw_" + str(i) + "_" + str(i+1) + ".hdf5"
+        data3, condition = get3ddata(txtfile)
+        with h5py.File(outfile, 'w') as hf:
+            hf.create_dataset('data3', data=data3)
+            hf.create_dataset('condition', data=condition)
+
+
+def unit_hdf5(num_txtfiles, head):
+    for i in range(0, num_txtfiles):
+        outfile = head + "out_hw_" + str(i) + "_" + str(i+1) + ".hdf5"
+        f = h5py.File(outfile, 'r')
+        if i == 0:
+            tdata = np.zeros((f["data3"].shape[0], f["data3"].shape[1], f["data3"].shape[2], num_txtfiles))
+            tcondition = np.zeros((f["data3"].shape[0], f["data3"].shape[1], f["data3"].shape[2], num_txtfiles))
+        tdata[:,:,:,i] = f["data3"]
+        tcondition[:,:,:,i] = f["condition"]
+    outfile = head + "out_hw_all.hdf5"
     with h5py.File(outfile, 'w') as hf:
-        hf.create_dataset('data3', data=data3)
-        hf.create_dataset('condition', data=condition)
+        hf.create_dataset('data4', data=tdata)
+        hf.create_dataset('condition', data=tcondition)
+
+
+def run():
+    num_txtfiles = 41
+    head = "/home/kazu/desktop/200109/fine/fine/"
+    #gen_hdf5(num_txtfiles, head)
+    #unit_hdf5(num_txtfiles, head)
+
+    outfile = head + "out_hw_all.hdf5"
+
+    f=h5py.File(outfile)
+    data4 = f["data4"]
+    plt.figure(figsize=(16, 8))
+    #data3 = np.sum(data4[:,59:61,:,:], axis=1)
+    #data2 = np.sum(data3[:,14:16,:], axis=1)
+    print data4.shape
+    #data2 = data4[:,60,15,:]
+    data2 = data4[:,60,15,:]
+    #print np.unravel_index(np.argmax(data4), data4.shape)
+    plt.pcolor(np.transpose(data2), vmax=np.max(data2/50), cmap='jet')
+    mappable = make_mappable(np.max(data2/50))
+    plt.colorbar(mappable)
+    #plt.plot(np.log(data4[33,42,:,0]))
+
+    
+
+   
 
 
 def run_tst():
-    head = "/home/kazu/desktop/200108/"
-    txtfile = head + "out_hw_0.1_0.2.txt"
+    head = "/home/kazu/desktop/200109/fine/fine/"
+    txtfile = head + "out_hw_1_2.txt"
     data, condition = get3ddata(txtfile)
     plt.figure(figsize=(16, 8))
     data2 = np.sum(data, axis=0)
@@ -78,4 +119,5 @@ def run_tst():
 
 
 run()
-#plt.show()
+#run_tst()
+plt.show()
