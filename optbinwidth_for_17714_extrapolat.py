@@ -58,26 +58,24 @@ def make_mappable(maxvalue):
 
 def run():
     head = "/home/kazu/desktop/200108/"
-    txtfile = head + "out_hw_0.1_0.2.txt.small"
-    outfile = head + "data3.hdf5"
-    data, condition = get3ddata(txtfile)
+    txtfile = head + "out_hw_0.1_0.2.txt"
+    outfile = head + "data.hdf5"
+    data3, condition = get3ddata(txtfile)
     with h5py.File(outfile, 'w') as hf:
         hf.create_dataset('data3', data=data3)
+        hf.create_dataset('condition', data=condition)
 
 
 def run_tst():
     head = "/home/kazu/desktop/200108/"
     txtfile = head + "out_hw_0.1_0.2.txt"
-    data, condition = get3ddata(txtfile) 
-    plt.figure(figsize=(16, 8)) 
+    data, condition = get3ddata(txtfile)
+    plt.figure(figsize=(16, 8))
     data2 = np.sum(data, axis=0)
     plt.pcolor(np.transpose(data2), vmax=np.max(data2), cmap='jet')
     mappable = make_mappable(np.max(data2))
     plt.colorbar(mappable)
 
 
-
-
-
-run_tst()
-plt.show()
+run()
+#plt.show()
