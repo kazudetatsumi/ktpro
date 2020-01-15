@@ -54,7 +54,8 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
 
 def run_simu4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
+    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
+    datafile = "/home/kazu/WORK/vasp-phonopy/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
