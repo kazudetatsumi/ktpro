@@ -59,7 +59,7 @@ open (OUT, ">$posfile");
   print OUT "Selective Dynamics\n";
   print OUT "Direct\n";
   for($i=0;$i<$NumAtom;$i++){
-     printf (OUT "%11.5f%11.5f%11.5f  F  F  F  %s \n", $vecs[$i]->at(0,0),$vecs[$i]->at(1,0),$vecs[$i]->at(2,0)),$Ele[$i];
+     printf (OUT "%14.8f%14.8f%14.8f  T  T  T  %s \n", $vecs[$i]->at(0,0),$vecs[$i]->at(1,0),$vecs[$i]->at(2,0)),$Ele[$i];
   }
 close(OUT);
 

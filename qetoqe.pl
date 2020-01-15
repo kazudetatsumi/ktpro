@@ -24,6 +24,7 @@ $cell = $output_str->{cell};
 @values2 = split(/\ +/, $cell->{a2}); 
 @values3 = split(/\ +/, $cell->{a3}); 
 $latmat = transpose mpdl [$values1[0], $values1[1], $values1[2]],[$values2[0], $values2[1], $values2[2]], [$values3[0], $values3[1], $values3[2]];
+#$latmat = mpdl [$values1[0], $values1[1], $values1[2]],[$values2[0], $values2[1], $values2[2]], [$values3[0], $values3[1], $values3[2]];
 $inv_latmat =  matinv $latmat;
 $latmat_angs = $latmat * $atoangs;
 print $latmat_angs;
