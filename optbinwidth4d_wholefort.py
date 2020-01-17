@@ -54,31 +54,21 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
 
 def run_simu4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
+    datafile = "/home/kazu/desktop/200109/fine/fine/eliminated_data.hdf5"
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
-    data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
-    #print "size of data is", data.shape
+    data = f["data4"][:]*100000.0 # nqx, nqy, nqz, nomega
+    print "size of data is", data.shape
     #data = np.sum(data[:, :, :, :],axis=2)
     condition = np.ones(data.shape, dtype=np.int32)
-    usecond = True
+    usecond = False
     #condition = np.ones(data.shape, dtype=np.bool)
     
     n = np.sum(data)*1.0
     print "n=", n
 
 
-<<<<<<< HEAD
-    maxxwidth = np.min(np.sum(condition, axis=0)) / 6
-    maxywidth = np.min(np.sum(condition, axis=1)) / 6
-    maxzwidth = np.min(np.sum(condition, axis=2)) / 6
-    maxowidth = np.min(np.sum(condition, axis=3)) / 6
-    maxxwidth = 16
-    maxywidth = 16
-    maxzwidth = 16
-    maxowidth = 16
-=======
     maxxwidth = np.min(np.sum(condition, axis=0)) / 2
     maxywidth = np.min(np.sum(condition, axis=1)) / 2
     maxzwidth = np.min(np.sum(condition, axis=2)) / 2
@@ -87,7 +77,6 @@ def run_simu4d():
     #maxywidth = 16
     #maxzwidth = 16
     #maxowidth = 16
->>>>>>> 49035d4a8ee6883830d8be80efe687df3bd91977
 
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])

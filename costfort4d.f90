@@ -51,36 +51,46 @@ contains
     cost(:,:,:,:) = 0.0
     histaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
-    !call help0d(data_array, condition, usecond)
-    !do ax_id1 = 1, 4
-    !  call help1d(data_array, ax_id1, condition, usecond)
-    !enddo
-    !do ax_id1 = 1, 3
-    !do ax_id2 = ax_id1 + 1, 4
+
+    !!You can comment out or remove comment notations  to generate a *.so file which provides a part of the whole processes.
+    !!In the latest form, I created following *.so files: 
+    !!  1) costfort01d.so for help0d and help1d routines 
+    !!  2) each of costfort2d1-6.so for each of the if sentences within double do-loops of help2d
+    !!  3) each of costfort3d1-3.so for each of the if sentences within triple do-loops of help3d 
+    !!  4) costfort4d-first,second.so for the two divisions of the outermost of the quintet do-loops
+    !!These *.so co-operating with optbinwidth**.py enables pseudo-parallel calculations.
+    !! 2020 Jan 16 Kazuyoshi TATSUMI
+    
+    call help0d(data_array, condition, usecond)
+    do ax_id1 = 1, 4
+      call help1d(data_array, ax_id1, condition, usecond)
+    enddo
+    do ax_id1 = 1, 3
+    do ax_id2 = ax_id1 + 1, 4
       !if (ax_id1 == 1 .and. ax_id2 == 2) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 2 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 3 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      !call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-    !enddo
-    !enddo
-    !do ax_id1 = 1, 2
-    !do ax_id2 = ax_id1 + 1, 3
-    !do ax_id3 = ax_id2 + 1, 4
+      call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+    enddo
+    enddo
+    do ax_id1 = 1, 2
+    do ax_id2 = ax_id1 + 1, 3
+    do ax_id3 = ax_id2 + 1, 4
       !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 3) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
       !if (ax_id1 == 2 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-      !call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-    !enddo
-    !enddo
-    !enddo
+      call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+    enddo
+    enddo
+    enddo
 
 
-    !do width_id1 = 1, maxw(1)
-    do width_id1 = 2, 11
+    do width_id1 = 1, maxw(1)
+    !do width_id1 = 2, 11
     nw(1) = width_id1
     histsize(1) = (datasize(1) - mod(datasize(1), nw(1))) / nw(1)
     do width_id2 = 1, maxw(2)
