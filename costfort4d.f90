@@ -339,11 +339,11 @@ contains
     double precision, intent(in) :: knonzero(:)
     integer, intent(in) :: nw(4)
     double precision kave, v
-    kave = sum(knonzero) / real(size(knonzero)); v = sum((knonzero - kave)**2) / real(size(knonzero))
-    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (real(product(nw))**2)
+    kave = sum(knonzero) / dble(size(knonzero)); v = sum((knonzero - kave)**2) / dble(size(knonzero))
+    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
     histaves(nw(1), nw(2), nw(3), nw(4)) = kave
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
-    cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (real(product(nw))**2)
+    cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (dble(product(nw))**2)
   end subroutine stat1
           
   subroutine delete_array_pointer(L3, L2, L1, L0, carray, karray, darray) bind(C, name="delete_array_pointer")
