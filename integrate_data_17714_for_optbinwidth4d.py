@@ -5,12 +5,18 @@ import matplotlib.cm as cm
 import h5py
 import ctypes
 
+plt.rcParams['font.family'] = 'Times New Roman'
+#plt.rcParams["xtick.top"] = True
+#plt.rcParams["xtick.labeltop"] = True
+
+
 def get3ddata(f):
     data = np.genfromtxt(f, dtype=None)
     x = data[:, 0]
     y = data[:, 1]
     z = data[:, 2]
     intensity = data[:, 4]
+    error = data[:, 5]
     dx = 0.05
     dy = 0.05
     dz = 0.05
@@ -22,27 +28,29 @@ def get3ddata(f):
     ny = ylin.shape[0] #zlin = np.arange(min(z), max(z)+dz, dz)
     zlin = np.arange(-0.85, 0.9, dz)
     nz = zlin.shape[0]
-    karr = np.zeros((nx, ny, nz))
+    #karr = np.zeros((nx, ny, nz))
     karr2 = np.zeros((nx, ny, nz))
+    earr2 = np.zeros((nx, ny, nz))
 
-    for _x, _y, _z, _intensity in zip(x, y, z, intensity):
-        xx = np.where(abs(xlin - _x) < 0.0000001)
-        yy = np.where(abs(ylin - _y) < 0.0000001)
-        zz = np.where(abs(zlin - _z) < 0.0000001)
-        karr[xx, yy, zz] = _intensity + 0.00000001
+    #for _x, _y, _z, _intensity in zip(x, y, z, intensity):
+    #    xx = np.where(abs(xlin - _x) < 0.0000001)
+    #    yy = np.where(abs(ylin - _y) < 0.0000001)
+    #    zz = np.where(abs(zlin - _z) < 0.0000001)
+    #    karr[xx, yy, zz] = _intensity + 0.00000001
 
-    condition = karr > 0.0000000001
-    karrnoval = np.extract(condition, karr)
-    print karr2.size
-    print karrnoval.shape
+    #condition = karr > 0.0000000001
+    #karrnoval = np.extract(condition, karr)
+    #print(karr2.size)
+    #print(karrnoval.shape)
 
-    for _x, _y, _z, _intensity in zip(x, y, z, intensity):
+    for _x, _y, _z, _intensity, _error  in zip(x, y, z, intensity, error):
         xx = np.where(abs(xlin - _x) < 0.0000001)
         yy = np.where(abs(ylin - _y) < 0.0000001)
         zz = np.where(abs(zlin - _z) < 0.0000001)
         karr2[xx, yy, zz] = _intensity
+        earr2[xx, yy, zz] = _error
 
-    return karr2, condition
+    return karr2, earr2
 
 
 def make_mappable(maxvalue):
@@ -50,7 +58,7 @@ def make_mappable(maxvalue):
     norm = Normalize(vmin=0, vmax=maxvalue)
     from matplotlib.cm import ScalarMappable, get_cmap
     cmap = get_cmap("jet")
-    mappable=ScalarMappable(norm=norm,cmap=cmap)
+    mappable = ScalarMappable(norm=norm, cmap=cmap)
     mappable._A = []
     return mappable
 
@@ -65,50 +73,105 @@ def gen_hdf5(num_txtfiles, head):
             hf.create_dataset('condition', data=condition)
 
 
-def unit_hdf5(num_txtfiles, head):
+def unite_hdf5(num_txtfiles, head):
     for i in range(0, num_txtfiles):
         outfile = head + "out_hw_" + str(i) + "_" + str(i+1) + ".hdf5"
         f = h5py.File(outfile, 'r')
         if i == 0:
             tdata = np.zeros((f["data3"].shape[0], f["data3"].shape[1], f["data3"].shape[2], num_txtfiles))
             tcondition = np.zeros((f["data3"].shape[0], f["data3"].shape[1], f["data3"].shape[2], num_txtfiles))
-        tdata[:,:,:,i] = f["data3"]
-        tcondition[:,:,:,i] = f["condition"]
+        tdata[:, :, :, i] = f["data3"]
+        tcondition[:, :, :, i] = f["condition"]
     outfile = head + "out_hw_all.hdf5"
     with h5py.File(outfile, 'w') as hf:
         hf.create_dataset('data4', data=tdata)
         hf.create_dataset('condition', data=tcondition)
 
 
+def save_eliminated_data_hdf5(head, data, condition):
+    outfile = head + "eliminated_data.hdf5"
+    with h5py.File(outfile, 'w') as hf:
+        hf.create_dataset('data4', data=data)
+        hf.create_dataset('condition', data=condition)
+
+
+def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
+    fig = plt.figure(figsize=(18, 9))
+    fig.suptitle("crosssections of 4D INS data #17714", fontsize="x-large")
+    axindx=0
+    for y in yi, ye:
+        for z in zi, ze:
+            axindx += 1
+            ax = fig.add_subplot(3, 4, axindx)
+            ax.pcolor(np.transpose(data4[:, y, z, :]), vmax=np.max(data4[:, y, z, :])/4, cmap='jet')
+            ax.text(2, 38, 'qy='+str(y)+', qz='+str(z), color='white')
+            ax.set_xlabel('qx')
+            ax.set_ylabel('E')
+            ax.axvline(x=xi, color='white', lw=0.5)
+            ax.axvline(x=xe, color='white', lw=0.5)
+            ax.axhline(y=35, color='white', lw=0.5)
+            ax.xaxis.set_label_coords(0.5,1.145)
+            ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+    for x in xi, xe:
+        for z in zi, ze:
+            axindx += 1
+            ax = fig.add_subplot(3, 4, axindx)
+            ax.pcolor(np.transpose(data4[x, :, z, :]), vmax=np.max(data4[x, :, z, :])/4, cmap='jet')
+            ax.text(2, 38, 'qx='+str(x)+', qz='+str(z), color='white')
+            ax.set_xlabel('qy')
+            ax.set_ylabel('E')
+            ax.axvline(x=yi, color='white', lw=0.5)
+            ax.axvline(x=ye, color='white', lw=0.5)
+            ax.axhline(y=35, color='white', lw=0.5)
+            ax.xaxis.set_label_coords(0.5,1.145)
+            ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+    for x in xi, xe:
+        for y in yi, ye:
+            axindx += 1
+            ax = fig.add_subplot(3, 4, axindx)
+            ax.pcolor(np.transpose(data4[x, y, :, :]), vmax=np.max(data4[x, y, :, :])/4, cmap='jet')
+            ax.text(2, 38, 'qx='+str(x)+', qy='+str(y), color='white')
+            ax.set_xlabel('qz')
+            ax.set_ylabel('E')
+            ax.axvline(x=zi, color='white', lw=0.5)
+            ax.axvline(x=ze, color='white', lw=0.5)
+            ax.axhline(y=35, color='white', lw=0.5)
+            ax.xaxis.set_label_coords(0.5,1.145)
+            ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+    fig.subplots_adjust(top=0.90)
+
 def run():
     num_txtfiles = 41
-    head = "/home/kazu/desktop/200109/fine/fine/"
+    head = "/home/kazu/desktop/200120/"
     #gen_hdf5(num_txtfiles, head)
-    #unit_hdf5(num_txtfiles, head)
+    #unite_hdf5(num_txtfiles, head)
 
     outfile = head + "out_hw_all.hdf5"
 
-    f=h5py.File(outfile)
+    f = h5py.File(outfile)
     data4 = f["data4"]
-    plt.figure(figsize=(16, 8))
-    #data3 = np.sum(data4[:,59:61,:,:], axis=1)
-    #data2 = np.sum(data3[:,14:16,:], axis=1)
-    print data4.shape
+    condition = f["condition"]
+    xi = 60
+    xe = 84
+    yi = 37
+    ye = 68
+    zi = 8
+    ze = 27
+    ei = 0
+    ee = 35
+    #plot_crosssection(xi, xe, yi, ye, zi, ze, data4)
+    #plt.figure(figsize=(16, 8))
     #data2 = data4[:,60,15,:]
-    data2 = data4[:,60,15,:]
-    #print np.unravel_index(np.argmax(data4), data4.shape)
-    plt.pcolor(np.transpose(data2), vmax=np.max(data2/50), cmap='jet')
-    mappable = make_mappable(np.max(data2/50))
-    plt.colorbar(mappable)
-    #plt.plot(np.log(data4[33,42,:,0]))
+    #data2 = data4[:, 37, 8, :]
+    #plt.pcolor(np.transpose(data2), vmax=np.max(data2/50), cmap='jet')
+    #mappable = make_mappable(np.max(data2/50))
+    #plt.colorbar(mappable)
 
-    
-
-   
+    save_eliminated_data_hdf5(head, data4[xi:xe, yi:ye, zi:ze, ei:ee], condition[xi:xe, yi:ye, zi:ze, ei:ee])
 
 
 def run_tst():
-    head = "/home/kazu/desktop/200109/fine/fine/"
+    head = "/home/kazu/desktop/200120/"
     txtfile = head + "out_hw_1_2.txt"
     data, condition = get3ddata(txtfile)
     plt.figure(figsize=(16, 8))
@@ -120,4 +183,5 @@ def run_tst():
 
 run()
 #run_tst()
-plt.show()
+#plt.show()
+plt.savefig("crosssection.eps")
