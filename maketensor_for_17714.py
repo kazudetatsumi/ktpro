@@ -157,9 +157,10 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
 
 def run():
     num_txtfiles = 41
-    head = "/home/kazu/desktop/200120/"
-    #gen_hdf5(num_txtfiles, head)
-    #unite_hdf5(num_txtfiles, head)
+    #head = "/home/kazu/desktop/200120/"
+    head = "./"
+    gen_hdf5(num_txtfiles, head)
+    unite_hdf5(num_txtfiles, head)
 
     outfile = head + "out_hw_all.hdf5"
 
@@ -178,7 +179,7 @@ def run():
     #plot_crosssection(xi, xe, yi, ye, zi, ze, condition)
 
     #save_eliminated_data_hdf5(head, data4[xi:xe, yi:ye, zi:ze, ei:ee], condition[xi:xe, yi:ye, zi:ze, ei:ee])
-    #save_eliminated_data_hdf5(head, data4[:, :, :, 5:], condition[:, :, :, 5:])
+    save_eliminated_data_hdf5(head, data4[:, :, :, 5:], condition[:, :, :, 5:])
 
 
 def run_tst():

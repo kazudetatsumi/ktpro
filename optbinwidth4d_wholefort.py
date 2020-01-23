@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
-lib = ctypes.CDLL("./costfort4d.so")
+lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d.so")
 
 #def calc_cost4d_f90(A, B, maxw, data, condition):
 #def calc_cost4d_f90(A, maxw, data, condition):
@@ -54,7 +54,8 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
 
 def run_simu4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "/home/kazu/desktop/200120/eliminated_data.hdf5"
+    #datafile = "/home/kazu/desktop/200120/1h/eliminated_data.hdf5"
+    datafile = "./eliminated_data.hdf5"
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
