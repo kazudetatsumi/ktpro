@@ -1,3 +1,7 @@
+!fortran 90 library for 4D bin width optimization
+!this library is used by optbinwidth4d_wholefort.py
+!Kazuyoshi TATSUMI 2020/01/23
+
 module costfort4d
   use ISO_C_binding
   implicit none
