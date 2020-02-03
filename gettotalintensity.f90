@@ -9,18 +9,19 @@ program gettotalintensity
   integer :: idum, iint, ios
 
   call getarg(1, argc)
-  print *, trim(argc)
+  !print *, trim(argc)
   open(10, file=trim(argc), status='old')
   do idum=1, ndum
      read(10,'(a80)') dummy
-     print *, dummy
+     !print *, dummy
   enddo
   do iint=1, nlines
      read(10,*, end=99) qx(iint),qy(iint),qz(iint),e(iint),intensity(iint),sig(iint)
      !print *, qx(iint),qy(iint),qz(iint),e(iint),intensity(iint),sig(iint)
   enddo
-  99 print *, "finish reading"
-  print *, "totlal intensity is ",sum(intensity)
+  99 print *, "totlal intensity of ", trim(argc)," is ",sum(intensity)
+  !print *, "finish reading"
+  !print *, "totlal intensity of ", trim(argc)," is ",sum(intensity)
   close(10) 
 
 
