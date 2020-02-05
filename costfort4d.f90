@@ -64,11 +64,13 @@ contains
     !!  4) costfort4d-first,second.so for the two divisions of the outermost of the quintet do-loops
     !!These *.so co-operating with optbinwidth**.py enables pseudo-parallel calculations.
     !! 2020 Jan 16 Kazuyoshi TATSUMI
-    
+    print *, "entering help0d"
     call help0d(data_array, condition, usecond)
+    print *, "entering help1d"
     do ax_id1 = 1, 4
       call help1d(data_array, ax_id1, condition, usecond)
     enddo
+    print *, "entering help2d"
     do ax_id1 = 1, 3
     do ax_id2 = ax_id1 + 1, 4
       !if (ax_id1 == 1 .and. ax_id2 == 2) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
@@ -80,6 +82,7 @@ contains
       call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
     enddo
     enddo
+    print *, "entering help3d"
     do ax_id1 = 1, 2
     do ax_id2 = ax_id1 + 1, 3
     do ax_id3 = ax_id2 + 1, 4
@@ -93,6 +96,7 @@ contains
     enddo
 
 
+    print *, "entering hist4d"
     do width_id1 = 1, maxw(1)
     !do width_id1 = 2, 11
     nw(1) = width_id1
@@ -334,7 +338,7 @@ contains
     integer, intent(in) :: nw(4)
     double precision kave, v
     kave = sum(k) / dble(size(k)); v = sum((k - kave)**2) / dble(size(k))
-    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
+    !print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
     histaves(nw(1), nw(2), nw(3), nw(4)) = kave
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
     cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (dble(product(nw))**2)
@@ -344,7 +348,7 @@ contains
     integer, intent(in) :: nw(4)
     double precision kave, v
     kave = sum(knonzero) / dble(size(knonzero)); v = sum((knonzero - kave)**2) / dble(size(knonzero))
-    print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
+    !print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
     histaves(nw(1), nw(2), nw(3), nw(4)) = kave
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
     cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (dble(product(nw))**2)

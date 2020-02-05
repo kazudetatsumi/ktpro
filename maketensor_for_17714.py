@@ -11,7 +11,7 @@ plt.rcParams['font.family'] = 'Times New Roman'
 
 
 def get3ddata(f):
-    data = np.genfromtxt(f, dtype=None)
+    data = np.genfromtxt(f, dtype=float)
     x = data[:, 0]
     y = data[:, 1]
     z = data[:, 2]
@@ -159,8 +159,8 @@ def run():
     num_txtfiles = 41
     #head = "/home/kazu/desktop/200120/"
     head = "./"
-    gen_hdf5(num_txtfiles, head)
-    unite_hdf5(num_txtfiles, head)
+    #gen_hdf5(num_txtfiles, head)
+    #unite_hdf5(num_txtfiles, head)
 
     outfile = head + "out_hw_all.hdf5"
 
