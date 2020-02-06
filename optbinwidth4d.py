@@ -77,11 +77,11 @@ def calc_hist4d(A, data, nw0, nw1, nw2, nw3, condition):
                     k[i, j, h, :], kcond[i, j, h, :] = calc_hist1d(B[i, j, h, :], nw3, condition[i, j, h, :])
     ## make process faster and more complicated up to here
     else:
-        for i in range(0, N0):
-            for j in range(0, N1):
-                for h in range(0, N2):
-                    for l in range(0, N3):
-                        kcond[i, j, h, l] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1, h*nw2:(h+1)*nw2, l*nw3:(l+1)*nw3])
+        #for i in range(0, N0):
+           # for j in range(0, N1):
+                #for h in range(0, N2):
+                    #for l in range(0, N3):
+                       # kcond[i, j, h, l] = np.sum(condition[i*nw0:(i+1)*nw0, j*nw1:(j+1)*nw1, h*nw2:(h+1)*nw2, l*nw3:(l+1)*nw3])
         for i in range(0, N0):
             ihead = (i+1)*nw0 - 1
             for j in range(0, N1):
@@ -269,32 +269,38 @@ def run_simu4d():
 
 def run_tst4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
+    #datafile = "/home/kazu/WORK/vasp-phonopy/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
+    datafile = "/home/kazu/desktop/200204/coarse/hourbyhour/10h/out_hw_all.hdf5"
     f = h5py.File(datafile)
-    data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
+    #data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
+    data = f["data4"][:]*1.0 # nqx, nqy, nqz, nomega
     condition = np.ones(data.shape, dtype=bool)
     fflag = 1
     
-    A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
+    A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
+    #A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
     print "cumsum finished"
 
     if fflag == 1:
-        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, 2, 2, 2, 2, condition)
+        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, 1, 2, 2, 1, condition)
     else:
-        k, kcond = calc_hist4d(A, data, 2, 2, 2, 2, condition)
+        k, kcond = calc_hist4d(A, data, 1, 2, 2, 1, condition)
     print "hist finished"
     #for i in range(0,100):
     #    print i,np.average(k[:,i,:])
+    print k.shape
 
-    plt.figure(figsize=(8, 16))
-    plt.pcolor(np.transpose(k[:, :, 2, 2]), vmax=np.max(k[:, :, 2, 2]), cmap='jet')
-    mappable = make_mappable(np.max(k))
-    plt.colorbar(mappable)
-    plt.figure(figsize=(8, 16))
-    plt.pcolor(np.transpose(data[:, :, 2, 2]), vmax=np.max(data[:, :, 2, 2]), cmap='jet')
+    plt.figure(figsize=(16, 8))
+    plt.pcolor(np.transpose(k[72, :, 8, :]), vmax=np.max(data[72, :, 8, :]),  cmap='jet')
+    print np.sum(k)
+    print np.sum(data)
+    #mappable = make_mappable(np.max(k))
+    #plt.colorbar(mappable)
+    #plt.figure(figsize=(8, 16))
+    #plt.pcolor(np.transpose(np.sum(data[72, :, 17:18, :], axis=1)), vmax=np.max(data[73, :, 17, 5:])/10, cmap='jet')
 
-    mappable = make_mappable(np.max(data))
-    plt.colorbar(mappable)
+    #mappable = make_mappable(np.max(data))
+    #plt.colorbar(mappable)
 
     if fflag == 1:
         lib.delete_array4.restype = None
@@ -304,11 +310,12 @@ def run_tst4d():
                           ctypes.byref(ctypes.c_int(klen3)), k)
 
 
-#run_tst4d()
-run_simu4d()
+run_tst4d()
+#run_simu4d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
 #lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
-plt.show()
+#plt.show()
+plt.savefig("crosssection_for_G-K.eps")
 
 
