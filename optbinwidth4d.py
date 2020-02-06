@@ -270,7 +270,7 @@ def run_simu4d():
 def run_tst4d():
     #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
     #datafile = "/home/kazu/WORK/vasp-phonopy/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
-    datafile = "/home/kazu/desktop/200204/coarse/hourbyhour/10h/out_hw_all.hdf5"
+    datafile = "/home/kazu/desktop/200204/fine/hourbyhour/10h/out_hw_all.hdf5"
     f = h5py.File(datafile)
     #data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
     data = f["data4"][:]*1.0 # nqx, nqy, nqz, nomega
@@ -282,16 +282,16 @@ def run_tst4d():
     print "cumsum finished"
 
     if fflag == 1:
-        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, 1, 2, 2, 1, condition)
+        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, 2, 6, 3, 2, condition)
     else:
-        k, kcond = calc_hist4d(A, data, 1, 2, 2, 1, condition)
+        k, kcond = calc_hist4d(A, data, 2, 6, 3, 2, condition)
     print "hist finished"
     #for i in range(0,100):
     #    print i,np.average(k[:,i,:])
     print k.shape
 
     plt.figure(figsize=(16, 8))
-    plt.pcolor(np.transpose(k[72, :, 8, :]), vmax=np.max(data[72, :, 8, :]),  cmap='jet')
+    plt.pcolor(np.transpose(k[72, :, 11, :]), vmax=np.max(data[72, :, 11, :]),  cmap='jet')
     print np.sum(k)
     print np.sum(data)
     #mappable = make_mappable(np.max(k))
