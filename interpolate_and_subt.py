@@ -23,14 +23,14 @@ def make_mappable(maxvalue):
 
 
 def plotter(fd, cd, fds):
-    fig=plt.figure(figsize=(6, 12))
+    fig=plt.figure(figsize=(6, 8))
     ax=fig.add_subplot(2, 1, 1)
     ax.set_title("LaNi5 INS experimental spectrum")
     ax.plot(fd[:, 0], fd[:, 1])
     ax.plot(cd[:, 0], cd[:, 1])
     ax.tick_params(direction = "in")
     ax.set_ylabel('S(q,$\omega$)')
-    ax.text(210, 4, 'S(q, $\omega$)',color="dodgerblue")
+    ax.text(210, 4, 'S(q, $\omega$)',color="blue")
     ax.text(50, 20, 'bg',color="orange")
     ax=fig.add_subplot(2, 1, 2)
     ax.plot(fds[:, 0], fds[:, 1])
@@ -38,15 +38,16 @@ def plotter(fd, cd, fds):
     plt.subplots_adjust(wspace=0.4, hspace=0.0)
     ax.set_xlabel('Energy (meV)')
     ax.set_ylabel('Intensity')
-    ax.text(190, 1, 'S(q, $\omega$) - bg', color="dodgerblue")
+    ax.text(190, 2, 'S(q, $\omega$) - bg', color="blue")
     ax.tick_params(direction = "in")
 
 
 
 
 def run():
-    coarse_f="/home/kazu/INS_polyLaNi5_bg.csv"
-    fine_f="/home/kazu/INS_polyLaNi5.csv"
+    head = "/home/kazu/WORK/vasp-phonopy/la2ni10h1/"
+    coarse_f = head + "INS_polyLaNi5_bg.csv"
+    fine_f = head + "INS_polyLaNi5.csv"
     coarse_data=getdata(coarse_f)
     fine_data=getdata(fine_f)
     cint = np.zeros(fine_data.shape[0])
@@ -64,5 +65,5 @@ def run():
 
 
 run()
-plt.show()
-#plt.savefig("crosssection.eps")
+#plt.show()
+plt.savefig("INS_polyLaNi5.pdf")
