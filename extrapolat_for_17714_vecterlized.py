@@ -94,7 +94,6 @@ def runex():
         f.write("extraporation results for 17714 data: m, optid_x, optid_y, optid_z, optid_w, 1/m, 1/(optidnx_x*optid_y*optid_z*optid_w) \n")
         for hid in range(0, num_hdf):
             f.write("For n = %e \n" % tTotInt[hid])
-            #for Indx_of_TotInt in range(0, num_hdf):
             for mid in range(0, len(result[hid])):
                 f.write("%e %d %d %d %d %e %e\n" %
                  (
@@ -102,54 +101,6 @@ def runex():
                   1/(result[hid][mid][4]*1.0), 1/(np.prod(np.array(result[hid][mid][0:4]))*1.0)
                  )
                 )
-
-    #fig = plt.figure(figsize=(12, 20))
-    #xlist_n = []
-    #ylist_n = []
-    #for hid in range(0, num_hdf):
-    #    print(1/tTotInt[hid]*1.0)
-    #    xlist_n.append(1/tTotInt[hid]*1.0)
-    #    ylist_n.append(1/(optid_x[hid][hid]*optid_y[hid][hid]*optid_z[hid][hid]*optid_w[hid][hid]*1.0))
-    #print "xlist_n",xlist_n
-    #for hid in range(0, num_hdf):
-    #    xlist_m = []
-    #    ylist_m = []
-    #    for Indx_of_TotInt in range(hid, len(TotInt_ex[hid])):
-    #        xlist_m.append(1/(TotInt_ex[hid][Indx_of_TotInt]*1.0))
-    #        ylist_m.append(1/(optid_x[hid][Indx_of_TotInt]*optid_y[hid][Indx_of_TotInt]*optid_z[hid][Indx_of_TotInt]*optid_w[hid][Indx_of_TotInt]*1.0))
-    #    if (hid+1 <= num_hdf/2):
-    #        ax = fig.add_subplot(num_hdf//2, 2, 2*(hid+1)-1)
-    #    else:
-    #        ax = fig.add_subplot(num_hdf//2, 2, 2*(hid+1)-num_hdf)
-    #    ax.scatter(xlist_n[hid:], ylist_n[hid:], marker='x', clip_on=False, s=50, label="each n")
-    #    ax.scatter(xlist_m, ylist_m, marker='+', clip_on=False, s=72, label="prediction")
-    #    ax.set_xlim(0, 0.00007)
-    #    ax.set_ylim(0, 1.2)
-    #    hour = hid + 1
-    #    ax.text(0.25, 0.8, 'n at %dh'%hour,
-    #    transform=ax.transAxes, ha="right")
-#
-#        if (hid+1 == 1):
-##            ax.legend()
-
-#        #if (hid+1 == 1 or hid+1 == num_hdf//2 + 1):
-#            #ax.set_yticks([0, 0.02, 0.04, 0.06])
-#        #else:
-#            #ax.set_yticks([0, 0.02, 0.04])
-#
-#        ax.tick_params(labelbottom=False)
-#        ax.tick_params(direction="in")
-#        if (hid+1 == num_hdf//2 or hid+1 == num_hdf):
-#            ax.tick_params(labelbottom=True)
-#            ax.set_xlabel('1/m or 1/n')
-#
-#        #plt.gca().ticklabel_format(style="sci", scilimits=(0,0), axis="y")
-#        plt.gca().ticklabel_format(style="sci", scilimits=(0, 0), axis="x")
-#        if (hid == num_hdf//4 or hid == num_hdf//2 + num_hdf//4):
-#            ax.set_ylabel('1/(wx*wy)')
-#    plt.subplots_adjust(wspace=0.4, hspace=0.0)
-#    #plt.savefig("result.txt.full.pdf")
-#    plt.show()
 
 
 runex()
