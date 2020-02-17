@@ -65,6 +65,7 @@ def run_simu4d():
     #condition = np.ones(data.shape, dtype=np.int32)
     condition = np.array(f["condition"], dtype=np.int32)
     usecond = False
+    print "usecond:", usecond
     #condition = np.ones(data.shape, dtype=np.bool)
     
     n = np.sum(data)*1.0
@@ -75,10 +76,11 @@ def run_simu4d():
     #maxywidth = np.min(np.sum(condition, axis=1)) / 2
     #maxzwidth = np.min(np.sum(condition, axis=2)) / 2
     #maxowidth = np.min(np.sum(condition, axis=3)) / 2
-    maxxwidth = data.shape[0] / 2
-    maxywidth = data.shape[1] / 2
-    maxzwidth = data.shape[2] / 2
-    maxowidth = data.shape[3] / 2 
+    maxxwidth = int(data.shape[0] // 2)
+    maxywidth = int(data.shape[1] // 2)
+    maxzwidth = int(data.shape[2] // 2)
+    maxowidth = int(data.shape[3] // 2)
+    print "maxwidth:", maxxwidth, maxywidth, maxzwidth, maxowidth
     #maxxwidth = 16
     #maxywidth = 16
     #maxzwidth = 16

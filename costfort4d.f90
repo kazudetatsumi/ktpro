@@ -114,7 +114,8 @@ contains
           hist_array = hist4d(cumdata, histsize, nw)
           if (usecond) then 
               hist_cond = hist4di(cum_cond, histsize, nw)
-              call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
+              !call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
+              call stat1(pack(hist_array, hist_cond >= maxval(hist_cond)/2), nw)
           else
             call stat(hist_array, nw) 
           endif
@@ -145,7 +146,7 @@ contains
     !hist_array = data_array
     if (usecond) then
       !call stat1(pack(hist_array, condition == maxval(condition)), nw)
-      call stat1(pack(data_array, condition == maxval(condition)), nw)
+      call stat1(pack(data_array, condition >= maxval(condition)/2), nw)
     else
       !call stat(hist_array, nw)
       call stat(data_array, nw)
@@ -192,7 +193,8 @@ contains
       hist_array = hist1d(cumdata1d, histsize, nw(ax))
       if (usecond) then
         histcond = hist1di(cum_cond, histsize, nw(ax))
-        call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
+        !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw)
       else
         call stat(hist_array, nw)
       end if
@@ -261,7 +263,8 @@ contains
       hist_array = hist2d(cumdata2d, [histsize(ax(1)), histsize(ax(2))], [nw(ax(1)), nw(ax(2))])
       if (usecond) then
         histcond = hist2di(cum_cond, [histsize(ax(1)), histsize(ax(2))], [nw(ax(1)), nw(ax(2))])
-        call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
+        !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw)
       else
         call stat(hist_array, nw)
       endif
@@ -324,7 +327,8 @@ contains
       hist_array = hist3d(cumdata3d, [histsize(ax(1)), histsize(ax(2)), histsize(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
       if (usecond) then
         histcond = hist3di(cum_cond, [histsize(ax(1)), histsize(ax(2)), histsize(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
-        call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
+        !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw)
       else
         call stat(hist_array, nw) 
       endif
