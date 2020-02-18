@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
-lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d.so")
+#lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d.so")
+lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d_ifort.so")
 
 #def calc_cost4d_f90(A, B, maxw, data, condition):
 #def calc_cost4d_f90(A, maxw, data, condition):
