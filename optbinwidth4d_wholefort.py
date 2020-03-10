@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
-#lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d.so")
-lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d_ifort.so")
+lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d.so")
+#lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d_ifort.so")
 
 #def calc_cost4d_f90(A, B, maxw, data, condition):
 #def calc_cost4d_f90(A, maxw, data, condition):
@@ -65,7 +65,7 @@ def run_simu4d():
     #data = np.sum(data[:, :, :, :],axis=2)
     #condition = np.ones(data.shape, dtype=np.int32)
     condition = np.array(f["condition"], dtype=np.int32)
-    usecond = False
+    usecond = True
     print "usecond:", usecond
     #condition = np.ones(data.shape, dtype=np.bool)
     

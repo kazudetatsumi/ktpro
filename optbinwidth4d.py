@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
-lib = ctypes.CDLL("./histfort4d.so")
+lib = ctypes.CDLL("/home/kazu/ktpro/histfort4d.so")
 
 def calc_hist4d_f90(A, data, nw0, nw1, nw2, nw3,  condition):
 
@@ -268,32 +268,26 @@ def run_simu4d():
 
 
 def run_tst4d():
-    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    #datafile = "/home/kazu/WORK/vasp-phonopy/cscl/phonopy_222/m200200200/data3_1000000.hdf5"
-    datafile = "/home/kazu/desktop/200204/fine/hourbyhour/10h/out_hw_all.hdf5"
+    datafile = "./out_hw_all.hdf5"
+    outfile =  "./hist.hdf5"
     f = h5py.File(datafile)
-    #data = f["data3"][:]*1.0 # nqx, nqy, nqz, nomega
     data = f["data4"][:]*1.0 # nqx, nqy, nqz, nomega
     condition = np.ones(data.shape, dtype=bool)
     fflag = 1
-    
+
     A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
-    #A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
     print "cumsum finished"
 
     if fflag == 1:
-        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, 2, 6, 3, 2, condition)
+        k, klen0, klen1, klen2, klen3, kcond = calc_hist4d_f90(A, data, 1, 1, 2, 1, condition)
     else:
-        k, kcond = calc_hist4d(A, data, 2, 6, 3, 2, condition)
-    print "hist finished"
-    #for i in range(0,100):
-    #    print i,np.average(k[:,i,:])
+        k, kcond = calc_hist4d(A, data, 1, 1, 2, 1, condition)
+        print "hist finished"
     print k.shape
 
     plt.figure(figsize=(16, 8))
-    plt.pcolor(np.transpose(k[72, :, 11, :]), vmax=np.max(data[72, :, 11, :]),  cmap='jet')
-    print np.sum(k)
-    print np.sum(data)
+    #plt.pcolor(np.transpose(k[72, :, 11, :]), vmax=np.max(data[72, :, 11, :]),  cmap='jet')
+    plt.pcolor(np.transpose(k[72, :, 8, :]), vmax=np.max(data[72, :, 8, :])/2.0,  cmap='jet')
     #mappable = make_mappable(np.max(k))
     #plt.colorbar(mappable)
     #plt.figure(figsize=(8, 16))
@@ -311,11 +305,8 @@ def run_tst4d():
 
 
 run_tst4d()
-#run_simu4d()
-#lib.delete_array.restype = None
-#lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
-#lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
-#plt.show()
-plt.savefig("crosssection_for_G-K.eps")
+
+plt.show()
+#plt.savefig("crosssection_for_G-K.eps")
 
 

@@ -119,6 +119,7 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
             ax.axhline(y=35, color='white', lw=0.5)
             ax.xaxis.set_label_coords(0.5,1.145)
             ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+            ax.axis('tight')
     for x in xi, xe:
         for z in zi, ze:
             axindx += 1
@@ -136,6 +137,7 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
             ax.axhline(y=35, color='white', lw=0.5)
             ax.xaxis.set_label_coords(0.5,1.145)
             ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+            ax.axis('tight')
     for x in xi, xe:
         for y in yi, ye:
             axindx += 1
@@ -153,6 +155,7 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
             ax.axhline(y=35, color='white', lw=0.5)
             ax.xaxis.set_label_coords(0.5,1.145)
             ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+            ax.axis('tight')
     fig.subplots_adjust(top=0.90)
 
 def run():
