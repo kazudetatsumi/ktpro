@@ -65,7 +65,7 @@ def run_simu4d():
     #data = np.sum(data[:, :, :, :],axis=2)
     #condition = np.ones(data.shape, dtype=np.int32)
     condition = np.array(f["condition"], dtype=np.int32)
-    usecond = False
+    usecond = True
     print "usecond:", usecond
     #condition = np.ones(data.shape, dtype=np.bool)
     
