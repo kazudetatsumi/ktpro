@@ -60,17 +60,19 @@ contains
     argmaxv_ub3 = 0
 
 
-    do lb0 = 1, datasize0
-      !if ( sum(condition(lb0, :, :)) > 0.1 ) then
-      if ( sum(condition(lb0, :, :, :)) > 0.1 ) then
-           max_lb0 = lb0
-           exit
-      end if
-    end do
+    !do lb0 = 1, datasize0
+    !  !if ( sum(condition(lb0, :, :)) > 0.1 ) then
+    !  if ( sum(condition(lb0, :, :, :)) > 0.1 ) then
+    !       max_lb0 = lb0
+    !       exit
+    !  end if
+    !end do
+    max_lb0 = 5
     print *, "max_lb0", max_lb0
     do lb1 = 1, datasize1
       !if ( sum(condition(:, lb1, :)) > 0.1 ) then
-      if ( sum(condition(:, lb1, :, :)) > 0.1 ) then
+      !if ( sum(condition(:, lb1, :, :)) > 0.1 ) then
+      if ( sum(condition(5:35, lb1, :, :)) > 0.1 ) then
            max_lb1 = lb1
            exit
       end if
@@ -78,14 +80,16 @@ contains
     print *, "max_lb1", max_lb1
     do lb2 = 1, datasize2
       !if ( sum(condition(:, :, lb2)) > 0.1 ) then
-      if ( sum(condition(:, :, lb2, :)) > 0.1 ) then
+      !if ( sum(condition(:, :, lb2, :)) > 0.1 ) then
+      if ( sum(condition(5:35, :, lb2, :)) > 0.1 ) then
            max_lb2 = lb2
            exit
       end if
     end do
     print *, "max_lb2", max_lb2
     do lb3 = 1, datasize3
-      if ( sum(condition(:, :, :, lb3)) > 0.1 ) then
+      !if ( sum(condition(:, :, :, lb3)) > 0.1 ) then
+      if ( sum(condition(5:35, :, :, lb3)) > 0.1 ) then
            max_lb3 = lb3
            exit
       end if
@@ -93,17 +97,19 @@ contains
     print *, "max_lb3", max_lb3
 
 
-    do ub0 = datasize0, 1, -1
-      !if ( sum(condition(ub0, :, :)) > 0.1 ) then
-      if ( sum(condition(ub0, :, :, :)) > 0.1 ) then
-           min_ub0 = ub0
-           exit
-      end if
-    end do
+    !do ub0 = datasize0, 1, -1
+    !  !if ( sum(condition(ub0, :, :)) > 0.1 ) then
+    !  if ( sum(condition(ub0, :, :, :)) > 0.1 ) then
+    !       min_ub0 = ub0
+    !       exit
+    !  end if
+    !end do
+    min_ub0 = 35
     print *, "min_ub0", min_ub0
     do ub1 = datasize1, 1, -1
       !if ( sum(condition(:, ub1, :)) > 0.1 ) then
-      if ( sum(condition(:, ub1, :, :)) > 0.1 ) then
+      !if ( sum(condition(:, ub1, :, :)) > 0.1 ) then
+      if ( sum(condition(5:35, ub1, :, :)) > 0.1 ) then
            min_ub1 = ub1
            exit
       end if
@@ -111,14 +117,16 @@ contains
     print *, "min_ub1", min_ub1
     do ub2 = datasize2, 1, -1
       !if ( sum(condition(:, :, ub2)) > 0.1 ) then
-      if ( sum(condition(:, :, ub2, :)) > 0.1 ) then
+      !if ( sum(condition(:, :, ub2, :)) > 0.1 ) then
+      if ( sum(condition(5:35, :, ub2, :)) > 0.1 ) then
            min_ub2 = ub2 
            exit
       end if
     end do
     print *, "min_ub2", min_ub2
     do ub3 = datasize3, 1, -1
-      if ( sum(condition(:, :, :, ub3)) > 0.1 ) then
+      !if ( sum(condition(:, :, :, ub3)) > 0.1 ) then
+      if ( sum(condition(5:35, :, :, ub3)) > 0.1 ) then
            min_ub3 = ub3 
            exit
       end if
@@ -129,36 +137,52 @@ contains
 
        
 
-    do lb0 = max_lb0, min_ub0, 5
-    do ub0 = lb0, min_ub0, 5
-    do lb1 = max_lb1, min_ub1, 5
-    do ub1 = lb1, min_ub1, 5
-    do lb2 = max_lb2, min_ub2, 5
-    do ub2 = lb2, min_ub2, 5
+    !do lb0 = max_lb0, min_ub0 - 10, 5
+    !do ub0 = lb0 + 10, min_ub0, 5
+    lb0 = 5
+    ub0 = 35
+    do lb1 = max_lb1, min_ub1 - 10, 1
+    do ub1 = lb1 + 10, min_ub1, 1
+    do lb2 = max_lb2, min_ub2 - 10, 1
+    do ub2 = lb2 + 10, min_ub2, 1
     !$omp parallel do
-    do lb3 = max_lb3, min_ub3, 5
-    do ub3 = lb3, min_ub3, 5
+    do lb3 = max_lb3, min_ub3 - 10, 1
+    do ub3 = lb3 + 10, min_ub3, 1
+    !if ( real(sum(condition(lb0, lb1:ub1, lb2:ub2, lb3:ub3))) >= 0.95 * (ub1-lb1)*(ub2-lb2)*(ub3-lb3) ) then  
+    !if ( real(sum(condition(ub0, lb1:ub1, lb2:ub2, lb3:ub3))) >= 0.95 * (ub1-lb1)*(ub2-lb2)*(ub3-lb3) ) then 
+    if ( real(sum(condition(lb0:ub0, lb1, lb2:ub2, lb3:ub3))) >= 0.95 * (ub0-lb0)*(ub2-lb2)*(ub3-lb3) ) then  
+    if ( real(sum(condition(lb0:ub0, ub1, lb2:ub2, lb3:ub3))) >= 0.95 * (ub0-lb0)*(ub2-lb2)*(ub3-lb3) ) then  
+    if ( real(sum(condition(lb0:ub0, lb1:ub1, lb2, lb3:ub3))) >= 0.95 * (ub1-lb1)*(ub0-lb0)*(ub3-lb3) ) then  
+    if ( real(sum(condition(lb0:ub0, lb1:ub1, ub2, lb3:ub3))) >= 0.95 * (ub1-lb1)*(ub0-lb0)*(ub3-lb3) ) then  
+    if ( real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2, lb3))) >= 0.95 * (ub1-lb1)*(ub2-lb2)*(ub0-lb0) ) then  
+    if ( real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2, ub3))) >= 0.95 * (ub1-lb1)*(ub2-lb2)*(ub0-lb0) ) then
 
-      !v = (ub0 - lb0)*(ub1 - lb1)*(ub2 - lb2)
-      v = (ub0 - lb0)*(ub1 - lb1)*(ub2 - lb2)*(ub3 - lb3)
-      !if (real(sum(condition(35, lb0:ub0, lb1:ub1, lb2:ub2))) >= 0.9 * v .and. v > maxv ) then
-      !if (real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2))) >= 0.9 * v .and. v > maxv ) then
-      !if (real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2, lb3:ub3))) >= 0.9 * v .and. v > maxv ) then
-      if (real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2, lb3:ub3))) >= 0.9 * v .and. v > local_maxv(lb3) ) then
-          !maxv = v
-          local_maxv(lb3) = v
-          argmaxv_lb0(lb3) = lb0
-          argmaxv_ub0(lb3) = ub0
-          argmaxv_lb1(lb3) = lb1
-          argmaxv_ub1(lb3) = ub1
-          argmaxv_lb2(lb3) = lb2
-          argmaxv_ub2(lb3) = ub2
-          argmaxv_lb3(lb3) = lb3
-          argmaxv_ub3(lb3) = ub3
-          !print *, maxv, argmaxv_lb0, argmaxv_ub0, argmaxv_lb1, argmaxv_ub1, argmaxv_lb2, argmaxv_ub2, argmaxv_lb3, argmaxv_ub3
-      end if
-    end do
-    end do
+    !v = (ub0 - lb0)*(ub1 - lb1)*(ub2 - lb2)
+    v = (ub0 - lb0)*(ub1 - lb1)*(ub2 - lb2)*(ub3 - lb3)
+    !if (real(sum(condition(35, lb0:ub0, lb1:ub1, lb2:ub2))) >= 0.9 * v .and. v > maxv ) then
+    !if (real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2))) >= 0.9 * v .and. v > maxv ) then
+    !if (real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2, lb3:ub3))) >= 0.9 * v .and. v > maxv ) then
+    if (real(sum(condition(lb0:ub0, lb1:ub1, lb2:ub2, lb3:ub3))) >= 0.9 * v .and. v > local_maxv(lb3) ) then
+    !maxv = v
+    local_maxv(lb3) = v
+    argmaxv_lb0(lb3) = lb0
+    argmaxv_ub0(lb3) = ub0
+    argmaxv_lb1(lb3) = lb1
+    argmaxv_ub1(lb3) = ub1
+    argmaxv_lb2(lb3) = lb2
+    argmaxv_ub2(lb3) = ub2
+    argmaxv_lb3(lb3) = lb3
+    argmaxv_ub3(lb3) = ub3
+    !print *, maxv, argmaxv_lb0, argmaxv_ub0, argmaxv_lb1, argmaxv_ub1, argmaxv_lb2, argmaxv_ub2, argmaxv_lb3, argmaxv_ub3
+    end if
+    end if
+    end if
+    end if
+    end if
+    end if
+    end if
+    !end if
+    !end if
     end do
     end do
 
@@ -166,6 +190,8 @@ contains
     end do
     end do
     end do
+    !end do
+    !end do
     !print *, "maxv=", maxv, " with bondaries: ", argmaxv_lb0, argmaxv_ub0, argmaxv_lb1, argmaxv_ub1, argmaxv_lb2, argmaxv_ub2
     !!do lb3=1,datasize3
     !      print *, lb3, local_maxv(lb3), argmaxv_lb0(lb3), argmaxv_ub0(lb3), argmaxv_lb1(lb3), argmaxv_ub1(lb3), argmaxv_lb2(lb3), &
