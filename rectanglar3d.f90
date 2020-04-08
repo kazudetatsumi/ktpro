@@ -10,6 +10,8 @@ module costfort4d
     integer(c_int) :: ub_1
     integer(c_int) :: lb_2
     integer(c_int) :: ub_2
+    integer(c_int) :: lb_3
+    integer(c_int) :: ub_3
   end type result
   integer datasize(4)
 
@@ -28,72 +30,30 @@ contains
     integer ei, ee, i
     type(result) :: rectanglar                              
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
-    print *, "datasize", datasize
+    print *, "datasize:", datasize
     ei = 5
     ee = 35
     one = 1
     argmaxv_lub_ei =  argmaxv_lub(ei, ei, ee, datasize, condition)
     argmaxv_lub_ee =  argmaxv_lub(ee, ei, ee, datasize, condition)
-    do i = 1, 4
+    do i = 2, 4
        argmaxv_lb(i) = max(argmaxv_lub_ei(i, 1), argmaxv_lub_ee(i, 1))
        argmaxv_ub(i) = min(argmaxv_lub_ei(i, 2), argmaxv_lub_ee(i, 2))
     end do
+    argmaxv_lb(1) = ei
+    argmaxv_ub(1) = ee
     print *, "argmaxv_lb:", argmaxv_lb
     print *, "argmaxv_ub:", argmaxv_ub
-
-
-    !call bondaries(ei, ee, max_lb, (/1, 1, 1, 1/), datasize, 1, datasize, condition)
-    !call bondaries(ei, ee, min_ub, datasize, (/1, 1, 1, 1/), -1, datasize, condition)
-    !do dq = 5, 1, -1
-    !  call argmaxvlight(ee, dq, max_lb, min_ub, argmaxv_lb, argmaxv_ub, datasize, condition)
-    !  max_lb = argmaxv_lb 
-    !  min_ub = argmaxv_ub 
-    !  do i = 2, 4
-    !     if ( max_lb(i) - dq > 0 ) then 
-    !         max_lb(i) = max_lb(i) - dq
-    !     else
-    !         max_lb(i) = 1
-    !     end if
-    !     if ( min_ub(i) + dq <= datasize(i) ) then 
-    !         min_ub(i) = min_ub(i) + dq
-    !     else
-    !         min_ub(i) = datasize(i)
-    !     end if
-    !  end do
-    !end do
-    !print *, "argmaxv_lb:", argmaxv_lb
-    !print *, "argmaxv_ub:", argmaxv_ub
-
-    !call bondaries(ei, ee, max_lb, (/1, 1, 1, 1/), datasize, 1, datasize, condition)
-    !call bondaries(ei, ee, min_ub, datasize, (/1, 1, 1, 1/), -1, datasize, condition)
-    !do dq = 5, 1, -1
-    !  call argmaxvlight(ei, dq, max_lb, min_ub, argmaxv_lb, argmaxv_ub, datasize, condition)
-    !  max_lb = argmaxv_lb 
-    !  min_ub = argmaxv_ub 
-    !  do i = 2, 4
-    !     if ( max_lb(i) - dq > 0 ) then 
-    !         max_lb(i) = max_lb(i) - dq
-    !     else
-    !         max_lb(i) = 1
-    !     end if
-    !     if ( min_ub(i) + dq <= datasize(i) ) then 
-    !         min_ub(i) = min_ub(i) + dq
-    !     else
-    !         min_ub(i) = datasize(i)
-    !     end if
-    !  end do
-    !end do
-    !print *, "argmaxv_lb:", argmaxv_lb
-    !print *, "argmaxv_ub:", argmaxv_ub
-
        
 
-    rectanglar%lb_0 = argmaxv_lb(1)
-    rectanglar%lb_1 = argmaxv_lb(2)
-    rectanglar%lb_2 = argmaxv_lb(3)
-    rectanglar%ub_0 = argmaxv_ub(1)
-    rectanglar%ub_1 = argmaxv_ub(2)
-    rectanglar%ub_2 = argmaxv_ub(3)
+    rectanglar%lb_0 = argmaxv_lb(4)
+    rectanglar%lb_1 = argmaxv_lb(3)
+    rectanglar%lb_2 = argmaxv_lb(2)
+    rectanglar%lb_3 = argmaxv_lb(1)
+    rectanglar%ub_0 = argmaxv_ub(4)
+    rectanglar%ub_1 = argmaxv_ub(3)
+    rectanglar%ub_2 = argmaxv_ub(2)
+    rectanglar%ub_3 = argmaxv_ub(1)
 
   end function rectanglar
 
@@ -139,16 +99,15 @@ contains
     argmaxv_lb = 0
     argmaxv_ub = 0
 
-
     lb1 = ei
     ub1 = ee
-    do lb2 = max_lb(2), min_ub(2) - 15, 1
-    do ub2 = lb2 + 15, min_ub(2), 1
+    do lb2 = max_lb(2), min_ub(2) - 10, 5
+    do ub2 = lb2 + 10, min_ub(2), 5
     !$omp parallel do
-    do lb3 = max_lb(3), min_ub(3) - 35, 1
-    do ub3 = lb3 + 35, min_ub(3), 1
-    do lb4 = max_lb(4), min_ub(4) - 35, 1
-    do ub4 = lb4 + 35, min_ub(4), 1
+    do lb3 = max_lb(3), min_ub(3) - 10, 5
+    do ub3 = lb3 + 10, min_ub(3), 5
+    do lb4 = max_lb(4), min_ub(4) - 10, 5
+    do ub4 = lb4 + 10, min_ub(4), 5
     if ( real(sum(condition(lb1:ub1, lb2, lb3:ub3, lb4:ub4))) >= 0.95 * (ub1-lb1)*(ub3-lb3)*(ub4-lb4) ) then  
     if ( real(sum(condition(lb1:ub1, ub2, lb3:ub3, lb4:ub4))) >= 0.95 * (ub1-lb1)*(ub3-lb3)*(ub4-lb4) ) then  
     if ( real(sum(condition(lb1:ub1, lb2:ub2, lb3, lb4:ub4))) >= 0.95 * (ub1-lb1)*(ub2-lb2)*(ub4-lb4) ) then  
@@ -188,20 +147,28 @@ contains
     integer, intent(in)  :: max_lb(4), min_ub(4)
     integer, intent(in)  :: datasize(4), condition(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(inout) :: argmaxv_lb(4), argmaxv_ub(4)
-    integer  lb2, lb3, lb4, ub2, ub3, ub4, v, maxlb4(3)
+    integer  lb2, lb3, lb4, ub2, ub3, ub4, v, maxlb4(3), diff(4)
     integer  local_maxv(datasize(2), datasize(3), datasize(4))
     integer  local_argmaxv_lb(4, datasize(2), datasize(3), datasize(4))
     integer  local_argmaxv_ub(4, datasize(2), datasize(3), datasize(4))
     local_maxv = 0
 
+    if ( sum(argmaxv_ub - argmaxv_lb) /=0 ) then
+        diff = int((argmaxv_ub - argmaxv_lb) * 0.7)
+    else
+        diff = 0
+    end if
 
-    do lb2 = max_lb(2), min_ub(2) - 10, dq
-    do ub2 = lb2 + 10, min_ub(2), dq
+    print *, "diff:", diff
+
+
+    do lb2 = max_lb(2), min_ub(2) - diff(2), dq
+    do ub2 = lb2 + diff(2), min_ub(2), dq
     !$omp parallel do
-    do lb3 = max_lb(3), min_ub(3) - 30, dq
-    do ub3 = lb3 + 30, min_ub(3), dq
-    do lb4 = max_lb(4), min_ub(4) - 30, dq
-    do ub4 = lb4 + 30, min_ub(4), dq
+    do lb3 = max_lb(3), min_ub(3) - diff(3), dq
+    do ub3 = lb3 + diff(3), min_ub(3), dq
+    do lb4 = max_lb(4), min_ub(4) - diff(4), dq
+    do ub4 = lb4 + diff(4), min_ub(4), dq
     if ( real(sum(condition(eidx, lb2, lb3:ub3, lb4:ub4))) >= 0.95 * (ub3-lb3)*(ub4-lb4) ) then  
     if ( real(sum(condition(eidx, ub2, lb3:ub3, lb4:ub4))) >= 0.95 * (ub3-lb3)*(ub4-lb4) ) then  
     if ( real(sum(condition(eidx, lb2:ub2, lb3, lb4:ub4))) >= 0.95 * (ub2-lb2)*(ub4-lb4) ) then  
@@ -245,9 +212,10 @@ contains
     integer :: dq, i
     integer :: argmaxv_lub(4, 2)
 
+    argmaxv_lub = 0 
     call bondaries(ei, ee, max_lb, (/1, 1, 1, 1/), datasize, 1, datasize, condition)
     call bondaries(ei, ee, min_ub, datasize, (/1, 1, 1, 1/), -1, datasize, condition)
-    do dq = 5, 1, -1
+    do dq = 5, 3, -1
       call argmaxvlight(eidx, dq, max_lb, min_ub, argmaxv_lub(:, 1), argmaxv_lub(:, 2), datasize, condition)
       max_lb = argmaxv_lub(:, 1) 
       min_ub = argmaxv_lub(:, 2) 
