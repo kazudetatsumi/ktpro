@@ -215,7 +215,7 @@ contains
     argmaxv_lub = 0 
     call bondaries(ei, ee, max_lb, (/1, 1, 1, 1/), datasize, 1, datasize, condition)
     call bondaries(ei, ee, min_ub, datasize, (/1, 1, 1, 1/), -1, datasize, condition)
-    do dq = 5, 3, -1
+    do dq = 5, 1, -1
       call argmaxvlight(eidx, dq, max_lb, min_ub, argmaxv_lub(:, 1), argmaxv_lub(:, 2), datasize, condition)
       max_lb = argmaxv_lub(:, 1) 
       min_ub = argmaxv_lub(:, 2) 
