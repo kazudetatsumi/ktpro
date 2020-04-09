@@ -5,7 +5,7 @@ import matplotlib.cm as cm
 import h5py
 import ctypes
 lib = ctypes.CDLL("/home/kazu/ktpro/rectanglar3d.so")
-def calc_rectanglar_f90(condition):
+def calc_rectanglar_f90(ei, ee, condition):
     class result(ctypes.Structure):
         _fields_ = [("lb_0", ctypes.c_int), ("ub_0", ctypes.c_int), ("lb_1",
                     ctypes.c_int), ("ub_1", ctypes.c_int), ("lb_2",
@@ -13,6 +13,8 @@ def calc_rectanglar_f90(condition):
                     ctypes.c_int), ("ub_3", ctypes.c_int)]
     lib.rectanglar.restype = result
     lib.rectanglar.argtypes = [ctypes.POINTER(ctypes.c_int),
+                               ctypes.POINTER(ctypes.c_int),
+                               ctypes.POINTER(ctypes.c_int),
                                ctypes.POINTER(ctypes.c_int),
                                ctypes.POINTER(ctypes.c_int),
                                ctypes.POINTER(ctypes.c_int),
@@ -24,6 +26,8 @@ def calc_rectanglar_f90(condition):
     Nmax2 = condition.shape[2]
     Nmax3 = condition.shape[3]
     result = lib.rectanglar(
+                        ctypes.byref(ctypes.c_int(ei)),
+                        ctypes.byref(ctypes.c_int(ee)),
                         ctypes.byref(ctypes.c_int(Nmax0)),
                         ctypes.byref(ctypes.c_int(Nmax1)),
                         ctypes.byref(ctypes.c_int(Nmax2)),
@@ -42,32 +46,96 @@ def calc_rectanglar_f90(condition):
     return lb, ub
 
 
-def run():
-    #maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
-    maskfile = "/home/kazu/Dropbox/out_hw_all.hdf5"
-    f = h5py.File(maskfile)
-    #condition = np.array(f["condition"][:,:,:,35], dtype=np.int32)
-    condition = np.array(f["condition"][:,:,:,:], dtype=np.int32)
-    lb, ub = calc_rectanglar_f90(np.squeeze(condition))
+def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
+    fig = plt.figure(figsize=(18, 9))
+    fig.suptitle("crosssections of 4D INS data #17714", fontsize="x-large")
+    axindx=0
+    for y in yi, ye:
+        for z in zi, ze:
+            axindx += 1
+            ax = fig.add_subplot(3, 4, axindx)
+            ##slice in one-step widths
+            ax.pcolor(np.transpose(data4[:, y, z, :]), vmax=np.max(data4[:, y, z, :])/4, cmap='jet')
+            ##slice in optimial bin widths
+            #data = np.sum(np.sum(data4[:, y-1:y+1, z-6:z+6,:],axis=1),axis=1)
+            #ax.pcolor(np.transpose(data), vmax=np.max(data)/4, cmap='jet')
+            ax.text(2, 38, 'qy='+str(y)+', qz='+str(z), color='white')
+            ax.set_xlabel('qx')
+            ax.set_ylabel('E')
+            ax.axvline(x=xi, color='white', lw=0.5)
+            ax.axvline(x=xe, color='white', lw=0.5)
+            ax.axhline(y=35, color='white', lw=0.5)
+            ax.xaxis.set_label_coords(0.5,1.145)
+            ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+    for x in xi, xe:
+        for z in zi, ze:
+            axindx += 1
+            ax = fig.add_subplot(3, 4, axindx)
+            ##slice in one-step widths
+            ax.pcolor(np.transpose(data4[x, :, z, :]), vmax=np.max(data4[x, :, z, :])/4, cmap='jet')
+            ##slice in optimial bin widths
+            #data = np.sum(np.sum(data4[x-1:x+1, :, z-6:z+6,:],axis=2),axis=0)
+            #ax.pcolor(np.transpose(data), vmax=np.max(data)/4, cmap='jet')
+            ax.text(2, 38, 'qx='+str(x)+', qz='+str(z), color='white')
+            ax.set_xlabel('qy')
+            ax.set_ylabel('E')
+            ax.axvline(x=yi, color='white', lw=0.5)
+            ax.axvline(x=ye, color='white', lw=0.5)
+            ax.axhline(y=35, color='white', lw=0.5)
+            ax.xaxis.set_label_coords(0.5,1.145)
+            ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+    for x in xi, xe:
+        for y in yi, ye:
+            axindx += 1
+            ax = fig.add_subplot(3, 4, axindx)
+            ##slice in one-step widths
+            ax.pcolor(np.transpose(data4[x, y, :, :]), vmax=np.max(data4[x, y, :, :])/4, cmap='jet')
+            ##slice in optimial bin widths
+            #data = np.sum(np.sum(data4[x-1:x+1, y-1:y+1, :, :],axis=1),axis=0)
+            #ax.pcolor(np.transpose(data), vmax=np.max(data)/4, cmap='jet')
+            ax.text(2, 38, 'qx='+str(x)+', qy='+str(y), color='white')
+            ax.set_xlabel('qz')
+            ax.set_ylabel('E')
+            ax.axvline(x=zi, color='white', lw=0.5)
+            ax.axvline(x=ze, color='white', lw=0.5)
+            ax.axhline(y=35, color='white', lw=0.5)
+            ax.xaxis.set_label_coords(0.5,1.145)
+            ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
+    fig.subplots_adjust(top=0.90)
 
+
+def run():
+    ei = 5
+    ee = 35
+    maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
+    f = h5py.File(maskfile)
+    condition = np.array(f["condition"][:,:,:,:], dtype=np.int32)
+    lb, ub = calc_rectanglar_f90(ei, ee, condition)
     print(lb)
     print(ub)
+    xi = lb[0]
+    xe = ub[0]
+    yi = lb[1]
+    ye = ub[1]
+    zi = lb[2]
+    ze = ub[2]
+    ei = lb[3]
+    ee = ub[3]
+    #xi = 60
+    #xe = 84
+    #yi = 37
+    #ye = 68
+    #zi = 8
+    #ze = 27
+    #ei = 0
+    #ee = 35
 
-    #print "---delete_array_pointer---"
-    #lib.delete_array_pointer.restype = None
-    #lib.delete_array_pointer.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
-    #                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
-    #lib.delete_array_pointer(ctypes.byref(ctypes.c_int(lb_0)), ctypes.byref(ctypes.c_int(ub_0)), ctypes.byref(ctypes.c_int(lb_1)), ctypes.byref(ctypes.c_int(ub_1))
-    #                         ctypes.byref(ctypes.c_int(lb_2)), ctypes.byref(ctypes.c_int(ub_2)))
 
 
+    plot_crosssection(xi, xe, yi, ye, zi, ze, condition*1.0)
 
 
 run()
-#lib.delete_array.restype = None
-#lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
-#lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
-#plt.show()
-
+plt.show()
 
 
