@@ -5,15 +5,18 @@ import matplotlib.cm as cm
 import h5py
 import ctypes
 lib = ctypes.CDLL("/home/kazu/ktpro/rectanglar3d.so")
-def calc_rectanglar_f90(ei, ee, condition):
+def calc_rectanglar_f90(uselight, ei, ee, av, ab, condition):
     class result(ctypes.Structure):
         _fields_ = [("lb_0", ctypes.c_int), ("ub_0", ctypes.c_int), ("lb_1",
                     ctypes.c_int), ("ub_1", ctypes.c_int), ("lb_2",
                     ctypes.c_int), ("ub_2", ctypes.c_int), ("lb_3",
                     ctypes.c_int), ("ub_3", ctypes.c_int)]
     lib.rectanglar.restype = result
-    lib.rectanglar.argtypes = [ctypes.POINTER(ctypes.c_int),
+    lib.rectanglar.argtypes = [ctypes.POINTER(ctypes.c_bool),
                                ctypes.POINTER(ctypes.c_int),
+                               ctypes.POINTER(ctypes.c_int),
+                               ctypes.POINTER(ctypes.c_double),
+                               ctypes.POINTER(ctypes.c_double),
                                ctypes.POINTER(ctypes.c_int),
                                ctypes.POINTER(ctypes.c_int),
                                ctypes.POINTER(ctypes.c_int),
@@ -26,8 +29,11 @@ def calc_rectanglar_f90(ei, ee, condition):
     Nmax2 = condition.shape[2]
     Nmax3 = condition.shape[3]
     result = lib.rectanglar(
+                        ctypes.byref(ctypes.c_bool(uselight)),
                         ctypes.byref(ctypes.c_int(ei)),
                         ctypes.byref(ctypes.c_int(ee)),
+                        ctypes.byref(ctypes.c_double(av)),
+                        ctypes.byref(ctypes.c_double(ab)),
                         ctypes.byref(ctypes.c_int(Nmax0)),
                         ctypes.byref(ctypes.c_int(Nmax1)),
                         ctypes.byref(ctypes.c_int(Nmax2)),
@@ -105,12 +111,20 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
 
 
 def run():
+    ## the lower and upper energy bondaries
     ei = 5
     ee = 35
+    ## parameters softening the conditions to select volume and boundaries
+    ## a_v = 0.9, ab = 0.999
+    av = 0.999
+    ab = 0.999
+    ## use argmaxvlight
+    uselight = False
+    
     maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
     f = h5py.File(maskfile)
     condition = np.array(f["condition"][:,:,:,:], dtype=np.int32)
-    lb, ub = calc_rectanglar_f90(ei, ee, condition)
+    lb, ub = calc_rectanglar_f90(uselight, ei, ee, av, ab, condition)
     print(lb)
     print(ub)
     xi = lb[0]

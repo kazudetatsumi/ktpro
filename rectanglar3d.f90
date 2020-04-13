@@ -14,13 +14,17 @@ module costfort4d
     integer(c_int) :: ub_3
   end type result
   integer datasize(4), ei, ee
+  real a_v, a_b
   integer, allocatable ::  cond(:,:,:,:)
 
 contains
 
-  function rectanglar(e_i, e_e, datasize3, datasize2, datasize1, datasize0, condition) bind(C, name="rectanglar")
+  function rectanglar(uselight, e_i, e_e, av, ab, datasize3, datasize2, datasize1, datasize0, condition) bind(C, name="rectanglar")
+    logical(c_bool), intent(in) :: uselight
     integer(c_int), intent(in) :: e_i, e_e, datasize0, datasize1, datasize2, datasize3
     integer(c_int), intent(in) :: condition(datasize0, datasize1, datasize2, datasize3)                         
+    real(c_double), intent(in) :: av, ab
+
     integer argmaxv_lb(4)
     integer argmaxv_ub(4)
     integer argmaxv_lub_ei(4, 2), argmaxv_lub_ee(4, 2)
@@ -29,17 +33,30 @@ contains
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
     cond = condition
     print *, "datasize:", datasize
+    ! the lower and upper energy bondaries
     ei = e_i + 1
     ee = e_e + 1
-    argmaxv_lub_ei =  argmaxv3d_lub(ei)
-    argmaxv_lub_ee =  argmaxv3d_lub(ee)
-    do didx = 2, 4
-       argmaxv_lb(didx) = max(argmaxv_lub_ei(didx, 1), argmaxv_lub_ee(didx, 1))
-       argmaxv_ub(didx) = min(argmaxv_lub_ei(didx, 2), argmaxv_lub_ee(didx, 2))
-    end do
-    !argmaxv_lub_ei =  argmaxv4d_lub()
-    !argmaxv_lb =  argmaxv_lub_ei(:, 1)
-    !argmaxv_ub =  argmaxv_lub_ei(:, 2)
+    ! parameters softening the conditions to select volume and boundaries
+    ! a_v = 0.9, ab = 0.999
+    a_v = av
+    a_b = ab
+    print *, "a_v, a_b", a_v, a_b
+    print *, "uselight:", uselight
+    if ( uselight ) then
+       !!search upper and lower boundaries on three q axis for two partial matrices condition(ei, :, :, :) and condition(ee, :, :, :)
+       !!and select the smaller (larger) upper (lower) boundaries.
+       argmaxv_lub_ei =  argmaxv3d_lub(ei)
+       argmaxv_lub_ee =  argmaxv3d_lub(ee)
+       do didx = 2, 4
+          argmaxv_lb(didx) = max(argmaxv_lub_ei(didx, 1), argmaxv_lub_ee(didx, 1))
+          argmaxv_ub(didx) = min(argmaxv_lub_ei(didx, 2), argmaxv_lub_ee(didx, 2))
+       end do
+    else
+       !!search upper and lower bondaries on three q axis for the condition(ei:ee, :, :, :)
+       argmaxv_lub_ei =  argmaxv4d_lub()
+       argmaxv_lb =  argmaxv_lub_ei(:, 1)
+       argmaxv_ub =  argmaxv_lub_ei(:, 2)
+    end if
     argmaxv_lb(1) = ei
     argmaxv_ub(1) = ee
     print *, "argmaxv_lb:", argmaxv_lb
@@ -167,21 +184,15 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-    if ( real(sum(cond(ei:ee, lb2, lb3:ub3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, ub2, lb3:ub3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, ub3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, ub4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
-    !if ( sum(cond(ei:ee, lb2, lb3:ub3, lb4:ub4)) == (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(ei:ee, ub2, lb3:ub3, lb4:ub4)) == (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(ei:ee, lb2:ub2, lb3, lb4:ub4)) == (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(ei:ee, lb2:ub2, ub3, lb4:ub4)) == (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4)) == (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
-    !if ( sum(cond(ei:ee, lb2:ub2, lb3:ub3, ub4)) == (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
+    if ( real(sum(cond(ei:ee, lb2, lb3:ub3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, ub2, lb3:ub3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, lb3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, ub3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, ub4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
 
-    v = (ee - ei)*(ub2 - lb2)*(ub3 - lb3)*(ub4 - lb4)
-    if (real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4:ub4))) >= 0.90 * v .and. v > local_maxv(lb2, lb3, lb4) ) then
+    v = (ee - ei + 1)*(ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
+    if (real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
     local_maxv(lb2, lb3, lb4) = v
     local_argmaxv_lb(:, lb2, lb3, lb4) = (/ei, lb2, lb3, lb4/)
     local_argmaxv_ub(:, lb2, lb3, lb4) = (/ee, ub2, ub3, ub4/)
@@ -235,21 +246,15 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-    if ( real(sum(cond(eidx, lb2, lb3:ub3, lb4:ub4))) >= 0.99 * (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, ub2, lb3:ub3, lb4:ub4))) >= 0.99 * (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3, lb4:ub4))) >= 0.99 * (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, ub3, lb4:ub4))) >= 0.99 * (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4))) >= 0.99 * (ub2-lb2+1)*(ub3-lb3+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, ub4))) >= 0.99 * (ub2-lb2+1)*(ub3-lb3+1) ) then
-    !if ( sum(cond(eidx, lb2, lb3:ub3, lb4:ub4)) == (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(eidx, ub2, lb3:ub3, lb4:ub4)) == (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(eidx, lb2:ub2, lb3, lb4:ub4)) == (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(eidx, lb2:ub2, ub3, lb4:ub4)) == (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    !if ( sum(cond(eidx, lb2:ub2, lb3:ub3, lb4)) == (ub2-lb2+1)*(ub3-lb3+1) ) then  
-    !if ( sum(cond(eidx, lb2:ub2, lb3:ub3, ub4)) == (ub2-lb2+1)*(ub3-lb3+1) ) then
+    if ( real(sum(cond(eidx, lb2, lb3:ub3, lb4:ub4))) >= a_b * (ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, ub2, lb3:ub3, lb4:ub4))) >= a_b * (ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, lb3, lb4:ub4))) >= a_b * (ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, ub3, lb4:ub4))) >= a_b * (ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4))) >= a_b * (ub2-lb2+1)*(ub3-lb3+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, ub4))) >= a_b * (ub2-lb2+1)*(ub3-lb3+1) ) then
 
-    v = (ub2 - lb2)*(ub3 - lb3)*(ub4 - lb4)
-    if (real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4:ub4))) >= 0.9 * v .and. v > local_maxv(lb2, lb3, lb4) ) then
+    v = (ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
+    if (real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
     local_maxv(lb2, lb3, lb4) = v
     local_argmaxv_lb(:, lb2, lb3, lb4) = (/eidx, lb2, lb3, lb4/)
     local_argmaxv_ub(:, lb2, lb3, lb4) = (/eidx, ub2, ub3, ub4/)
