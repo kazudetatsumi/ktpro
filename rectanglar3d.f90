@@ -29,8 +29,8 @@ contains
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
     cond = condition
     print *, "datasize:", datasize
-    ei = e_i
-    ee = e_e
+    ei = e_i + 1
+    ee = e_e + 1
     argmaxv_lub_ei =  argmaxv3d_lub(ei)
     argmaxv_lub_ee =  argmaxv3d_lub(ee)
     do didx = 2, 4
@@ -46,15 +46,15 @@ contains
     print *, "argmaxv_ub:", argmaxv_ub
        
 
-    rectanglar%lb_0 = argmaxv_lb(4)
-    rectanglar%lb_1 = argmaxv_lb(3)
-    rectanglar%lb_2 = argmaxv_lb(2)
-    rectanglar%lb_3 = argmaxv_lb(1)
-    rectanglar%ub_0 = argmaxv_ub(4)
-    rectanglar%ub_1 = argmaxv_ub(3)
-    rectanglar%ub_2 = argmaxv_ub(2)
-    rectanglar%ub_3 = argmaxv_ub(1)
-
+    rectanglar%lb_0 = argmaxv_lb(4) - 1
+    rectanglar%lb_1 = argmaxv_lb(3) - 1
+    rectanglar%lb_2 = argmaxv_lb(2) - 1
+    rectanglar%lb_3 = argmaxv_lb(1) - 1
+    rectanglar%ub_0 = argmaxv_ub(4) - 1
+    rectanglar%ub_1 = argmaxv_ub(3) - 1
+    rectanglar%ub_2 = argmaxv_ub(2) - 1
+    rectanglar%ub_3 = argmaxv_ub(1) - 1
+ 
   end function rectanglar
 
 
@@ -158,7 +158,7 @@ contains
     else
         diff = 0
     end if
-    print *, "diff:", diff
+    print *, "diffp:", diff
 
     do lb2 = max_lb(2), min_ub(2) - diff(2), dq
     do ub2 = lb2 + diff(2), min_ub(2), dq
@@ -167,12 +167,18 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-    if ( real(sum(cond(ei:ee, lb2, lb3:ub3, lb4:ub4))) >= 0.95 * (ee-ei)*(ub3-lb3)*(ub4-lb4) ) then  
-    if ( real(sum(cond(ei:ee, ub2, lb3:ub3, lb4:ub4))) >= 0.95 * (ee-ei)*(ub3-lb3)*(ub4-lb4) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3, lb4:ub4))) >= 0.95 * (ee-ei)*(ub2-lb2)*(ub4-lb4) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, ub3, lb4:ub4))) >= 0.95 * (ee-ei)*(ub2-lb2)*(ub4-lb4) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4))) >= 0.95 * (ee-ei)*(ub2-lb2)*(ub3-lb3) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, ub4))) >= 0.95 * (ee-ei)*(ub2-lb2)*(ub3-lb3) ) then
+    if ( real(sum(cond(ei:ee, lb2, lb3:ub3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, ub2, lb3:ub3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, lb3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, ub3, lb4:ub4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
+    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, ub4))) >= 0.999 * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
+    !if ( sum(cond(ei:ee, lb2, lb3:ub3, lb4:ub4)) == (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(ei:ee, ub2, lb3:ub3, lb4:ub4)) == (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(ei:ee, lb2:ub2, lb3, lb4:ub4)) == (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(ei:ee, lb2:ub2, ub3, lb4:ub4)) == (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4)) == (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
+    !if ( sum(cond(ei:ee, lb2:ub2, lb3:ub3, ub4)) == (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
 
     v = (ee - ei)*(ub2 - lb2)*(ub3 - lb3)*(ub4 - lb4)
     if (real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4:ub4))) >= 0.90 * v .and. v > local_maxv(lb2, lb3, lb4) ) then
@@ -229,12 +235,18 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-    if ( real(sum(cond(eidx, lb2, lb3:ub3, lb4:ub4))) >= 0.95 * (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, ub2, lb3:ub3, lb4:ub4))) >= 0.95 * (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3, lb4:ub4))) >= 0.95 * (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, ub3, lb4:ub4))) >= 0.95 * (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4))) >= 0.95 * (ub2-lb2+1)*(ub3-lb3+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, ub4))) >= 0.95 * (ub2-lb2+1)*(ub3-lb3+1) ) then
+    if ( real(sum(cond(eidx, lb2, lb3:ub3, lb4:ub4))) >= 0.99 * (ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, ub2, lb3:ub3, lb4:ub4))) >= 0.99 * (ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, lb3, lb4:ub4))) >= 0.99 * (ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, ub3, lb4:ub4))) >= 0.99 * (ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4))) >= 0.99 * (ub2-lb2+1)*(ub3-lb3+1) ) then  
+    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, ub4))) >= 0.99 * (ub2-lb2+1)*(ub3-lb3+1) ) then
+    !if ( sum(cond(eidx, lb2, lb3:ub3, lb4:ub4)) == (ub3-lb3+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(eidx, ub2, lb3:ub3, lb4:ub4)) == (ub3-lb3+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(eidx, lb2:ub2, lb3, lb4:ub4)) == (ub2-lb2+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(eidx, lb2:ub2, ub3, lb4:ub4)) == (ub2-lb2+1)*(ub4-lb4+1) ) then  
+    !if ( sum(cond(eidx, lb2:ub2, lb3:ub3, lb4)) == (ub2-lb2+1)*(ub3-lb3+1) ) then  
+    !if ( sum(cond(eidx, lb2:ub2, lb3:ub3, ub4)) == (ub2-lb2+1)*(ub3-lb3+1) ) then
 
     v = (ub2 - lb2)*(ub3 - lb3)*(ub4 - lb4)
     if (real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4:ub4))) >= 0.9 * v .and. v > local_maxv(lb2, lb3, lb4) ) then
