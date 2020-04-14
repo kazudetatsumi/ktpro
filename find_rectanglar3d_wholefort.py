@@ -112,16 +112,17 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
 
 def run():
     ## the lower and upper energy bondaries
-    ei = 5
-    ee = 35
+    ei = 10
+    ee = 70
     ## parameters softening the conditions to select volume and boundaries
     ## a_v = 0.9, ab = 0.999
-    av = 0.999
-    ab = 0.999
+    av = 0.950
+    ab = 0.500
     ## use argmaxvlight
     uselight = False
     
-    maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
+    #maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
+    maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"
     f = h5py.File(maskfile)
     condition = np.array(f["condition"][:,:,:,:], dtype=np.int32)
     lb, ub = calc_rectanglar_f90(uselight, ei, ee, av, ab, condition)
@@ -135,14 +136,14 @@ def run():
     ze = ub[2]
     ei = lb[3]
     ee = ub[3]
-    #xi = 60
-    #xe = 84
-    #yi = 37
-    #ye = 68
-    #zi = 8
-    #ze = 27
+    #xi = 60*2
+    #xe = 84*2
+    #yi = 37*2
+    #ye = 68*2
+    #zi = 8*2
+    #ze = 27*2
     #ei = 0
-    #ee = 35
+    #ee = 35*2
 
 
 

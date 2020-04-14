@@ -33,7 +33,7 @@ contains
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
     cond = condition
     print *, "datasize:", datasize
-    ! the lower and upper energy bondaries
+    ! the lower and upper energy boundaries
     ei = e_i + 1
     ee = e_e + 1
     ! parameters softening the conditions to select volume and boundaries
@@ -52,7 +52,7 @@ contains
           argmaxv_ub(didx) = min(argmaxv_lub_ei(didx, 2), argmaxv_lub_ee(didx, 2))
        end do
     else
-       !!search upper and lower bondaries on three q axis for the condition(ei:ee, :, :, :)
+       !!search upper and lower boundaries on three q axis for the condition(ei:ee, :, :, :)
        argmaxv_lub_ei =  argmaxv4d_lub()
        argmaxv_lb =  argmaxv_lub_ei(:, 1)
        argmaxv_ub =  argmaxv_lub_ei(:, 2)
@@ -82,9 +82,9 @@ contains
     integer :: argmaxv3d_lub(4, 2)
 
     argmaxv3d_lub = 0 
-    call bondaries(max_lb, (/1, 1, 1, 1/), datasize, 1)
-    call bondaries(min_ub, datasize, (/1, 1, 1, 1/), -1)
-    do dq = 5, 1, -1
+    call boundaries(max_lb, (/1, 1, 1, 1/), datasize, 1)
+    call boundaries(min_ub, datasize, (/1, 1, 1, 1/), -1)
+    do dq = 8, 4, -2
       call argmaxvlight(eidx, dq, max_lb, min_ub, argmaxv3d_lub(:, 1), argmaxv3d_lub(:, 2))
       max_lb = argmaxv3d_lub(:, 1) 
       min_ub = argmaxv3d_lub(:, 2) 
@@ -110,9 +110,9 @@ contains
     integer :: argmaxv4d_lub(4, 2)
 
     argmaxv4d_lub = 0 
-    call bondaries(max_lb, (/1, 1, 1, 1/), datasize, 1)
-    call bondaries(min_ub, datasize, (/1, 1, 1, 1/), -1)
-    do dq = 5, 1, -1
+    call boundaries(max_lb, (/1, 1, 1, 1/), datasize, 1)
+    call boundaries(min_ub, datasize, (/1, 1, 1, 1/), -1)
+    do dq = 8, 4, -2
       call argmaxv(dq, max_lb, min_ub, argmaxv4d_lub(:, 1), argmaxv4d_lub(:, 2))
       max_lb = argmaxv4d_lub(:, 1) 
       min_ub = argmaxv4d_lub(:, 2) 
@@ -132,7 +132,7 @@ contains
   end function argmaxv4d_lub
 
 
-  subroutine bondaries(qb, iniq, endq, dq)
+  subroutine boundaries(qb, iniq, endq, dq)
     integer, intent(out) :: qb(4)
     integer, intent(in)  :: iniq(4), endq(4), dq
     integer  qid
@@ -157,7 +157,7 @@ contains
            exit
       end if
     end do
-  end subroutine bondaries
+  end subroutine boundaries
 
 
   subroutine argmaxv(dq, max_lb, min_ub, argmaxv_lb, argmaxv_ub)
@@ -184,30 +184,19 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-    if ( real(sum(cond(ei:ee, lb2, lb3:ub3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, ub2, lb3:ub3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, ub3, lb4:ub4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
-    if ( real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, ub4))) >= a_b * (ee-ei+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
-
-    v = (ee - ei + 1)*(ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
-    if (real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
-    local_maxv(lb2, lb3, lb4) = v
-    local_argmaxv_lb(:, lb2, lb3, lb4) = (/ei, lb2, lb3, lb4/)
-    local_argmaxv_ub(:, lb2, lb3, lb4) = (/ee, ub2, ub3, ub4/)
-    end if
-    end if
-    end if
-    end if
-    end if
-    end if
-    end if
+      if ( check_area(ei, ee, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub) ) then
+        v = (ee - ei + 1)*(ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
+        if (real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
+          local_maxv(lb2, lb3, lb4) = v
+          local_argmaxv_lb(:, lb2, lb3, lb4) = (/ei, lb2, lb3, lb4/)
+          local_argmaxv_ub(:, lb2, lb3, lb4) = (/ee, ub2, ub3, ub4/)
+        end if
+      end if
+    end do
+    end do
     end do
     end do
 
-    end do
-    end do
     end do
     end do
     maxlb4 = maxloc(local_maxv)
@@ -218,8 +207,28 @@ contains
     end if
     print *, argmaxv_lb
     print *, argmaxv_ub
-
   end subroutine argmaxv
+
+
+  function check_area(elb, eub, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub)
+    integer, intent(in) :: elb, eub, lb2, ub2, lb3, ub3, lb4, ub4
+    integer, intent(in) :: max_lb(4), min_ub(4)
+    logical check_area
+    check_area = .false.
+    if ( real(sum(cond(elb:eub, lb2, lb3:ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(elb:eub, ub2, lb3:ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, lb3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, lb4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
+      check_area = .true.
+    end if
+    end if
+    end if
+    end if
+    end if
+    end if
+  end function check_area
 
 
   subroutine argmaxvlight(eidx, dq, max_lb, min_ub, argmaxv_lb, argmaxv_ub)
@@ -246,25 +255,14 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-    if ( real(sum(cond(eidx, lb2, lb3:ub3, lb4:ub4))) >= a_b * (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, ub2, lb3:ub3, lb4:ub4))) >= a_b * (ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3, lb4:ub4))) >= a_b * (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, ub3, lb4:ub4))) >= a_b * (ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4))) >= a_b * (ub2-lb2+1)*(ub3-lb3+1) ) then  
-    if ( real(sum(cond(eidx, lb2:ub2, lb3:ub3, ub4))) >= a_b * (ub2-lb2+1)*(ub3-lb3+1) ) then
-
-    v = (ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
-    if (real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
-    local_maxv(lb2, lb3, lb4) = v
-    local_argmaxv_lb(:, lb2, lb3, lb4) = (/eidx, lb2, lb3, lb4/)
-    local_argmaxv_ub(:, lb2, lb3, lb4) = (/eidx, ub2, ub3, ub4/)
-    end if
-    end if
-    end if
-    end if
-    end if
-    end if
-    end if
+      if ( check_area(eidx, eidx, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub) ) then 
+        v = (ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
+        if (real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
+          local_maxv(lb2, lb3, lb4) = v
+          local_argmaxv_lb(:, lb2, lb3, lb4) = (/eidx, lb2, lb3, lb4/)
+          local_argmaxv_ub(:, lb2, lb3, lb4) = (/eidx, ub2, ub3, ub4/)
+        end if
+      end if
     end do
     end do
 
