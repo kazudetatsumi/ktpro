@@ -116,8 +116,8 @@ def run():
     ee = 70
     ## parameters softening the conditions to select volume and boundaries
     ## a_v = 0.9, ab = 0.999
-    av = 0.950
-    ab = 0.500
+    av = 0.900
+    ab = 0.900
     ## use argmaxvlight
     uselight = False
     
@@ -136,21 +136,21 @@ def run():
     ze = ub[2]
     ei = lb[3]
     ee = ub[3]
-    #xi = 60*2
-    #xe = 84*2
-    #yi = 37*2
-    #ye = 68*2
-    #zi = 8*2
-    #ze = 27*2
+    #xi = 122
+    #xe = 172
+    #yi = 67
+    #ye = 136
+    #zi = 16
+    #ze = 55
     #ei = 0
     #ee = 35*2
 
 
 
-    plot_crosssection(xi, xe, yi, ye, zi, ze, condition*1.0)
+    #plot_crosssection(xi, xe, yi, ye, zi, ze, condition*1.0)
 
 
 run()
-plt.show()
+#plt.show()
 
 

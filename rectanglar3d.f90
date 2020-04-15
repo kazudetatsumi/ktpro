@@ -80,6 +80,7 @@ contains
     integer :: max_lb(4), min_ub(4)
     integer :: dq, didx
     integer :: argmaxv3d_lub(4, 2)
+    print *, "entering function argmaxv3d_lub"
 
     argmaxv3d_lub = 0 
     call boundaries(max_lb, (/1, 1, 1, 1/), datasize, 1)
@@ -109,10 +110,12 @@ contains
     integer :: dq, didx
     integer :: argmaxv4d_lub(4, 2)
 
+    print *, "entering function argmaxv4d_lub"
+
     argmaxv4d_lub = 0 
     call boundaries(max_lb, (/1, 1, 1, 1/), datasize, 1)
     call boundaries(min_ub, datasize, (/1, 1, 1, 1/), -1)
-    do dq = 8, 4, -2
+    do dq = 17, 1, -2
       call argmaxv(dq, max_lb, min_ub, argmaxv4d_lub(:, 1), argmaxv4d_lub(:, 2))
       max_lb = argmaxv4d_lub(:, 1) 
       min_ub = argmaxv4d_lub(:, 2) 
@@ -176,6 +179,7 @@ contains
         diff = 0
     end if
     print *, "diffp:", diff
+    print *, "dq:", dq
 
     do lb2 = max_lb(2), min_ub(2) - diff(2), dq
     do ub2 = lb2 + diff(2), min_ub(2), dq
@@ -184,7 +188,7 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-      if ( check_area(ei, ee, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub) ) then
+      if ( check_area(dq, ei, ee, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub) ) then
         v = (ee - ei + 1)*(ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
         if (real(sum(cond(ei:ee, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
           local_maxv(lb2, lb3, lb4) = v
@@ -210,17 +214,30 @@ contains
   end subroutine argmaxv
 
 
-  function check_area(elb, eub, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub)
-    integer, intent(in) :: elb, eub, lb2, ub2, lb3, ub3, lb4, ub4
+  function check_area(dq, elb, eub, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub)
+    integer, intent(in) :: dq, elb, eub, lb2, ub2, lb3, ub3, lb4, ub4
     integer, intent(in) :: max_lb(4), min_ub(4)
     logical check_area
     check_area = .false.
-    if ( real(sum(cond(elb:eub, lb2, lb3:ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(elb:eub, ub2, lb3:ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(elb:eub, lb2:ub2, lb3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(elb:eub, lb2:ub2, ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
-    if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, lb4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
-    if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
+
+    if ( real(sum(cond(elb:eub, max(lb2-1,1):min(lb2+1,datasize(2)), lb3:ub3, lb4:ub4))) >= &
+        a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1)*(min(lb2+1,datasize(2))-max(lb2-1,1)+1) ) then  
+    if ( real(sum(cond(elb:eub, max(ub2-1,1):min(ub2+1,datasize(2)), lb3:ub3, lb4:ub4))) >= &
+        a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1)*(min(ub2+1,datasize(2))-max(ub2-1,1)+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, max(lb3-1,1):min(lb3+1,datasize(3)), lb4:ub4))) >= &
+        a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1)*(min(lb3+1,datasize(3))-max(lb3-1,1)+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, max(ub3-1,1):min(ub3+1,datasize(3)), lb4:ub4))) >= &
+        a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1)*(min(ub3+1,datasize(3))-max(ub3-1,1)+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, max(lb4-1,1):min(lb4+1,datasize(4))))) >= &
+        a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1)*(min(lb4+1,datasize(4))-max(lb4-1,1)+1) ) then  
+    if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, max(ub4-1,1):min(ub4+1,datasize(4))))) >= &
+        a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1)*(min(ub4+1,datasize(4))-max(ub4-1,1)+1) ) then  
+    !if ( real(sum(cond(elb:eub, lb2, lb3:ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    !if ( real(sum(cond(elb:eub, ub2, lb3:ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub3-lb3+1)*(ub4-lb4+1) ) then  
+    !if ( real(sum(cond(elb:eub, lb2:ub2, lb3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    !if ( real(sum(cond(elb:eub, lb2:ub2, ub3, lb4:ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub4-lb4+1) ) then  
+    !if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, lb4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then  
+    !if ( real(sum(cond(elb:eub, lb2:ub2, lb3:ub3, ub4))) >= a_b * (eub-elb+1)*(ub2-lb2+1)*(ub3-lb3+1) ) then
       check_area = .true.
     end if
     end if
@@ -255,7 +272,7 @@ contains
     do ub3 = lb3 + diff(3), min_ub(3), dq
     do lb4 = max_lb(4), min_ub(4) - diff(4), dq
     do ub4 = lb4 + diff(4), min_ub(4), dq
-      if ( check_area(eidx, eidx, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub) ) then 
+      if ( check_area(dq, eidx, eidx, lb2, ub2, lb3, ub3, lb4, ub4, max_lb, min_ub) ) then 
         v = (ub2 - lb2 + 1)*(ub3 - lb3 + 1)*(ub4 - lb4 + 1)
         if (real(sum(cond(eidx, lb2:ub2, lb3:ub3, lb4:ub4))) >= a_v * v .and. v > local_maxv(lb2, lb3, lb4) ) then
           local_maxv(lb2, lb3, lb4) = v
