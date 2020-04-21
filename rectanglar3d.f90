@@ -25,7 +25,7 @@ contains
     integer(c_int), intent(in) :: condition(datasize0, datasize1, datasize2, datasize3)                         
     real(c_double), intent(in) :: av, ab
 
-    integer argmaxv_lb(4)
+    integer argmaxv_lb(4), distance(4)
     integer argmaxv_ub(4)
     integer argmaxv_lub_ei(4, 2), argmaxv_lub_ee(4, 2)
     integer didx
@@ -53,14 +53,18 @@ contains
        end do
     else
        !!search upper and lower boundaries on three q axis for the condition(ei:ee, :, :, :)
-       argmaxv_lub_ei =  argmaxv4d_lub()
+       argmaxv_lub_ei = argmaxv4d_lub()
        argmaxv_lb =  argmaxv_lub_ei(:, 1)
        argmaxv_ub =  argmaxv_lub_ei(:, 2)
     end if
     argmaxv_lb(1) = ei
     argmaxv_ub(1) = ee
+    distance = argmaxv_ub - argmaxv_lb + 1
     print *, "argmaxv_lb:", argmaxv_lb
     print *, "argmaxv_ub:", argmaxv_ub
+    print *, "density(final,4d):",real(sum(cond(argmaxv_lb(1):argmaxv_ub(1), argmaxv_lb(2):argmaxv_ub(2), argmaxv_lb(3):argmaxv_ub(3), &
+             argmaxv_lb(4):argmaxv_ub(4)))) / product(distance)
+    print *, "volume(final, 4d):", product(distance)
        
 
     rectanglar%lb_0 = argmaxv_lb(4) - 1
@@ -115,7 +119,7 @@ contains
     argmaxv4d_lub = 0 
     call boundaries(max_lb, (/1, 1, 1, 1/), datasize, 1)
     call boundaries(min_ub, datasize, (/1, 1, 1, 1/), -1)
-    do dq = 17, 1, -2
+    do dq = 16, 4, -4
       call argmaxv(dq, max_lb, min_ub, argmaxv4d_lub(:, 1), argmaxv4d_lub(:, 2))
       max_lb = argmaxv4d_lub(:, 1) 
       min_ub = argmaxv4d_lub(:, 2) 
@@ -171,6 +175,7 @@ contains
     integer  local_maxv(datasize(2), datasize(3), datasize(4))
     integer  local_argmaxv_lb(4, datasize(2), datasize(3), datasize(4))
     integer  local_argmaxv_ub(4, datasize(2), datasize(3), datasize(4))
+    integer  distance(4)
     local_maxv = 0
 
     if ( sum(argmaxv_ub - argmaxv_lb) /=0 ) then
@@ -208,9 +213,12 @@ contains
       maxlb4 = maxloc(local_maxv)
       argmaxv_lb = local_argmaxv_lb(:, maxlb4(1), maxlb4(2), maxlb4(3))
       argmaxv_ub = local_argmaxv_ub(:, maxlb4(1), maxlb4(2), maxlb4(3))
+      distance = argmaxv_ub - argmaxv_lb + 1
     end if
     print *, argmaxv_lb
     print *, argmaxv_ub
+    print *, "density(4D):",real(sum(cond(ei:ee, argmaxv_lb(2):argmaxv_ub(2), argmaxv_lb(3):argmaxv_ub(3), &
+             argmaxv_lb(4):argmaxv_ub(4)))) / product(distance)
   end subroutine argmaxv
 
 
@@ -256,6 +264,7 @@ contains
     integer  local_maxv(datasize(2), datasize(3), datasize(4))
     integer  local_argmaxv_lb(4, datasize(2), datasize(3), datasize(4))
     integer  local_argmaxv_ub(4, datasize(2), datasize(3), datasize(4))
+    integer  distance(4)
     local_maxv = 0
 
     if ( sum(argmaxv_ub - argmaxv_lb) /=0 ) then
@@ -264,6 +273,7 @@ contains
         diff = 0
     end if
     print *, "diff:", diff
+    print *, "dq:", dq
 
     do lb2 = max_lb(2), min_ub(2) - diff(2), dq
     do ub2 = lb2 + diff(2), min_ub(2), dq
@@ -291,9 +301,12 @@ contains
       maxlb4 = maxloc(local_maxv)
       argmaxv_lb = local_argmaxv_lb(:, maxlb4(1), maxlb4(2), maxlb4(3))
       argmaxv_ub = local_argmaxv_ub(:, maxlb4(1), maxlb4(2), maxlb4(3))
+      distance = argmaxv_ub - argmaxv_lb + 1
     end if
     print *, argmaxv_lb
     print *, argmaxv_ub
+    print *, "density(3D):",real(sum(cond(eidx, argmaxv_lb(2):argmaxv_ub(2), argmaxv_lb(3):argmaxv_ub(3), &
+             argmaxv_lb(4):argmaxv_ub(4)))) / product(distance(2:4))
 
   end subroutine argmaxvlight
 
