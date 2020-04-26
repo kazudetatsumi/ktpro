@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+# This script generate a coarser 4D matrix than the input matrix.
+# The input 4D matrix is considered as a numpy array.
+# For example, an input matrix of Nx x Ny x Nz x Ne, with a parameter of nx, ny
+# , nz, and ne, this script generates a coarser matrix of Nx//nx x Ny//ny x Nz/
+# /nz x Ne//ne.
+# I wrote this script for the visualization of the histogram with the
+# bin-widths optimized by optbinwidth4d_wholefort.py.
+# Kazuyoshi TATSUMI 2020/4/24
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -39,7 +47,7 @@ def calc_hist4d_f90(A, data, nw0, nw1, nw2, nw3,  condition):
 
 
 def save_hist(outfile, k, kcond):
-    with h5py.File(outfile, 'w') as hf: 
+    with h5py.File(outfile, 'w') as hf:
         hf.create_dataset('data4', data=k)
         hf.create_dataset('condition', data=kcond)
 
@@ -53,7 +61,7 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
     ax.set_xlabel('qx')
     ax.set_ylabel('E')
     ax.axis('tight')
-    ax.xaxis.set_label_coords(0.5,1.145)
+    ax.xaxis.set_label_coords(0.5, 1.145)
     ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
     ax = fig.add_subplot(2, 1, 2)
     ax.pcolor(np.transpose(data4[73, :, 7, :]), vmax=np.max(data4[73, :, 7, :])/400, cmap='jet')
@@ -61,16 +69,16 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
     ax.set_xlabel('qy')
     ax.set_ylabel('E')
     ax.axis('tight')
-    ax.xaxis.set_label_coords(0.5,1.145)
+    ax.xaxis.set_label_coords(0.5, 1.145)
     ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
     fig.subplots_adjust(top=0.90)
 
 
 def run():
-    nx=1
-    ny=1
-    nz=2
-    ne=1
+    nx = 1
+    ny = 1
+    nz = 2
+    ne = 1
     head ="./"
     datafile = head + "out_hw_all.hdf5"
     outfile = head + "hist.hdf5"
@@ -95,10 +103,10 @@ def run():
 
 
 def run_plot():
-    nx=1
-    ny=1
-    nz=2
-    ne=1
+    nx = 1
+    ny = 1
+    nz = 2
+    ne = 1
     head ="./"
     outfile = head + "hist.hdf5"
     f = h5py.File(outfile)
@@ -118,7 +126,7 @@ def run_plot():
 
 #run()
 run_plot()
-#plt.show()
-plt.savefig("crosssection_for_G-X_G-K.eps")
+plt.show()
+#plt.savefig("crosssection_for_G-X_G-K.eps")
 
 

@@ -176,12 +176,12 @@ def run():
     data4 = read_h5py(outfile)
     print(data4.shape)
     print(np.sum(data4))
-    xi = 60*2
-    xe = 84*2
-    yi = 37*2
-    ye = 68*2
-    zi = 8*2
-    ze = 27*2
+    xi = 116
+    xe = 172
+    yi = 68
+    ye = 140
+    zi = 18
+    ze = 51
     ei = 5*2
     ee = 35*2
     condition = get_condition(maskfile)
