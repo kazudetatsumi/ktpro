@@ -77,8 +77,8 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
 def run():
     nx = 1
     ny = 1
-    nz = 2
-    ne = 1
+    nz = 6
+    ne = 2
     head ="./"
     datafile = head + "out_hw_all.hdf5"
     outfile = head + "hist.hdf5"
@@ -103,10 +103,6 @@ def run():
 
 
 def run_plot():
-    nx = 1
-    ny = 1
-    nz = 2
-    ne = 1
     head ="./"
     outfile = head + "hist.hdf5"
     f = h5py.File(outfile)
@@ -124,9 +120,9 @@ def run_plot():
     plot_crosssection(xi, xe, yi, ye, zi, ze, data4)
 
 
-#run()
-run_plot()
-plt.show()
+run()
+#run_plot()
+#plt.show()
 #plt.savefig("crosssection_for_G-X_G-K.eps")
 
 
