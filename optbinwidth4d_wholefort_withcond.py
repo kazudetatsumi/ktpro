@@ -4,14 +4,10 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
+import sys
 lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d_withcond.so")
-#lib = ctypes.CDLL("/home/kazu/ktpro/costfort4d_ifort.so")
 
-#def calc_cost4d_f90(A, B, maxw, data, condition):
-#def calc_cost4d_f90(A, maxw, data, condition):
-#def calc_cost4d_f90(A, maxw, data, condition, usecond):
 def calc_cost4d_f90(maxw, data, condition, usecond, condparam):
-#def calc_cost4d_f90(maxw, data, condition):
     class result(ctypes.Structure):
         _fields_ =[("len0", ctypes.c_int), ("len1", ctypes.c_int), ("len2", ctypes.c_int), ("len3", ctypes.c_int),
                   ("arr", ctypes.POINTER(ctypes.c_double)), ("kavearr", ctypes.POINTER(ctypes.c_double)), ("darr", ctypes.POINTER(ctypes.c_double))]
@@ -20,30 +16,21 @@ def calc_cost4d_f90(maxw, data, condition, usecond, condparam):
     lib.cost4d.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
                            ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_bool),
                            ctypes.POINTER(ctypes.c_double),
-                           #np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
-                           #np.ctypeslib.ndpointer(dtype=np.float64, ndim=5),
                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
                            np.ctypeslib.ndpointer(dtype=np.int32, ndim=4)]
-                           #np.ctypeslib.ndpointer(dtype=np.bool, ndim=4)]
 
     Nmax0 = data.shape[0]
     Nmax1 = data.shape[1]
     Nmax2 = data.shape[2]
     Nmax3 = data.shape[3]
 
-    #result = lib.cost4d(ctypes.byref(ctypes.c_int(maxw[0])), ctypes.byref(ctypes.c_int(maxw[1])), ctypes.byref(ctypes.c_int(maxw[2])), ctypes.byref(ctypes.c_int(maxw[3])),
-    #                    ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), ctypes.byref(ctypes.c_int(Nmax3)), A, data, condition)
     result = lib.cost4d(ctypes.byref(ctypes.c_int(maxw[0])), ctypes.byref(ctypes.c_int(maxw[1])), ctypes.byref(ctypes.c_int(maxw[2])), ctypes.byref(ctypes.c_int(maxw[3])),
                         ctypes.byref(ctypes.c_int(Nmax0)),
                         ctypes.byref(ctypes.c_int(Nmax1)),
                         ctypes.byref(ctypes.c_int(Nmax2)),
                         ctypes.byref(ctypes.c_int(Nmax3)),
-                        #ctypes.byref(ctypes.c_bool(usecond)), A, data, condition)
                         ctypes.byref(ctypes.c_bool(usecond)),
                         ctypes.byref(ctypes.c_double(condparam)), data, condition)
-                        #ctypes.byref(ctypes.c_int(Nmax3)), A, B, data, condition)
-    #result = lib.cost4d(ctypes.byref(ctypes.c_int(maxw[0])), ctypes.byref(ctypes.c_int(maxw[1])), ctypes.byref(ctypes.c_int(maxw[2])), ctypes.byref(ctypes.c_int(maxw[3])),
-    #                    ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), ctypes.byref(ctypes.c_int(Nmax3)),  data, condition)
     result_len0 = result.len0
     result_len1 = result.len1
     result_len2 = result.len2
@@ -56,58 +43,28 @@ def calc_cost4d_f90(maxw, data, condition, usecond, condparam):
 
 
 def run_simu4d():
-    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    #datafile = "/home/kazu/desktop/200120/1h/eliminated_data.hdf5"
     datafile = "./eliminated_data.hdf5"
-    #datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3.hdf5"
-    #datafile = "data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data4"][:,:,:,:] # nqx, nqy, nqz, nomega
     print "size of data is", data.shape
-    #data = np.sum(data[:, :, :, :],axis=2)
-    #condition = np.ones(data.shape, dtype=np.int32)
     condition = np.array(f["condition"], dtype=np.int32)
     usecond = True
-    condparam = 1.0/3  #  parameter for selection of elements taken into accounts of the statistics
+    condparam = float(sys.argv[1])  #  parameter for selection of elements taken into accounts of the statistics
     print "usecond:", usecond
     print "condparam:", condparam
-    #condition = np.ones(data.shape, dtype=np.bool)
     
     n = np.sum(data)*1.0
     print "n=", n
 
-
-    #maxxwidth = np.min(np.sum(condition, axis=0)) / 2
-    #maxywidth = np.min(np.sum(condition, axis=1)) / 2
-    #maxzwidth = np.min(np.sum(condition, axis=2)) / 2
-    #maxowidth = np.min(np.sum(condition, axis=3)) / 2
     maxxwidth = int(data.shape[0] // 2)
     maxywidth = int(data.shape[1] // 2)
     maxzwidth = int(data.shape[2] // 2)
     maxowidth = int(data.shape[3] // 2)
     print "maxwidth:", maxxwidth, maxywidth, maxzwidth, maxowidth
-    #maxxwidth = 16
-    #maxywidth = 16
-    #maxzwidth = 16
-    #maxowidth = 16
 
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
-    #A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2), axis=3)
-    #CDA = np.cumsum(np.cumsum(np.cumsum(np.cumsum(condition, axis=0,
-    #    dtype='int32'), axis=1, dtype='int32'), axis=2, dtype='int32'), axis=3,
-    #    dtype='int32')
-    #B = np.zeros((4, data.shape[0],data.shape[1],data.shape[2],data.shape[3]))
-    #B[0,:,:,:] = np.cumsum(data, axis=0)
-    #B[1,:,:,:] = np.cumsum(data, axis=1)
-    #B[2,:,:,:] = np.cumsum(data, axis=2)
-    #B[3,:,:,:] = np.cumsum(data, axis=3)
-    #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, CDA)
-    #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition, usecond)
     Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition, usecond, condparam)
-    #Cn, kaves, deltas = calc_cost4d_f90(A, B, maxw, data, CDA)
-    #Cn, kaves, deltas = calc_cost4d_f90(A, maxw, data, condition)
-    #Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition)
     opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
     opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
     print "opt_indx for Cn", opt_indx
@@ -142,14 +99,7 @@ def run_simu4d():
     lib.delete_array_pointer(ctypes.byref(ctypes.c_int(len0)), ctypes.byref(ctypes.c_int(len1)), ctypes.byref(ctypes.c_int(len2)), ctypes.byref(ctypes.c_int(len3)), Cn, kaves, deltas)
 
 
-
-
-#run_tst4d()
 run_simu4d()
-#lib.delete_array.restype = None
-#lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
-#lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
-#plt.show()
 
 
 

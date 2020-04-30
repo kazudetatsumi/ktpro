@@ -59,7 +59,7 @@ def get_stat_via_unitehdf5(head):
 
 
 def run():
-    num_hdf = sys.args[1]
+    num_hdf = int(sys.argv[1])
     head = "./"
     #num_hdf = 10
     unite_hdf5(num_hdf, head)
