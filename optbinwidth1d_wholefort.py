@@ -39,7 +39,7 @@ def make_mappable(maxvalue):
 
 
 def run_tst1d():
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/WORK/vaspo-phonopy/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
     f = h5py.File(datafile)
     data = f["data3"][:] # nqx, nqy, nqz, nomega
     data = data[0, 0, 0, :]*1.0
@@ -62,7 +62,7 @@ def run_tst1d():
 
 
 def run1d():
-    datafile = "/home/kazu/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
+    datafile = "/home/kazu/WORK/vasp-phonopy/cscl/phonopy_222/m200200200/data3_100000000.hdf5"
     f = h5py.File(datafile)
     fflag = 1
     data = f["data3"][:] # nqx, nqy, nqz, nomega
