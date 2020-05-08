@@ -3,6 +3,7 @@
 !Kazuyoshi TATSUMI 2020/01/23
 
 module costfort4d
+  implicit none
   integer datasize(4)
   integer maxw(4)
 contains

@@ -49,7 +49,16 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
                deltas
                )
 
-    return Cn, kaves, deltas
+    print("---check the calculated cost function---")
+    opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
+    opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
+    print("opt_indx for Cn", opt_indx)
+    print("---save results in Cn.hdf5---")
+    outfile = "Cn.hdf5"
+    with h5py.File(outfile, 'w') as hf:
+        hf.create_dataset('Cn', data=Cn)
+        hf.create_dataset('kave', data=kaves)
+        hf.create_dataset('delta', data=deltas)
 
 
 def run():
@@ -71,33 +80,7 @@ def run():
     print("maxwidth:", maxxwidth, maxywidth, maxzwidth, maxowidth)
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
-    Cn, kaves, deltas = calc_cost4d_f90(maxw, data, condition, usecond)
-    opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
-    opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
-    print("opt_indx for Cn", opt_indx)
-    Cn2 = Cn / (n**2)   # This is according to the Cn in NeCo(2007)
-
-    m = 0.01*n
-
-    ex = (1/(m*1.0) - 1/(n*1.0)) * kaves / (deltas**2*n) 
-
-    Cm = ex + Cn2
-
-    opt_indx = np.unravel_index(np.argmin(Cm, axis=None), Cm.shape)
-    opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
-    print("opt_indx for Cm with m/n=", m/n, ":", opt_indx)
-
-    print("---save results in Cn.hdf5---")
-    outfile = "Cn.hdf5"
-    with h5py.File(outfile, 'w') as hf:
-        hf.create_dataset('Cn', data=Cn)
-        hf.create_dataset('kave', data=kaves)
-        hf.create_dataset('delta', data=deltas)
-
-    len0 = Cn.shape[0]
-    len1 = Cn.shape[1]
-    len2 = Cn.shape[2]
-    len3 = Cn.shape[3]
+    calc_cost4d_f90(maxw, data, condition, usecond)
 
 
 run()
