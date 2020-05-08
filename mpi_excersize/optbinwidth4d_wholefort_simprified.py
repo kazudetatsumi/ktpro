@@ -8,7 +8,7 @@ lib = CDLL("./costfort4d.so")
 def calc_cost4d_f90(maxw, data, condition, usecond):
     class result(Structure):
         _fields_ =[("len0", c_int), ("len1", c_int), ("len2", c_int), ("len3", c_int),
-                  ("arr", POINTER(ctypes.c_double)), ("kavearr", POINTER(ctypes.c_double)), ("darr", POINTER(ctypes.c_double))]
+                  ("arr", POINTER(c_double)), ("kavearr", POINTER(c_double)), ("darr", POINTER(c_double))]
 
     lib.cost4d.restype = result
     lib.cost4d.argtypes = [
@@ -39,7 +39,7 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
                         byref(c_int(Nmax1)),
                         byref(c_int(Nmax2)),
                         byref(c_int(Nmax3)),
-                        byref(ctypes.c_bool(usecond)),
+                        byref(c_bool(usecond)),
                         data,
                         condition
                         )
@@ -55,7 +55,7 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
 
 
 def run_simu4d():
-    datafile = "/home/kazu/Desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
+    datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
     f = h5py.File(datafile)
     data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
     print("size of data is", data.shape)
@@ -103,9 +103,9 @@ def run_simu4d():
 
     print("---delete_array_pointer---")
     lib.delete_array_pointer.restype = None
-    lib.delete_array_pointer.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int),
+    lib.delete_array_pointer.argtypes = [POINTER(c_int), POINTER(c_int), POINTER(c_int), POINTER(c_int),
                                  np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4), np.ctypeslib.ndpointer(dtype=np.float64, ndim=4)]
-    lib.delete_array_pointer(ctypes.byref(ctypes.c_int(len0)), ctypes.byref(ctypes.c_int(len1)), ctypes.byref(ctypes.c_int(len2)), ctypes.byref(ctypes.c_int(len3)), Cn, kaves, deltas)
+    lib.delete_array_pointer(byref(c_int(len0)), byref(c_int(len1)), byref(c_int(len2)), byref(c_int(len3)), Cn, kaves, deltas)
 
 
 run_simu4d()
