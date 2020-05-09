@@ -100,7 +100,8 @@ contains
     !print *, "my rank is", rank
     !print *, "size is", size
 
-    call MPI_Barrier(comm, ierr)
+    !call MPI_Barrier(comm, ierr)
+    if (maxw(1) >= rank+2) then
     do width_id1 = rank+2, maxw(1) - mod(maxw(1)-rank-2, size), size
     !do width_id1 = 1, maxw(1)
     nw(1) = width_id1
@@ -136,6 +137,7 @@ contains
     end do
     end do
     end do
+    end if
 
     !end if
 
@@ -208,6 +210,7 @@ contains
       endif
     endif
     !do width_id = 2, maxw(ax)
+    if (maxw(ax) >= rank+2) then
     do width_id = rank+2, maxw(ax) - mod(maxw(ax)-rank-2, psize), psize
       nw(ax) = width_id
       histsize = (datasize(ax) - mod(datasize(ax), nw(ax))) / nw(ax)
@@ -220,6 +223,7 @@ contains
         call stat(hist_array, nw, cost, histaves, deltas)
       end if
     enddo
+    end if
   end subroutine help1d
 
   subroutine help2d(data_array, ax, condition, usecond, cost, histaves, deltas, rank, psize)
@@ -279,7 +283,9 @@ contains
       enddo
     endif
     !do width_id1 = 2, maxw(ax(1))
+    if (maxw(ax(1)) >= rank+2) then
     do width_id1 = rank+2, maxw(ax(1)) - mod(maxw(ax(1))-rank-2, psize), psize
+      if (maxw(ax(1)) < width_id1 ) print *, "error width_id1", width_id1," exceeds maxw(ax(1))", maxw(ax(1)), ax(1)
       nw(ax(1)) = width_id1
     do width_id2 = 2, maxw(ax(2))
       nw(ax(2)) = width_id2
@@ -294,6 +300,7 @@ contains
       endif
     enddo
     enddo
+    endif
   end subroutine help2d
 
   subroutine help3d(data_array, ax, condition, usecond, cost, histaves, deltas, rank, psize)
@@ -344,6 +351,7 @@ contains
       enddo
     endif
     !do width_id1 = 2, maxw(ax(1))
+    if (maxw(ax(1)) >= rank+2) then
     do width_id1 = rank+2, maxw(ax(1)) - mod(maxw(ax(1))-rank-2, psize), psize
       nw(ax(1)) = width_id1
     do width_id2 = 2, maxw(ax(2))
@@ -362,6 +370,7 @@ contains
     enddo
     enddo
     enddo
+    endif
   end subroutine help3d
 
   subroutine stat(k, nw, cost, histaves, deltas)
