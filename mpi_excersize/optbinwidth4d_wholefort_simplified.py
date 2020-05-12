@@ -2,7 +2,7 @@
 import numpy as np
 import h5py
 from ctypes import *
-lib = CDLL("./costfort4d.so")
+lib = CDLL("/home/kazu/ktpro/mpi_excersize/costfort4d.so")
 
 
 def calc_cost4d_f90(maxw, data, condition, usecond):

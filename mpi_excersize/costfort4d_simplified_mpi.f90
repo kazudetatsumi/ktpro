@@ -27,13 +27,10 @@ contains
     integer, allocatable :: cum_cond(:,:,:,:)
     double precision, allocatable :: hist_array(:,:,:,:)                    
     integer, allocatable :: hist_cond(:,:,:,:)
-    integer comm, size, rank, ierr, i_rank
+    integer comm, psize, rank, ierr, mrank
     !double precision, dimension(maxw0, maxw1, maxw2, maxw3) :: costy, histavesy, deltasy                         
     integer histsize(4), nw(4)
     integer ax_id1, ax_id2, ax_id3, width_id1, width_id2, width_id3, width_id4
-    datasize = (/datasize0, datasize1, datasize2, datasize3/)
-    cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
-    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1), 2), 3), 4)
     maxw = (/maxw0, maxw1, maxw2, maxw3/)
     cost = 0.0
     histaves = 0.0
@@ -42,7 +39,7 @@ contains
     !histavesy = 0.0
     !deltasy = 0.0
 
-    call MPI_Comm_size(comm, size, ierr)
+    call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
 
 
@@ -54,13 +51,13 @@ contains
     !!  4) costfort4d-first,second.so for the two divisions of the outermost of the quintet do-loops
     !!These *.so co-operating with optbinwidth**.py enables pseudo-parallel calculations.
     !! 2020 Jan 16 Kazuyoshi TATSUMI
-    print *, "entering help0d"
+    print *, "entering help0d at ", rank
     call help0d(data_array, condition, usecond, cost, histaves, deltas)
-    print *, "entering help1d"
+    print *, "entering help1d at ", rank
     do ax_id1 = 1, 4
-      call help1d(data_array, ax_id1, condition, usecond, cost, histaves, deltas, rank, size)
+      call help1d(data_array, ax_id1, condition, usecond, cost, histaves, deltas, rank, psize)
     enddo
-    print *, "entering help2d"
+    print *, "entering help2d at ", rank
     do ax_id1 = 1, 3
     do ax_id2 = ax_id1 + 1, 4
       !if (ax_id1 == 1 .and. ax_id2 == 2) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
@@ -69,10 +66,10 @@ contains
       !if (ax_id1 == 2 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 3 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      call help2d(data_array, [ax_id1, ax_id2], condition, usecond, cost, histaves, deltas, rank, size)
+      call help2d(data_array, [ax_id1, ax_id2], condition, usecond, cost, histaves, deltas, rank, psize)
     enddo
     enddo
-    print *, "entering help3d"
+    print *, "entering help3d at ", rank
     do ax_id1 = 1, 2
     do ax_id2 = ax_id1 + 1, 3
     do ax_id3 = ax_id2 + 1, 4
@@ -80,7 +77,7 @@ contains
       !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
       !if (ax_id1 == 2 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-      call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond, cost, histaves, deltas, rank, size)
+      call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond, cost, histaves, deltas, rank, psize)
     enddo
     enddo
     enddo
@@ -90,19 +87,23 @@ contains
     !deltasy = deltas
 
 
-    print *, "entering hist4d"
-    print *, "maxw(1):",maxw(1)
-    
-    !do i_rank = 0, size - 1 
-
-    !if ( rank == i_rank) then
-
-    !print *, "my rank is", rank
-    !print *, "size is", size
+    print *, "entering hist4d at ", rank
+    datasize = (/datasize0, datasize1, datasize2, datasize3/)
+    !cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
+    cumdata = cumsum4d(data_array, 1)
+    cumdata = cumsum4d(cumdata, 2)
+    cumdata = cumsum4d(cumdata, 3)
+    cumdata = cumsum4d(cumdata, 4)
+    !cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
+    !cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
+    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1), 2), 3), 4)
 
     !call MPI_Barrier(comm, ierr)
-    if (maxw(1) >= rank+2) then
-    do width_id1 = rank+2, maxw(1) - mod(maxw(1)-rank-2, size), size
+    !if (maxw(1) >= rank+2) then
+    mrank = psize - rank - 1
+    if (maxw(1) >= mrank+2) then
+    !do width_id1 = rank+2, maxw(1) - mod(maxw(1)-rank-2, psize), psize
+    do width_id1 = mrank+2, maxw(1) - mod(maxw(1)-mrank-2, psize), psize
     !do width_id1 = 1, maxw(1)
     nw(1) = width_id1
     !print *, "nw(1):", nw(1), "at rank=", rank
@@ -239,7 +240,7 @@ contains
     integer, allocatable :: histcond(:,:,:,:)
     integer nw(4), histsize(4), cumdata_size_id, width_id1, width_id2
     integer, allocatable ::  cumdata_size(:,:), cumdata_order(:,:)
-    integer psize, rank
+    integer psize, rank, mrank
     nw = 1
     cumdata2d = cumsum4d(cumsum4d(data_array, ax(1)), ax(2))
     if (usecond) cum_cond = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
@@ -283,8 +284,11 @@ contains
       enddo
     endif
     !do width_id1 = 2, maxw(ax(1))
-    if (maxw(ax(1)) >= rank+2) then
+    !mrank = psize - rank -1
+    if ( maxw(ax(1)) >=  rank  + 2 ) then
+    !if ( maxw(ax(1)) >=  mrank  + 2 ) then
     do width_id1 = rank+2, maxw(ax(1)) - mod(maxw(ax(1))-rank-2, psize), psize
+    !do width_id1 = mrank+2, maxw(ax(1)) - mod(maxw(ax(1))-mrank-2, psize), psize
       if (maxw(ax(1)) < width_id1 ) print *, "error width_id1", width_id1," exceeds maxw(ax(1))", maxw(ax(1)), ax(1)
       nw(ax(1)) = width_id1
     do width_id2 = 2, maxw(ax(2))

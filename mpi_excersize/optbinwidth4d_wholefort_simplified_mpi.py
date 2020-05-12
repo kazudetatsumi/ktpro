@@ -3,28 +3,29 @@ import numpy as np
 import h5py
 from ctypes import *
 from mpi4py import MPI
-lib = CDLL("./costfort4d_mpi.so")
+lib = CDLL("/home/kazu/ktpro/mpi_excersize/costfort4d_mpi.so")
 
 
 def calc_cost4d_f90(maxw, data, condition, usecond):
-    datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
-    f = h5py.File(datafile)
-    data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
-    print("size of data is", data.shape)
-    condition = np.array(f["condition"], dtype=np.int32)
-    usecond = False
-    print("usecond:", usecond)
+    #datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
+    #datafile = "./eliminated_data.hdf5"
+    #f = h5py.File(datafile)
+    #data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
+    #print("size of data is", data.shape)
+    #condition = np.array(f["condition"], dtype=np.int32)
+    #usecond = False
+    #print("usecond:", usecond)
     
-    n = np.sum(data)*1.0
-    print("n=", n)
+    #n = np.sum(data)*1.0
+    #print("n=", n)
 
-    maxxwidth = int(data.shape[0] // 2)
-    maxywidth = int(data.shape[1] // 2)
-    maxzwidth = int(data.shape[2] // 2)
-    maxowidth = int(data.shape[3] // 2)
-    print("maxwidth:", maxxwidth, maxywidth, maxzwidth, maxowidth)
+    #maxxwidth = int(data.shape[0] // 2)
+    #maxywidth = int(data.shape[1] // 2)
+    #maxzwidth = int(data.shape[2] // 2)
+    #maxowidth = int(data.shape[3] // 2)
+    #print("maxwidth:", maxxwidth, maxywidth, maxzwidth, maxowidth)
     
-    maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
+    #maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
 
     lib.cost4d.restype = c_void_p
     lib.cost4d.argtypes = [
@@ -88,21 +89,34 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
         hf.create_dataset('delta', data=deltas)
 
     #MPI.COMM_WORLD.barrier()
-    print ("size", size)
+    print("size", size)
     if rank == 0:
         print("rank", rank)
         for i in range(1, size):
-            f=h5py.File("Cn_rank"+str(i)+".hdf5")
+            f = h5py.File("Cn_rank"+str(i)+".hdf5", 'r')
             Cn_tmp = f["Cn"]
             Cn = Cn + Cn_tmp
+            kaves_tmp = f["kave"]
+            kaves = kaves + kaves_tmp
+            deltas_tmp = f["delta"]
+            deltas = deltas + deltas_tmp
+        Cn[0, 0, 0, 0] = Cn_tmp[0, 0, 0, 0]
+        kaves[0, 0, 0, 0] = kaves_tmp[0, 0, 0, 0]
+        deltas[0, 0, 0, 0] = deltas_tmp[0, 0, 0, 0]
         opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
         opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
         print("opt_indx for Cn", opt_indx, "with the Cn =", Cn[opt_indx[0] - 1, opt_indx[1] - 1, opt_indx[2] - 1, opt_indx[3] - 1])
+        outfile = "Cn.hdf5"
+        with h5py.File(outfile, 'w') as hf:
+            hf.create_dataset('Cn', data=Cn)
+            hf.create_dataset('kave', data=kaves)
+            hf.create_dataset('delta', data=deltas)
 
 
 def run():
     datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
-    f = h5py.File(datafile)
+    #datafile = "./eliminated_data.hdf5"
+    f = h5py.File(datafile, 'r')
     data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
     print("size of data is", data.shape)
     condition = np.array(f["condition"], dtype=np.int32)
