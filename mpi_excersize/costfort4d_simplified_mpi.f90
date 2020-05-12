@@ -31,6 +31,7 @@ contains
     !double precision, dimension(maxw0, maxw1, maxw2, maxw3) :: costy, histavesy, deltasy                         
     integer histsize(4), nw(4)
     integer ax_id1, ax_id2, ax_id3, width_id1, width_id2, width_id3, width_id4
+    datasize = (/datasize0, datasize1, datasize2, datasize3/)
     maxw = (/maxw0, maxw1, maxw2, maxw3/)
     cost = 0.0
     histaves = 0.0
@@ -88,7 +89,6 @@ contains
 
 
     print *, "entering hist4d at ", rank
-    datasize = (/datasize0, datasize1, datasize2, datasize3/)
     !cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
     cumdata = cumsum4d(data_array, 1)
     cumdata = cumsum4d(cumdata, 2)
@@ -242,7 +242,9 @@ contains
     integer, allocatable ::  cumdata_size(:,:), cumdata_order(:,:)
     integer psize, rank, mrank
     nw = 1
-    cumdata2d = cumsum4d(cumsum4d(data_array, ax(1)), ax(2))
+    !cumdata2d = cumsum4d(cumsum4d(data_array, ax(1)), ax(2))
+    cumdata2d = cumsum4d(data_array, ax(1))
+    cumdata2d = cumsum4d(cumdata2d, ax(2))
     if (usecond) cum_cond = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
     if (ax(1) == 1 .and. ax(2) == 2) then
       Ishistsizeallocated = .false.
@@ -322,7 +324,10 @@ contains
     integer, allocatable ::  cumdata_size(:,:),cumdata_order(:,:)
     integer psize, rank
     nw = 1
-    cumdata3d = cumsum4d(cumsum4d(cumsum4d(data_array, ax(1)), ax(2)), ax(3))
+    !cumdata3d = cumsum4d(cumsum4d(cumsum4d(data_array, ax(1)), ax(2)), ax(3))
+    cumdata3d = cumsum4d(data_array, ax(1))
+    cumdata3d = cumsum4d(cumdata3d, ax(2))
+    cumdata3d = cumsum4d(cumdata3d, ax(3))
     if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1)), ax(2)), ax(3))
     if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 3) then
       Ishistsizeallocated = .false.
