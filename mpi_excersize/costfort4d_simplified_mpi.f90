@@ -1,6 +1,7 @@
 !fortran 90 library for 4D bin width optimization
 !this library is used by optbinwidth4d_wholefort.py
 !Kazuyoshi TATSUMI 2020/01/23
+!mpi + openmpi version  2020/05/13
 
 module costfort4d
   use mpi
@@ -28,7 +29,6 @@ contains
     double precision, allocatable :: hist_array(:,:,:,:)                    
     integer, allocatable :: hist_cond(:,:,:,:)
     integer comm, psize, rank, ierr, mrank
-    !double precision, dimension(maxw0, maxw1, maxw2, maxw3) :: costy, histavesy, deltasy                         
     integer histsize(4), nw(4)
     integer ax_id1, ax_id2, ax_id3, width_id1, width_id2, width_id3, width_id4
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
@@ -36,13 +36,9 @@ contains
     cost = 0.0
     histaves = 0.0
     deltas = 0.0
-    !costy = 0.0
-    !histavesy = 0.0
-    !deltasy = 0.0
 
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
-
 
     !!You can comment out or remove comment notations  to generate a *.so file which provides a part of the whole processes.
     !!In the latest form, I created following *.so files: 
@@ -83,9 +79,6 @@ contains
     enddo
     enddo
 
-    !costy = cost
-    !histavesy = histaves
-    !deltasy = deltas
 
 
     print *, "entering hist4d at ", rank
@@ -94,9 +87,13 @@ contains
     cumdata = cumsum4d(cumdata, 2)
     cumdata = cumsum4d(cumdata, 3)
     cumdata = cumsum4d(cumdata, 4)
-    !cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
-    !cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
-    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1), 2), 3), 4)
+    if (usecond) then 
+        !cum_cond = cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1), 2), 3), 4)
+        cum_cond = cumsum4di(condition, 1)
+        cum_cond = cumsum4di(cum_cond, 2)
+        cum_cond = cumsum4di(cum_cond, 3)
+        cum_cond = cumsum4di(cun_cond, 4)
+    endif
 
     !call MPI_Barrier(comm, ierr)
     !if (maxw(1) >= rank+2) then
@@ -117,7 +114,6 @@ contains
     do width_id4 = 2, maxw(4)
     nw(4) = width_id4
     histsize(4) = (datasize(4) - mod(datasize(4), nw(4))) / nw(4)
-       !if (width_id1 /= 1 .and. width_id2 /= 1 .and. width_id3 /=1 .and. width_id4 /=1) then
           hist_array = hist4d(cumdata, histsize, nw)
           if (usecond) then 
               hist_cond = hist4di(cum_cond, histsize, nw)
@@ -126,31 +122,11 @@ contains
           else
               call stat(hist_array, nw, cost, histaves, deltas) 
           endif
-          !call MPI_gather(cost(nw(1),nw(2),nw(3),nw(4)), 1, MPI_REAL8, &
-          !                   costy(nw(1),nw(2),nw(3),nw(4)), 1, MPI_REAL8, 0, comm, ierr)
-          !call MPI_gather(histaves(nw(1),nw(2),nw(3),nw(4)), 1, MPI_REAL8, &
-          !                   histavesy(nw(1),nw(2),nw(3),nw(4)), 1, MPI_REAL8, 0, comm, ierr)
-          !call MPI_gather(deltas(nw(1),nw(2),nw(3),nw(4)), 1, MPI_REAL8, &
-          !                   deltasy(nw(1),nw(2),nw(3),nw(4)), 1, MPI_REAL8, 0, comm, ierr)
-          !call MPI_Barrier(comm, ierr)
-       !end if
     end do
     end do
     end do
     end do
     end if
-
-    !end if
-
-    !end do
-
-
-    !call MPI_Barrier(comm, ierr)
-    !print *, "4d calc finished at ", rank
-
-    !cost = costy
-    !histaves = histavesy
-    !deltas = deltasy
 
     print *, "minloc Cn:", minloc(cost), "with its value:", minval(cost), "at ", rank
 
@@ -161,15 +137,12 @@ contains
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
     double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
-    !double precision, allocatable :: hist_array(:,:,:,:)
     integer nw(4)
     nw = 1
-    !hist_array = data_array
     if (usecond) then
       !call stat1(pack(hist_array, condition == maxval(condition)), nw)
       call stat1(pack(data_array, condition >= maxval(condition)/2), nw, cost, histaves, deltas)
     else
-      !call stat(hist_array, nw)
       call stat(data_array, nw, cost, histaves, deltas)
     end if
   end subroutine help0d
@@ -245,7 +218,11 @@ contains
     !cumdata2d = cumsum4d(cumsum4d(data_array, ax(1)), ax(2))
     cumdata2d = cumsum4d(data_array, ax(1))
     cumdata2d = cumsum4d(cumdata2d, ax(2))
-    if (usecond) cum_cond = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
+    if (usecond) then 
+        !cum_cond = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
+        cum_cond = cumsum4di(condition, ax(1))
+        cum_cond = cumsum4di(cum_cond, ax(2))
+    endif
     if (ax(1) == 1 .and. ax(2) == 2) then
       Ishistsizeallocated = .false.
     else
@@ -328,7 +305,12 @@ contains
     cumdata3d = cumsum4d(data_array, ax(1))
     cumdata3d = cumsum4d(cumdata3d, ax(2))
     cumdata3d = cumsum4d(cumdata3d, ax(3))
-    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1)), ax(2)), ax(3))
+    if (usecond) then 
+        !cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1)), ax(2)), ax(3))
+        cum_cond = cumsum4di(condition, ax(1))
+        cum_cond = cumsum4di(cum_cond, ax(2))
+        cum_cond = cumsum4di(cum_cond, ax(3))
+    endif
     if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 3) then
       Ishistsizeallocated = .false.
     else
