@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import h5py
+import os
 from ctypes import *
 from mpi4py import MPI
 lib = CDLL("/home/kazu/ktpro/mpi_exercise/costfort4d_mpi.so")
@@ -86,17 +87,18 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
         opt_indx = np.unravel_index(np.argmin(Cn, axis=None), Cn.shape)
         opt_indx = (opt_indx[0] + 1, opt_indx[1] + 1, opt_indx[2] + 1, opt_indx[3] + 1)
         print("opt_indx for Cn", opt_indx, "with the Cn =", Cn[opt_indx[0] - 1, opt_indx[1] - 1, opt_indx[2] - 1, opt_indx[3] - 1])
-        outfile = "Cn.hdf5"
-        with h5py.File(outfile, 'w') as hf:
+        with h5py.File("Cn.hdf5", 'w') as hf:
             hf.create_dataset('Cn', data=Cn)
             hf.create_dataset('kave', data=kaves)
             hf.create_dataset('delta', data=deltas)
+    MPI.COMM_WORLD.barrier()
+    os.remove(outfile)
 
 
 def run():
     #datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
-    #datafile = "./eliminated_data.hdf5"
-    datafile = "/home/kazu/Dropbox/out_hw_all.hdf5"
+    #datafile = "/home/kazu/Dropbox/out_hw_all.hdf5"
+    datafile = "./eliminated_data.hdf5"
     f = h5py.File(datafile, 'r')
     data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
     print("size of data is", data.shape)
