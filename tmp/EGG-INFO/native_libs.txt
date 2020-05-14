@@ -1,2 +1,0 @@
-phono3py/_lapackepy.so
-phono3py/_phono3py.so

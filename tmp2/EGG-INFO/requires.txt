@@ -1,4 +1,0 @@
-numpy
-PyYAML
-matplotlib
-h5py
