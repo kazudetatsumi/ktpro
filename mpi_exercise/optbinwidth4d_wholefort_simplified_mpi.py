@@ -7,26 +7,6 @@ lib = CDLL("/home/kazu/ktpro/mpi_exercise/costfort4d_mpi.so")
 
 
 def calc_cost4d_f90(maxw, data, condition, usecond):
-    #datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
-    #datafile = "./eliminated_data.hdf5"
-    #f = h5py.File(datafile)
-    #data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
-    #print("size of data is", data.shape)
-    #condition = np.array(f["condition"], dtype=np.int32)
-    #usecond = False
-    #print("usecond:", usecond)
-    
-    #n = np.sum(data)*1.0
-    #print("n=", n)
-
-    #maxxwidth = int(data.shape[0] // 2)
-    #maxywidth = int(data.shape[1] // 2)
-    #maxzwidth = int(data.shape[2] // 2)
-    #maxowidth = int(data.shape[3] // 2)
-    #print("maxwidth:", maxxwidth, maxywidth, maxzwidth, maxowidth)
-    
-    #maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
-
     lib.cost4d.restype = c_void_p
     lib.cost4d.argtypes = [
                            POINTER(c_int32),
