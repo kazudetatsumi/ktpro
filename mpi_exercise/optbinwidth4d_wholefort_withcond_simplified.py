@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import numpy as np
 import h5py
+import sys
 from ctypes import *
-lib = CDLL("/home/kazu/ktpro/costfort4d.so")
+lib = CDLL("/home/kazu/ktpro/mpi_excersize/costfort4d_withcond.so")
 
 
-def calc_cost4d_f90(maxw, data, condition, usecond):
+def calc_cost4d_f90(maxw, data, condition, usecond, condparam):
     lib.cost4d.restype = c_void_p
     lib.cost4d.argtypes = [
                            POINTER(c_int),
@@ -17,6 +18,7 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
                            POINTER(c_int),
                            POINTER(c_int),
                            POINTER(c_bool),
+                           POINTER(c_double),
                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
                            np.ctypeslib.ndpointer(dtype=np.int32, ndim=4),
                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
@@ -42,6 +44,7 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
                c_int(Nmax2),
                c_int(Nmax3),
                c_bool(usecond),
+               c_double(condparam),
                data,
                condition,
                Cn,
@@ -67,8 +70,10 @@ def run():
     data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
     print("size of data is", data.shape)
     condition = np.array(f["condition"], dtype=np.int32)
-    usecond = False
+    usecond = True
+    condparam = float(sys.argv[1])  #  parameter for selection of elements taken into accounts of the statistics
     print("usecond:", usecond)
+    print "condparam:", condparam
     
     n = np.sum(data)*1.0
     print("n=", n)
@@ -80,7 +85,7 @@ def run():
     print("maxwidth:", maxxwidth, maxywidth, maxzwidth, maxowidth)
     
     maxw = np.array([maxxwidth, maxywidth, maxzwidth, maxowidth])
-    calc_cost4d_f90(maxw, data, condition, usecond)
+    calc_cost4d_f90(maxw, data, condition, usecond, condparam)
 
 
 run()

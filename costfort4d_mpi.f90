@@ -1,15 +1,17 @@
 !fortran 90 library for 4D bin width optimization
 !this library is used by optbinwidth4d_wholefort.py
 !Kazuyoshi TATSUMI 2020/01/23
+!mpi + openmpi version  2020/05/13
 
 module costfort4d
+  use mpi
   implicit none
   integer datasize(4)
   integer maxw(4)
 contains
 
-  subroutine cost4d(maxw3, maxw2, maxw1, maxw0, datasize3, datasize2, datasize1, datasize0,& 
-      usecond, condparam, data_array, condition, cost, histaves, deltas) bind(C)
+  subroutine cost4d(comm, maxw3, maxw2, maxw1, maxw0, datasize3, datasize2, datasize1, datasize0,& 
+      usecond, data_array, condition, cost, histaves, deltas) bind(C)
     integer, intent(in) :: maxw0
     integer, intent(in) :: maxw1
     integer, intent(in) :: maxw2
@@ -21,120 +23,112 @@ contains
     double precision, intent(in) :: data_array(datasize0, datasize1, datasize2, datasize3)                         
     integer, intent(in) :: condition(datasize0, datasize1, datasize2, datasize3)                         
     logical(1), intent(in) :: usecond
-    double precision, intent(in) :: condparam
     double precision, intent(inout), dimension(maxw0, maxw1, maxw2, maxw3) :: cost, histaves, deltas                         
     double precision, allocatable :: cumdata(:,:,:,:)
     integer, allocatable :: cum_cond(:,:,:,:)
     double precision, allocatable :: hist_array(:,:,:,:)                    
     integer, allocatable :: hist_cond(:,:,:,:)
-    integer nw(4)
-    integer histsize(4)
+    integer comm, psize, rank, ierr, mrank
+    integer histsize(4), nw(4)
     integer ax_id1, ax_id2, ax_id3, width_id1, width_id2, width_id3, width_id4
     datasize = (/datasize0, datasize1, datasize2, datasize3/)
-    cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
-    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1), 2), 3), 4)
     maxw = (/maxw0, maxw1, maxw2, maxw3/)
-    cost(:,:,:,:) = 0.0
-    histaves(:,:,:,:) = 0.0
-    deltas(:,:,:,:) = 0.0
+    cost = 0.0
+    histaves = 0.0
+    deltas = 0.0
 
-    !!You can comment out or remove comment notations  to generate a *.so file which provides a part of the whole processes.
-    !!In the latest form, I created following *.so files: 
-    !!  1) costfort01d.so for help0d and help1d routines 
-    !!  2) each of costfort2d1-6.so for each of the if sentences within double do-loops of help2d
-    !!  3) each of costfort3d1-3.so for each of the if sentences within triple do-loops of help3d 
-    !!  4) costfort4d-first,second.so for the two divisions of the outermost of the quintet do-loops
-    !!These *.so co-operating with optbinwidth**.py enables pseudo-parallel calculations.
-    !! 2020 Jan 16 Kazuyoshi TATSUMI
-    print *, "entering help0d"
-    call help0d(data_array, condition, usecond, cost, histaves, deltas, condparam)
-    print *, "entering help1d"
+    call MPI_Comm_size(comm, psize, ierr)
+    call MPI_Comm_rank(comm, rank, ierr)
+
+    print *, "entering help0d at ", rank
+    call help0d(data_array, condition, usecond, cost, histaves, deltas)
+    print *, "entering help1d at ", rank
     do ax_id1 = 1, 4
-      call help1d(data_array, ax_id1, condition, usecond, cost, histaves, deltas, condparam)
+      call help1d(data_array, ax_id1, condition, usecond, cost, histaves, deltas, rank, psize)
     enddo
-    print *, "entering help2d"
+    print *, "entering help2d at ", rank
     do ax_id1 = 1, 3
     do ax_id2 = ax_id1 + 1, 4
-      !if (ax_id1 == 1 .and. ax_id2 == 2) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      !if (ax_id1 == 1 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      !if (ax_id1 == 2 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      !if (ax_id1 == 3 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      call help2d(data_array, [ax_id1, ax_id2], condition, usecond, cost, histaves, deltas, condparam)
+      call help2d(data_array, [ax_id1, ax_id2], condition, usecond, cost, histaves, deltas, rank, psize)
     enddo
     enddo
-    print *, "entering help3d"
+    print *, "entering help3d at ", rank
     do ax_id1 = 1, 2
     do ax_id2 = ax_id1 + 1, 3
     do ax_id3 = ax_id2 + 1, 4
-      !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 3) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-      !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-      !if (ax_id1 == 1 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-      !if (ax_id1 == 2 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-      call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond, cost, histaves, deltas, condparam)
+      call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond, cost, histaves, deltas, rank, psize)
     enddo
     enddo
     enddo
 
+    print *, "entering hist4d at ", rank
+    cumdata = cumsum4d(data_array, 1)
+    cumdata = cumsum4d(cumdata, 2)
+    cumdata = cumsum4d(cumdata, 3)
+    cumdata = cumsum4d(cumdata, 4)
+    if (usecond) then 
+        cum_cond = cumsum4di(condition, 1)
+        cum_cond = cumsum4di(cum_cond, 2)
+        cum_cond = cumsum4di(cum_cond, 3)
+        cum_cond = cumsum4di(cum_cond, 4)
+    endif
 
-    print *, "entering hist4d"
-    do width_id1 = 1, maxw(1)
-    !do width_id1 = 2, 11
+    !call MPI_Barrier(comm, ierr)
+    !if (maxw(1) >= rank+2) then
+    mrank = psize - rank - 1
+    if (maxw(1) >= mrank+2) then
+    !do width_id1 = rank+2, maxw(1) - mod(maxw(1)-rank-2, psize), psize
+    do width_id1 = mrank+2, maxw(1) - mod(maxw(1)-mrank-2, psize), psize
+    !do width_id1 = 1, maxw(1)
     nw(1) = width_id1
+    !print *, "nw(1):", nw(1), "at rank=", rank
     histsize(1) = (datasize(1) - mod(datasize(1), nw(1))) / nw(1)
-    do width_id2 = 1, maxw(2)
+    do width_id2 = 2, maxw(2)
     nw(2) = width_id2
     histsize(2) = (datasize(2) - mod(datasize(2), nw(2))) / nw(2)
-    do width_id3 = 1, maxw(3)
+    do width_id3 = 2, maxw(3)
     nw(3) = width_id3
     histsize(3) = (datasize(3) - mod(datasize(3), nw(3))) / nw(3)
-    do width_id4 = 1, maxw(4)
+    do width_id4 = 2, maxw(4)
     nw(4) = width_id4
     histsize(4) = (datasize(4) - mod(datasize(4), nw(4))) / nw(4)
-       if (width_id1 /= 1 .and. width_id2 /= 1 .and. width_id3 /=1 .and. width_id4 /=1) then
           hist_array = hist4d(cumdata, histsize, nw)
           if (usecond) then 
               hist_cond = hist4di(cum_cond, histsize, nw)
               !call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
-              call stat1(pack(hist_array, hist_cond >= maxval(hist_cond)*condparam), nw, cost, histaves, deltas)
+              call stat1(pack(hist_array, hist_cond >= maxval(hist_cond)/2), nw, cost, histaves, deltas)
           else
-            call stat(hist_array, nw, cost, histaves, deltas) 
+              call stat(hist_array, nw, cost, histaves, deltas) 
           endif
-       end if
     end do
     end do
     end do
     end do
+    end if
 
+    print *, "minloc Cn:", minloc(cost), "with its value:", minval(cost), "at ", rank
 
-    print *, "minloc Cn:", minloc(cost), "with its value:", minval(cost)
   end subroutine cost4d
 
-  subroutine help0d(data_array, condition, usecond, cost, histaves, deltas, condparam)
+  subroutine help0d(data_array, condition, usecond, cost, histaves, deltas)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
-    double precision, intent(in) :: condparam
     double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
-    !double precision, allocatable :: hist_array(:,:,:,:)
     integer nw(4)
     nw = 1
-    !hist_array = data_array
     if (usecond) then
       !call stat1(pack(hist_array, condition == maxval(condition)), nw)
-      call stat1(pack(data_array, condition >= maxval(condition)*condparam), nw, cost, histaves, deltas)
+      call stat1(pack(data_array, condition >= maxval(condition)/2), nw, cost, histaves, deltas)
     else
-      !call stat(hist_array, nw)
       call stat(data_array, nw, cost, histaves, deltas)
     end if
   end subroutine help0d
-  subroutine help1d(data_array, ax, condition, usecond, cost, histaves, deltas, condparam)
+  subroutine help1d(data_array, ax, condition, usecond, cost, histaves, deltas, rank, psize)
     integer, intent(in) :: ax
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
-    double precision, intent(in) :: condparam
     double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     logical(1) :: Ishistsizeallocated
     double precision, allocatable :: cumdata1d(:,:,:,:)
@@ -142,6 +136,7 @@ contains
     double precision, allocatable :: hist_array(:,:,:,:)
     integer, allocatable :: histcond(:,:,:,:)
     integer width_id, histsize, nw(4),  cumdata_size(4), cumdata_order(4)
+    integer psize, rank
     nw = 1
     Ishistsizeallocated = .true.
     cumdata1d = cumsum4d(data_array, ax)
@@ -166,26 +161,28 @@ contains
         cum_cond = reshape(cum_cond, cumdata_size, order = cumdata_order)
       endif
     endif
-    do width_id = 2, maxw(ax)
+    !do width_id = 2, maxw(ax)
+    if (maxw(ax) >= rank+2) then
+    do width_id = rank+2, maxw(ax) - mod(maxw(ax)-rank-2, psize), psize
       nw(ax) = width_id
       histsize = (datasize(ax) - mod(datasize(ax), nw(ax))) / nw(ax)
       hist_array = hist1d(cumdata1d, histsize, nw(ax))
       if (usecond) then
         histcond = hist1di(cum_cond, histsize, nw(ax))
         !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
-        call stat1(pack(hist_array, histcond >= maxval(histcond)*condparam), nw, cost, histaves, deltas)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw, cost, histaves, deltas)
       else
         call stat(hist_array, nw, cost, histaves, deltas)
       end if
     enddo
+    end if
   end subroutine help1d
 
-  subroutine help2d(data_array, ax, condition, usecond, cost, histaves, deltas, condparam)
+  subroutine help2d(data_array, ax, condition, usecond, cost, histaves, deltas, rank, psize)
     integer, intent(in) :: ax(:)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
-    double precision, intent(in) :: condparam
     double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     logical(1) :: Ishistsizeallocated
     double precision, allocatable :: cumdata2d(:,:,:,:)
@@ -194,9 +191,16 @@ contains
     integer, allocatable :: histcond(:,:,:,:)
     integer nw(4), histsize(4), cumdata_size_id, width_id1, width_id2
     integer, allocatable ::  cumdata_size(:,:), cumdata_order(:,:)
+    integer psize, rank, mrank
     nw = 1
-    cumdata2d = cumsum4d(cumsum4d(data_array, ax(1)), ax(2))
-    if (usecond) cum_cond = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
+    !cumdata2d = cumsum4d(cumsum4d(data_array, ax(1)), ax(2))
+    cumdata2d = cumsum4d(data_array, ax(1))
+    cumdata2d = cumsum4d(cumdata2d, ax(2))
+    if (usecond) then 
+        !cum_cond = cumsum4di(cumsum4di(condition, ax(1)), ax(2))
+        cum_cond = cumsum4di(condition, ax(1))
+        cum_cond = cumsum4di(cum_cond, ax(2))
+    endif
     if (ax(1) == 1 .and. ax(2) == 2) then
       Ishistsizeallocated = .false.
     else
@@ -236,7 +240,13 @@ contains
                                          order = cumdata_order(cumdata_size_id, 1:4))
       enddo
     endif
-    do width_id1 = 2, maxw(ax(1))
+    !do width_id1 = 2, maxw(ax(1))
+    !mrank = psize - rank -1
+    if ( maxw(ax(1)) >=  rank  + 2 ) then
+    !if ( maxw(ax(1)) >=  mrank  + 2 ) then
+    do width_id1 = rank+2, maxw(ax(1)) - mod(maxw(ax(1))-rank-2, psize), psize
+    !do width_id1 = mrank+2, maxw(ax(1)) - mod(maxw(ax(1))-mrank-2, psize), psize
+      if (maxw(ax(1)) < width_id1 ) print *, "error width_id1", width_id1," exceeds maxw(ax(1))", maxw(ax(1)), ax(1)
       nw(ax(1)) = width_id1
     do width_id2 = 2, maxw(ax(2))
       nw(ax(2)) = width_id2
@@ -245,20 +255,20 @@ contains
       if (usecond) then
         histcond = hist2di(cum_cond, [histsize(ax(1)), histsize(ax(2))], [nw(ax(1)), nw(ax(2))])
         !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
-        call stat1(pack(hist_array, histcond >= maxval(histcond)*condparam), nw, cost, histaves, deltas)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw, cost, histaves, deltas)
       else
         call stat(hist_array, nw, cost, histaves, deltas)
       endif
     enddo
     enddo
+    endif
   end subroutine help2d
 
-  subroutine help3d(data_array, ax, condition, usecond, cost, histaves, deltas, condparam)
+  subroutine help3d(data_array, ax, condition, usecond, cost, histaves, deltas, rank, psize)
     integer, intent(in) :: ax(:)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
-    double precision, intent(in) :: condparam
     double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     logical(1) :: Ishistsizeallocated
     double precision, allocatable :: cumdata3d(:,:,:,:)
@@ -267,9 +277,18 @@ contains
     integer, allocatable :: histcond(:,:,:,:)
     integer nw(4), histsize(4), cumdata_size_id, width_id1, width_id2, width_id3
     integer, allocatable ::  cumdata_size(:,:),cumdata_order(:,:)
+    integer psize, rank
     nw = 1
-    cumdata3d = cumsum4d(cumsum4d(cumsum4d(data_array, ax(1)), ax(2)), ax(3))
-    if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1)), ax(2)), ax(3))
+    !cumdata3d = cumsum4d(cumsum4d(cumsum4d(data_array, ax(1)), ax(2)), ax(3))
+    cumdata3d = cumsum4d(data_array, ax(1))
+    cumdata3d = cumsum4d(cumdata3d, ax(2))
+    cumdata3d = cumsum4d(cumdata3d, ax(3))
+    if (usecond) then 
+        !cum_cond = cumsum4di(cumsum4di(cumsum4di(condition, ax(1)), ax(2)), ax(3))
+        cum_cond = cumsum4di(condition, ax(1))
+        cum_cond = cumsum4di(cum_cond, ax(2))
+        cum_cond = cumsum4di(cum_cond, ax(3))
+    endif
     if (ax(1) == 1 .and. ax(2) == 2 .and. ax(3) == 3) then
       Ishistsizeallocated = .false.
     else
@@ -300,7 +319,9 @@ contains
         if (usecond) cum_cond = reshape(cum_cond, cumdata_size(cumdata_size_id,1:4), order = cumdata_order(cumdata_size_id,1:4))
       enddo
     endif
-    do width_id1 = 2, maxw(ax(1))
+    !do width_id1 = 2, maxw(ax(1))
+    if (maxw(ax(1)) >= rank+2) then
+    do width_id1 = rank+2, maxw(ax(1)) - mod(maxw(ax(1))-rank-2, psize), psize
       nw(ax(1)) = width_id1
     do width_id2 = 2, maxw(ax(2))
       nw(ax(2)) = width_id2
@@ -311,13 +332,14 @@ contains
       if (usecond) then
         histcond = hist3di(cum_cond, [histsize(ax(1)), histsize(ax(2)), histsize(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
         !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
-        call stat1(pack(hist_array, histcond >= maxval(histcond)*condparam), nw, cost, histaves, deltas)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw, cost, histaves, deltas)
       else
         call stat(hist_array, nw, cost, histaves, deltas) 
       endif
     enddo
     enddo
     enddo
+    endif
   end subroutine help3d
 
   subroutine stat(k, nw, cost, histaves, deltas)

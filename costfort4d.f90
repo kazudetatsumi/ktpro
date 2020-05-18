@@ -3,41 +3,25 @@
 !Kazuyoshi TATSUMI 2020/01/23
 
 module costfort4d
-  use ISO_C_binding
   implicit none
-  type, bind(C) :: result
-    integer(c_int) :: len0
-    integer(c_int) :: len1
-    integer(c_int) :: len2
-    integer(c_int) :: len3
-    type(c_ptr) :: arr
-    type(c_ptr) :: kavearr
-    type(c_ptr) :: darr
-  end type result
-  real(c_double), pointer :: cost(:,:,:,:)                    
-  real(c_double), pointer :: histaves(:,:,:,:)                    
-  real(c_double), pointer :: deltas(:,:,:,:)                    
   integer datasize(4)
   integer maxw(4)
-
 contains
 
-  function cost4d(maxw3, maxw2, maxw1, maxw0, datasize3, datasize2, datasize1, datasize0,& 
-      usecond, data_array, condition) bind(C, name="cost4d")
-    integer(c_int), intent(in) :: maxw0
-    integer(c_int), intent(in) :: maxw1
-    integer(c_int), intent(in) :: maxw2
-    integer(c_int), intent(in) :: maxw3
-    integer(c_int), intent(in) :: datasize0
-    integer(c_int), intent(in) :: datasize1
-    integer(c_int), intent(in) :: datasize2
-    integer(c_int), intent(in) :: datasize3
-    real(c_double), intent(in) :: data_array(datasize0, datasize1, datasize2, datasize3)                         
-    integer(c_int), intent(in) :: condition(datasize0, datasize1, datasize2, datasize3)                         
-    logical(c_bool), intent(in) :: usecond
-    type(result) :: cost4d                                  
-    !double precision :: cumdata(datasize0, datasize1, datasize2, datasize3)
-    !integer :: cum_cond(datasize0, datasize1, datasize2, datasize3)
+  subroutine cost4d(maxw3, maxw2, maxw1, maxw0, datasize3, datasize2, datasize1, datasize0,& 
+      usecond, data_array, condition, cost, histaves, deltas) bind(C)
+    integer, intent(in) :: maxw0
+    integer, intent(in) :: maxw1
+    integer, intent(in) :: maxw2
+    integer, intent(in) :: maxw3
+    integer, intent(in) :: datasize0
+    integer, intent(in) :: datasize1
+    integer, intent(in) :: datasize2
+    integer, intent(in) :: datasize3
+    double precision, intent(in) :: data_array(datasize0, datasize1, datasize2, datasize3)                         
+    integer, intent(in) :: condition(datasize0, datasize1, datasize2, datasize3)                         
+    logical(1), intent(in) :: usecond
+    double precision, intent(inout), dimension(maxw0, maxw1, maxw2, maxw3) :: cost, histaves, deltas                         
     double precision, allocatable :: cumdata(:,:,:,:)
     integer, allocatable :: cum_cond(:,:,:,:)
     double precision, allocatable :: hist_array(:,:,:,:)                    
@@ -49,9 +33,6 @@ contains
     cumdata = cumsum4d(cumsum4d(cumsum4d(cumsum4d(data_array, 1), 2), 3), 4)
     if (usecond) cum_cond = cumsum4di(cumsum4di(cumsum4di(cumsum4di(condition, 1), 2), 3), 4)
     maxw = (/maxw0, maxw1, maxw2, maxw3/)
-    allocate(cost(maxw(1), maxw(2), maxw(3), maxw(4)))
-    allocate(histaves(maxw(1), maxw(2), maxw(3), maxw(4)))
-    allocate(deltas(maxw(1), maxw(2), maxw(3), maxw(4)))
     cost(:,:,:,:) = 0.0
     histaves(:,:,:,:) = 0.0
     deltas(:,:,:,:) = 0.0
@@ -65,10 +46,10 @@ contains
     !!These *.so co-operating with optbinwidth**.py enables pseudo-parallel calculations.
     !! 2020 Jan 16 Kazuyoshi TATSUMI
     print *, "entering help0d"
-    call help0d(data_array, condition, usecond)
+    call help0d(data_array, condition, usecond, cost, histaves, deltas)
     print *, "entering help1d"
     do ax_id1 = 1, 4
-      call help1d(data_array, ax_id1, condition, usecond)
+      call help1d(data_array, ax_id1, condition, usecond, cost, histaves, deltas)
     enddo
     print *, "entering help2d"
     do ax_id1 = 1, 3
@@ -79,7 +60,7 @@ contains
       !if (ax_id1 == 2 .and. ax_id2 == 3) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
       !if (ax_id1 == 3 .and. ax_id2 == 4) call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
-      call help2d(data_array, [ax_id1, ax_id2], condition, usecond)
+      call help2d(data_array, [ax_id1, ax_id2], condition, usecond, cost, histaves, deltas)
     enddo
     enddo
     print *, "entering help3d"
@@ -90,7 +71,7 @@ contains
       !if (ax_id1 == 1 .and. ax_id2 == 2 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
       !if (ax_id1 == 1 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
       !if (ax_id1 == 2 .and. ax_id2 == 3 .and. ax_id3 == 4) call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
-      call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond)
+      call help3d(data_array, [ax_id1, ax_id2, ax_id3], condition, usecond, cost, histaves, deltas)
     enddo
     enddo
     enddo
@@ -115,9 +96,9 @@ contains
           if (usecond) then 
               hist_cond = hist4di(cum_cond, histsize, nw)
               !call stat1(pack(hist_array, hist_cond == maxval(hist_cond)), nw)
-              call stat1(pack(hist_array, hist_cond >= maxval(hist_cond)/2), nw)
+              call stat1(pack(hist_array, hist_cond >= maxval(hist_cond)/2), nw, cost, histaves, deltas)
           else
-            call stat(hist_array, nw) 
+            call stat(hist_array, nw, cost, histaves, deltas) 
           endif
        end if
     end do
@@ -127,36 +108,31 @@ contains
 
 
     print *, "minloc Cn:", minloc(cost), "with its value:", minval(cost)
-    cost4d%len0 =  maxw(4)
-    cost4d%len1 =  maxw(3)
-    cost4d%len2 =  maxw(2)
-    cost4d%len3 =  maxw(1)
-    cost4d%arr = C_loc(cost)
-    cost4d%kavearr = C_loc(histaves)
-    cost4d%darr = C_loc(deltas)
-  end function cost4d
+  end subroutine cost4d
 
-  subroutine help0d(data_array, condition, usecond)
+  subroutine help0d(data_array, condition, usecond, cost, histaves, deltas)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
+    double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     !double precision, allocatable :: hist_array(:,:,:,:)
     integer nw(4)
     nw = 1
     !hist_array = data_array
     if (usecond) then
       !call stat1(pack(hist_array, condition == maxval(condition)), nw)
-      call stat1(pack(data_array, condition >= maxval(condition)/2), nw)
+      call stat1(pack(data_array, condition >= maxval(condition)/2), nw, cost, histaves, deltas)
     else
       !call stat(hist_array, nw)
-      call stat(data_array, nw)
+      call stat(data_array, nw, cost, histaves, deltas)
     end if
   end subroutine help0d
-  subroutine help1d(data_array, ax, condition, usecond)
+  subroutine help1d(data_array, ax, condition, usecond, cost, histaves, deltas)
     integer, intent(in) :: ax
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
+    double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     logical(1) :: Ishistsizeallocated
     double precision, allocatable :: cumdata1d(:,:,:,:)
     integer, allocatable :: cum_cond(:,:,:,:)
@@ -194,18 +170,19 @@ contains
       if (usecond) then
         histcond = hist1di(cum_cond, histsize, nw(ax))
         !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
-        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw, cost, histaves, deltas)
       else
-        call stat(hist_array, nw)
+        call stat(hist_array, nw, cost, histaves, deltas)
       end if
     enddo
   end subroutine help1d
 
-  subroutine help2d(data_array, ax, condition, usecond)
+  subroutine help2d(data_array, ax, condition, usecond, cost, histaves, deltas)
     integer, intent(in) :: ax(:)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
+    double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     logical(1) :: Ishistsizeallocated
     double precision, allocatable :: cumdata2d(:,:,:,:)
     integer, allocatable :: cum_cond(:,:,:,:)
@@ -264,19 +241,20 @@ contains
       if (usecond) then
         histcond = hist2di(cum_cond, [histsize(ax(1)), histsize(ax(2))], [nw(ax(1)), nw(ax(2))])
         !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
-        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw, cost, histaves, deltas)
       else
-        call stat(hist_array, nw)
+        call stat(hist_array, nw, cost, histaves, deltas)
       endif
     enddo
     enddo
   end subroutine help2d
 
-  subroutine help3d(data_array, ax, condition, usecond)
+  subroutine help3d(data_array, ax, condition, usecond, cost, histaves, deltas)
     integer, intent(in) :: ax(:)
     double precision, intent(in) :: data_array(datasize(1), datasize(2), datasize(3), datasize(4))
     integer, intent(in) :: condition(datasize(1), datasize(2), datasize(3), datasize(4))
     logical(1), intent(in) :: usecond
+    double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     logical(1) :: Ishistsizeallocated
     double precision, allocatable :: cumdata3d(:,:,:,:)
     integer, allocatable :: cum_cond(:,:,:,:)
@@ -328,18 +306,19 @@ contains
       if (usecond) then
         histcond = hist3di(cum_cond, [histsize(ax(1)), histsize(ax(2)), histsize(ax(3))], [nw(ax(1)), nw(ax(2)), nw(ax(3))])
         !call stat1(pack(hist_array, histcond == maxval(histcond)), nw)
-        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw)
+        call stat1(pack(hist_array, histcond >= maxval(histcond)/2), nw, cost, histaves, deltas)
       else
-        call stat(hist_array, nw) 
+        call stat(hist_array, nw, cost, histaves, deltas) 
       endif
     enddo
     enddo
     enddo
   end subroutine help3d
 
-  subroutine stat(k, nw)
+  subroutine stat(k, nw, cost, histaves, deltas)
     double precision, intent(in) :: k(:,:,:,:)
     integer, intent(in) :: nw(4)
+    double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     double precision kave, v
     kave = sum(k) / dble(size(k)); v = sum((k - kave)**2) / dble(size(k))
     !print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
@@ -347,9 +326,10 @@ contains
     deltas(nw(1), nw(2), nw(3), nw(4)) = product(nw)
     cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (dble(product(nw))**2)
   end subroutine stat
-  subroutine stat1(knonzero, nw)
+  subroutine stat1(knonzero, nw, cost, histaves, deltas)
     double precision, intent(in) :: knonzero(:)
     integer, intent(in) :: nw(4)
+    double precision, intent(inout), dimension(maxw(1), maxw(2), maxw(3), maxw(4)) :: cost, histaves, deltas                         
     double precision kave, v
     kave = sum(knonzero) / dble(size(knonzero)); v = sum((knonzero - kave)**2) / dble(size(knonzero))
     !print *, "cost with ", nw(1), nw(2), nw(3), nw(4), ":", (2.0 * kave - v) / (dble(product(nw))**2)
@@ -358,17 +338,6 @@ contains
     cost(nw(1), nw(2), nw(3), nw(4)) = (2.0 * kave - v) / (dble(product(nw))**2)
   end subroutine stat1
           
-  subroutine delete_array_pointer(L3, L2, L1, L0, carray, karray, darray) bind(C, name="delete_array_pointer")
-    integer(c_int), intent(in) :: L3, L2, L1, L0  
-    type(c_ptr), value :: carray, karray, darray
-    real(c_double), pointer :: cost(:,:,:,:), histaves(:,:,:,:), deltas(:,:,:,:)
-    call C_F_pointer(carray, cost, [L0, L1, L2, L3])
-    call C_F_pointer(karray, histaves, [L0, L1, L2, L3])
-    call C_F_pointer(darray, deltas, [L0, L1, L2, L3])
-    deallocate(cost,histaves,deltas)
-    carray = C_NULL_PTR; karray = C_NULL_PTR; darray = C_NULL_PTR
-  end subroutine delete_array_pointer
-
 
   function cumsum4d(data_array, ax)
     integer, intent(in) :: ax
