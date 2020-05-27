@@ -52,7 +52,7 @@ def gen_hdf5(num_txtfiles, head):
 
 
 def run():
-    num_txtfiles = 2
+    num_txtfiles = 13
     head = "./"
     gen_hdf5(num_txtfiles, head)
 
