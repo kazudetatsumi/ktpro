@@ -37,22 +37,23 @@ def get4ddata(txtfile, nxyzw):
 def gen_hdf5(num_txtfiles, head):
     for i in range(0, num_txtfiles):
         txtfile = head + "Output4D_00_" + str((i+1)*60) + ".txt"
-        outfile = head + "Output4D_00_" + str((i+1)*60) + ".hdf5"
-        hfile = "head4line"
-        os.system("head --line=4 " + txtfile + " > " + hfile)
-        nxyzw = []
-        for line in open('head4line', "r").readlines():
-            nxyzw.append(int(float(line[:-1].split(',')[-1])))
-        os.system("rm " + hfile)
-        data4, condition = get4ddata(txtfile, nxyzw)
-        #data4, condition = get4ddata_2(txtfile, nxyzw)
-        with h5py.File(outfile, 'w') as hf:
-            hf.create_dataset('data4', data=data4)
-            hf.create_dataset('condition', data=condition)
+        if os.path.exists(txtfile):
+           outfile = head + "Output4D_00_" + str((i+1)*60) + ".hdf5"
+           hfile = "head4line"
+           os.system("head --line=4 " + txtfile + " > " + hfile)
+           nxyzw = []
+           for line in open('head4line', "r").readlines():
+              nxyzw.append(int(float(line[:-1].split(',')[-1])))
+           os.system("rm " + hfile)
+           data4, condition = get4ddata(txtfile, nxyzw)
+           #data4, condition = get4ddata_2(txtfile, nxyzw)
+           with h5py.File(outfile, 'w') as hf:
+              hf.create_dataset('data4', data=data4)
+              hf.create_dataset('condition', data=condition)
 
 
 def run():
-    num_txtfiles = 13
+    num_txtfiles = 30
     head = "./"
     gen_hdf5(num_txtfiles, head)
 

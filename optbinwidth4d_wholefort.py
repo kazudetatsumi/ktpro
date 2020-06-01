@@ -62,7 +62,8 @@ def calc_cost4d_f90(maxw, data, condition, usecond):
 
 
 def run():
-    datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
+    #datafile = "/home/kazu/desktop/200312/for_cu/with_cond/orthotope_opt/16h/eliminated_data.hdf5"
+    datafile = "./eliminated_data.hdf5"
     f = h5py.File(datafile)
     data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
     print("size of data is", data.shape)

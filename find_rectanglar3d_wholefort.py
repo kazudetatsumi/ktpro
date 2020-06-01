@@ -51,7 +51,7 @@ def calc_rectanglar_f90(uselight, ei, ee, av, ab, condition):
     return lb, ub
 
 
-def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
+def plot_crosssection(xi, xe, yi, ye, zi, ze, ei, ee,  data4):
     fig = plt.figure(figsize=(18, 9))
     fig.suptitle("crosssections of 4D INS data #17714", fontsize="x-large")
     axindx = 0
@@ -70,8 +70,10 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
             ax.set_ylabel('E')
             ax.axvline(x=xi, color='white', lw=0.5)
             ax.axvline(x=xe, color='white', lw=0.5)
-            ax.axhline(y=35, color='white', lw=0.5)
+            ax.axhline(y=ei, color='white', lw=0.5)
+            ax.axhline(y=ee, color='white', lw=0.5)
             ax.xaxis.set_label_coords(0.5, 1.145)
+            ax.axis('tight')
             ax.tick_params(direction="in", color="white",
                            top=True, labeltop=True, labelbottom=False)
     for x in xi, xe:
@@ -89,8 +91,10 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
             ax.set_ylabel('E')
             ax.axvline(x=yi, color='white', lw=0.5)
             ax.axvline(x=ye, color='white', lw=0.5)
-            ax.axhline(y=35, color='white', lw=0.5)
+            ax.axhline(y=ei, color='white', lw=0.5)
+            ax.axhline(y=ee, color='white', lw=0.5)
             ax.xaxis.set_label_coords(0.5, 1.145)
+            ax.axis('tight')
             ax.tick_params(direction="in", color="white",
                            top=True, labeltop=True, labelbottom=False)
     for x in xi, xe:
@@ -108,8 +112,10 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
             ax.set_ylabel('E')
             ax.axvline(x=zi, color='white', lw=0.5)
             ax.axvline(x=ze, color='white', lw=0.5)
-            ax.axhline(y=35, color='white', lw=0.5)
+            ax.axhline(y=ei, color='white', lw=0.5)
+            ax.axhline(y=ee, color='white', lw=0.5)
             ax.xaxis.set_label_coords(0.5, 1.145)
+            ax.axis('tight')
             ax.tick_params(direction="in", color="white",
                            top=True, labeltop=True, labelbottom=False)
     fig.subplots_adjust(top=0.90)
@@ -117,25 +123,27 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
 
 def run():
     # the lower and upper energy bondaries
-    ei = 20
-    ee = 70 
+    ei = 81
+    ee = 207
     # parameters softening the conditions to select volume and boundaries
     # a_v = 0.9, ab = 0.999 
+    av = 0.970
     av = 0.970
     ab = av
     # use argmaxvlight
     uselight = False 
     # maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
-    maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"
+    # maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"
+    #maskfile = "/home/kazu/desktop/200522/Ei42/veryfineq/Output4D_00_840.hdf5"
+    maskfile = "/home/kazu/desktop/200522/Ei42/fineq/14m/Output4D_00_840.hdf5"
     # maskfile = "/home/kazu/desktop/200312/for_cscl/coarse/out_hw_all.hdf5"
     # maskfile = "/home/kazu/desktop/200312/for_cscl/out_hw_all.hdf5"
-    print maskfile
+    print(maskfile)
     f = h5py.File(maskfile)
     condition = np.array(f["condition"][:, :, :, :], dtype=np.int32)
     lb, ub = calc_rectanglar_f90(uselight, ei, ee, av, ab, condition)
     print(lb)
     print(ub)
-    '''
     xi = lb[0]
     xe = ub[0]
     yi = lb[1]
@@ -145,6 +153,7 @@ def run():
     ei = lb[3]
     ee = ub[3]
 
+    '''
     xi = 122
     xe = 172
     yi = 67
@@ -154,8 +163,8 @@ def run():
     ei = 0
     ee = 35*2
 
-    plot_crosssection(xi, xe, yi, ye, zi, ze, condition*1.0)
-    plt.show()
     '''
+    plot_crosssection(xi, xe, yi, ye, zi, ze, ei, ee, condition*1.0)
+    plt.show()
 
 run()
