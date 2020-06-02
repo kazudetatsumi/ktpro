@@ -54,15 +54,15 @@ def save_hist(outfile, k, kcond):
 
 def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
     fig = plt.figure(figsize=(6, 8))
-    fig.suptitle("crosssections of 4D INS data #Ei42", fontsize="x-large")
+    fig.suptitle("crosssections of 4D INS data #Ei24", fontsize="x-large")
     ax = fig.add_subplot(2, 1, 1)
     #ax.pcolor(np.transpose(data4[:, 42, 7, :]), vmax=np.max(data4[:, 42, 7, :])/198, cmap='jet')
     #tmpdata = np.transpose(np.sum(np.sum(data4[42:45, :, 15:18, :], axis=0), axis=1))
     #tmpdata = np.transpose(np.sum(np.sum(data4[172:176, :, 15:17, :], axis=0), axis=1))
-    tmpdata = np.transpose(data4[58, :, 8, :])
-    #tmpdata = np.transpose(np.sum(np.sum(data4[:, :, :, :], axis=3), axis=2))
+    #tmpdata = np.transpose(data4[58, :, 8, :])
+    tmpdata = np.transpose(np.sum(np.sum(data4[:, :, :, :], axis=3), axis=2))
     #ax.pcolor(tmpdata, vmax=np.max(tmpdata)/1.5, cmap='jet')
-    ax.pcolor(tmpdata, vmax=np.max(tmpdata)/1.5, cmap='jet')
+    ax.pcolor(tmpdata, vmax=np.max(tmpdata)/150, cmap='jet')
     ax.text(2, 48, 'qy=58, qz=8', color='white')
     ax.set_xlabel('qx')
     ax.set_ylabel('E')
@@ -75,8 +75,10 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, data4):
     ax.tick_params(direction="in", color="white", top=True, labeltop=True, labelbottom=False)
     ax = fig.add_subplot(2, 1, 2)
     #ax.pcolor(np.transpose(data4[73, :, 7, :]), vmax=np.max(data4[73, :, 7, :])/400, cmap='jet')
-    tmpdata = np.transpose(np.sum(np.sum(data4[:, :, :, :], axis=0), axis=0))
-    ax.pcolor(tmpdata, vmax=np.max(tmpdata)/1, cmap='jet')
+    #tmpdata = np.transpose(np.sum(np.sum(data4[:, :, :, :], axis=0), axis=0))
+    #tmpdata = np.transpose(np.sum(np.sum(data4[:, :, :, :], axis=0), axis=1))
+    tmpdata = np.transpose(np.sum(np.sum(data4[72:76, :, 5:10, :], axis=0), axis=1))
+    ax.pcolor(tmpdata, vmax=np.max(tmpdata)/12, cmap='jet')
     #ax.pcolor(np.transpose(data4[40, :, 16, :]), vmax=np.max(data4[40, :, 16, :])/18, cmap='jet')
     ax.text(2, 38, 'qx=73, qz=6', color='white')
     ax.set_xlabel('qy')
@@ -122,8 +124,8 @@ def run_plot():
     nz = 1
     ne = 1
     head ="./"
-    outfile = head + "hist.hdf5"
-    #outfile = "./Output4D_00_1560.hdf5"
+    #outfile = head + "hist.hdf5"
+    outfile = "./Output4D_00_1560.hdf5"
     f = h5py.File(outfile)
     data4 = f["data4"]
     print(data4.shape)
@@ -142,7 +144,7 @@ def run_plot():
 
 #run()
 run_plot()
-#plt.show()
-plt.savefig("crosssection_of_histgram.eps")
+plt.show()
+#plt.savefig("crosssection_of_histgram.png")
 
 
