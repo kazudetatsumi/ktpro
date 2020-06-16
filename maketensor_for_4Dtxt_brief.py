@@ -30,7 +30,7 @@ def get4ddata(txtfile, nxyzw):
               np.sum(karr2), np.sum(intensity))
         sys.exit()
     condition = karr2 < 0.9e+30 # mask if the values are 1e*30
-    karr2 = karr2*condition/5   # 5 means one neutron count in the txtfile
+    karr2 = karr2*condition/12.5   # 12.5 means one neutron count in the txtfile of Ei24
     return karr2, condition
 
 
