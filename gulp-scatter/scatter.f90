@@ -324,69 +324,13 @@
 !   END OF MEMORY ALLOCATION SECTION
 !***********************************************************************************************
 
-!
-!  Output masses and scattering lengths on any debug session
-!
-  if (ldebug.and.ioproc) then
-    do j = 1,numat
-      ni = nat(j)
-      write(ioout,'(/,''Mass of atom '',a2,''number '',i4,'' isxc '',f10.4,'' atomic units'')') &
-        atsym(ni),j,atmass(ni)
-      if (q_caltype.eq.1) then
-        write(ioout,'(/,''Coherent b for '',a2, '' atom number '',i3,'' is'',f8.4,'' cm-12'')') &
-          atsym(ni),j,scatlencoh(j)
-      elseif (q_caltype.eq.2) then
-        write(ioout,'(/,''Incoherent b for '',a2, '' atom number '',i3,'' is'',f8.4,'' cm-12'')') &
-          atsym(ni),j,scatleninc(j)
-      elseif (q_caltype.eq.3) then
-        write(ioout,'(/,''Coherent b for '',a2, '' atom number '',i3,'' is'',f8.4,'' cm-12'')') &
-          atsym(ni),j,scatlencoh(j)
-        write(ioout,'(/,''Incoherent b for '',a2, '' atom number '',i3,'' is'',f8.4,'' cm-12'')') &
-          atsym(ni),j,scatleninc(j)
-      endif
-    enddo
-  endif
-!
-!  Ensure we have kvectors
-!
-  if (ndim.eq.3) then
-    call kvector3D
-!  elseif (ndim.eq.2) then
-!    call kvector2D
-!  elseif (ndim.eq.1) then
-!    call kvector1D
-  else
-    call outerror('Scatter option not currently valid for 2D, 1D or cluster',0_i4)
-    call stopnow('scatter')
-  endif
-!
-!  Convert kv from absolute to fractional  
-!  qv using a matrix inversion routine.  ! Important ! 
-!
-  qv = kv                                        ! kv is recirpocal cell vector with 2Pi
-  call matrix_inversion(qv,3_i4,3_i4,wrk,ifail)  ! by inversion, qv is real cell vector divided by 2Pi
-
-!**********************************************************
-! Using q_runtype as a selection flag to determine the type of
-! reciprocal space sampling routine:
-!
-! Current options are:
-!
-! 1 -- Reciprocal Space Onion method (default)
-! 2 -- Linear Sampling Set method (sets of arbitrary single directions)
-! 3 -- Reciprocal Space Cylinder method
-! 4 -- Monkhorse - Pack Sampling method
-! 5 -- Monte Carlo Sampling method
-! 6 -- Single Crystal method (from Gamma to <a* b* c*> )
-! 7 -- Pre-existing file method (reads in sampling space from file)
-!      
-!**********************************************************
-!
+  call kvector3D
+  qv = kv                                        !kt  kv is recirpocal cell vector with 2Pi
+  call matrix_inversion(qv,3_i4,3_i4,wrk,ifail)  !kt  by inversion, qv is used to obtain q in the fractional unit in rso
 !  Reciprocal Space Onion Sampling Method
-!
   if (q_runtype .eq. 1) then
     call rso(qv,init_par)
-! Write Q vector array to appropriate file using type of data format = 1
+! Write Q vector array to appropriate file using type of data format = 1 !kt this is for mpi parallel calc.
     flabel = 'Q'
     call dump_hold(1_i4,q_filename,74_i4,flabel,init_par)
     flabel = 'smq'
@@ -458,24 +402,7 @@
 !*************************************************************************************************  
 
   if (q_runtype .eq. 1) then
-!
-!     Reciprocal Space Onion Sampling Method
-!       write(outchan,'(80a)') title_string
-!       write(outchan,'(i6,5f16.6)') icounter,theta,phi,curr_out(1),curr_out(2),curr_out(3)
-
-!
-!   LOOP OVER NUMBER OF SHELLS
-!
-!    Note:  The following arguments are passed from RSO and used in this section
-!
-!     Qinitial = init_par(1)   ... initial modulus of Q (Inv Angs)
-!     Qfinal = init_par(2)     ... final modulus of Q (Inv Angs)
-!     Qinc = init_par(3)       ... Increment value of Q (inv ang)
-!     tinc = init_par(4)       ... Increment value of theta/phi
-!
-!  Allocate block for size of x,y and z kpts (qpoints) and weighting factors for phonon call     
-!
-    if (nq_intstep.gt.maxskpt) then
+    if (nq_intstep.gt.maxskpt) then  ! kt this was checked before. Why check again?
       maxskpt = nq_intstep
       call changemaxskpt
     endif
@@ -514,35 +441,19 @@
       endif
       theta = theta_initial
       do thetacount = 1,nq_intstep
-        phi = phi_initial
-        do phicount = 1,nq_intstep
-          xskpt(phicount)       = Hold_smq(1,phicount,thetacount,shellcount)  
-          yskpt(phicount)       = Hold_smq(2,phicount,thetacount,shellcount)
-          zskpt(phicount)       = Hold_smq(3,phicount,thetacount,shellcount)
-          Qvector(1,phicount)   = Hold_Q(1,phicount,thetacount,shellcount)
-          Qvector(2,phicount)   = Hold_Q(2,phicount,thetacount,shellcount)
-          Qvector(3,phicount)   = Hold_Q(3,phicount,thetacount,shellcount)
-          tauvector(1,phicount) = Hold_tau(1,phicount,thetacount,shellcount)
-          tauvector(2,phicount) = Hold_tau(2,phicount,thetacount,shellcount)
-          tauvector(3,phicount) = Hold_tau(3,phicount,thetacount,shellcount)
+        xskpt     = Hold_smq(1,:,thetacount,shellcount)  
+        yskpt     = Hold_smq(2,:,thetacount,shellcount)
+        zskpt     = Hold_smq(3,:,thetacount,shellcount)
+        Qvector   = Hold_Q(:,:,thetacount,shellcount)
+        tauvector = Hold_tau(:,:,thetacount,shellcount)
+		wskpt(1:nq_intstep) = 1.0_dp
 !
-!  wkpt needs to be present, but is set to unity for this configuration
-!
-          wskpt(phicount)       = 1.0_dp
-!               if (ldebug) then
-!       check to see if the values passed are sensible        
-!                  write(ioout,'(3f16.8)') xskpt(phicount),yskpt(phicount),zskpt(phicount)
-!                  write(ioout,'(''QVECT = '',3f16.8)') Qvector(1,phicount),Qvector(2,phicount),Qvector(3,phicount)
-!               endif
-          phi = phi + init_par(4)
-        enddo ! over phi
-!
-!  Call energy and phonon to compute frequencies and eigenvectors
+!  Call energy and phonon to compute frequencies and eigenvectors !! kt for each qvec! so it is time-consuming!!
 !
         lscattercall = .true.
         lsymderv2 = .false.
         t1s = g_cpu_time()
-        call energy(fc,.true.,.true.)
+        call energy(fc,.true.,.true.) ! kt fc is total energy
         call phonon(.false.,fc,0_i4,0_i4)
         t2s = g_cpu_time()
         tnonscatter = tnonscatter + t2s - t1s
@@ -1098,71 +1009,31 @@
   qloop_step = nq_step
 
   do layercount = 1,qloop_step
-!
-!  Integrate over pi rads
-!
     theta = theta_initial
     do thetacount = 1,nq_intstep
       phi = phi_initial
-!
-!  Integrate over pi rads (centre of inversion-half a sphere)
-!
       do phicount = 1, nq_intstep
            
-!>>>>>>>>>>>>>>   DO POL2CART HERE
-!           
-!  Create cartesian Q vector in reciprocal space
-!
         work_vec(1) = Qmodulus*dsin(theta)*dcos(phi)
         work_vec(2) = Qmodulus*dsin(theta)*dsin(phi)
         work_vec(3) = Qmodulus*dcos(theta)
-!
-!  Convert Q vector back to fractional units by multiplying  by inverse reciprocal lattice tensor, qv.
-!  All storage arrays use fractional form to store; switch on output allows absolute values to be
-!  dumped in another file. (.abs_rso) - DLR 2010
-!
-!  Direct assignment - commented but kept for now for direct debug and checking - DLR 2010
-!
-!           work_Q(1) = work_vec(1)
-!           work_Q(2) = work_vec(2)
-!           work_Q(3) = work_vec(3)
-!
-        work_Q(1) = qv_in(1,1)*work_vec(1) + qv_in(1,2)*work_vec(2) + qv_in(1,3)*work_vec(3)
-        work_Q(2) = qv_in(2,1)*work_vec(1) + qv_in(2,2)*work_vec(2) + qv_in(2,3)*work_vec(3)
-        work_Q(3) = qv_in(3,1)*work_vec(1) + qv_in(3,2)*work_vec(2) + qv_in(3,3)*work_vec(3)
-!
-!  Determine small q from this big Q
-!     
-        remainQ(1) = mod(work_Q(1),1.0_dp)
-        remainQ(2) = mod(work_Q(2),1.0_dp)
-        remainQ(3) = mod(work_Q(3),1.0_dp)
-
-        do i = 1,3 
-          if (remainQ(i).lt.0.5_dp) then
-            work_smq(i) = remainQ(i)
-          else
-            work_smq(i) = remainQ(i) - 1.0_dp
-          endif
-!
-!  and determine tau vector for each set of Q and q
-!
-          work_tau(i) = work_Q(i) - work_smq(i)
-        enddo
+		work_Q = matmul(qv_in, work_vec)
+		work_smq = mod(work_Q, 1.0_dp) ! work_smq is now from -1 to 1
+		where (mod(work_smq, 1.0_dp)>=0.5_dp) work_smq(:) = work_smq(:) - 1.0_dp  ! work_smq is now from -1 to 0.5. Is it  OK??
+		work_tau = work_Q - work_smq                                              ! work_tau is a reciprocal lattice vector which still connects work_smq and work_Q
 !
 !  Store sampling of (Q,w) space in Holding arrays - remember that arrays store fractional x,y,z
 !
-        do gencount = 1,3
-          Hold_Q(gencount,phicount,thetacount,layercount)   = work_Q(gencount)
-          Hold_smq(gencount,phicount,thetacount,layercount) = work_smq(gencount)
-          Hold_Tau(gencount,phicount,thetacount,layercount) = work_tau(gencount)
-        enddo
-        phi = phi + pinc
+        Hold_Q(:,phicount,thetacount,layercount)   = work_Q(:)
+        Hold_smq(:,phicount,thetacount,layercount) = work_smq(:)
+        Hold_Tau(:,phicount,thetacount,layercount) = work_tau(:)
+        phi = phi + pinc    
       enddo  ! over phi
-      theta = theta + tinc
+      theta = theta + tinc  
     enddo !  End loop over theta and hence entire angular integration 
     if (Qmodulus .lt. q_qmax) then
-      Qmodulus = Qmodulus + Qinc
-      Q_final = Qmodulus
+      Qmodulus = Qmodulus + Qinc 
+      Q_final = Qmodulus         
     endif
   enddo
 !

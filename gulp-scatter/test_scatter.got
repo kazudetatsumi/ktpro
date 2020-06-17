@@ -14,7 +14,7 @@
 *  scatter      - calculate inelastic neutron scattering for final geometry    *
 ********************************************************************************
 
-  Job Started  at 13:39.56 16th June       2020                               
+  Job Started  at 17:45.07 16th June       2020                               
 
   Number of CPUs =     1
 
@@ -225,12 +225,12 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 
   Start of bulk optimisation :
 
-  Cycle:      0 Energy:      -386.181092  Gnorm:      0.750280  CPU:    0.008
+  Cycle:      0 Energy:      -386.181092  Gnorm:      0.750280  CPU:    0.012
   ** Hessian calculated **
   Cycle:      1 Energy:      -386.222886  Gnorm:      0.313181  CPU:    0.012
-  Cycle:      2 Energy:      -386.224259  Gnorm:      0.115989  CPU:    0.016
-  Cycle:      3 Energy:      -386.224931  Gnorm:      0.030540  CPU:    0.020
-  Cycle:      4 Energy:      -386.224950  Gnorm:      0.002409  CPU:    0.024
+  Cycle:      2 Energy:      -386.224259  Gnorm:      0.115989  CPU:    0.020
+  Cycle:      3 Energy:      -386.224931  Gnorm:      0.030540  CPU:    0.024
+  Cycle:      4 Energy:      -386.224950  Gnorm:      0.002409  CPU:    0.028
 
 
   **** Optimisation achieved ****
@@ -936,44 +936,8 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 --------------------------------------------------------------------------------
 
 
- kt
 
- **********************************************************************
- SCATTER - Neutron Scattering Functionality for GULP
-
- ----------------------------------------------------------------------
- Daniel L. Roach  (University of Salford, 2010) 
- Please reference the following paper when using this code - 
- Roach DL, Ross DK and Gale JD, Phys Rev B (2010) xxxx,xxxx,xxx 
- **********************************************************************
-
- Calculation Parameters and Settings :
- -------------------------------------
-
- Kernel selection: 
- -----------------
-
- Coherent Inelastic scan enabled 
-
- Sampling method: 
- ----------------
-
- Polycrystalline sampling using rso method enabled
-
-
- Range of Q values =     0.0000 to    10.0000 Inv. Angs in     10 steps
- Scattering correction and/or fitting options enabled: 
-
- Dynamic Debye Waller function enabled: 
-
- Minimum omega value =     0.0000 cm-1
- Maximum omega value =   350.0000 cm-1
-
- Main S(Q,w) will be output as                        sc_file.sqw
-
-
-
-  Time to end of optimisation =       0.7720 seconds
+  Time to end of optimisation =       0.7840 seconds
 
 
   Peak dynamic memory used =       0.64 MB 
@@ -984,21 +948,20 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 --------------------------------------------------------------------------------
   Task / Subroutine                                          Time (Seconds)
 --------------------------------------------------------------------------------
-  Calculation of reciprocal space energy and derivatives          0.1960
-  Calculation of real space energy and derivatives                0.4520
-  Calculation of real space energy using symmetry                 0.0200
-  Calculation of three-body energy and derivatives                0.0280
-  Calculation of phonons                                          0.6400
-  Calculation of scattering                                       0.0120
+  Calculation of reciprocal space energy and derivatives          0.1400
+  Calculation of real space energy and derivatives                0.5000
+  Calculation of real space energy using symmetry                 0.0240
+  Calculation of three-body energy and derivatives                0.0240
+  Calculation of phonons                                          0.6120
+  Calculation of scattering                                      -1.8200
   Calculation of matrix inversion                                 0.0040
-  Symmetry generation of equivalent positions                     0.0040
 --------------------------------------------------------------------------------
-  Total CPU time                                                  0.7720
+  Total CPU time                                                  0.7840
 --------------------------------------------------------------------------------
 
 
   Dump file written as test_scatter.res                                        
 
 
-  Job Finished at 13:39.57 16th June       2020                               
+  Job Finished at 17:45.08 16th June       2020                               
 
