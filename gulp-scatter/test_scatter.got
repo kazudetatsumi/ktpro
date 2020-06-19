@@ -14,7 +14,7 @@
 *  scatter      - calculate inelastic neutron scattering for final geometry    *
 ********************************************************************************
 
-  Job Started  at 17:45.07 16th June       2020                               
+  Job Started  at 18:10.09 18th June       2020                               
 
   Number of CPUs =     1
 
@@ -225,9 +225,9 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 
   Start of bulk optimisation :
 
-  Cycle:      0 Energy:      -386.181092  Gnorm:      0.750280  CPU:    0.012
+  Cycle:      0 Energy:      -386.181092  Gnorm:      0.750280  CPU:    0.008
   ** Hessian calculated **
-  Cycle:      1 Energy:      -386.222886  Gnorm:      0.313181  CPU:    0.012
+  Cycle:      1 Energy:      -386.222886  Gnorm:      0.313181  CPU:    0.016
   Cycle:      2 Energy:      -386.224259  Gnorm:      0.115989  CPU:    0.020
   Cycle:      3 Energy:      -386.224931  Gnorm:      0.030540  CPU:    0.024
   Cycle:      4 Energy:      -386.224950  Gnorm:      0.002409  CPU:    0.028
@@ -244,7 +244,7 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 --------------------------------------------------------------------------------
   Interatomic potentials     =         106.76170366 eV
   Three-body potentials      =           0.04851715 eV
-  Monopole - monopole (real) =        -108.17585089 eV
+  Monopole - monopole (real) =        -108.17585088 eV
   Monopole - monopole (recip)=        -384.85932650 eV
   Monopole - monopole (total)=        -493.03517739 eV
 --------------------------------------------------------------------------------
@@ -937,7 +937,7 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 
 
 
-  Time to end of optimisation =       0.7840 seconds
+  Time to end of optimisation =       1.7920 seconds
 
 
   Peak dynamic memory used =       0.64 MB 
@@ -948,20 +948,22 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 --------------------------------------------------------------------------------
   Task / Subroutine                                          Time (Seconds)
 --------------------------------------------------------------------------------
-  Calculation of reciprocal space energy and derivatives          0.1400
-  Calculation of real space energy and derivatives                0.5000
-  Calculation of real space energy using symmetry                 0.0240
-  Calculation of three-body energy and derivatives                0.0240
-  Calculation of phonons                                          0.6120
-  Calculation of scattering                                      -1.8200
+  Calculation of reciprocal space energy and derivatives          0.8000
+  Calculation of reciprocal space energy using symmetry           0.0120
+  Calculation of real space energy and derivatives                0.8320
+  Calculation of real space energy using symmetry                 0.0160
+  Calculation of three-body energy and derivatives                0.0280
+  Calculation of phonons                                          1.5520
+  Calculation of scattering                                       0.0160
   Calculation of matrix inversion                                 0.0040
+  Symmetry generation of equivalent positions                     0.0040
 --------------------------------------------------------------------------------
-  Total CPU time                                                  0.7840
+  Total CPU time                                                  1.7920
 --------------------------------------------------------------------------------
 
 
   Dump file written as test_scatter.res                                        
 
 
-  Job Finished at 17:45.08 16th June       2020                               
+  Job Finished at 18:10.10 18th June       2020                               
 

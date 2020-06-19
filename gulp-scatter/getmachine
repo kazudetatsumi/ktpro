@@ -209,9 +209,9 @@ case $os in
 #	       echo 'OPT=-fast' > makefile
 #	       echo 'OPT1=-O1' >> makefile
 # Intel compiler
-	       echo 'OPT=-O3 ' > makefile
-	       echo 'OPT1=-O1 ' >> makefile
-	       echo 'OPT2=-O3 ' >> makefile
+#	       echo 'OPT=-O3 ' > makefile
+#	       echo 'OPT1=-O1 ' >> makefile
+#	       echo 'OPT2=-O3 ' >> makefile
 # Cray compiler
 #	       echo 'OPT=-O2 ' > makefile
 #	       echo 'OPT1=-O1 ' >> makefile
@@ -220,9 +220,9 @@ case $os in
 #	       echo 'OPT=-O' > makefile
 #	       echo 'OPT1=-O' >> makefile
 #  g95
-#	       echo 'OPT=-O ' > makefile
-#	       echo 'OPT1=' >> makefile
-#	       echo 'OPT2=-ffloat-store' >> makefile
+	       echo 'OPT=-O ' > makefile
+	       echo 'OPT1=' >> makefile
+	       echo 'OPT2=-ffloat-store' >> makefile
 	       echo 'BAGGER=' >> makefile
 	   else	
 	       echo 'OPT=' > makefile
@@ -236,23 +236,23 @@ case $os in
 # PG compiler
 #  	   echo 'RUNF90=pgf90 -Bstatic' >> makefile
 # Intel compiler
-  	   echo 'RUNF90=ifort ' >> makefile
-           echo 'RUNCC=icc ' >> makefile
+#  	   echo 'RUNF90=ifort ' >> makefile
+#           echo 'RUNCC=icc ' >> makefile
 # Cray compiler
 #  	   echo 'RUNF90=ftn -h noomp ' >> makefile
 #           echo 'RUNCC=cc -h noomp ' >> makefile
 # Absoft compiler
 #           echo 'RUNF90=f90' >> makefile
 # g95
-#           echo 'RUNF90=g95 ' >> makefile
-#           echo 'RUNCC=gcc ' >> makefile
+           echo 'RUNF90=gfortran ' >> makefile
+           echo 'RUNCC=gcc ' >> makefile
 # PG compiler
 #	   echo 'FFLAGS=-I.. ' >> makefile
 #	   echo 'LIBS=' >> makefile
 # Intel or Cray compiler
-	   echo 'FFLAGS=-I.. ' >> makefile
-	   echo 'LIBS=' >> makefile
-	   echo 'CFLAGS=-I.. ' >> makefile
+#	   echo 'FFLAGS=-I.. ' >> makefile
+#	   echo 'LIBS=' >> makefile
+#	   echo 'CFLAGS=-I.. ' >> makefile
 # Absoft compiler
 #           echo 'FFLAGS=-I.. -B18 ' >> makefile
 #           echo 'LIBS=-lblas -lU77' >> makefile

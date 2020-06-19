@@ -440,7 +440,7 @@
         write(60,'(90a,/)') title_str1
       endif
       theta = theta_initial
-      do thetacount = 1,nq_intstep
+      do thetacount = 1,nq_intstep ! kt only phi's are processed at once. 
         xskpt     = Hold_smq(1,:,thetacount,shellcount)  
         yskpt     = Hold_smq(2,:,thetacount,shellcount)
         zskpt     = Hold_smq(3,:,thetacount,shellcount)
@@ -454,7 +454,7 @@
         lsymderv2 = .false.
         t1s = g_cpu_time()
         call energy(fc,.true.,.true.) ! kt fc is total energy
-        call phonon(.false.,fc,0_i4,0_i4)
+        call phonon(.false.,fc,0_i4,0_i4) ! kt phonon calls cscatter which calculates sofomega
         t2s = g_cpu_time()
         tnonscatter = tnonscatter + t2s - t1s
         lscattercall = .false.
@@ -490,7 +490,7 @@
     endif
 ! 
     lscatsurfaceweight = .false.
-    call out_rso(endarray,nw_step,nq_step,nq_step,lscatsurfaceweight)
+    call out_rso(endarray,nw_step,nq_step,nq_step,lscatsurfaceweight) ! kt output sqw to a text file.
 !
 !  Compute sum of squares of difference in endarray for fitting
 !
@@ -1019,8 +1019,9 @@
         work_vec(3) = Qmodulus*dcos(theta)
 		work_Q = matmul(qv_in, work_vec)
 		work_smq = mod(work_Q, 1.0_dp) ! work_smq is now from -1 to 1
-		where (mod(work_smq, 1.0_dp)>=0.5_dp) work_smq(:) = work_smq(:) - 1.0_dp  ! work_smq is now from -1 to 0.5. Is it  OK??
-		work_tau = work_Q - work_smq                                              ! work_tau is a reciprocal lattice vector which still connects work_smq and work_Q
+		where (mod(work_smq, 1.0_dp)>=0.5_dp) work_smq(:) = work_smq(:) - 1.0_dp  ! work_smq is now from -1 to 0.5. I checked that wherther -0.5 to
+			                                                                      ! 0.5 or -1 to 0.5 just causes negligible numeriacl errors in sqw of SiO2.
+		work_tau = work_Q - work_smq                                              ! work_tau is a reciprocal lattice vector which  connects work_smq and work_Q
 !
 !  Store sampling of (Q,w) space in Holding arrays - remember that arrays store fractional x,y,z
 !
@@ -1073,6 +1074,7 @@
 !*   This routine calculates S(q,w) inc for a given Q, q  *
 !*   e(ds) and scattering length b.                       *
 !**********************************************************
+! kt wrong!!
 
   subroutine iscatter(numb,realeds,imageds,maxd2,omegas,Qvect,sQwout,phaser,phasei,thetain,&
                       scatlen,dtheta,dphi,Qmodu)
@@ -1273,6 +1275,7 @@
 !
 !  Select between single vector and other sampling outputs
 !
+! kt I do not understand the writing procedure if (sflagin). It just print q and omega mesh.
   if (sflagin) then
     freqscale = (q_wmax - q_wmin)/dble(nw_step)
     qmin = 0.0_dp
@@ -1655,8 +1658,8 @@
   integer(i4), intent(in)                      :: maxd2           ! LHS dimension of eigr/eigi
   integer(i4), intent(in)                      :: ncfoc           ! Number of cores in the system
   logical,     intent(in)                      :: lprint          ! Print output or not?
-  real(dp),    intent(in)                      :: eigr(maxd2,*)   ! Real eigenvectors
-  real(dp),    intent(in)                      :: eigi(maxd2,*)   ! Imaginary  eigenvectors
+  real(dp),    intent(in)                      :: eigr(maxd2,*)   ! Real eigenvectors              !kt assumed-size array. eigr stores a maxd2-size eigenvector one by one as called in phonon.
+  real(dp),    intent(in)                      :: eigi(maxd2,*)   ! Imaginary  eigenvectors        
 !
 !  Local variables
 !
@@ -1701,6 +1704,7 @@
   tsense  = 1.0d-6
   Qsense  = 1.0d-8
 
+
   mytemp = max(tempcfg(ncf),1.0d-8)
   gamma_cut = 1.0d-6
   cmfact = planck*speedl/(boltz*mytemp)
@@ -1717,13 +1721,12 @@
 !
 !  Convert Q and tau to absolute units (Inverse Angstroms)
 !
-  Qvect(1) = Qvector(1,qpoint)*kv(1,1) + Qvector(2,qpoint)*kv(1,2) + Qvector(3,qpoint)*kv(1,3)
-  Qvect(2) = Qvector(1,qpoint)*kv(2,1) + Qvector(2,qpoint)*kv(2,2) + Qvector(3,qpoint)*kv(2,3)
-  Qvect(3) = Qvector(1,qpoint)*kv(3,1) + Qvector(2,qpoint)*kv(3,2) + Qvector(3,qpoint)*kv(3,3)
+  Qvect = matmul(kv, Qvector(:, qpoint))
 !        
-  tauvect(1) = tauvector(1,qpoint)*kv(1,1) + tauvector(2,qpoint)*kv(1,2) + tauvector(3,qpoint)*kv(1,3)
-  tauvect(2) = tauvector(2,qpoint)*kv(2,1) + tauvector(2,qpoint)*kv(2,2) + tauvector(3,qpoint)*kv(2,3)
-  tauvect(3) = tauvector(3,qpoint)*kv(3,1) + tauvector(2,qpoint)*kv(3,2) + tauvector(3,qpoint)*kv(3,3)
+  !kt tauvect(1) = tauvector(1,qpoint)*kv(1,1) + tauvector(2,qpoint)*kv(1,2) + tauvector(3,qpoint)*kv(1,3)
+  !kt tauvect(2) = tauvector(2,qpoint)*kv(2,1) + tauvector(2,qpoint)*kv(2,2) + tauvector(3,qpoint)*kv(2,3) !kt first term should be tauvector(1,qpoint)*kv(2,1), this is probably a bug.
+  !kt tauvect(3) = tauvector(3,qpoint)*kv(3,1) + tauvector(2,qpoint)*kv(3,2) + tauvector(3,qpoint)*kv(3,3) !kt first term should be tauvector(1,qpoint)*kv(2,1)
+  tauvect = matmul(kv, tauvector(:, qpoint))
 !
 !  Calculate atomic phase factors
 !
@@ -1752,8 +1755,8 @@
 !
 !  Eigenvector . Qvect for each atom DEBUG 
 !
-        qedotr = Qvect(1)*eigr(indj+1,i) + Qvect(2)*eigr(indj+2,i) + Qvect(3)*eigr(indj+3,i)
-        qedoti = Qvect(1)*eigi(indj+1,i) + Qvect(2)*eigi(indj+2,i) + Qvect(3)*eigi(indj+3,i)
+		qedotr = dot_product(Qvect, eigr(indj+1:indj+3,i))
+		qedoti = dot_product(Qvect, eigi(indj+1:indj+3,i))
 !
 !  Inner product of Q.e(ds) with atomic phase factors
 !
@@ -1783,22 +1786,23 @@
         nfac = boltzfac/(boltzfac - 1.0_dp)
       endif
 
-      if (lscatsurfaceweight) then
-        if (freq(i,qpoint) .lt. omsense) then
-          sofomega(i,qpoint) = 0.0_dp
-        else
-          sofomega(i,qpoint) = nfac*FofQ2/(3*dble(numat)*freq(i,qpoint))
-        endif ! sflag
-      else
+	  !if (lscatsurfaceweight) then                     ! kt this if sentence is no meaning presently.
+      !  if (freq(i,qpoint) .lt. omsense) then
+      !    sofomega(i,qpoint) = 0.0_dp
+      !  else
+      !    sofomega(i,qpoint) = nfac*FofQ2/(3*dble(numat)*freq(i,qpoint))
+      !  endif ! sflag
+      !else
         if (freq(i,qpoint) .lt. omsense) then
           sofomega(i,qpoint) = 0.0_dp
         else
           sofomega(i,qpoint) = nfac*FofQ2/(3*dble(numat)*freq(i,qpoint))
 !
-!  Check that weighting the intensity according to angle theta is valid!  Valid for single crystal, but powder?
+!  Check that weighting the intensity according to angle theta is valid!  Valid for single crystal, but powder? ! kt for powder
+!                                                                                                                    average, sofomega(i, qpoint) should be multiplied by sin(theta).
 !          sofomega(i,qpoint) = nfac*(dtheta*dphi*dsin(thetain)*FofQ2)/(3*dble(numat)*freq(i,qpoint))
         endif          
-      endif
+      !endif                                             ! kt this if sentence is no meaning presently.
     enddo      ! over modes
   else 
 !

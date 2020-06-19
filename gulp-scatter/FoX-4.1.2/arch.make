@@ -4,17 +4,17 @@
 BUILD_TARGETS=wxml_lib wcml_lib   
 
 VPATH=
-compile_prefix=/home/kazu/download/SQWroutines_GULP_and_TOBYFIT/gulp-scatter/Src/FoX-4.1.2/objs
+compile_prefix=/home/kazu/ktpro/gulp-scatter/FoX-4.1.2/objs
 install_prefix=/usr/local
 LIB_DIR=$(compile_prefix)/lib
 MOD_DIR=$(compile_prefix)/finclude
 
 FPP=
-FC=ifort 
+FC=gfortran 
 RANLIB=ranlib
 
-FFLAGS=-O3  -I..   
-FPPFLAGS= -DFC_HAVE_FLUSH -DFC_HAVE_ABORT -DFC_ABORT_ARG -DFC_EOR_LF
+FFLAGS=-O  -I..   
+FPPFLAGS= -DFC_HAVE_FLUSH -DFC_HAVE_ABORT -DFC_EOR_LF
 LDFLAGS=  
 
 FCFLAGS_free_f90=

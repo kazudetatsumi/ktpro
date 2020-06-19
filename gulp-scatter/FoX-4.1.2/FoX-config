@@ -1,6 +1,6 @@
 #!/bin/sh
 
-comp_prefix=/home/kazu/download/SQWroutines_GULP_and_TOBYFIT/gulp-scatter/Src/FoX-4.1.2/objs
+comp_prefix=/home/kazu/ktpro/gulp-scatter/FoX-4.1.2/objs
 moddir=`echo $comp_prefix/finclude`
 libdir=`echo $comp_prefix/lib`
 version=4.1.2
