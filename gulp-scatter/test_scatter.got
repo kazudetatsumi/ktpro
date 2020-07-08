@@ -14,7 +14,11 @@
 *  scatter      - calculate inelastic neutron scattering for final geometry    *
 ********************************************************************************
 
+<<<<<<< HEAD
+  Job Started  at 16:46.07 19th June       2020                               
+=======
   Job Started  at 18:10.09 18th June       2020                               
+>>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
 
   Number of CPUs =     1
 
@@ -225,12 +229,21 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 
   Start of bulk optimisation :
 
+<<<<<<< HEAD
+  Cycle:      0 Energy:      -386.181092  Gnorm:      0.750280  CPU:    0.012
+  ** Hessian calculated **
+  Cycle:      1 Energy:      -386.222886  Gnorm:      0.313181  CPU:    0.020
+  Cycle:      2 Energy:      -386.224259  Gnorm:      0.115989  CPU:    0.024
+  Cycle:      3 Energy:      -386.224931  Gnorm:      0.030540  CPU:    0.028
+  Cycle:      4 Energy:      -386.224950  Gnorm:      0.002409  CPU:    0.032
+=======
   Cycle:      0 Energy:      -386.181092  Gnorm:      0.750280  CPU:    0.008
   ** Hessian calculated **
   Cycle:      1 Energy:      -386.222886  Gnorm:      0.313181  CPU:    0.016
   Cycle:      2 Energy:      -386.224259  Gnorm:      0.115989  CPU:    0.020
   Cycle:      3 Energy:      -386.224931  Gnorm:      0.030540  CPU:    0.024
   Cycle:      4 Energy:      -386.224950  Gnorm:      0.002409  CPU:    0.028
+>>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
 
 
   **** Optimisation achieved ****
@@ -936,8 +949,14 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 --------------------------------------------------------------------------------
 
 
+<<<<<<< HEAD
+ kt init_par   0.0000000000000000        0.0000000000000000        0.0000000000000000        0.0000000000000000     
+
+  Time to end of optimisation =       1.8560 seconds
+=======
 
   Time to end of optimisation =       1.7920 seconds
+>>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
 
 
   Peak dynamic memory used =       0.64 MB 
@@ -948,6 +967,17 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
 --------------------------------------------------------------------------------
   Task / Subroutine                                          Time (Seconds)
 --------------------------------------------------------------------------------
+<<<<<<< HEAD
+  Calculation of reciprocal space energy and derivatives          0.8320
+  Calculation of reciprocal space energy using symmetry           0.0040
+  Calculation of real space energy and derivatives                0.8560
+  Calculation of real space energy using symmetry                 0.0200
+  Calculation of three-body energy and derivatives                0.0320
+  Calculation of phonons                                          1.6080
+  Calculation of scattering                                       0.0120
+--------------------------------------------------------------------------------
+  Total CPU time                                                  1.8560
+=======
   Calculation of reciprocal space energy and derivatives          0.8000
   Calculation of reciprocal space energy using symmetry           0.0120
   Calculation of real space energy and derivatives                0.8320
@@ -959,11 +989,16 @@ Si    c O     s O     s  2.097        0.0000    0.0000   109.470 0.00 0.00 0.00
   Symmetry generation of equivalent positions                     0.0040
 --------------------------------------------------------------------------------
   Total CPU time                                                  1.7920
+>>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
 --------------------------------------------------------------------------------
 
 
   Dump file written as test_scatter.res                                        
 
 
+<<<<<<< HEAD
+  Job Finished at 16:46.09 19th June       2020                               
+=======
   Job Finished at 18:10.10 18th June       2020                               
+>>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
 

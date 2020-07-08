@@ -14,7 +14,10 @@ O     shel 0.4280902 0.2760715 0.2129843 -2.8690199 1.00000 0.00000
 space
 152
 totalenergy          -386.2249565697 eV
+<<<<<<< HEAD
+=======
 rdirection frac in  1.0000  0.0000  0.0000 out  0.0000  0.0000  1.0000
+>>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
 shrink   5
 buck     
 Si    core O     shel  1283.03767     0.320500  10.66000      0.00 12.00
