@@ -60,7 +60,7 @@ def get_stat_via_unitehdf5(head):
 def runex():
     #head = "/home/kazu/desktop/200204/fine/hourbyhour/"
     head = "./"
-    num_hdf = 10
+    num_hdf = 16
     unite_hdf5(num_hdf, head)
     tCn, tdelta, tkave, tTotInt = get_stat_via_unitehdf5(head)
     outfile = "result.txt_vec"
