@@ -5,7 +5,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 plt.rcParams['font.family'] = 'Arial'
-fig = plt.figure(figsize=(13.5, 30/16.0*5))
+fig = plt.figure(figsize=(18, 40/16.0*5))
 #fig.suptitle("ei42 cond09 orthotope data")
 fig.suptitle("optimized bin width on 17714, ei42, ei24 data")
 #fig.suptitle("17714 cond09 orthotope opt data")
@@ -114,7 +114,12 @@ def plotter(t_n, t_m, list_n, list_m, deltas, m, ulm, nc):
                 marker='.', edgecolor="black", s=50, facecolors="black")
         ax.set_xlim(0, max(t_m[0:ymm+ulm])*1.02)
         ax.set_ylim(0, max([np.max(y_m), np.max(y_n)])*1.05)
-        ax.set_xlabel('measurement time (h)')
+        if ip == 3:
+           ax.tick_params(direction="in", color="black", top=True, labeltop=False, labelbottom=True)
+        else:
+           ax.tick_params(direction="in", color="black", top=True, labeltop=False, labelbottom=False)
+        if ip == 3:
+           ax.set_xlabel('measurement time (h)')
         ax.set_ylabel('bin width (rlu)')
         #if ip == 0:
         #    ax.set_yticks(np.arange(0, 3)*0.02)
@@ -206,7 +211,8 @@ def run():
     #plt.show()
     #plt.savefig("ei24_cond07_orthotope_data_for_fig1.pdf")
     #plt.savefig("ei42_cond09_orthotope_data_for_fig1.pdf")
-    #plt.savefig("no17714_cond09_orthotope_opt_data_for_fig1.pdf")
+    plt.subplots_adjust(wspace=0.4, hspace=0.4)
+    #plt.savefig("no17714_ei42_ei24_results_for_fig1.pdf")
 
 run()
 plt.show()
