@@ -1,0 +1,15 @@
+prop phon scatter
+cell
+4.050000   4.050000   4.050000  90.000000  90.000000 90.0
+fractional
+Al 0.000000   0.000000   0.000000    0.000000
+space
+225
+lennard
+Al Al   44389.768 135.77357 0.0 12.0
+dump every al.res
+sc_filename al_file
+k_type incoherent
+s_type rs_onion 
+m_transfer 0 10.0 300 300
+e_transfer 0.0 350.0 300

@@ -455,11 +455,7 @@
         t1s = g_cpu_time()
         call energy(fc,.true.,.true.) ! kt fc is total energy
         call phonon(.false.,fc,0_i4,0_i4) ! kt phonon calls cscatter which calculates sofomega
-<<<<<<< HEAD
 		sofomega = sofomega * abs(sin(theta)) ! kt I think this sin should be multiplied with sofomega as the directional weight 
-		!print *, "kt, chk",  sin(theta), theta  ! kt I think this sin should be multiplied with sofomega as the directional weight 
-=======
->>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
         t2s = g_cpu_time()
         tnonscatter = tnonscatter + t2s - t1s
         lscattercall = .false.
@@ -998,7 +994,6 @@
 !
 !  Set Qmodulus for zero and non-zero q_qmin  
 !
-<<<<<<< HEAD
   !kt if (q_qmin .gt. globenull_chk) then
   !kt   Qmodulus =q_qmin
   !kt   Q_init = Qmodulus
@@ -1013,20 +1008,6 @@
   !kt endif !if larger than zero 
   Qmodulus = q_qmin + Qinc                 !kt I do not like the modification above.
   Q_init = Qmodulus
-=======
-  if (q_qmin .gt. globenull_chk) then
-    Qmodulus =q_qmin
-    Q_init = Qmodulus
-    nq_step = nq_step + 1
-    if (nq_step.gt.maxHold4) then
-      maxHold4 = nq_step
-      call changemaxhold
-    endif
-  else
-    Qmodulus = q_qmin + Qinc
-    Q_init = Qmodulus
-  endif !if larger than zero 
->>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
 
   qloop_step = nq_step
 
@@ -1745,15 +1726,9 @@
 !
   Qvect = matmul(kv, Qvector(:, qpoint))
 !        
-<<<<<<< HEAD
-  !tauvect(1) = tauvector(1,qpoint)*kv(1,1) + tauvector(2,qpoint)*kv(1,2) + tauvector(3,qpoint)*kv(1,3)
-  !tauvect(2) = tauvector(2,qpoint)*kv(2,1) + tauvector(2,qpoint)*kv(2,2) + tauvector(3,qpoint)*kv(2,3) !kt first term should be tauvector(1,qpoint)*kv(2,1), this is probably a bug.
-  !tauvect(3) = tauvector(3,qpoint)*kv(3,1) + tauvector(2,qpoint)*kv(3,2) + tauvector(3,qpoint)*kv(3,3) !kt first term should be tauvector(1,qpoint)*kv(2,1)
-=======
   !kt tauvect(1) = tauvector(1,qpoint)*kv(1,1) + tauvector(2,qpoint)*kv(1,2) + tauvector(3,qpoint)*kv(1,3)
   !kt tauvect(2) = tauvector(2,qpoint)*kv(2,1) + tauvector(2,qpoint)*kv(2,2) + tauvector(3,qpoint)*kv(2,3) !kt first term should be tauvector(1,qpoint)*kv(2,1), this is probably a bug.
-  !kt tauvect(3) = tauvector(3,qpoint)*kv(3,1) + tauvector(2,qpoint)*kv(3,2) + tauvector(3,qpoint)*kv(3,3) !kt first term should be tauvector(1,qpoint)*kv(2,1)
->>>>>>> 4ee3e8ac7e3f4d4e86c52737f945af3adff2f7ec
+  !kt tauvect(3) = tauvector(3,qpoint)*kv(3,1) + tauvector(2,qpoint)*kv(3,2) + tauvector(3,qpoint)*kv(3,3) !kt first term should be tauvector(1,qpoint)*kv(3,1)
   tauvect = matmul(kv, tauvector(:, qpoint))
 !
 !  Calculate atomic phase factors

@@ -211,7 +211,7 @@ def run():
     #plt.show()
     #plt.savefig("ei24_cond07_orthotope_data_for_fig1.pdf")
     #plt.savefig("ei42_cond09_orthotope_data_for_fig1.pdf")
-    plt.subplots_adjust(wspace=0.4, hspace=0.4)
+    #plt.subplots_adjust(wspace=0.4, hspace=0.4)
     #plt.savefig("no17714_ei42_ei24_results_for_fig1.pdf")
 
 run()

@@ -76,7 +76,7 @@ def plot_sub(X, Y, Z, axindx, vmax):
 def plot_scatteringlaw(data):
     X, Y, Z = getXYZ(data[:, 0], data[:, 1], data[:, 2], [min(data[:, 0]),
                      max(data[:, 0])], [min(data[:, 1]), max(data[:, 1])])
-    plot_sub(Y, X, Z, 1, max(data[:, 2])/5.5)
+    plot_sub(Y, X, Z, 1, max(data[:, 2])/10.0)
     #plot_sub(Y, X, Z, 1, 0.5376)
     print(max(data[:, 2]))
     #X, Y, Z = getXYZ(data[:, 0], data[:, 1], data[:, 2], [min(data[:, 0]),
@@ -87,13 +87,17 @@ def plot_scatteringlaw(data):
 
 def run():
     #infile = "al_file.sqw"
-    infile = "out_2Dmesh_coh_50K.csv"
+    infile = "out_2Dmesh_coh_50K_sigma2.2meV.csv"
+    infile = "Cu_disp_H11_2Dmesh_scqw_300K.csv"
+    infile = "Cu_disp_tst_2Dmesh_scqw_300K.csv"
     data = get_data(infile)
     #data = get_data_csv(infile)
 
     plot_scatteringlaw(data)
     plt.show()
     #plt.savefig("out_2Dmesh_coh_298K.png")
+    #plt.savefig("Cu_disp_H11_2Dmesh_scqw_300K.png")
+    #plt.savefig("Cu_disp_tst_2Dmesh_scqw_300K.png")
 
 
 run()
