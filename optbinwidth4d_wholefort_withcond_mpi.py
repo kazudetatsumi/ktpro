@@ -103,7 +103,7 @@ def run():
     #datafile = "/home/kazu/Dropbox/out_hw_all.hdf5"
     datafile = "./eliminated_data.hdf5"
     f = h5py.File(datafile, 'r')
-    data = f["data4"][:, :, :, :]  # nqx, nqy, nqz, nomega
+    data = np.array(f["data4"][:, :, :, :])*1.0  # nqx, nqy, nqz, nomega
     print("size of data is", data.shape)
     condition = np.array(f["condition"], dtype=np.int32)
     usecond = True
