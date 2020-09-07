@@ -125,7 +125,7 @@ def run():
     # the lower and upper energy bondaries
     #ei = 81
     #ee = 207
-    ei = 10
+    ei = 20
     ee = 70
     # parameters softening the conditions to select volume and boundaries
     # a_v = 0.9, ab = 0.999 
@@ -133,7 +133,7 @@ def run():
     av = 0.970
     ab = av
     # use argmaxvlight
-    uselight = False 
+    uselight = False
     #maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
     maskfile = "/home/kazu/desktop/200204/fine/out_hw_all.hdf5"
     # maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"

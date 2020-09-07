@@ -202,12 +202,16 @@ class xdatcar:
         #self.VAF2 /=  np.sum(self.velocity**2)
         self.VAF = self.VAF2[self.Niter-2:]
 
-    def getVAFpart(self, natom, alpha):
+    def getVAFpart(self, natom, alphas):
         self.VAF2 = np.zeros((self.Niter-1)*2 - 1)
-        self.VAF2 = self.mions[natom]*np.correlate(self.velocity[:, natom, alpha],
-        #self.VAF2 = np.correlate(self.velocity[:, natom, alpha],
+        for alpha in alphas:
+            print("alpha:", alpha)
+            self.VAF2 += self.mions[natom]*np.correlate(self.velocity[:, natom, alpha],
                                           self.velocity[:, natom, alpha], 
                                           'full')
+        #self.VAF2 = np.correlate(self.velocity[:, natom, alpha],
+        #                                  self.velocity[:, natom, alpha], 
+        #                                  'full')
         #self.VAF2 /=  np.sum(self.velocity**2)
         self.VAF = self.VAF2[self.Niter-2:]
 
@@ -287,14 +291,19 @@ if __name__ == '__main__':
     KelvintomeV = 0.08617278
     kT = np.average(inp.Temp)*KelvintomeV
 
+    #x, y = inp.phononDos('meV')
+    #xcorr = x[:200]
+    #ycorr = y[:200] * (np.exp(1.0/kT*x[:200]) - 1.0)
+    #plt.plot(xcorr, ycorr, label='total' )
+    inp.getVAFpart(13, [0,1])
     x, y = inp.phononDos('meV')
-    xcorr = x[:200]
-    ycorr = y[:200] * (np.exp(1.0/kT*x[:200]) - 1.0)
-    plt.plot(xcorr, ycorr, label='total' )
-    inp.getVAFpart(12, 2)
+    xcorr = x[:]
+    ycorr = y[:] * (1.0/(np.exp(1.0/kT*x[:]) - 1.0) + 1.0) / x[:]
+    plt.plot(xcorr, ycorr, label='H // xy' )
+    inp.getVAFpart(13, [2])
     x, y = inp.phononDos('meV')
-    xcorr = x[:200]
-    ycorr = y[:200] * (np.exp(1.0/kT*x[:200]) - 1.0)
+    xcorr = x[:]
+    ycorr = y[:] * (1.0/(np.exp(1.0/kT*x[:]) - 1.0) + 1.0) / x[:]
     plt.plot(xcorr, ycorr, label='H // z' )
     #inp.getVAFpart(12, 0)
     #x, y = inp.phononDos('meV')
@@ -304,9 +313,9 @@ if __name__ == '__main__':
     #x, y = inp.phononDos('meV')
     #y = y * (np.exp(1.0/kT*x) - 1.0)
     #plt.plot(x, y, label='H // y' )
-    #plt.xlim(0, 200)
+    plt.xlim(0, 410)
     plt.legend()
-    #plt.ylim(0, 2000)
+    plt.ylim(0, 10)
     # # plt.ylim(-0.5, 1.0)
 
     #val, b = inp.PCF(100, 1)
@@ -314,3 +323,4 @@ if __name__ == '__main__':
     #plt.axhline(y=1, color='r')
     #plt.xlim(0, 5)
     plt.show()
+    #plt.savefig("ggasol_md_296K-long_3f.png")
