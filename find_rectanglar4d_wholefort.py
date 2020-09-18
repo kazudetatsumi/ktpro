@@ -41,6 +41,7 @@ def calc_rectanglar_f90(condition):
 
 def run():
     maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
+    maskfile = "/home/kazu/desktop/200522/Ei24/fineq/2m/Output4D_00_120.hdf5"
     f = h5py.File(maskfile)
     #condition = np.array(f["condition"][:,:,:,35], dtype=np.int32)
     condition = np.array(f["condition"][:,:,:,:], dtype=np.int32)

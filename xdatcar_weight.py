@@ -12,6 +12,8 @@
 
 import os
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from scipy.fftpack import fft, ifft, fftfreq, fftshift
 
@@ -24,7 +26,7 @@ Navogadro = 6.0221412927E23
 
 ################################################################################      
 class xdatcar:
-    print """ Python Class for VASP XDATCAR """
+    print(""" Python Class for VASP XDATCAR """)
 
     def __init__(self, File=None):
         if File is None:
@@ -82,11 +84,11 @@ class xdatcar:
 
         self.mions = np.concatenate(self.mions)
         self.ChemSymb = np.concatenate(self.ChemSymb)
-        print self.mions
-        print self.mions.shape
+        print(self.mions)
+        print(self.mions.shape)
 
     def readxdat(self):
-        print """ Read VASP XDATCAR """
+        print(""" Read VASP XDATCAR """)
 
         inp = [line for line in open(self.xdatcar) if line.strip()]
         scale = float(inp[1])
@@ -97,14 +99,14 @@ class xdatcar:
 
         ta = inp[5].split()
         tb = inp[6].split()
-        # print ta, tb
+        # print(ta, tb)
         if ta[0].isalpha():
             self.TypeName = ta
             self.Ntype = len(ta)
             self.Nelem = np.array(tb, dtype=int)
             self.Nions = self.Nelem.sum()
         else:
-            print "VASP 4.X Format encountered..."
+            print("VASP 4.X Format encountered...")
             self.Nelem = np.array(tb, type=int)
             self.Nions = self.Nelem.sum()
             self.Ntype = len(tb)
@@ -114,7 +116,7 @@ class xdatcar:
                         if not line.split()[0].isalpha()],
                         dtype=float)
         self.position = pos.ravel().reshape((-1,self.Nions,3))
-        print self.position.shape
+        print(self.position.shape)
         self.Niter = self.position.shape[0]
 
         dpos = np.diff(self.position, axis=0)
@@ -132,11 +134,11 @@ class xdatcar:
 
 
     def readoutcar(self):
-        print """ read POTIM and POMASS from OUTCAR """
+        print(""" read POTIM and POMASS from OUTCAR """)
 
         if os.path.isfile("OUTCAR"):
-            # print "OUTCAR found!"
-            # print "Reading POTIM & POMASS from OUTCAR..."
+            # print("OUTCAR found!")
+            # print("Reading POTIM & POMASS from OUTCAR...")
 
             outcar = [line.strip() for line in open('OUTCAR')]
             lp = 0; lm = 0; 
@@ -148,12 +150,12 @@ class xdatcar:
                 if lp and lm:
                     break
 
-            # print outcar[lp].split(), lp, lm
+            # print(outcar[lp].split(), lp, lm)
             self.potim = float(outcar[lp].split()[2])
             self.mtype = np.array(outcar[lm].split()[2:], dtype=float)
 
     def getTemp(self, Nfree=None):
-        print """ Temp vs Time """
+        print(""" Temp vs Time """)
 
         for i in range(self.Niter-1):
             ke = np.sum(np.sum(self.velocity[i,:,:]**2, axis=1) * self.mions / 2.)
@@ -163,7 +165,7 @@ class xdatcar:
             self.Temp[i] = 2 * self.Ken[i] / (kb * Nfree)
 
     def getVAF(self):
-        print """ Velocity Autocorrelation Function """
+        print(""" Velocity Autocorrelation Function """)
 
         # VAF definitions
         # VAF(t) = Natoms^-1 * \sum_i <V_i(0) V_i(t)>
@@ -202,13 +204,14 @@ class xdatcar:
         #self.VAF2 /=  np.sum(self.velocity**2)
         self.VAF = self.VAF2[self.Niter-2:]
 
-    def getVAFpart(self, natom, alphas):
+    def getVAFpart(self, natoms, alphas):
         self.VAF2 = np.zeros((self.Niter-1)*2 - 1)
-        for alpha in alphas:
-            print("alpha:", alpha)
-            self.VAF2 += self.mions[natom]*np.correlate(self.velocity[:, natom, alpha],
-                                          self.velocity[:, natom, alpha], 
-                                          'full')
+        for natom in natoms:
+            for alpha in alphas:
+                print("alpha:", alpha)
+                self.VAF2 += self.mions[natom]*np.correlate(self.velocity[:, natom, alpha],
+                                              self.velocity[:, natom, alpha], 
+                                              'full')
         #self.VAF2 = np.correlate(self.velocity[:, natom, alpha],
         #                                  self.velocity[:, natom, alpha], 
         #                                  'full')
@@ -281,13 +284,13 @@ if __name__ == '__main__':
     inp = xdatcar()
     inp.getVAF()
     # plt.plot((np.abs(fft(inp.VAF[inp.Niter-2:]))**2))
-    # print inp.VAF.shape
+    # print(inp.VAF.shape)
     # plt.plot(inp.Time, inp.VAF, 'ko-', lw=1.0, ms=2,
     #         markeredgecolor='r', markerfacecolor='red')
     # 
     # plt.xlabel('Time [fs]')
     # plt.ylabel('Velocity Autocorrelation Function')
-    print "temp:", np.average(inp.Temp)
+    print("temp:", np.average(inp.Temp))
     KelvintomeV = 0.08617278
     kT = np.average(inp.Temp)*KelvintomeV
 
@@ -295,15 +298,19 @@ if __name__ == '__main__':
     #xcorr = x[:200]
     #ycorr = y[:200] * (np.exp(1.0/kT*x[:200]) - 1.0)
     #plt.plot(xcorr, ycorr, label='total' )
-    inp.getVAFpart(13, [0,1])
+    inp.getVAFpart(range(108,126), [0,1])
+    #inp.getVAFpart(range(12,13), [0,1])
     x, y = inp.phononDos('meV')
     xcorr = x[:]
     ycorr = y[:] * (1.0/(np.exp(1.0/kT*x[:]) - 1.0) + 1.0) / x[:]
+    np.savetxt('along_xy.txt', np.transpose((xcorr, ycorr)))
     plt.plot(xcorr, ycorr, label='H // xy' )
-    inp.getVAFpart(13, [2])
+    inp.getVAFpart(range(108,126), [2])
+    #inp.getVAFpart(range(12,13), [2])
     x, y = inp.phononDos('meV')
     xcorr = x[:]
     ycorr = y[:] * (1.0/(np.exp(1.0/kT*x[:]) - 1.0) + 1.0) / x[:]
+    np.savetxt('along_z.txt', np.transpose((xcorr, ycorr)))
     plt.plot(xcorr, ycorr, label='H // z' )
     #inp.getVAFpart(12, 0)
     #x, y = inp.phononDos('meV')
@@ -315,12 +322,12 @@ if __name__ == '__main__':
     #plt.plot(x, y, label='H // y' )
     plt.xlim(0, 410)
     plt.legend()
-    plt.ylim(0, 10)
+    #plt.ylim(0, 10)
     # # plt.ylim(-0.5, 1.0)
 
     #val, b = inp.PCF(100, 1)
     #plt.plot(b, val)
     #plt.axhline(y=1, color='r')
     #plt.xlim(0, 5)
-    plt.show()
-    #plt.savefig("ggasol_md_296K-long_3f.png")
+    #plt.show()
+    plt.savefig("xdatcar_pdos-AVC_ti4sb2h_h_all_tmp.png")

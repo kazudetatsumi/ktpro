@@ -127,15 +127,19 @@ def run():
     #ee = 207
     ei = 20
     ee = 70
+    #ei = 150
+    #ee = 289
     # parameters softening the conditions to select volume and boundaries
     # a_v = 0.9, ab = 0.999 
     av = 0.970
-    av = 0.970
     ab = av
+    #av = 0.270
+    #ab = 0.2
     # use argmaxvlight
     uselight = False
     #maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
     maskfile = "/home/kazu/desktop/200204/fine/out_hw_all.hdf5"
+    #maskfile = "/home/kazu/desktop/200522/Ei24/fineq/2m/Output4D_00_120.hdf5"
     # maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"
     #maskfile = "/home/kazu/desktop/200522/Ei42/veryfineq/Output4D_00_840.hdf5"
     #maskfile = "/home/kazu/desktop/200522/Ei42/fineq/14m/Output4D_00_840.hdf5"
@@ -155,6 +159,14 @@ def run():
     ze = ub[2]
     ei = lb[3]
     ee = ub[3]
+    #xi = 142
+    #xe = 152
+    #yi = 109
+    #ye = 119
+    #zi = 0
+    #ze = 4
+    #ei = 191
+    #ee = 210
 
     '''
     xi = 122
