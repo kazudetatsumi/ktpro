@@ -90,13 +90,13 @@ def run():
     infile = "out_2Dmesh_coh_50K_sigma2.2meV.csv"
     infile = "Cu_disp_H11_2Dmesh_scqw_300K.csv"
     infile = "Cu_disp_tst_2Dmesh_scqw_300K.csv"
-    infile = "out_2Dmesh_coh_4K.csv"
+    infile = "out_2Dmesh_inc_10K.csv"
     data = get_data(infile)
     #data = get_data_csv(infile)
 
     plot_scatteringlaw(data)
     #plt.show()
-    plt.savefig("out_2Dmesh_coh_4K.png")
+    plt.savefig("out_2Dmesh_inc_10K.png")
     #plt.savefig("Cu_disp_H11_2Dmesh_scqw_300K.png")
     #plt.savefig("Cu_disp_tst_2Dmesh_scqw_300K.png")
 

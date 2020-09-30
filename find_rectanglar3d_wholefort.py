@@ -130,8 +130,10 @@ def run():
     #ei = 150
     #ee = 289
     # parameters softening the conditions to select volume and boundaries
-    # a_v = 0.9, ab = 0.999 
-    av = 0.970
+    #av = 0.9
+    #ab = 0.999 
+    #av = 0.985
+    av = 0.97
     ab = av
     #av = 0.270
     #ab = 0.2
@@ -140,7 +142,7 @@ def run():
     #maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
     maskfile = "/home/kazu/desktop/200204/fine/out_hw_all.hdf5"
     #maskfile = "/home/kazu/desktop/200522/Ei24/fineq/2m/Output4D_00_120.hdf5"
-    # maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"
+    #maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"
     #maskfile = "/home/kazu/desktop/200522/Ei42/veryfineq/Output4D_00_840.hdf5"
     #maskfile = "/home/kazu/desktop/200522/Ei42/fineq/14m/Output4D_00_840.hdf5"
     # maskfile = "/home/kazu/desktop/200312/for_cscl/coarse/out_hw_all.hdf5"
@@ -180,6 +182,7 @@ def run():
 
     '''
     plot_crosssection(xi, xe, yi, ye, zi, ze, ei, ee, condition*1.0)
+    plt.savefig("orthotope_crossections.pdf")
     plt.show()
 
 run()
