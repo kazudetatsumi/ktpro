@@ -87,16 +87,9 @@ def preprocess(outfile):
     data4 = np.array(f["data4"])
     print(data4.shape)
     condition = np.array(f["condition"])
-    #data4 = np.where(condition == False, -1.0, data4)
     maxc = np.max(condition)
-    for ix in range(0, condition.shape[0]):
-        for iy in range(0, condition.shape[1]):
-            for iz in range(0, condition.shape[2]):
-                for iw in range(0, condition.shape[3]):
-                    if condition[ix, iy, iz, iw] > 0.1:
-                        data4[ix, iy, iz, iw] = data4[ix, iy, iz, iw] / condition[ix, iy, iz, iw] * maxc
-                    else:
-                        data4[ix, iy, iz, iw] = -10000.0
+    data4[ condition > 0.1 ] = data4[ condition > 0.1 ] / condition[ condition > 0.1] * maxc
+    data4[ condition <= 0.1 ] = -10000.0
     return(data4, condition)
 
 
@@ -151,5 +144,5 @@ def run():
 
 
 run()
-#plt.show()
-plt.savefig("no17714_ei42_ei24_crosssections_tst.pdf")
+#plt.savefig("no17714_ei42_ei24_crosssections_tst.pdf")
+plt.show()
