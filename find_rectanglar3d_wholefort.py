@@ -123,27 +123,27 @@ def plot_crosssection(xi, xe, yi, ye, zi, ze, ei, ee,  data4):
 
 def run():
     # the lower and upper energy bondaries
-    #ei = 81
-    #ee = 207
-    ei = 20
-    ee = 70
+    ei = 81
+    ee = 166
+    #ei = 20
+    #ee = 70
     #ei = 150
     #ee = 289
     # parameters softening the conditions to select volume and boundaries
     #av = 0.9
     #ab = 0.999 
     #av = 0.985
-    av = 0.97
+    av = 0.90 
     ab = av
     #av = 0.270
     #ab = 0.2
     # use argmaxvlight
     uselight = False
     #maskfile = "/home/kazu/desktop/200204/coarse/hourbyhour/1h/out_hw_all.hdf5"
-    maskfile = "/home/kazu/desktop/200204/fine/out_hw_all.hdf5"
+    #maskfile = "/home/kazu/desktop/200204/fine/out_hw_all.hdf5"
     #maskfile = "/home/kazu/desktop/200522/Ei24/fineq/2m/Output4D_00_120.hdf5"
     #maskfile = "/home/kazu/desktop/200204/fine/hourbyhour/1h/out_hw_all.hdf5"
-    #maskfile = "/home/kazu/desktop/200522/Ei42/veryfineq/Output4D_00_840.hdf5"
+    maskfile = "/home/kazu/desktop/200522/Ei42/veryfineq/Output4D_00_840.hdf5"
     #maskfile = "/home/kazu/desktop/200522/Ei42/fineq/14m/Output4D_00_840.hdf5"
     # maskfile = "/home/kazu/desktop/200312/for_cscl/coarse/out_hw_all.hdf5"
     # maskfile = "/home/kazu/desktop/200312/for_cscl/out_hw_all.hdf5"

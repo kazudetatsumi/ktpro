@@ -7,7 +7,7 @@ plt.rcParams['font.family'] = 'Arial'
 plt.rcParams["font.size"] = 14
 #plt.rcParams["xtick.top"] = True
 #plt.rcParams["xtick.labeltop"] = True
-fig = plt.figure(figsize=(6, 10))
+fig = plt.figure(figsize=(10, 10))
 fig.suptitle("crosssections of 4D simulated INS data")
 
 
@@ -77,8 +77,6 @@ def plot_crosssection_more_useful(cnum, lims_int,
                                                                + ranges[:, 0]
     print("cposval",cposval)
     cposinfo = '@$\mathregular{(q_c, E)}$' + "=({:.0f}, {:.0f})".format(cposval[2], cposval[3])
-    print(np.max(data4[:,:,35,10]))
-    print(np.min(data4[:,:,35,10]))
     plotter(lims_int[0,:], lims_int[1,:], '$\mathregular{q_a(rlu)}$', '$\mathregular{q_b(rlu)}$', data4[:, :, cpos[2], cpos[3]],
             3, 2, cnum, devs[0], ranges[0, :], ranges[1, :],
             hvlofs, cposinfo)
@@ -119,40 +117,42 @@ def run():
     #head = "/home/kazu/desktop/"
     #tail = "hist.hdf5"
 
-    cnum = 1
-    outfile = "/home/kazu/desktop/200312/for_cu_new/filled_again2_ddscs/422h/eliminated_data.hdf5"
-    lims = np.array([[120, 155], [121, 152], [20, 52], [20, 70]])*1.0
-    ns = np.array([1, 1, 1, 1])*1.
-    ranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]])
-    hvlofs = False                                                # whether hvlines are displaced by a small value from the axis. This should be true when the line overlap on the axes.
-    devs = np.array([70, 1.2, 1])
-    cpos = np.array([107, 145, 35, 0])
-    run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, cpos)
+#    cnum = 1
+#    outfile = "/home/kazu/desktop/200312/for_cu_new/filled_again2_ddscs/422h/eliminated_data.hdf5"
+#    lims = np.array([[120, 155], [121, 152], [20, 52], [20, 70]])*1.0
+#    ns = np.array([1, 1, 1, 1])*1.
+#    ranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]])
+#    hvlofs = False                                                # whether hvlines are displaced by a small value from the axis. This should be true when the line overlap on the axes.
+#    devs = np.array([70, 1.2, 1])
+#    cpos = np.array([107, 145, 35, 0])
+#    run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, cpos)
+
+#    cnum = 2
+#    outfile = "/home/kazu/desktop/200312/for_cu_new/filled_again2_ddscs/422h/eliminated_data.hdf5"
+#    lims = np.array([[120, 155], [121, 152], [20, 52], [20, 70]])*1.0
+#    ns = np.array([1, 1, 1, 1])*1.
+#    ranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]])
+#    hvlofs = False                                                # whether hvlines are displaced by a small value from the axis. This should be true when the line overlap on the axes.
+#    devs = np.array([70, 1.2, 1])
+#    cpos = np.array([107, 145, 35, 0])
+#    run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, cpos)
 
     cnum = 2
-    outfile = "/home/kazu/desktop/200312/for_cu_new/filled_again2_ddscs/422h/eliminated_data.hdf5"
-    lims = np.array([[120, 155], [121, 152], [20, 52], [20, 70]])*1.0
-    ns = np.array([1, 1, 1, 1])*1.
-    ranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]])
-    hvlofs = False                                                # whether hvlines are displaced by a small value from the axis. This should be true when the line overlap on the axes.
-    devs = np.array([70, 1.2, 1])
-    cpos = np.array([107, 145, 35, 0])
-    run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, cpos)
-
-    #cnum = 2
     #outfile = head + "200522/Ei42/veryfineq/14m/" + tail
-    #lims = np.array([[114, 200], [69, 122], [11, 20], [81, 207]])*1.0
+    outfile = "/home/kazu/desktop//200522/Ei42/veryfineq/14m/Output4D_00_840.hdf5"
+    lims = np.array([[114, 200], [69, 122], [11, 20], [81, 207]])*1.0
     #ns = np.array([3, 2, 2, 4])*1.
-    #ranges = np.array([[-0.675, 3.075], [-0.925, 4.375], [-0.8, 0.55], [-8.0, 36.2]])
-    #hvlofs = False                                              
-    #devs = np.array([200, 1, 1])
-    #dev2 = 10
+    ns = np.array([1, 1, 1, 1])*1.
+    ranges = np.array([[-0.675, 3.075], [-0.925, 4.375], [-0.8, 0.55], [-8.0, 36.2]])
+    hvlofs = False                                              
+    devs = np.array([40, 3, 3])
     #cpos = np.array([58, 39, 8, 10])
-    #run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, dev2, cpos)
+    cpos = np.array([175, 78, 17, 41])
+    run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, cpos)
 #
 #    cnum = 3
 #    outfile = head + "200522/Ei24/fineq/26m/" + tail
-    lims = np.array([[0, 228], [1, 202], [0, 8], [150, 289]])*1.0
+#    lims = np.array([[0, 228], [1, 202], [0, 8], [150, 289]])*1.0
 #    ns = np.array([2, 3, 2, 4])*1.
 #    ranges = np.array([[0.01, 2.29], [-0.67, 1.35], [-0.16, 0.16], [-2.0, 21.12]])
 #    hvlofs = True                                          
@@ -164,6 +164,6 @@ def run():
 
 
 run()
-plt.savefig("no17714_phantom_crosssections.pdf")
-plt.savefig("no17714_phantom_crosssections.png")
+#plt.savefig("Ei42_crosssections.pdf")
+plt.savefig("Ei42_crosssections.png")
 plt.show()
