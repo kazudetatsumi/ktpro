@@ -117,8 +117,8 @@ def run():
     head ="./"
     #datafile = head + "out_hw_all.hdf5"
     #datafile = head + "Output4D_00_1560.hdf5"  # for Ei24
-    datafile = head + "Output4D_00_840.hdf5"  # for Ei42
-    #datafile = head + "eliminated_data.hdf5"
+    #datafile = head + "Output4D_00_840.hdf5"  # for Ei42
+    datafile = head + "eliminated_data.hdf5"
 
     outfile = head + "hist.hdf5"
     f = h5py.File(datafile,'r')
