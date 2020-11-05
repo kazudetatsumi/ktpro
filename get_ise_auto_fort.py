@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # This script calculates an integrated squared error between pdf and histogram. 
+# python + fortran version of get_ise_auto.py.
+# This version is much faster than get_ise_auto.py or get_ise_auto_mpi.py
+# fortran source file of the library is isefort.f90
 # Kazuyoshi TATSUMI 2020.
 import numpy as np
 import h5py
