@@ -35,7 +35,7 @@ def get4ddata(txtfile, nxyzw):
 
 
 def gen_hdf5(num_txtfiles, head):
-    for i in range(0, num_txtfiles):
+    for i in range(23, num_txtfiles):
         txtfile = head + "Output4D_00_" + str((i+1)*60) + ".txt"
         if os.path.exists(txtfile):
            outfile = head + "Output4D_00_" + str((i+1)*60) + ".hdf5"
@@ -53,7 +53,7 @@ def gen_hdf5(num_txtfiles, head):
 
 
 def run():
-    num_txtfiles = 30
+    num_txtfiles = 24
     head = "./"
     gen_hdf5(num_txtfiles, head)
 
