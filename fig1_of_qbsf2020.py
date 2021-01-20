@@ -4,6 +4,9 @@
 # 2020 8/1 Kazuyoshi TATSUMI
 import matplotlib.pyplot as plt
 import numpy as np
+params = {'mathtext.default': 'regular'}
+plt.rcParams.update(params)
+
 plt.rcParams['font.family'] = 'Arial'
 fig = plt.figure(figsize=(6, 40/16.0*5))
 #fig.suptitle("ei42 cond09 orthotope data")
@@ -71,65 +74,45 @@ def plotter(t_n, t_m, list_n, list_m, deltas, m, ulm):
     y_n = 1.0/(list_n[1, :]*list_n[2, :]*list_n[3, :]*list_n[4, :]*delta)
     y_m = 1.0/(list_m[1, :]*list_m[2, :]*list_m[3, :]*list_m[4, :]*delta)
     ymm = y_m.shape[0]
-    ax = fig.add_subplot(5, 1, 1)
-    ax.scatter(
-            list_n[0, m:], y_n[m:],
-            marker='s', edgecolor="black", s=50, facecolors="white")
-    ax.scatter(
-            list_n[0, 0:m-1], y_n[0:m-1],
-            marker='s', edgecolor="black", s=50, facecolors="white")
-    ax.scatter(
-            list_n[0, m-1:m], y_n[m-1:m],
-            marker='*', edgecolor="black", s=50, facecolors="white")
-    ax.scatter(
-            list_m[0, m:ymm+ulm], y_m[m:ymm+ulm],
-            marker='.', edgecolor="black", s=50, facecolors="black")
-    ax.scatter(
-            list_m[0, 0:m-1], y_m[0:m-1],
-            marker='.', edgecolor="black", s=50, facecolors="black")
-    ax.set_xlim(0, list_m[0, 0]*1.02)
-    ax.set_ylim(-0.03*y_m[ulm-1], y_m[ulm-1] * 1.05)
-    plt.gca().ticklabel_format(style="sci", scilimits=(0, 0), axis="x")
-    plt.gca().ticklabel_format(style="sci", scilimits=(0, 0), axis="y")
-    ax.set_xlabel('1 / total counts')
-    ax.set_ylabel('1 / delta (rlu^-3meV^-1)')
+    wlist = ["$q_x$", "$q_y$", "$q_z$", "$\omega$"]
     for ip, dp in enumerate(deltas):
         y_n = list_n[1+ip, :]*dp
         y_m = list_m[1+ip, :]*dp
-        ax = fig.add_subplot(5, 1, 2+ip)
+        ax = fig.add_subplot(4, 1, 1+ip)
         ax.scatter(
-                #t_n[m:], y_n[m:], label="each n",
                 np.log10(1.0/list_n[0, m:]), y_n[m:], label="each n",
                 marker='s', edgecolor="black", s=50, facecolors="white")
         ax.scatter(
-                #t_n[0:m-1], y_n[0:m-1], label="each n",
                 np.log10(1.0/list_n[0, 0:m-1]), y_n[0:m-1], label="each n",
                 marker='s', edgecolor="black", s=50, facecolors="white")
         ax.scatter(
-                #t_n[m-1:m], y_n[m-1:m], label="each n",
-                np.log10(1.0/list_n[0, m-1:m]), y_n[m-1:m], label="each n",
-                marker='*', edgecolor="black", s=50, facecolors="white")
-        ax.scatter(
-                #t_m[m:ymm+ulm], y_m[m:ymm+ulm], label="each n",
                 np.log10(1.0/list_m[0, m:ymm+ulm]), y_m[m:ymm+ulm], label="each n",
                 marker='.', edgecolor="black", s=50, facecolors="black")
         ax.scatter(
-                #t_m[0:m-1], y_m[0:m-1], label="each n",
                 np.log10(1.0/list_m[0, 0:m-1]), y_m[0:m-1], label="each n",
                 marker='.', edgecolor="black", s=50, facecolors="black")
-        #ax.set_xlim(0, max(t_m[0:ymm+ulm])*1.02)
-        #ax.set_xlim(0, list_m[0, 0]*1.02)
-        #ax.set_xlim(0, max(t_m[0:ymm+ulm])*1.02)
-        ax.set_ylim(0, max([np.max(y_m), np.max(y_n)])*1.05)
-        ax.set_xlabel('measurement time (h)')
+        ax.plot(
+                np.log10(1.0/list_n[0, :]), y_n, label="each n",
+                marker='None', color="gray", linestyle="dashed", lw=3)
+        ax.plot(
+                np.log10(1.0/list_m[0, 0:ymm+ulm]), y_m[0:ymm+ulm], label="each n",
+                marker='None', color="k", linestyle="dotted")
+        ax.scatter(
+                np.log10(1.0/list_n[0, m-1:m]), y_n[m-1:m], label="each n",
+                marker='*', edgecolor="black", s=50, facecolors="white")
+        ax.tick_params(labelbottom=False)
+        ax.text(np.max(np.log10(1.0/list_m[0,:ymm+ulm]))*0.98,
+                (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2)*0.75, wlist[ip], size=15)
+        ax.set_ylim(0, (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2))
+        print((max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2))
+        ax.set_yticks(np.arange(0,(max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2), (dp*2)))
+        ax.tick_params(direction='in', top=True, right=True)
         ax.set_ylabel('bin width (rlu)')
-        plt.gca().ticklabel_format(style="sci", scilimits=(0, 0), axis="x")
-        plt.gca().ticklabel_format(style="sci", scilimits=(0, 0), axis="y")
-        #if ip == 0:
-        #    ax.set_yticks(np.arange(0, 3)*0.02)
         if ip == 3:
-        #    ax.set_yticks(np.arange(0, 5)*0.2)
             ax.set_ylabel('bin width (meV)')
+            ax.tick_params(labelbottom=True)
+            ax.set_xlabel('log10(total count)')
+        plt.subplots_adjust(wspace=0.4, hspace=0.0)
 
 
 def get_measurement_time(xlist_n, xlist_m, hs):
