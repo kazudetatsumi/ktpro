@@ -107,11 +107,11 @@ def plotter(t_n, t_m, list_n, list_m, deltas, m, ulm):
         print((max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2))
         ax.set_yticks(np.arange(0,(max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2), (dp*2)))
         ax.tick_params(direction='in', top=True, right=True)
-        ax.set_ylabel('bin width (rlu)')
+        ax.set_ylabel('bin width (rlu)', size=15)
         if ip == 3:
-            ax.set_ylabel('bin width (meV)')
+            ax.set_ylabel('bin width (meV)', size=15)
             ax.tick_params(labelbottom=True)
-            ax.set_xlabel('log10(total count)')
+            ax.set_xlabel('log10(total count)', size=15)
         plt.subplots_adjust(wspace=0.4, hspace=0.0)
 
 
