@@ -15,7 +15,7 @@ def plotter(xlim, ylim, lx, ly, data, vn, hn, cn, dev, dev2, xr, yr, hvlofs, cpo
     cmap = get_cmap("gist_gray")
     cmap.set_under(color='white')
     ax = fig.add_subplot(vn,  hn, cn)
-    print(np.max(data))
+    #print(np.max(data))
 
     u = np.linspace(xr[0], xr[1], data.shape[0]+1)
     v = np.linspace(yr[0], yr[1], data.shape[1]+1)
@@ -64,8 +64,8 @@ def plotter(xlim, ylim, lx, ly, data, vn, hn, cn, dev, dev2, xr, yr, hvlofs, cpo
 def plot_crosssection_more_useful(cnum, lims_int,
                                   condition, data4, ranges, hvlofs, devs,
                                   dev2, cpos):
-    print("cpos",cpos)
-    print("data4.shape", data4.shape)
+    #print("cpos",cpos)
+    #print("data4.shape", data4.shape)
     cposval = cpos*1.0/np.array(data4.shape)*1.0 * (ranges[:, 1]-ranges[:, 0])\
                                                                + ranges[:, 0]
     cposinfo = '@$\mathregular{(q_c, E)}$' + "=({:.0f}, {:.0f})".format(cposval[2], cposval[3])
@@ -85,7 +85,7 @@ def plot_crosssection_more_useful(cnum, lims_int,
 def preprocess(outfile):
     f = h5py.File(outfile, 'r')
     data4 = np.array(f["data4"])
-    print(data4.shape)
+    #print(data4.shape)
     condition = np.array(f["condition"])
     maxc = np.max(condition)
     data4[ condition > 0.1 ] = data4[ condition > 0.1 ] / condition[ condition > 0.1] * maxc
@@ -98,7 +98,7 @@ def run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, dev2, cpos):
     for i in range(0, lims.shape[0]):
         for j in range(0, lims.shape[1]):
             lims_int[i, j] = int(round(lims[i, j]/ns[i]))
-    print("lims_int:", lims_int)
+    #print("lims_int:", lims_int)
     data4, condition = preprocess(outfile)
     plot_crosssection_more_useful(cnum, lims_int,
                                   condition, data4, ranges, hvlofs, devs, dev2, cpos)

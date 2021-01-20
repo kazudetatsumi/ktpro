@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#
 import sys
 import os
 sys.path.append(os.pardir)
@@ -7,7 +8,7 @@ from collections import OrderedDict
 from common.layers import *
 
 
-class convNetbn3:
+class convNetbn3dp:
     def __init__(self, input_dim=(1, 1, 2299),
                  conv_params={'filter_num':30, 'filter_height':1,
                               'filter_width':5, 'pad':0, 'stride':1},
@@ -66,9 +67,11 @@ class convNetbn3:
         self.layers['BatchNorm2'] = BatchNormalization(self.params['gamma2'],
                                                        self.params['beta2'])
         self.layers['Relu2'] = Relu()
+        self.layers['Dropout1'] = Dropout()
         self.layers['Affine2'] = Affine(self.params['W3'], self.params['b3'])
         self.layers['BatchNorm3'] = BatchNormalization(self.params['gamma3'],
                                                        self.params['beta3'])
+        self.layers['Dropout2'] = Dropout()
 
         self.lastLayer = SoftmaxWithLoss()
 

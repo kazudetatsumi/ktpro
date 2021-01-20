@@ -8,7 +8,7 @@ fig = plt.figure(figsize=(6, 9))
 fig.suptitle("Summary of test2_nd.py, convolution_neural-net on nd data")
 
 def run():
-    pb = open('dump2_nd_bn3_modified_cv.pkl', 'rb')
+    pb = open('dump2_nd.pkl', 'rb')
     #nt = pickle.load(pb)
     lossfunc = np.array(pickle.load(pb))
     acc_test = np.array(pickle.load(pb))

@@ -8,7 +8,7 @@ import os
 import numpy as np
 sys.path.append(os.pardir)
 from dataset.nd import load_nd
-from conv_bn3_net_nd import convNetbn3
+from conv_dp_net_nd import convdpNet
 from common.optimizer import Adam
 import pickle
 from sklearn.model_selection import KFold
@@ -19,7 +19,7 @@ rank = comm.Get_rank()
 
 
 def run():
-    num_iters = 4000
+    num_iters = 2000
     batch_size = 100
     lossfunc = []
     acc_validation = []
@@ -51,7 +51,7 @@ def run():
             t_validation = _t_train[validation_indx]
             train_size = x_train.shape[0]
 
-            nt = convNetbn3(input_dim=(1, 1, _x_train_shape[1]),
+            nt = convdpNet(input_dim=(1, 1, _x_train_shape[1]),
                 conv_params={'filter_num':10, 'filter_height':1, 'filter_width':5, 'pad':0, 'stride':1},
                 hsize = 100, osize = 4, wstd=0.01)
 
@@ -84,7 +84,7 @@ def run():
         std_acc_validation = np.var(np.array(all_acc_validation)[:,-10:-1])**0.5
         print("average acc in validation:{} +- {}".format(ave_acc_validation, std_acc_validation))
     
-        pb = open('dump2_nd_bn3_modified_cv.pkl', 'wb')
+        pb = open('dump2_nd_cv.pkl', 'wb')
         #pickle.dump(nt, pb)
         pickle.dump(all_lossfunc, pb)
         pickle.dump(all_acc_validation, pb)

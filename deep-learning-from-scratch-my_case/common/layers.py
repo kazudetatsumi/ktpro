@@ -1,6 +1,7 @@
 import numpy as np
-from common.functions import sigmoid, cross_entropy_error, softmax, mean_squared_error
-from common.util import im2col, col2im
+from common.functions import sigmoid, cross_entropy_error, softmax,\
+                             mean_squared_error
+from common.util import im2col, col2im, im2colK, col2imK
 
 
 class SoftmaxWithLoss:
@@ -41,7 +42,7 @@ class IdentityWithLoss:
 
     def backward(self, dout=1):
         batch_size = self.t.shape[0]
-        dx = ( self.y - self.t) / batch_size
+        dx = (self.y - self.t) / batch_size
         return dx
 
 
@@ -80,7 +81,7 @@ class LeakyRelu:
 class Sigmoid:
     def __init__(self):
         self.out = None
-        
+
     def forward(self, x):
         out = sigmoid(x)
         self.out = out
@@ -99,13 +100,11 @@ class Affine:
         self.x_shape_org = None
         self.dW = None
         self.db = None
-    
+
     def forward(self, x):
         self.x_shape_org = x.shape
         x = x.reshape(x.shape[0], -1)
         self.x = x
-        #print('W',self.W.shape)
-        #print('x', self.x.shape)
 
         out = np.dot(self.x, self.W) + self.b
         return out
@@ -157,7 +156,7 @@ class Convolution:
 
         col = im2col(x, FH, FW, self.S, self.P)
         col_W = self.W.reshape(FN, -1).T
-        
+
         out = np.dot(col, col_W) + self.b
         out = out.reshape(N, OH, OW, -1).transpose(0, 3, 1, 2)
 
@@ -181,6 +180,54 @@ class Convolution:
         return dx
 
 
+class ConvolutionK:
+    def __init__(self, W, b, Sh=1, Sw=1, Ph=0, Pw=0):
+        self.W = W
+        self.b = b
+        self.Sh = Sh
+        self.Sw = Sw
+        self.Ph = Ph
+        self.Pw = Pw
+
+        self.x = None
+        self.col = None
+        self.col_W = None
+
+        self.dW = None
+        self.db = None
+
+    def forward(self, x):
+        FN, C, FH, FW = self.W.shape
+        N, C, H, W = x.shape
+        OH = int((H + 2*self.Ph - FH) / self.Sh + 1)
+        OW = int((W + 2*self.Pw - FW) / self.Sw + 1)
+
+        col = im2colK(x, FH, FW, self.Sh, self.Sw,  self.Ph, self.Pw)
+        col_W = self.W.reshape(FN, -1).T
+
+        out = np.dot(col, col_W) + self.b
+        out = out.reshape(N, OH, OW, -1).transpose(0, 3, 1, 2)
+
+        self.x = x
+        self.col = col
+        self.col_W = col_W
+
+        return out
+
+    def backward(self, dout):
+        FN, C, FH, FW = self.W.shape
+        dout = dout.transpose(0, 2, 3, 1).reshape(-1, FN)
+
+        self.db = np.sum(dout, axis=0)
+        self.dW = np.dot(self.col.T, dout)
+        self.dW = self.dW.transpose(1, 0).reshape(FN, C, FH, FW)
+
+        dcol = np.dot(dout, self.col_W.T)
+        dx = col2imK(dcol, self.x.shape, FH, FW, self.Sh, self.Sw, self.Ph, self.Pw)
+
+        return dx
+
+
 class Pooling:
     def __init__(self, PH, PW, S=2, P=0):
         self.PH = PH
@@ -196,7 +243,9 @@ class Pooling:
         OW = int((W + 2*self.P - self.PW) / self.S + 1)
 
         col = im2col(x, self.PH, self.PW, self.S, self.P)
-        col = col.reshape(-1, self.PH*self.PW) # reshaped to a 2D matrix with each row has a size  of PH*PW, from the im2coled 2D matrix  with each row a C*PH*PW size.
+        # reshaped to a 2D matrix with each row has a size  of PH*PW, from the
+        # im2coled 2D matrix  with each row a C*PH*PW size.
+        col = col.reshape(-1, self.PH*self.PW)
         arg_max = np.argmax(col, axis=1)
         out = np.max(col, axis=1)
         out = out.reshape(N, OH, OW, C).transpose(0, 3, 1, 2)
@@ -207,19 +256,65 @@ class Pooling:
         return out
 
     def backward(self, dout):
-        dout = dout.transpose(0, 2, 3, 1)                                           # N, OH, OW, C
-        P_size = self.PH*self.PW        
-        dmax = np.zeros((dout.size, P_size))                                        # N*OH*OW*C, PH*PW
-        dmax[np.arange(self.arg_max.size), self.arg_max.flatten()] = dout.flatten() # N*OH*OW*C, PH*PW
+        dout = dout.transpose(0, 2, 3, 1)     # N, OH, OW, C
+        P_size = self.PH*self.PW
+        dmax = np.zeros((dout.size, P_size))  # N*OH*OW*C, PH*PW
+        dmax[np.arange(self.arg_max.size), self.arg_max.flatten()] \
+            = dout.flatten()                  # N*OH*OW*C, PH*PW
         dmax = dmax.reshape((dout.shape + (P_size,)))  # N, OH, OW, C, P
-        dcol = dmax.reshape(dmax.shape[0] * dmax.shape[1] * dmax.shape[2], -1)      # N*OH*OW, C*PH*PW, for input shape of col2im
-        dx = col2im(dcol, self.x.shape, self.PH, self.PW, self.S, self.P)      #  N, C, H, W
+        dcol = dmax.reshape(dmax.shape[0] * dmax.shape[1] * dmax.shape[2], -1)
+                                              # N*OH*OW, C*PH*PW,
+                                              # for input shape of col2im
+        dx = col2im(dcol, self.x.shape, self.PH, self.PW, self.S, self.P)
+                                              #  N, C, H, W
+
+        return dx
+
+
+class PoolingK:
+    def __init__(self, PH, PW, Sh=2, Sw=2, Ph=0, Pw=0):
+        self.PH = PH
+        self.PW = PW
+        self.Sh = Sh
+        self.Sw = Sw
+        self.Ph = Ph
+        self.Pw = Pw
+        self.x = None
+        self.arg_max = None
+
+    def forward(self, x):
+        N, C, H, W = x.shape
+        OH = int((H + 2*self.Ph - self.PH) / self.Sh + 1)
+        OW = int((W + 2*self.Pw - self.PW) / self.Sw + 1)
+
+        col = im2colK(x, self.PH, self.PW, self.Sh, self.Sw, self.Ph, self.Pw)
+        col = col.reshape(-1, self.PH*self.PW)
+        arg_max = np.argmax(col, axis=1)
+        out = np.max(col, axis=1)
+        out = out.reshape(N, OH, OW, C).transpose(0, 3, 1, 2)
+
+        self.x = x
+        self.arg_max = arg_max
+
+        return out
+
+    def backward(self, dout):
+        dout = dout.transpose(0, 2, 3, 1)     # N, OH, OW, C
+        P_size = self.PH*self.PW
+        dmax = np.zeros((dout.size, P_size), dtype='float32')  # N*OH*OW*C, PH*PW
+        dmax[np.arange(self.arg_max.size), self.arg_max.flatten()] \
+            = dout.flatten()                  # N*OH*OW*C, PH*PW
+        dmax = dmax.reshape((dout.shape + (P_size,)))  # N, OH, OW, C, P
+        dcol = dmax.reshape(dmax.shape[0] * dmax.shape[1] * dmax.shape[2], -1)
+        dx = col2imK(dcol, self.x.shape, self.PH, self.PW,
+                    self.Sh, self.Sw, self.Ph, self.Pw)
 
         return dx
 
 
 class BatchNormalization:
-    def __init__(self, gamma, beta, momentum=0.9, running_mean=None, running_var=None):
+    def __init__(self, gamma, beta, momentum=0.9,
+                 running_mean=None, running_var=None):
         self.gamma = gamma
         self.beta = beta
         self.momentum = momentum
@@ -238,6 +333,7 @@ class BatchNormalization:
         self.input_shape = x.shape
         if len(self.input_shape) != 2:
             N, C, H, W = x.shape
+            # including H and W in the averaging
             x = x.transpose(0, 2, 3, 1).reshape(N*H*W, -1)
         out = self.__forward(x, train_flg)
         if len(self.input_shape) != 2:
@@ -272,8 +368,10 @@ class BatchNormalization:
             self.xp = xp
             self.xhat = xhat
             self.std = std
-            self.running_mean = self.momentum * self.running_mean + (1-self.momentum) * mu
-            self.running_var = self.momentum * self.running_var + (1-self.momentum) * var
+            self.running_mean = self.momentum * self.running_mean \
+                + (1-self.momentum) * mu
+            self.running_var = self.momentum * self.running_var \
+                + (1-self.momentum) * var
 
         else:
             xp = x - self.running_mean
@@ -305,7 +403,7 @@ class BatchNormalization:
 
     def __backward(self, dout):
         dbeta = dout.sum(axis=0)
-        dgamma  = np.sum(self.xhat*dout, axis=0)
+        dgamma = np.sum(self.xhat*dout, axis=0)
         dxhat = self.gamma*dout
         dxp = dxhat / self.std
         dstd = -np.sum(dxhat/(self.std*self.std), axis=0)
@@ -320,12 +418,19 @@ class BatchNormalization:
         return dx
 
 
-        
+class Dropout:
+    def __init__(self, dropout_ratio=0.5):
+        self.dropout_ratio = dropout_ratio
+        self.mask = None
 
+    def forward(self, x, train_flg=True):
+        if train_flg:
+            self.mask = np.random.rand(*x.shape) > self.dropout_ratio
+            return x * self.mask
+        else:
+            return x * (1.0 - self.dropout_ratio)
 
-
-
-
-
+    def backward(self, dout):
+        return dout * self.mask
 
 

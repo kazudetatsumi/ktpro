@@ -7,9 +7,9 @@ from collections import OrderedDict
 from common.layers import *
 
 
-class convNetbn3:
+class convdpNet:
     def __init__(self, input_dim=(1, 1, 2299),
-                 conv_params={'filter_num':30, 'filter_height':1,
+                 conv_params={'filter_num':30, 'filter_height':1, 
                               'filter_width':5, 'pad':0, 'stride':1},
                  hsize=100, osize=4, wstd=0.01):
 
@@ -44,56 +44,41 @@ class convNetbn3:
         self.params['b2'] = np.zeros(hsize)
         self.params['W3'] = wstd*np.random.randn(hsize, osize)
         self.params['b3'] = np.zeros(osize)
-        #self.params['gamma1'] = np.ones(int(FN*OH*OW))
-        #self.params['beta1'] = np.zeros(int(FN*OH*OW))
-        self.params['gamma1'] = np.ones(int(FN))
-        self.params['beta1'] = np.zeros(int(FN))
-        self.params['gamma2'] = np.ones(hsize)
-        self.params['beta2'] = np.zeros(hsize)
-        self.params['gamma3'] = np.ones(osize)
-        self.params['beta3'] = np.zeros(osize)
-        
+
         self.layers = OrderedDict()
         self.layers['Conv1'] = Convolution(self.params['W1'],
                                            self.params['b1'],
                                            conv_params['stride'],
                                            conv_params['pad'])
-        self.layers['BatchNorm1'] = BatchNormalization(self.params['gamma1'],
-                                                       self.params['beta1'])
         self.layers['Relu1'] = Relu()
         self.layers['Pool1'] = Pooling(PH=1, PW=2, S=2, P=0)
         self.layers['Affine1'] = Affine(self.params['W2'], self.params['b2'])
-        self.layers['BatchNorm2'] = BatchNormalization(self.params['gamma2'],
-                                                       self.params['beta2'])
         self.layers['Relu2'] = Relu()
+        self.layers['Dropout1'] = Dropout()
         self.layers['Affine2'] = Affine(self.params['W3'], self.params['b3'])
-        self.layers['BatchNorm3'] = BatchNormalization(self.params['gamma3'],
-                                                       self.params['beta3'])
+        self.layers['Dropout2'] = Dropout()
 
         self.lastLayer = SoftmaxWithLoss()
 
-    def predict(self, x, train_flg=False):
-        for key, layer in self.layers.items():
-            if "Dropout" in key or "BatchNorm" in key:
-                x = layer.forward(x, train_flg)
-            else:
-                x = layer.forward(x)
+    def predict(self, x):
+        for layer in self.layers.values():
+            x = layer.forward(x)
         return x
 
-    def loss(self, x, t, train_flg=False):
-        y = self.predict(x, train_flg)
+    def loss(self, x, t):
+        y = self.predict(x)
         return self.lastLayer.forward(y, t)
 
     def acc(self, x, t):
-        y = self.predict(x, train_flg=False)
+        y = self.predict(x)
         if t.ndim != 1:
             t = np.argmax(t, axis=1)
         acc = np.sum(np.argmax(y, axis=1) == t) / float(t.shape[0])
         return acc
 
     def analytical_grad(self, x, t):
-        # forward   Is this necessary? -> Yes. It conveys t.
-        self.loss(x, t, train_flg=True)
+        # forward
+        self.loss(x, t)
 
         # backward
         dout = 1
@@ -110,12 +95,6 @@ class convNetbn3:
         grads['b2'] = self.layers['Affine1'].db
         grads['W3'] = self.layers['Affine2'].dW
         grads['b3'] = self.layers['Affine2'].db
-        grads['gamma1'] = self.layers['BatchNorm1'].dgamma
-        grads['beta1'] = self.layers['BatchNorm1'].dbeta
-        grads['gamma2'] = self.layers['BatchNorm2'].dgamma
-        grads['beta2'] = self.layers['BatchNorm2'].dbeta
-        grads['gamma3'] = self.layers['BatchNorm3'].dgamma
-        grads['beta3'] = self.layers['BatchNorm3'].dbeta
 
         return grads
 
