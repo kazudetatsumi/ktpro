@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 params = {'mathtext.default': 'regular'}
 plt.rcParams.update(params)
+plt.rcParams['font.size'] = 12
 
 plt.rcParams['font.family'] = 'Arial'
-fig = plt.figure(figsize=(6, 40/16.0*5))
+fig = plt.figure(figsize=(4, 12.5))
 #fig.suptitle("ei42 cond09 orthotope data")
 #fig.suptitle("ei24 cond07 orthotope data")
 fig.suptitle("17714 cond09 orthotope opt data")
@@ -104,14 +105,17 @@ def plotter(t_n, t_m, list_n, list_m, deltas, m, ulm):
         ax.text(np.max(np.log10(1.0/list_m[0,:ymm+ulm]))*0.98,
                 (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2)*0.75, wlist[ip], size=15)
         ax.set_ylim(0, (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2))
+        xmargin = (np.max(np.log10(1.0/list_m[0, :])) - np.min(np.log10(1.0/list_m[0,:])) )*0.01
+        ax.set_xlim(np.min(np.log10(1.0/list_m[0,:]))-xmargin, np.max(np.log10(1.0/list_m[0, :]))+xmargin)
+        print('xaxis range', xmargin*100.0)
         print((max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2))
         ax.set_yticks(np.arange(0,(max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2), (dp*2)))
         ax.tick_params(direction='in', top=True, right=True)
-        ax.set_ylabel('bin width (rlu)', size=15)
+        ax.set_ylabel('bin width (rlu)')
         if ip == 3:
-            ax.set_ylabel('bin width (meV)', size=15)
+            ax.set_ylabel('bin width (meV)')
             ax.tick_params(labelbottom=True)
-            ax.set_xlabel('log10(total count)', size=15)
+            ax.set_xlabel('log10(total count)')
         plt.subplots_adjust(wspace=0.4, hspace=0.0)
 
 
@@ -133,6 +137,8 @@ def run():
     tail = "result.txt_vec"
     infile = head +\
         "200204/fine/hourbyhour/ortho_opt_without_mask/condparam09/" + tail
+    #infile = head +\
+    #    "200522/Ei42/veryfineq/condparam_09/" + tail
 
     dqx = 0.025  # rlu, for 17714
     dqy = 0.025  # rlu, for 17714
@@ -163,6 +169,7 @@ def run():
             list_n[0, :], list_m[0, :], hourperallanglescan
             )
     plotter(t_n, t_m, list_n, list_m, deltas, m, ulm)
+    plt.savefig("fig1_of_qbsf.pdf")
     plt.show()
     #plt.savefig("ei24_cond07_orthotope_data_for_fig1.pdf")
     #plt.savefig("ei42_cond09_orthotope_data_for_fig1.pdf")
