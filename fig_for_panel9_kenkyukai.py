@@ -120,7 +120,7 @@ def run():
     #tail = "hist.hdf5"
 
     cnum = 1
-    outfile = "/home/kazu/desktop/200312/for_cu_new/filled_again2_ddscs/422h/eliminated_data.hdf5"
+    outfile = "/home/kazu/desktop/200312/for_cu_new/old_filled/filled_again2_ddscs/422h/eliminated_data.hdf5"
     lims = np.array([[120, 155], [121, 152], [20, 52], [20, 70]])*1.0
     ns = np.array([1, 1, 1, 1])*1.
     ranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]])
@@ -130,7 +130,7 @@ def run():
     run2(cnum, outfile, lims, ns, ranges, hvlofs, devs, cpos)
 
     cnum = 2
-    outfile = "/home/kazu/desktop/200312/for_cu_new/filled_again2_ddscs/422h/eliminated_data.hdf5"
+    outfile = "/home/kazu/desktop/200312/for_cu_new/old_filled/filled_again2_ddscs/422h/eliminated_data.hdf5"
     lims = np.array([[120, 155], [121, 152], [20, 52], [20, 70]])*1.0
     ns = np.array([1, 1, 1, 1])*1.
     ranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]])
@@ -164,6 +164,6 @@ def run():
 
 
 run()
-plt.savefig("no17714_phantom_crosssections.pdf")
-plt.savefig("no17714_phantom_crosssections.png")
+#plt.savefig("no17714_phantom_crosssections.pdf")
+#plt.savefig("no17714_phantom_crosssections.png")
 plt.show()
