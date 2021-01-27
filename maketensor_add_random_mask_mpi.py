@@ -5,7 +5,9 @@
 # For preparation of input files for investigation of  the effect of
 # artificial mask on the optimized bin-widths.
 # This object is adaptive to mpi parallelism.
+# changed not to save INS intensities but to save mask info more.
 # Kazuyoshi TATSUMI 2021/01/26
+
 
 import numpy as np
 import h5py
@@ -30,8 +32,8 @@ class Add_Random_Mask:
 
     def process(self, axis=1, itry=0):
         for time in self.timelist:
-            self.outfile = self.workdir + "/" + str(time) + self.tail
-            f = h5py. File(self.outfile, 'r')
+            outfile = self.workdir + "/" + str(time) + self.tail
+            f = h5py. File(outfile, 'r')
             data4_org = np.array(f["data4"])
             condition_org = np.array(f["condition"])
             ylen = data4_org.shape[axis]
@@ -46,8 +48,7 @@ class Add_Random_Mask:
                     condition = np.array(f["condition"])
                     dirname = "./try" + str(tryidx) + "_" + str(time) +\
                               self.tail.split("/")[0]
-                    savefile = "./try" + str(tryidx) + "_" + str(time) +\
-                               self.tail
+                    savefile = dirname + "/condition.hdf5"
                     figfile = "data4_" + str(time) + "_" + str(tryidx) + ".png"
                     os.system("mkdir " + dirname)
                     yc = random.random()*ylen
@@ -67,17 +68,19 @@ class Add_Random_Mask:
                     num_ele = np.sum(condition)
                     num_ele_org = np.sum(condition_org)
                     frac_add_mask = (num_ele_org - num_ele)*1.0 / num_ele_org
-                    self.save_eliminated_data_hdf5(savefile, data4, condition,
-                                                   frac_add_mask)
+                    self.save_condition_hdf5(savefile, data4, condition,
+                                             frac_add_mask, yc, ec, radius)
                     self.plot_projectedintensity(condition, data4)
                     plt.savefig(figfile)
 
-    def save_eliminated_data_hdf5(self, savefile, data, condition,
-                                  frac_add_mask):
+    def save_condition_hdf5(self, savefile, data, condition, frac_add_mask,
+                            yc, ec, radius):
         with h5py.File(savefile, 'w') as hf:
-            hf.create_dataset('data4', data=data)
             hf.create_dataset('condition', data=condition)
             hf.create_dataset('frac_add_mask', data=frac_add_mask)
+            hf.create_dataset('yc', data=yc)
+            hf.create_dataset('ec', data=ec)
+            hf.create_dataset('radius', data=radius)
 
     def plotter(self, lx, ly, data, vn, hn, cn):
         ax = self.fig.add_subplot(vn,  hn, cn)
