@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 from matplotlib.cm import get_cmap
+from matplotlib.colors import LinearSegmentedColormap
 
 plt.rcParams['font.family'] = 'Arial'
 params = {'mathtext.default': 'regular'}
@@ -73,22 +74,29 @@ class CROSS:
 
     def plotter(self, xlim, ylim, lx, ly, data, vn, hn, cn, dev, xr, yr,
                 cposinfo):
-        cmap = get_cmap("gist_gray")
-        cmap.set_under(color='darkslateblue')
-        cmapm = get_cmap("YlGn")
-        cmapm.set_under(color='#feff9e')
+
+        cdict = {'red':   ((0.0, 0.3, 0.3),
+                           (1.0, 1.0, 1.0)),
+
+                 'green': ((0.0, 0.3, 0.3),
+                           (1.0, 1.0, 1.0)),
+
+                 'blue':  ((0.0, 0.3, 0.3),
+                           (1.0, 1.0, 1.0))
+                 }
+
+        custom_cmap = LinearSegmentedColormap('truncated_gray', cdict)
+        custom_cmap.set_under(color='black')
         ax = fig.add_subplot(vn,  hn, cn)
 
         u = np.linspace(xr[0], xr[1], data.shape[0]+1)
         v = np.linspace(yr[0], yr[1], data.shape[1]+1)
         X, Y = np.meshgrid(u, v)
-        zm = np.ma.masked_where(data >= 0, data).T
 
         c = ax.pcolor(X, Y, np.transpose(data), vmin=0,
-                  vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])/dev),
-                  cmap=cmap)
-        #ax.pcolor(X, Y, zm, color='gray', cmap=cmap)
-        #ax.pcolor(X, Y, zm, cmap=cmap, color='none', vmin=0, vmax=1000)
+                      vmax=int(np.max(data[xlim[0]:xlim[1],
+                               ylim[0]:ylim[1]])/dev),
+                      cmap=custom_cmap)
 
         ax.set_xlabel(lx)
         ax.set_ylabel(ly)
@@ -127,31 +135,28 @@ class CROSS:
 
 
 def run():
-    head = "/home/kazu/desktop/"
-    #tail = "hist.hdf5"
-    tail = "out_hw_all.hdf5"
 
-    outfile = head + "200204/fine/hourbyhour/10h/" + tail
+    outfile = "/home/kazu/desktop/200204/fine/hourbyhour/10h/out_hw_all.hdf5"
     orthotope_lims = np.array([[120, 172], [61, 145], [16, 53], [20, 70]])*1.0
     orgbinwidths = np.array([4, 4, 5, 3])
     binwidths = np.array([1, 1, 1, 1])*1.
     wholeranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]]
                            )
-    devs = np.array([1.2, 1, 1])
+    devs = np.array([1, 1, 1])
     cpos = np.array([27, 36, 7, 0])*orgbinwidths
+    cpos = np.array([107, 145, 34, 0])
 
     cross_17714 = CROSS(outfile, orthotope_lims, wholeranges, devs,
                         cpos, hvlofs=False, binwidths=binwidths)
     cross_17714.plot_crosssection(1)
 
-    tail = "Output4D_00_840.hdf5"
-    outfile = head + "200522/Ei42/veryfineq/14m/" + tail
+    outfile = "/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.hdf5"
     orthotope_lims = np.array([[114, 200], [69, 122], [11, 20], [81, 207]])*1.0
     orgbinwidths = np.array([3, 2, 2, 4])
     binwidths = np.array([1, 1, 1, 1])*1.
     wholeranges = np.array([[-0.675, 3.075], [-0.925, 4.375], [-0.8, 0.55],
                            [-8.0, 36.2]])
-    devs = np.array([200, 1, 1])
+    devs = np.array([1, 1, 1])
     cpos = np.array([58, 39, 8, 10])*orgbinwidths
 
 
@@ -160,23 +165,12 @@ def run():
     cross_Ei42.plot_crosssection(2)
 
 
-    tail = "Output4D_00_840.hdf5"
-    outfile = head + "200522/Ei42/veryfineq/14m/" + tail
-    orthotope_lims = np.array([[114, 200], [69, 122], [11, 20], [81, 207]])*1.0
-    orgbinwidths = np.array([3, 2, 2, 4])
-    binwidths = np.array([1, 1, 1, 1])*1.
-    wholeranges = np.array([[-0.675, 3.075], [-0.925, 4.375], [-0.8, 0.55],
-                           [-8.0, 36.2]])
-    devs = np.array([200, 1, 1])
-    cpos = np.array([58, 39, 8, 10])*orgbinwidths
-
-    tail = "Output4D_00_1560.hdf5"
-    outfile = head + "200522/Ei24/fineq/26m/" + tail
+    outfile = "/home/kazu/desktop/200522/Ei24/fineq/26m/Output4D_00_1560.hdf5"
     orthotope_lims = np.array([[0, 228], [1, 202], [0, 8], [150, 289]])*1.0
     orgbinwidths = np.array([2, 3, 2, 4])
     binwidths = np.array([1, 1, 1, 1])*1.
     wholeranges = np.array([[0.01, 2.29], [-0.67, 1.35], [-0.16, 0.16], [-2.0, 21.12]])
-    devs = np.array([1, 1, 1]) 
+    devs = np.array([1, 1, 1])
     cpos = np.array([75, 39, 2, 6])*orgbinwidths
 
 
@@ -186,4 +180,5 @@ def run():
 
 
 run()
+plt.savefig("test.png")
 plt.show()
