@@ -51,9 +51,9 @@ class Add_Random_Mask:
                     savefile = dirname + "/condition.hdf5"
                     figfile = "data4_" + str(time) + "_" + str(tryidx) + ".png"
                     os.system("mkdir " + dirname)
-                    yc = random.random()*ylen
-                    ec = random.random()*elen
-                    radius = (ylen**2 + elen**2)**0.5*0.5*random.random()
+                    radius = 20.0*random.random()
+                    yc = radius + random.random()*(ylen - 2*radius)
+                    ec = radius + random.random()*(elen - 2*radius)
                     for yindx in range(0, condition.shape[axis]):
                         for eindx in range(0, condition.shape[3]):
                             if abs(yindx - yc)**2 + abs(eindx - ec)**2 \
