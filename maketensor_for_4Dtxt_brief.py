@@ -10,9 +10,8 @@ def get4ddata(txtfile, nxyzw):
     #   extracting only one column. So, I comment out and use a for-loop without readlines().
     # data = np.genfromtxt(f, dtype=float, comments='#', delimiter=',')
     # intensity = data[:, 4]  # data[:, 4] are mask if the values are 1e*30
-    f = open(txtfile)
     intensity = []
-    for line in f:
+    for line in open(txtfile):
             intensity.append(float(line[:-1].split(',')[-2]))
     intensity = np.array(intensity[4:])
     nx = nxyzw[0]

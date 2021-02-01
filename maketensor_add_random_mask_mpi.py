@@ -24,11 +24,12 @@ psize = comm.Get_size()
 
 class Add_Random_Mask:
 
-    def __init__(self, timelist, num_try, workdir, tail):
+    def __init__(self, timelist, num_try, workdir, tail, maxradius):
         self.timelist = timelist
         self.num_try = num_try
         self.workdir = workdir
         self.tail = tail
+        self.maxradius = maxradius
 
     def process(self, axis=1, itry=0):
         for time in self.timelist:
@@ -40,7 +41,7 @@ class Add_Random_Mask:
             elen = data4_org.shape[3]
             mrank = psize - rank - 1
             if self.num_try >= mrank + 1:
-                for tryidx in range(itry +mrank + 0,
+                for tryidx in range(itry + mrank + 0,
                                     itry + self.num_try -
                                     ((self.num_try-mrank-1) % psize) +
                                     psize - 1,
@@ -51,7 +52,7 @@ class Add_Random_Mask:
                     savefile = dirname + "/condition.hdf5"
                     figfile = "data4_" + str(time) + "_" + str(tryidx) + ".png"
                     os.system("mkdir " + dirname)
-                    radius = 20.0*random.random()
+                    radius = self.maxradius*random.random()
                     yc = radius + random.random()*(ylen - 2*radius)
                     ec = radius + random.random()*(elen - 2*radius)
                     for yindx in range(0, condition.shape[axis]):
@@ -111,7 +112,8 @@ class Add_Random_Mask:
 #    num_try = 10
 #    workdir = "/home/kazu/desktop/200522/Ei24/fineq/condparam07/"
 #    tail = "m/eliminated_data.hdf5"
-#    projectset = Add_Random_Mask(timelist, num_try, workdir, tail)
+#    maxradius = 10.0 # per step
+#    projectset = Add_Random_Mask(timelist, num_try, workdir, tail, maxradius)
 #    projectset.process(axis=1)
 #
 #
