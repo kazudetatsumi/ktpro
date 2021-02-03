@@ -29,12 +29,13 @@ def get4ddata(txtfile, nxyzw):
               np.sum(karr2), np.sum(intensity))
         sys.exit()
     condition = karr2 < 0.9e+30 # mask if the values are 1e*30
-    karr2 = karr2*condition/12.5   # 12.5 means one neutron count in the txtfile of Ei24
+    #karr2 = karr2*condition/12.5   # 12.5 means one neutron count in the txtfile of Ei24
+    karr2 = karr2*condition/2.0   # 2.0 means one neutron count in the txtfile of Ei24 with 0.025 0.025 0.025 0.5
     return karr2, condition
 
 
 def gen_hdf5(num_txtfiles, head):
-    for i in range(23, num_txtfiles):
+    for i in range(0, num_txtfiles):
         txtfile = head + "Output4D_00_" + str((i+1)*60) + ".txt"
         if os.path.exists(txtfile):
            outfile = head + "Output4D_00_" + str((i+1)*60) + ".hdf5"
@@ -52,7 +53,7 @@ def gen_hdf5(num_txtfiles, head):
 
 
 def run():
-    num_txtfiles = 24
+    num_txtfiles = 26
     head = "./"
     gen_hdf5(num_txtfiles, head)
 

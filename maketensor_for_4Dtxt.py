@@ -109,7 +109,8 @@ def get4ddata_dummy():
 
 
 def gen_hdf5(num_txtfiles, head):
-    for i in range(0, num_txtfiles):
+    #for i in range(0, num_txtfiles):
+    for i in range(8, 9):
         #txtfile = head + "Output4D_00_" + str((i+2)*60) + "_test.txt"
         txtfile = head + "Output4D_00_" + str((i+2)*60) + ".txt"
         outfile = head + "Output4D_00_" + str((i+2)*60) + ".hdf5"
