@@ -10,7 +10,7 @@ params = {'mathtext.default': 'regular'}
 plt.rcParams.update(params)
 #plt.rcParams["xtick.top"] = True
 #plt.rcParams["xtick.labeltop"] = True
-fig = plt.figure(figsize=(12, 10))
+fig = plt.figure(figsize=(12, 14))
 fig.suptitle("crosssections of 4D INS intensity initial aray for bin-widths optimization",
              fontsize="x-large")
 
@@ -45,31 +45,44 @@ class CROSS:
                                      / self.binwidths[i]))
         return(lims_int)
 
-    def plot_crosssection(self, cnum):
+    def plot_crosssection(self, cnum, xyyx=False):
         data4, condition = self.read_and_preprocess_data()
+        lims_int = self.lims_int()
+        if xyyx:
+            data4 = np.transpose(data4, (1, 0, 2, 3))
+            self.cpos[[0, 1]] = self.cpos[[1, 0]]
+            lims_int[[0, 1], :] = lims_int[[1, 0], :]
+            self.wholeranges[[0, 1], :] = self.wholeranges[[1, 0], :]
         cposval = self.cpos*1.0/np.array(data4.shape)*1.0 *\
             (self.wholeranges[:, 1]-self.wholeranges[:, 0]) +\
             self.wholeranges[:, 0]
         cposinfo = '$(q_c, E)$' + "=({:.0f}, {:.0f})".format(
                    cposval[2], cposval[3])
-        self.plotter(self.lims_int()[0, :], self.lims_int()[1, :],
+        self.plotter(lims_int[0, :], lims_int[1, :],
                      '$q_a(rlu)$', '$q_b(rlu)$',
                      data4[:, :, self.cpos[2], self.cpos[3]],
-                     3, 3, cnum, self.devs[0], self.wholeranges[0, :],
+                     4, 3, cnum, self.devs[0], self.wholeranges[0, :],
                      self.wholeranges[1, :], cposinfo)
         cposinfo = '$(q_a, q_c)$'+"=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[2])
-        self.plotter(self.lims_int()[1, :], self.lims_int()[3, :],
+        self.plotter(lims_int[1, :], lims_int[3, :],
                      '$q_b(rlu)$', 'E(meV)',
                      data4[self.cpos[0], :, self.cpos[2], :],
-                     3, 3, cnum+3, self.devs[1], self.wholeranges[1, :],
+                     4, 3, cnum+3, self.devs[1], self.wholeranges[1, :],
                      self.wholeranges[3, :], cposinfo)
         cposinfo = '$(q_b, q_c)$'+"=({:.1f}, {:.0f})".format(
                    cposval[1], cposval[2])
-        self.plotter(self.lims_int()[0, :], self.lims_int()[3, :],
+        self.plotter(lims_int[0, :], lims_int[3, :],
                      '$q_a(rlu)$', 'E(meV)',
                      data4[:, self.cpos[1], self.cpos[2], :],
-                     3, 3, cnum+6, self.devs[2], self.wholeranges[0, :],
+                     4, 3, cnum+6, self.devs[2], self.wholeranges[0, :],
+                     self.wholeranges[3, :], cposinfo)
+        cposinfo = '$(q_a, q_b)$'+"=({:.1f}, {:.0f})".format(
+                   cposval[0], cposval[1])
+        self.plotter(lims_int[2, :], lims_int[3, :],
+                     '$q_c(rlu)$', 'E(meV)',
+                     data4[self.cpos[0], self.cpos[1], :, :],
+                     4, 3, cnum+9, self.devs[2], self.wholeranges[2, :],
                      self.wholeranges[3, :], cposinfo)
 
     def plotter(self, xlim, ylim, lx, ly, data, vn, hn, cn, dev, xr, yr,
@@ -148,7 +161,7 @@ def run():
 
     cross_17714 = CROSS(outfile, orthotope_lims, wholeranges, devs,
                         cpos, hvlofs=False, binwidths=binwidths)
-    cross_17714.plot_crosssection(1)
+    cross_17714.plot_crosssection(1, xyyx=True)
 
     outfile = "/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.hdf5"
     orthotope_lims = np.array([[114, 200], [69, 122], [11, 20], [81, 207]])*1.0
@@ -166,7 +179,7 @@ def run():
 
 
     outfile = "/home/kazu/desktop/200522/Ei24/fineq/26m/Output4D_00_1560.hdf5"
-    orthotope_lims = np.array([[0, 228], [1, 202], [0, 8], [150, 289]])*1.0
+    orthotope_lims = np.array([[0, 228], [0, 202], [0, 9], [150, 289]])*1.0
     orgbinwidths = np.array([2, 3, 2, 4])
     binwidths = np.array([1, 1, 1, 1])*1.
     wholeranges = np.array([[0.01, 2.29], [-0.67, 1.35], [-0.16, 0.16], [-2.0, 21.12]])

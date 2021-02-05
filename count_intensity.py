@@ -41,19 +41,19 @@ class CountInt:
         self.calc_binnumber()
         self.readhdf5()
         xi = self.binnumber[0, 0]
-        xe = self.binnumber[1, 0]
+        xe = self.binnumber[1, 0]+1
         yi = self.binnumber[0, 1]
-        ye = self.binnumber[1, 1]
+        ye = self.binnumber[1, 1]+1
         zi = self.binnumber[0, 2]
-        ze = self.binnumber[1, 2]
+        ze = self.binnumber[1, 2]+1
         ei = self.binnumber[0, 3]
-        ee = self.binnumber[1, 3]
+        ee = self.binnumber[1, 3]+1
         print('xi,xe:', xi, xe)
         print('yi,ye:', yi, ye)
         print('zi,ze:', zi, ze)
         print('ei,ee:', ei, ee)
         print('total count:', np.sum(self.data4[xi:xe, yi:ye, zi:ze, ei:ee]))
-        print('maskfrac:', np.sum(self.condition[xi:xe, yi:ye, zi:ze, ei:ee])
+        print('maskfrac:', np.sum(self.condition[xi:xe, yi:ye, zi:ze, ei:ee]*1.0)
               / self.condition[xi:xe, yi:ye, zi:ze, ei:ee].size*1.0)
 
 
