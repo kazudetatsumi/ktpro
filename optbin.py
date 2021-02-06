@@ -5,6 +5,7 @@
 import sys
 sys.path.append("/home/kazu/ktpro")
 import optbinwidth4d_wholefort_mpi_class as ob
+import inspect
 
 
 def run():

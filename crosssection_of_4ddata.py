@@ -125,7 +125,7 @@ class CROSS:
         xeval = (xlim[1]-xoff)/float(data.shape[0])*(xr[1] - xr[0]) + xr[0]
         yival = (ylim[0]+yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
         yeval = (ylim[1]-yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
-        print(xival, xeval, yival, yeval, "column:", cn % hn)
+        #print(xival, xeval, yival, yeval, "column:", cn % hn)
         ax.axvline(x=xival, color='white', lw=1.5,
                    ymin=float(ylim[0])/float(data.shape[1]),
                    ymax=float(ylim[1])/float(data.shape[1]))
@@ -189,7 +189,7 @@ def run():
 
 
     cross_Ei24 = CROSS(outfile, orthotope_lims, wholeranges, devs,
-                       cpos, hvlofs=False, binwidths=binwidths)
+                       cpos, hvlofs=True, binwidths=binwidths)
     cross_Ei24.plot_crosssection(3)
 
 
