@@ -125,6 +125,7 @@ class CROSS:
         xeval = (xlim[1]-xoff)/float(data.shape[0])*(xr[1] - xr[0]) + xr[0]
         yival = (ylim[0]+yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
         yeval = (ylim[1]-yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
+        print(xival, xeval, yival, yeval, "column:", cn % hn)
         ax.axvline(x=xival, color='white', lw=1.5,
                    ymin=float(ylim[0])/float(data.shape[1]),
                    ymax=float(ylim[1])/float(data.shape[1]))
@@ -167,8 +168,8 @@ def run():
     orthotope_lims = np.array([[114, 200], [69, 122], [11, 20], [81, 207]])*1.0
     orgbinwidths = np.array([3, 2, 2, 4])
     binwidths = np.array([1, 1, 1, 1])*1.
-    wholeranges = np.array([[-0.675, 3.075], [-0.925, 4.375], [-0.8, 0.55],
-                           [-8.0, 36.2]])
+    wholeranges = np.array([[-0.675, 3.0875], [-0.925, 4.400], [-0.8, 0.60],
+                           [-8.0, 36.4]])
     devs = np.array([1, 1, 1])
     cpos = np.array([58, 39, 8, 10])*orgbinwidths
 
@@ -182,13 +183,13 @@ def run():
     orthotope_lims = np.array([[0, 228], [0, 202], [0, 9], [150, 289]])*1.0
     orgbinwidths = np.array([2, 3, 2, 4])
     binwidths = np.array([1, 1, 1, 1])*1.
-    wholeranges = np.array([[0.01, 2.29], [-0.67, 1.35], [-0.16, 0.16], [-2.0, 21.12]])
+    wholeranges = np.array([[0.01, 2.31], [-0.67, 1.35], [-0.16, 0.18], [-2.0, 21.20]])
     devs = np.array([1, 1, 1])
     cpos = np.array([75, 39, 2, 6])*orgbinwidths
 
 
     cross_Ei24 = CROSS(outfile, orthotope_lims, wholeranges, devs,
-                       cpos, hvlofs=True, binwidths=binwidths)
+                       cpos, hvlofs=False, binwidths=binwidths)
     cross_Ei24.plot_crosssection(3)
 
 
