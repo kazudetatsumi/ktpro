@@ -2,13 +2,14 @@
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
-from matplotlib.ticker import LogFormatterSciNotation
+from matplotlib.ticker import LogFormatterSciNotation, ScalarFormatter
 import numpy as np
+import re
 
 
-#class CustomTicker(LogFormatterSciNotation):
-#    def __call__(self, x, pos=None):
-#        return "{x:g}".format(x=x)
+class CustomTicker(LogFormatterSciNotation):
+    def __call__(self, x, pos=None):
+        return "{x:g}".format(x=x)
 
 
 class Compare:
@@ -39,12 +40,22 @@ class Compare:
         nn = []
         with open(infile, 'r') as f:
             for line in f:
-                values = line.split()
-                nqx.append(float(values[0]))
-                nqy.append(float(values[1]))
-                nqz.append(float(values[2]))
-                nw.append(float(values[3]))
-                nn.append(float(values[4]))
+                if re.compile(r'[A-z]{2,}').search(line) and len(nqx) > 0:
+                    break
+                if not re.compile(r'[A-z]{2,}').search(line):
+                    values = line.split()
+                    if re.compile(r'[A-z]').search(values[0]):
+                        nqx.append(float(values[1]))
+                        nqy.append(float(values[2]))
+                        nqz.append(float(values[3]))
+                        nw.append(float(values[4]))
+                        nn.append(float(values[0]))
+                    else:
+                        nqx.append(float(values[0]))
+                        nqy.append(float(values[1]))
+                        nqz.append(float(values[2]))
+                        nw.append(float(values[3]))
+                        nn.append(float(values[4]))
         return np.transpose(np.array([nn, nqx, nqy, nqz, nw]))
 
     def get_all_data(self):
@@ -56,8 +67,8 @@ class Compare:
 
     def create_fig(self):
         self.fig = plt.figure(figsize=(12, 9))
-        self.fig.suptitle("extrapolated bin-widths of 4D INS orthotope data "
-                     + self.dataname)
+        self.fig.suptitle("Extrapolated optimal bin-widths on experimental data "
+                          + self.dataname)
 
     def plot_all_data(self):
         #self.fig = plt.figure(figsize=(6, 9))
@@ -77,17 +88,22 @@ class Compare:
                     clip_on=False, linestyle="dotted", lw=0.8, label=self.label2,
                     marker=".", ms=5, mec='k', mfc='w', mew=0.8, c='k')
             ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
-            ax.tick_params(labelbottom=False)
             ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
-            mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.01
+            mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
             ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
-            ax.yaxis.set_major_locator(MultipleLocator(self.stepsizes[widx]*self.mnj))
+            ax.yaxis.set_major_locator(MultipleLocator(self.stepsizes[widx]
+                                                       * self.mnj))
             ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
-            ax.xaxis.set_major_locator(MultipleLocator(1))
+            #ax.xaxis.set_major_locator(MultipleLocator(1))
+            ax.set_xscale('log')
+            #ax.xaxis.set_major_locator(plt.NullLocator())
+            #ax.xaxis.set_major_formatter(plt.NullFormatter())
+            #ax.xaxis.set_minor_locator(plt.NullLocator())
+            ax.xaxis.set_minor_formatter(plt.NullFormatter())
             ax.tick_params(top=True, right=True, direction='in', which='both')
             ax.tick_params(length=6, which='major')
             ax.tick_params(length=3, which='minor')
-            ax.set_xscale('log')
+            ax.tick_params(labelbottom=False)
             #ax.xaxis.set_major_formatter(CustomTicker())
             if widx == 3:
                 ax.tick_params(labelbottom=True)
@@ -97,7 +113,7 @@ class Compare:
             if widx == 3 and self.ylabel:
                 ax.set_ylabel('bin width (meV)')
         plt.subplots_adjust(wspace=0.15, hspace=0.0)
-        plt.legend(loc="center right")
+        plt.legend(loc="best")
         #plt.show()
 
 
