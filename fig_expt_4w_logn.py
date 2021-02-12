@@ -4,6 +4,10 @@
 # 2020 8/1 Kazuyoshi TATSUMI
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                               AutoMinorLocator)
+from matplotlib.ticker import LogFormatterSciNotation, ScalarFormatter
+
 params = {'mathtext.default': 'regular'}
 plt.rcParams.update(params)
 plt.rcParams['font.size'] = 12
@@ -17,12 +21,14 @@ fig.suptitle("4w_logn_with_using_mask_info")
 
 class Plot_4w_Logn:
 
-    def __init__(self, infile, deltas, m, ulm, num_clms):
+    def __init__(self, infile, deltas, m, ulm, num_clms, mnj, log):
         self.infile = infile
         self.deltas = deltas
         self.m = m
         self.ulm = ulm
         self.num_clms = num_clms
+        self.mnj = mnj
+        self.log = log
 
     def get_data(self):
         f = open(self.infile, 'r')
@@ -79,49 +85,71 @@ class Plot_4w_Logn:
         self.list_n = np.array([xlist_n, Dqxlist_n, Dqylist_n, Dqzlist_n,
                                 Dwlist_n])
 
-    def plotter(self, clm):
+    def plotter(self, clm, ylabel=True):
         self.get_data()
         ymm = self.list_m.shape[1]
         wlist = ["$q_x$", "$q_y$", "$q_z$", "$\omega$"]
         for ip, dp in enumerate(self.deltas):
             y_n = self.list_n[1+ip, :]*dp
-            y_m = self.list_m[1+ip, :]*dp
-            x_n = np.log10(1.0/self.list_n[0, :])
-            x_m = np.log10(1.0/self.list_m[0, :])
+            x_n = 1.0/self.list_n[0, :]
+            if self.log:
+                x_m = 1.0/self.list_m[0, :]
+                y_m = self.list_m[1+ip, :]*dp
+                deleteidx = []
+                for idx in range(1, x_n.shape[0]):
+                    if x_n[idx]/x_n[idx-1] < 1.2:
+                        deleteidx.append(idx)
+                x_n = np.delete(x_n, deleteidx)
+                x_m = np.delete(x_m, deleteidx)
+                y_m = np.delete(y_m, deleteidx)
+                y_n = np.delete(y_n, deleteidx)
+            else:
+                x_m = 1.0/self.list_m[0, :-5]
+                y_m = self.list_m[1+ip, :-5]*dp
+            msize = 50
             ax = fig.add_subplot(4, self.num_clms, clm+self.num_clms*ip)
             ax.scatter(x_n[self.m:], y_n[self.m:], marker='s',
-                       edgecolor="black", s=50, facecolors="white")
+                       edgecolor="black", s=msize, facecolors="white")
             ax.scatter(x_n[0:self.m-1], y_n[0:self.m-1], marker='s',
-                       edgecolor="black", s=50, facecolors="white")
+                       edgecolor="black", s=msize, facecolors="white")
             ax.scatter(x_m[self.m:ymm+self.ulm], y_m[self.m:ymm+self.ulm],
-                       marker='.', edgecolor="black", s=50, facecolors="black")
+                       marker='.', edgecolor="black", s=msize, facecolors="black")
             ax.scatter(x_m[0:self.m-1], y_m[0:self.m-1],
-                       marker='.', edgecolor="black", s=50, facecolors="black")
+                       marker='.', edgecolor="black", s=msize, facecolors="black")
             ax.plot(x_n, y_n, marker='None', color="gray", linestyle="dashed",
-                    lw=3)
+                    lw=1)
             ax.plot(x_m[0:ymm+self.ulm], y_m[0:ymm+self.ulm], marker='None',
                     color="k", linestyle="dotted")
             ax.scatter(x_n[self.m-1:self.m], y_n[self.m-1:self.m], marker='*',
-                       edgecolor="black", s=50, facecolors="white")
+                       edgecolor="black", s=msize, facecolors="white")
             ax.tick_params(labelbottom=False)
-            ax.text(np.max(np.log10(1.0/self.list_m[0, :ymm+self.ulm]))*0.98,
-                    (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2)*0.75,
-                    wlist[ip], size=15)
-            ax.set_ylim(0, (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2))
-            xmargin = (np.max(np.log10(1.0/self.list_m[0, :])) -
-                       np.min(np.log10(1.0/self.list_m[0, :])))*0.01
-            ax.set_xlim(np.min(np.log10(1.0/self.list_m[0, :]))-xmargin,
-                        np.max(np.log10(1.0/self.list_m[0, :]))+xmargin)
-            ax.set_yticks(np.arange(0,
-                          (max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2),
-                          (dp*2)))
-            ax.tick_params(direction='in', top=True, right=True)
-            ax.set_ylabel('bin width (rlu)')
+            ax.set_ylim(0, max([np.max(y_n), np.max(y_m), dp*(self.mnj-1)])+dp)
+            #ax.set_yticks(np.arange(0,
+            #              (max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2),
+            #              (dp*2)))
+            if self.log:
+                ax.set_xscale('log')
+                ax.text(np.max(x_m)*10.0**(-0.18),
+                        (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2)*0.75,
+                        wlist[ip], size=15)
+                ax.set_xlim(np.min(x_m)*10.0**(-0.06), np.max(x_m)*10.0**0.06)
+            else:
+                ax.text(np.max(x_m)*0.95,
+                        (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2)*0.75,
+                        wlist[ip], size=15)
+            ax.tick_params(top=True, right=True, direction='in', which='both')
+            if ylabel and ip == 1:
+                ax.set_ylabel('bin width (rlu)')
             if ip == 3:
-                ax.set_ylabel('bin width (meV)')
+                if ylabel:
+                    ax.set_ylabel('bin width (meV)')
                 ax.tick_params(labelbottom=True)
-                ax.set_xlabel('log10(total count)')
-            plt.subplots_adjust(wspace=0.4, hspace=0.0)
+            ax.set_xlabel('total count')
+            ax.yaxis.set_major_locator(MultipleLocator(dp*self.mnj))
+            ax.yaxis.set_minor_locator(MultipleLocator(dp))
+            ax.tick_params(length=6, which='major')
+            ax.tick_params(length=3, which='minor')
+            plt.subplots_adjust(wspace=0.2, hspace=0.0)
 
 
 def samplerun():
@@ -133,22 +161,24 @@ def samplerun():
              "ortho_opt_without_mask/condparam09/result.txt_vec"
     deltas = np.array([0.025, 0.025, 0.025, 0.5])
     clm = 1
-    projectset_17714 = Plot_4w_Logn(infile, deltas, m, ulm, num_clms)
-    projectset_17714.plotter(clm)
+    mnj = 4
+    log = True
+    projectset = Plot_4w_Logn(infile, deltas, m, ulm, num_clms, mnj, log)
+    projectset.plotter(clm, ylabel=True)
 
-    infile = "/home/kazu/desktop/200522/Ei42/veryfineq/" +\
+    projectset.infile = "/home/kazu/desktop/200522/Ei42/veryfineq/" +\
              "condparam_09/result.txt_vec"
-    deltas = np.array([0.0125, 0.025, 0.050, 0.2])
+    projectset.deltas = np.array([0.0125, 0.025, 0.050, 0.2])
     clm = 2
-    projectset_Ei42 = Plot_4w_Logn(infile, deltas, m, ulm, num_clms)
-    projectset_Ei42.plotter(clm)
+    #projectset_Ei42 = Plot_4w_Logn(infile, deltas, m, ulm, num_clms)
+    projectset.plotter(clm, ylabel=False)
 
-    infile = "/home/kazu/desktop/200522/Ei24/fineq/" +\
+    projectset.infile = "/home/kazu/desktop/200522/Ei24/fineq/" +\
              "/condparam07/result.txt_vec"
-    deltas = np.array([0.01, 0.01, 0.04, 0.08])
+    projectset.deltas = np.array([0.01, 0.01, 0.04, 0.08])
     clm = 3
-    projectset_Ei24 = Plot_4w_Logn(infile, deltas, m, ulm, num_clms)
-    projectset_Ei24.plotter(clm)
+    projectset.mnj
+    projectset.plotter(clm, ylabel=False)
 
 
 samplerun()
