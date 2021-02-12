@@ -39,6 +39,7 @@ contains
 
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
+	print *, "rank, psize", rank, psize
 
     print *, "entering help0d at ", rank
     call help0d(data_array, condition, usecond, cost, histaves, deltas)
