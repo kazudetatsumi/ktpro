@@ -97,9 +97,11 @@ def preconditioning(rootdir):
     data4 = read_h5py(rootdir+"try1/26m/eliminated_data.hdf5", "data4")
     condition = read_h5py(rootdir+"try1/26m/eliminated_data.hdf5", "condition")
     condition = np.array(condition, dtype="int32")
+    maxnw_data = [data4.shape[0]/2, data4.shape[1]/2, data4.shape[2]/2, data4.shape[3]/2]
     maxnw = getbinidx2(rootdir+"try1/26m/std-26m.log")*2
-    #print(maxnw)
-    maxnw = [2, 2, 2, 2]
+    maxnw = [min(maxnw[i], maxnw_data[i]) for i in range(0,4)]
+    #maxnw = [2, 2, 2, 2]
+    print(maxnw)
     pdf = read_h5py(rootdir + "pdf.hdf5", "pdf")
     sumpdf = np.sum(pdf)
     pdfs = np.array(pdf[:, :, :, 150:])

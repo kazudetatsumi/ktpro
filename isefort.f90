@@ -83,7 +83,8 @@ contains
 	enddo
 	enddo
 	ise = ise / (product(nw)*sumhist)
-	ise4d%isepon = ise
+	!ise4d%isepon = ise
+	ise4d%isepon = ise/(sumhist*product(nw))
 	ise4d%avepdfs = sumpdfs/(sumhist*product(nw))
 	ise4d%fracise = ise**0.5/(sumpdfs/(sumhist*product(nw)))*100
 

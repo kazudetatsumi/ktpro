@@ -95,8 +95,12 @@ contains
 		do py = (hy-1)*nw(2)+1, hy*nw(2)
 		do pz = (hz-1)*nw(3)+1, hz*nw(3)
 		do pw = (hw-1)*nw(4)+1, hw*nw(4)
+		  if (sumdata > 0.0) then
 		  ise(nw(1), nw(2), nw(3), nw(4)) = ise(nw(1), nw(2), nw(3), nw(4)) + (pdfs(px, py, pz, pw) -  &
 			                        hist_array(hx, hy, hz, hw)/(sumdata/sumpdfs*sumpdf*product(nw)))**2
+		  else
+		  ise(nw(1), nw(2), nw(3), nw(4)) = 1.0
+		  endif
 	    enddo
 	    enddo
 	    enddo
@@ -107,7 +111,7 @@ contains
 	enddo
 	enddo
 	ise(nw(1), nw(2), nw(3), nw(4)) = ise(nw(1), nw(2), nw(3), nw(4)) / (product(nw)*sumhist) 
-	print *, idx1d, rank, ise(nw(1), nw(2), nw(3), nw(4)), nw
+	print *, idx1d, rank, ise(nw(1), nw(2), nw(3), nw(4)), nw, sumhist, sumdata, sumpdfs, sumpdf
 
 	enddo
     endif
