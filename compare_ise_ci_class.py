@@ -114,7 +114,7 @@ class ise_ci:
                    lw=1, label=self.label2)
         ax.set_xscale('log')
         if ylabel:
-            ax.set_ylabel('integrated square errors ($rlu^{-3}meV^{-1}$)')
+            ax.set_ylabel('$\overline{ISE}$ ($rlu^{-3}meV^{-1}$)')
         miny = np.min([np.min(y1), np.min(y2)])
         maxy = np.max([np.max(y1), np.max(y2)])
         margin = (maxy - miny)*0.01

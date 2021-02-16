@@ -11,8 +11,8 @@ import numpy as np
 def run():
     head = "/home/kazu/desktop/200312/for_cu_new/old_orthotope/" +\
            "orthotope_ddscs_again2/expt_orthotope_bd/"
-    isefn1 = "aveise_withoutcond"
-    isefn2 = "aveise_condparam09"
+    isefn1 = "ise_withoutcond"
+    isefn2 = "ise_condparam09"
     infiler1 = "result.txt_vec"
     infiler2 = "condparam09/result.txt_vec"
     stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
@@ -35,7 +35,7 @@ def run():
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
-    ic.isefn2 = "aveise_condparam05"
+    ic.isefn2 = "ise_condparam05"
     ic.infiler2 = "condparam05/result.txt_vec"
     ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     ic.dV = 0.08*0.01*0.01*0.04
