@@ -59,11 +59,11 @@ class gather_ise_search:
                         r.write("The end of data")
 
 
-def run():
-    times = [2, 4, 6, 8, 10, 12, 14, 16, 24, 28, 32, 34, 67, 112, 168, 180, 284]
-    head = "/home/kazu/desktop/200701/orthotope_again_ddscs/try"
-    project = gather_ise_search(times, head)
-    project.printall()
+#def samplerun():
+#    times = [2, 4, 6, 8, 10, 12, 14, 16, 24, 28, 32, 34, 67, 112, 168, 180, 284]
+#    head = "/home/kazu/desktop/200701/orthotope_again_ddscs/try"
+#    project = gather_ise_search(times, head)
+#    project.printall()
 
 
-run()
+#samplerun()

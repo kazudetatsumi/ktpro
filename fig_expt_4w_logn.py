@@ -162,7 +162,7 @@ def samplerun():
     deltas = np.array([0.025, 0.025, 0.025, 0.5])
     clm = 1
     mnj = 4
-    log = True
+    log = False
     projectset = Plot_4w_Logn(infile, deltas, m, ulm, num_clms, mnj, log)
     projectset.plotter(clm, ylabel=True)
 
