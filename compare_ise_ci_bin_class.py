@@ -35,10 +35,13 @@ class ise_ci:
         self.mnj = mnj
         self.get_all_data()
 
-    def create_fig(self):
+    def create_fig(self, title=None):
         fig = plt.figure(figsize=(16, 8))
-        fig.suptitle("integrated squared errors with respect to total counts" +
-                     " for phantom data of 17714 Ei42 Ei24")
+        if title is None:
+            fig.suptitle("integrated squared errors with respect to total" +
+                         "counts for phantom data of 17714 Ei42 Ei24")
+        else:
+            fig.suptitle(title)
 
     def getdata(self, isefn):
         data = [np.loadtxt(self.head + "try" + str(tryidx) + "/" +
@@ -84,8 +87,8 @@ class ise_ci:
         self.tdata2 = self.getdata(self.isefn2)
         self.tdatar1 = self.getdatar(self.infiler1)
         self.tdatar2 = self.getdatar(self.infiler2)
-        self.maxdiff = np.max(np.max(np.abs(self.tdatar1 - self.tdatar2), axis=2), axis=0)
-        #print(self.maxdiff)
+        self.maxdiff = np.max(np.max(np.abs(self.tdatar1 - self.tdatar2),
+                                     axis=2), axis=0)
 
     def plot_cis(self, shift=0.025, ylabel=True):
         y1 = self.tdata1[:, :, 1]/self.dV
@@ -104,8 +107,10 @@ class ise_ci:
             cl, cu = mybootstrap.bootstrap(diff[:, idx], 10000, np.mean, 0.95)
             cls.append(cl)
             cus.append(cu)
-        cis = (np.array(cls), np.array(cus))
-        #gs = gridspec.GridSpec(6, self.tcn, height_ratios=[3.2, 1, 2, 2, 2, 2])
+        cls = np.array(cls)
+        cus = np.array(cus)
+        yerr = cus - cls
+        y = (cls+cus)/2.0
         gs = gridspec.GridSpec(2, self.tcn, height_ratios=[3.2, 1])
         ax = plt.subplot(gs[0, self.cn])
         ax.scatter(x12*10.0**(shift), y1.flatten(), marker='_', s=2, c='red',
@@ -123,86 +128,57 @@ class ise_ci:
         ax.tick_params(top=True, right=True, direction='in', which='both')
         plt.legend()
         ax = plt.subplot(gs[1, self.cn])
-        x = np.average(np.concatenate([self.tdata1[:, :, 0], self.tdata2[:, :, 0]], axis=0), axis=0)
-        y = (cis[0] + cis[1])/2.0
-        #yerr = np.abs(cis[0] - cis[1])/2.0
-        yerr = np.stack([cis[0], cis[1]], axis=0)
+        x = np.average(np.concatenate([self.tdata1[:, :, 0],
+                                       self.tdata2[:, :, 0]], axis=0), axis=0)
         ax.errorbar(x, y,  yerr=yerr,  capsize=3, fmt="none", ms="5", c='k')
         ax.axhline(y=0, ls='--', c='k', lw=0.5)
         ax.set_xscale('log')
-        margin = (np.max(cis[1]) - np.min(cis[0]))*0.03
-        #ax.set_ylim(np.min(cis[0])-margin, np.max(cis[1])+margin)
         ax.set_xlim(np.min(x)*10.0**(-2.5*shift), np.max(x)*10.0**(2.5*shift))
         if ylabel:
             ax.set_ylabel('mean difference \n ($rlu^{-3}meV^{-1}$)')
         ax.set_xlabel('total count')
         ax.tick_params(top=True, right=True, direction='in', which='both')
 
-    def plot_bin(self):
+    def plot_bin(self, ylabel=True):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
-        #ys = np.stack([self.tdatar1[0, :, 1:], self.tdatar2[0, :, 1:]], axis=0)*self.stepsizes
         ys1 = np.array(self.tdatar1[:, :, 1:], dtype=int)
         ys2 = np.array(self.tdatar2[:, :, 1:], dtype=int)
-        diff = np.abs(ys1 - ys2)
-        print(diff.shape)
+        xs = np.average(self.tdatar1[:, :, 0], axis=0)
+        diff = ys1 - ys2
         wlist = ["qx", "qy", "qz", "w"]
         for widx, wlabel in enumerate(wlist):
-            #cls = []
-            #cus = []
-            #for idx in range(0, ys1.shape[1]):
-            #    cl, cu = mybootstrap.bootstrap(diff[:, idx, widx], 10000, np.mean, 0.95)
-            #    print(np.max(diff[:, idx, widx]))
-            #    cls.append(cl)
-            #    cus.append(cu)
-            #cis = (np.array(cls), np.array(cus))
-            #yerr = np.stack([cis[0], cis[1]], axis=0)
-            #y = (cis[0] + cis[1])/2.0
-            ymax = np.max(diff[:, :, widx], axis=0)
-            ymin = np.min(diff[:, :, widx], axis=0)
-
-            #print(yerr.shape)
-        #ysmf1 = np.zeros((ys1.shape[1], ys1.shape[2]))
-        #ysmf2 = np.zeros((ys2.shape[1], ys2.shape[2]))
-        #for idx1 in range(0, ys1.shape[1]):
-        #    for idx2 in range(0, ys2.shape[2]):
-        #        ysmf1[idx1, idx2] = np.argmax(np.bincount(ys1[:, idx1, idx2]))
-        #        ysmf2[idx1, idx2] = np.argmax(np.bincount(ys2[:, idx1, idx2]))
-        #ysmf1 = ysmf1*self.stepsizes
-        #ysmf2 = ysmf2*self.stepsizes
-            x = np.average(np.concatenate([self.tdata1[:, :, 0], self.tdata2[:, :, 0]], axis=0), axis=0)
-        #for widx, wlabel in enumerate(wlist):
             ax = plt.subplot(gs[widx, self.cn])
-            #ax.errorbar(x, y,  yerr=yerr,  capsize=3, fmt="none", ms="5", c='k')
-            ax.scatter(x,ymax, marker='_')
-            ax.scatter(x,ymin, marker='_')
-            #ax.plot(x, ys[0, :, widx],
-            #        clip_on=False, linestyle="dotted", lw=0.8, label=self.label1,
-            #        marker="x", ms=5, mec='k', mfc='white', mew=0.8,  c='k')
-            #ax.plot(x, ys[1, :, widx],
-            #        clip_on=False, linestyle="dotted", lw=0.8, label=self.label2,
-            #        marker=".", ms=5, mec='k', mfc='w', mew=0.8, c='k')
-            #ax.scatter(x, ysmf1[:,widx], marker='x', s=20, c='k',
-            #           lw=1, label=self.label1)
-            #ax.scatter(x, ysmf2[:,widx], marker='.', s=20, c='gray',
-            #           lw=1, label=self.label2)
-            #ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
-            #ax.set_xlim(np.min(x)*10.0**(-2.5*shift), np.max(x)*10.0**(2.5*shift))
-            #ax.yaxis.set_major_locator(MultipleLocator(self.stepsizes[widx]
-            #                                           * self.mnj))
-            #ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
-            ax.tick_params(top=True, right=True, direction='in', which='both')
-            ax.tick_params(length=6, which='major')
-            ax.tick_params(length=3, which='minor')
-            ax.tick_params(labelbottom=False)
-            ax.set_xscale('log')
-        plt.subplots_adjust(wspace=0.1, hspace=0.0)
+            for nidx in range(0, diff.shape[1]):
+                ue, uc = np.unique(diff[:, nidx, widx], return_counts=True)
+                uc = uc/(diff.shape[0]*1.0)
+                ue = ue*self.stepsizes[widx]
+                xse = np.ones_like(ue)*xs[nidx]
+                ax.scatter(xse, ue, c=uc, ec='k', lw=0.5, cmap='binary',
+                           vmin=0.0, vmax=1.0, s=24)
 
-def samplerun():
+            ax.yaxis.set_major_locator(MultipleLocator(
+                                       self.stepsizes[widx]*self.mnj[widx]))
+            if self.mnj[widx] != 1:
+                ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
+            ax.tick_params(top=True, right=True, direction='in', which='both')
+            ax.tick_params(labelbottom=False)
+            ax.axhline(y=0, ls='--', c='k', lw=0.5)
+            ax.set_xscale('log')
+            if ylabel and widx == 1:
+                ax.set_ylabel('bin-width difference (rlu)')
+            if ylabel and widx == 3:
+                ax.set_ylabel('bin-width difference (meV)')
+        plt.subplots_adjust(wspace=0.16, hspace=0.0)
+        ax.tick_params(labelbottom=True)
+        ax.set_xlabel('total count')
+
+
+def samplerunbin():
     head = "/home/kazu/desktop/200312/for_cu_new/old_orthotope/" +\
            "orthotope_ddscs_again2/expt_orthotope_bd/"
     isefn1 = "ise_withoutcond"
     isefn2 = "ise_condparam09"
-    infiler1 = "result.txt_vec"
+    infiler1 = "result.txt_ise"
     infiler2 = "condparam09/result.txt_vec"
     stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
     dV = 0.5*0.025*0.025*0.025
@@ -210,10 +186,13 @@ def samplerun():
     label2 = r'$\alpha=0.9$'
     tcn = 3
     cn = 0
-    mnj = 4
-    ic = ise_ci(head, isefn1, isefn2, dV, label1, label2, tcn, cn, infiler1, infiler2, stepsizes, mnj)
-    ic.create_fig()
-    #ic.plot_cis(shift=0.034)
+    mnj = [1, 2, 2, 2]
+    title = "bin-width differences from the searched bin-width" +\
+            " for phantom data of 17714 Ei42 Ei24"
+
+    ic = ise_ci(head, isefn1, isefn2, dV, label1, label2, tcn, cn, infiler1,
+                infiler2, stepsizes, mnj)
+    ic.create_fig(title)
     ic.plot_bin()
 
     ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
@@ -223,26 +202,63 @@ def samplerun():
     ic.infiler1 = "result.txt_ise"
     ic.infiler2 = "condparam09/result.txt_vec"
     ic.get_all_data()
-    #ic.plot_cis(shift=0.022)
-    ic.plot_bin()
+    ic.mnj = [1, 1, 1, 1]
+    ic.plot_bin(ylabel=False)
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
     ic.isefn2 = "ise_condparam05"
-    ic.infiler1 = "result.txt_vec"
+    ic.infiler1 = "result.txt_ise"
     ic.infiler2 = "condparam05/result.txt_vec"
     ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     ic.dV = 0.08*0.01*0.01*0.04
     ic.label2 = r'$\alpha=0.5$'
     ic.cn = 2
-    ic.mnj = 5
     ic.get_all_data()
-    #ic.plot_cis(shift=0.01)
-    ic.plot_bin()
+    ic.mnj = [7, 2, 1, 4]
+    ic.plot_bin(ylabel=False)
 
     plt.show()
-    #tdata1, tdata2 = get_characterized_data(isefn1, isefn2)
-    #plot_cis(tdata1, tdata2, dV)
 
+def samplerunise():
+    head = "/home/kazu/desktop/200312/for_cu_new/old_orthotope/" +\
+           "orthotope_ddscs_again2/expt_orthotope_bd/"
+    isefn1 = "ise_searched"
+    isefn2 = "ise_condparam09"
+    infiler1 = "result.txt_vec"
+    infiler2 = "condparam09/result.txt_vec"
+    stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
+    dV = 0.5*0.025*0.025*0.025
+    label1 = r'$\alpha=0$'
+    label2 = r'$\alpha=0.9$'
+    tcn = 3 
+    cn = 0 
+    mnj = 4 
+    ic = cicbc.ise_ci(head, isefn1, isefn2, dV, label1, label2, tcn, cn, 
+                      infiler1, infiler2, stepsizes, mnj)
+    ic.create_fig()
+    ic.plot_cis(shift=0.034)
 
-samplerun()
+    ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
+    ic.stepsizes = np.array([0.0125, 0.025, 0.05, 0.2])
+    ic.dV = 0.2*0.0125*0.025*0.05
+    ic.cn = 1 
+    ic.get_all_data()
+    ic.plot_cis(shift=0.006, ylabel=False)
+
+    ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
+              "samedataasfilled_again2_ddscs/"
+    ic.isefn2 = "ise_condparam05"
+    ic.infiler2 = "condparam05/result.txt_vec"
+    ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
+    ic.dV = 0.08*0.01*0.01*0.04
+    ic.label2 = r'$\alpha=0.5$'
+    ic.cn = 2 
+    ic.mnj = 5 
+    ic.get_all_data()
+    ic.plot_cis(shift=0.01, ylabel=False)
+
+    plt.show()
+
+#samplerunbin()
+#samplerunise()

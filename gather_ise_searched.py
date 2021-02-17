@@ -13,6 +13,7 @@ class gather_ise_search:
 
     def gather_ise(self):
         line = subprocess.getoutput("tail --line=1 " + self.logfile)
+        print(line, self.logfile)
         values = line.split("(")
         values2 = values[1].split(")")
         self.binwidths = np.array(values2[0].split(","), dtype='int32')
