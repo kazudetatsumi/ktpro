@@ -10,15 +10,16 @@ import h5py
 import os
 from ctypes import *
 from mpi4py import MPI
-lib = CDLL("/home/kazu/ktpro/costfort4d_mpi.so")
+lib = CDLL("/home/kazu/ktpro/costfort4d_withcond_mpi.so")
 
 
 class Opt_Bin_Width:
 
-    def __init__(self, datafile, condfile, usecond):
+    def __init__(self, datafile, condfile, usecond, condparam):
         self.datafile = datafile
         self.condfile = condfile
         self.usecond = usecond
+        self.condparam = condparam
 
     def calc_cost4d_f90(self, data, condition, maxw):
         print(maxw)
@@ -34,6 +35,7 @@ class Opt_Bin_Width:
                                POINTER(c_int),
                                POINTER(c_int),
                                POINTER(c_bool),
+                               POINTER(c_double),
                                np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
                                np.ctypeslib.ndpointer(dtype=np.int32, ndim=4),
                                np.ctypeslib.ndpointer(dtype=np.float64, ndim=4),
@@ -64,6 +66,7 @@ class Opt_Bin_Width:
                    c_int(Nmax2),
                    c_int(Nmax3),
                    c_bool(self.usecond),
+                   c_double(self.condparam),
                    data,
                    condition,
                    Cn,
@@ -121,6 +124,7 @@ class Opt_Bin_Width:
                              dtype=np.int32)
         print("size of data is", data.shape)
         print("usecond:", self.usecond)
+        print("condparam:", self.condparam)
         n = np.sum(data)*1.0
         print("n=", n)
 

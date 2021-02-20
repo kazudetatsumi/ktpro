@@ -31,8 +31,6 @@ def run():
     ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
     ic.stepsizes = np.array([0.0125, 0.025, 0.05, 0.2])
     ic.cn = 1
-    ic.infiler1 = "result.txt_ise"
-    ic.infiler2 = "condparam09/result.txt_vec"
     ic.get_all_data()
     ic.mnj = [1,1,1,1]
     ic.plot_bin(ylabel=False)
@@ -40,7 +38,6 @@ def run():
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
     ic.isefn2 = "ise_condparam05"
-    ic.infiler1 = "result.txt_ise"
     ic.infiler2 = "condparam05/result.txt_vec"
     ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     ic.label2 = r'$\alpha=0.5$'
