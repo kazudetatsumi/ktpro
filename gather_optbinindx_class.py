@@ -3,6 +3,7 @@ import numpy as np
 import subprocess
 import h5py
 import os
+import sys
 import pickle
 from matplotlib import pyplot as plt
 import matplotlib.image as mpimg
@@ -16,34 +17,32 @@ class gather_optbinidx:
         self.savefile = savefile
         self.dq = dq
         self.eu = eu
+        print("num_try:", num_try)
 
     def getbinidx(self, logfile):
         line = subprocess.getoutput("tail --line=1 " + logfile)
-        values = line.split("(")
-        values2 = values[1].split(")")
-        values3 = np.array(values2[0].split(","), dtype='int32')
+        if "(" in line:
+            values = line.split("(")
+            values2 = values[1].split(")")
+            values3 = np.array(values2[0].split(","), dtype='int32')
+        elif "minloc" in line:
+            values = line.split()
+            values3 = np.array(values[2:6][::-1], dtype='int32')
+        else:
+            line2 = subprocess.getoutput("grep \"with the\" " + logfile)
+            values = line2.split("(")
+            values2 = values[1].split(")")
+            values3 = np.array(values2[0].split(","), dtype='int32')
         return values3
-
-    def getbinidx2(self, logfile):
-        print(logfile)
-        line = subprocess.getoutput("grep \"with the\" " + logfile)
-        values = line.split("(")
-        values2 = values[1].split(")")
-        values3 = np.array(values2[0].split(","), dtype='int32')
-        return values3
-
-    def getbinidxsp(self, logfile):
-        line = subprocess.getoutput("tail --line=1 " + logfile)
-        values = line.split()
-        values2 = np.array(values[2:6][::-1], dtype='int32')
-        return values2
 
     def getscalarfromhdf(self, hdffile, prop):
         f = h5py.File(hdffile, 'r')
         return f[prop].value
 
     def init_diffbin(self):
-        refbinidx = self.getbinidx2(self.reflog)
+        print(self.reflog)
+        refbinidx = self.getbinidx(self.reflog)
+        print(refbinidx)
 
         binindx = np.zeros((self.num_try, 4), dtype='int32')
         maskfrac = np.zeros((self.num_try))
@@ -84,9 +83,20 @@ class gather_optbinidx:
             pngdatano = np.where((difbinidx >= 2) &
                                  (maskfrac == np.min(maskfrac[difbinidx >= 2]))
                                  )[0][0]
-            plt.imshow(mpimg.imread(self.workdir + "/../data4_" +
-                                    self.timestr[0:2] + "_"
-                                    + str(pngdatano)+".png"))
+            print("pngdatano:", pngdatano)
+            print("that maskfrac:", maskfrac[pngdatano])
+            pngfile = self.workdir + "/data4_" + self.timestr[:-2] + "_" +\
+                str(pngdatano)+".png"
+            print(pngfile)
+            if os.path.exists(pngfile):
+                plt.imshow(mpimg.imread(pngfile))
+            else:
+                pngfile = self.workdir + "/../data4_" + self.timestr[:-2] +\
+                          "_" + str(pngdatano)+".png"
+                if os.path.exists(pngfile):
+                    plt.imshow(mpimg.imread(pngfile))
+                else:
+                    sys.exit("No adequate png file exists!")
 
         ax = plt.subplot2grid((2, 2), (0, 0))
         ax.scatter(radius*self.dq*2.0, difbinidx, marker='x', c='k',

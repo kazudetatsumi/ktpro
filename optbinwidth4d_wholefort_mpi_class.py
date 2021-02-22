@@ -15,10 +15,11 @@ lib = CDLL("/home/kazu/ktpro/costfort4d_mpi.so")
 
 class Opt_Bin_Width:
 
-    def __init__(self, datafile, condfile, usecond):
+    def __init__(self, datafile, condfile, usecond, savecn=True):
         self.datafile = datafile
         self.condfile = condfile
         self.usecond = usecond
+        self.savecn = savecn
 
     def calc_cost4d_f90(self, data, condition, maxw):
         print(maxw)
@@ -104,10 +105,11 @@ class Opt_Bin_Width:
             print("opt_indx for Cn", opt_indx, "with the Cn =",
                   Cn[opt_indx[0] - 1, opt_indx[1] - 1, opt_indx[2] - 1,
                       opt_indx[3] - 1])
-            with h5py.File("Cn.hdf5", 'w') as hf:
-                hf.create_dataset('Cn', data=Cn)
-                hf.create_dataset('kave', data=kaves)
-                hf.create_dataset('delta', data=deltas)
+            if self.savecn:
+                with h5py.File("Cn.hdf5", 'w') as hf:
+                    hf.create_dataset('Cn', data=Cn)
+                    hf.create_dataset('kave', data=kaves)
+                    hf.create_dataset('delta', data=deltas)
         MPI.COMM_WORLD.barrier()
         os.remove(outfile)
 

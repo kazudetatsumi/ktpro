@@ -13,13 +13,9 @@ import numpy as np
 import h5py
 import random
 import os
-from mpi4py import MPI
 from matplotlib import pyplot as plt
 
 
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-psize = comm.Get_size()
 
 
 class Add_Random_Mask:
@@ -39,43 +35,36 @@ class Add_Random_Mask:
             condition_org = np.array(f["condition"])
             ylen = data4_org.shape[axis]
             elen = data4_org.shape[3]
-            mrank = psize - rank - 1
-            if self.num_try >= mrank + 1:
-                for tryidx in range(itry + mrank + 0,
-                                    itry + self.num_try -
-                                    ((self.num_try-mrank-1) % psize) +
-                                    psize - 1,
-                                    psize):
-                    condition = np.array(condition_org)
-                    dirname = "./try" + str(tryidx) + "_" + str(time) +\
-                              self.tail.split("/")[0]
-                    savefile = dirname + "/condition.hdf5"
-                    figfile = "data4_" + str(time) + "_" + str(tryidx) + ".png"
-                    os.system("mkdir " + dirname)
-                    radius = self.maxradius*random.random()
-                    yc = radius + random.random()*(ylen - 2*radius)
-                    ec = radius + random.random()*(elen - 2*radius)
-                    for yindx in range(0, condition.shape[axis]):
-                        for eindx in range(0, condition.shape[3]):
-                            if abs(yindx - yc)**2 + abs(eindx - ec)**2 \
-                               < radius**2:
-                                if axis == 0:
-                                    condition[yindx, :, :, eindx] = False
-                                elif axis == 1:
-                                    condition[:, yindx, :, eindx] = False
-                                elif axis == 2:
-                                    condition[:, :, yindx, eindx] = False
-                    data4 = data4_org*condition
-                    num_ele = np.sum(condition)
-                    num_ele_org = np.sum(condition_org)
-                    frac_add_mask = (num_ele_org - num_ele)*1.0 / num_ele_org
-                    self.save_condition_hdf5(savefile, data4, condition,
-                                             frac_add_mask, yc, ec, radius)
-                    self.plot_projectedintensity(condition, data4)
-                    plt.savefig(figfile)
-                    plt.clf()
-                    plt.close()
-
+            for tryidx in range(0, self.num_try):
+                condition = np.array(condition_org)
+                dirname = "./try" + str(tryidx) + "_" + str(time) +\
+                          self.tail.split("/")[0]
+                savefile = dirname + "/condition.hdf5"
+                figfile = "data4_" + str(time) + "_" + str(tryidx) + ".png"
+                os.system("mkdir " + dirname)
+                radius = self.maxradius*random.random()
+                yc = radius + random.random()*(ylen - 2*radius)
+                ec = radius + random.random()*(elen - 2*radius)
+                for yindx in range(0, condition.shape[axis]):
+                    for eindx in range(0, condition.shape[3]):
+                        if abs(yindx - yc)**2 + abs(eindx - ec)**2 \
+                           < radius**2:
+                            if axis == 0:
+                                condition[yindx, :, :, eindx] = False
+                            elif axis == 1:
+                                condition[:, yindx, :, eindx] = False
+                            elif axis == 2:
+                                condition[:, :, yindx, eindx] = False
+                data4 = data4_org*condition
+                num_ele = np.sum(condition)
+                num_ele_org = np.sum(condition_org)
+                frac_add_mask = (num_ele_org - num_ele)*1.0 / num_ele_org
+                self.save_condition_hdf5(savefile, data4, condition,
+                                         frac_add_mask, yc, ec, radius)
+                self.plot_projectedintensity(condition, data4)
+                plt.savefig(figfile)
+                plt.clf()
+                plt.close()
 
     def save_condition_hdf5(self, savefile, data, condition, frac_add_mask,
                             yc, ec, radius):
