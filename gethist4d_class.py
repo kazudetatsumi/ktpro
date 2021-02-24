@@ -9,6 +9,7 @@
 # Kazuyoshi TATSUMI 2020/4/24
 import numpy as np
 import h5py
+import os
 import ctypes
 lib = ctypes.CDLL("/home/kazu/ktpro/histfort4d.so")
 
@@ -17,7 +18,6 @@ class gethist4d_class:
 
     def __init__(self, nw):
         self.nw = nw
-        self.process()
 
     def calc_hist4d_f90(self):
         class result(ctypes.Structure):
@@ -74,22 +74,25 @@ class gethist4d_class:
             hf.create_dataset('data4', data=self.k)
             hf.create_dataset('condition', data=self.kcond)
 
-    def process(self):
-        head = "./"
+    def histprocess(self, head=",/"):
         self.datafile = head + "eliminated_data.hdf5"
         self.outfile = head + "hist_eliminated.hdf5"
-        f = h5py.File(self.datafile, 'r')
-        self.data = f["data4"][:]*1.0 # nqx, nqy, nqz, nomega
-        self.condition = f["condition"][:]
-        self.A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(self.data, axis=0),
-                           axis=1), axis=2), axis=3)
-        self.calc_hist4d_f90()
-        self.save_hist()
+        if not os.path.isfile(self.outfile):
+            f = h5py.File(self.datafile, 'r')
+            self.data = f["data4"][:]*1.0 # nqx, nqy, nqz, nomega
+            self.condition = f["condition"][:]
+            self.A = np.cumsum(np.cumsum(np.cumsum(np.cumsum(self.data, axis=0),
+                               axis=1), axis=2), axis=3)
+            self.calc_hist4d_f90()
+            self.save_hist()
+        else:
+            print(self.outfile + " already exists, skipping histogramming")
 
 
 def samplerun():
     nws = np.array([2, 4, 2, 5])
     project = gethist4d_class(nws)
+    project.histprocess()
 
 
 #samplerun()
