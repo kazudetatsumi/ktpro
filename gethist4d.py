@@ -110,10 +110,10 @@ def run():
     #ny = 3 # for Ei24
     #nz = 2 # for Ei24
     #ne = 4 # for Ei24
-    nx = 4
-    ny = 4
-    nz = 5
-    ne = 3
+    nx = 3
+    ny = 2
+    nz = 2
+    ne = 4
     head ="./"
     #datafile = head + "out_hw_all.hdf5"
     #datafile = head + "Output4D_00_1560.hdf5"  # for Ei24
