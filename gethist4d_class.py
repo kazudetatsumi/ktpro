@@ -85,8 +85,8 @@ class gethist4d_class:
                                axis=1), axis=2), axis=3)
             self.calc_hist4d_f90()
             self.save_hist()
-        else:
-            print(self.outfile + " already exists, skipping histogramming")
+        #else:
+        #   print(self.outfile + " already exists, skipping histogramming")
 
 
 def samplerun():

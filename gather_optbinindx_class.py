@@ -70,52 +70,62 @@ class gather_optbinidx:
         fig.suptitle("optimal bin-widths maximum difference caused" +
                      " by an additional cyrindrical mask \n for " + dataname)
 
-    def process(self):
+    def get_max_maskfrac(self):
         if not os.path.exists(self.savefile):
             self.init_diffbin()
         with open(self.savefile, 'rb') as f:
             dataset = pickle.load(f)
-        radius = dataset['radius']
-        difbinidx = dataset['difbinidx']
-        maskfrac = dataset['maskfrac']
+        self.difbinidx = dataset['difbinidx']
+        self.maskfrac = dataset['maskfrac']
+        self.radius = dataset['radius']
+        if np.max(self.difbinidx) >= 2:
+            self.pngdatano = np.where((self.difbinidx >= 2) &
+                                      (self.maskfrac ==
+                                       np.min(
+                                           self.maskfrac[self.difbinidx >= 2]))
+                                      )[0][0]
+            self.max_maskfrac = self.maskfrac[self.pngdatano]
+
+    def process(self):
+        self.get_max_maskfrac()
         ax = plt.subplot2grid((2, 2), (0, 1), rowspan=2)
-        if np.max(difbinidx) >= 2:
-            pngdatano = np.where((difbinidx >= 2) &
-                                 (maskfrac == np.min(maskfrac[difbinidx >= 2]))
-                                 )[0][0]
-            print("pngdatano:", pngdatano)
-            print("that maskfrac:", maskfrac[pngdatano])
+        if np.max(self.difbinidx) >= 2:
+            print("pngdatano:", self.pngdatano)
+            print("that maskfrac:", self.maskfrac[self.pngdatano])
             pngfile = self.workdir + "/data4_" + self.timestr[:-2] + "_" +\
-                str(pngdatano)+".png"
+                str(self.pngdatano)+".png"
             print(pngfile)
             if os.path.exists(pngfile):
                 plt.imshow(mpimg.imread(pngfile))
             else:
                 pngfile = self.workdir + "/../data4_" + self.timestr[:-2] +\
-                          "_" + str(pngdatano)+".png"
+                          "_" + str(self.pngdatano)+".png"
                 if os.path.exists(pngfile):
                     plt.imshow(mpimg.imread(pngfile))
                 else:
                     sys.exit("No adequate png file exists!")
 
         ax = plt.subplot2grid((2, 2), (0, 0))
-        ax.scatter(radius*self.dq*2.0, difbinidx, marker='x', c='k',
+        ax.scatter(self.radius*self.dq*2.0, self.difbinidx, marker='x', c='k',
                    clip_on=True)
-        if np.max(difbinidx) >= 2:
-            ax.scatter(radius[pngdatano]*self.dq*2.0, difbinidx[pngdatano],
+        if np.max(self.difbinidx) >= 2:
+            ax.scatter(self.radius[self.pngdatano]*self.dq*2.0,
+                       self.difbinidx[self.pngdatano],
                        marker='x', facecolors='gray', edgecolor='gray',
                        clip_on=True)
 
-        ax.set_yticks(range(np.min(difbinidx), np.max(difbinidx)+1))
+        ax.set_yticks(range(np.min(self.difbinidx), np.max(self.difbinidx)+1))
         ax.set_xlabel('mask size (rlu or ' + str(self.eu) + ' meV)')
         ax.set_ylabel('maximum difference in bin-width (step)')
         ax = plt.subplot2grid((2, 2), (1, 0))
-        ax.scatter(maskfrac*100.0, difbinidx, marker='x', c='k', clip_on=True)
-        if np.max(difbinidx) >= 2:
-            ax.scatter(maskfrac[pngdatano]*100.0, difbinidx[pngdatano],
+        ax.scatter(self.maskfrac*100.0, self.difbinidx, marker='x', c='k',
+                   clip_on=True)
+        if np.max(self.difbinidx) >= 2:
+            ax.scatter(self.maskfrac[self.pngdatano]*100.0,
+                       self.difbinidx[self.pngdatano],
                        marker='x',  facecolors='gray', edgecolor='gray',
                        clip_on=True)
-        ax.set_yticks(range(np.min(difbinidx), np.max(difbinidx)+1, 1))
+        ax.set_yticks(range(np.min(self.difbinidx), np.max(self.difbinidx)+1))
         ax.set_xlabel('mask volume fraction (%)')
         ax.set_ylabel('maximum difference in bin-width (step)')
         plt.show()
