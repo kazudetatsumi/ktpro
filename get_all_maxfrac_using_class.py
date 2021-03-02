@@ -5,8 +5,8 @@ import get_all_maxfrac_class as gamc
 
 
 def run():
-    tail = "h"
-    cond = "condparam09"
+    tail = "m"
+    cond = "condparam07"
     proj = gamc.maxfracall(tail)
     proj.get_all_maxfrac()
     proj = gamc.maxfracall(tail, cond)

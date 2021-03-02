@@ -20,6 +20,7 @@ class gather_optbinidx:
         print("num_try:", num_try)
 
     def getbinidx(self, logfile):
+        #print(logfile)
         line = subprocess.getoutput("tail --line=1 " + logfile)
         if "(" in line:
             values = line.split("(")
@@ -40,7 +41,7 @@ class gather_optbinidx:
         return f[prop].value
 
     def init_diffbin(self):
-        print(self.reflog)
+        #print(self.reflog)
         refbinidx = self.getbinidx(self.reflog)
         print(refbinidx)
 

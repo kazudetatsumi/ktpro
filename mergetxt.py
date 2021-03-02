@@ -63,13 +63,13 @@ def samplerun():
     xfile = "/home/kazu/desktop/200522/Ei42/veryfineq/nbins.txt"
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
-    proj.plotter('Ei42', 'midnightblue')
+    proj.plotter('Ei42', 'limegreen')
 
     yfile = "/home/kazu/desktop/200522/Ei42/veryfineq/add_random_mask/maxfrac_condparam09.txt"
     xfile = "/home/kazu/desktop/200522/Ei42/veryfineq/condparam_09/nbins.txt"
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
-    proj.plotter('Ei42_cond', 'green')
+    proj.plotter('Ei42_cond', 'darkgreen')
 
     yfile = "/home/kazu/desktop/200204/fine/hourbyhour/add_random_mask/maxfrac.txt"
     xfile = "/home/kazu/desktop/200204/fine/hourbyhour/ortho_opt_without_mask/nbins.txt"
@@ -82,6 +82,8 @@ def samplerun():
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
     proj.plotter('13714_cond', 'brown')
+    plt.xlabel('number of bins')
+    plt.ylabel('upper limit for additional mask volume fraction')
 
     plt.legend()
 
