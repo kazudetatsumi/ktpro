@@ -53,29 +53,25 @@ class CROSS:
             self.wholeranges[:, 0]
         cposinfo = '$(q_c, E)$' + "=({:.0f}, {:.0f})".format(
                    cposval[2], cposval[3])
-        self.plotter(lims_int[0, :], lims_int[1, :],
-                     '$q_a(rlu)$', '$q_b(rlu)$',
+        self.plotter(lims_int[0, :], lims_int[1, :], '$q_a(rlu)$', '$q_b(rlu)$',
                      data4[:, :, self.cpos[2], self.cpos[3]],
                      4, 3, cnum, self.devs[0], self.wholeranges[0, :],
                      self.wholeranges[1, :], cposinfo)
-        cposinfo = '$(q_a, q_c)$'+"=({:.1f}, {:.0f})".format(
+        cposinfo = '$(q_a, q_c)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[2])
-        self.plotter(lims_int[1, :], lims_int[3, :],
-                     '$q_b(rlu)$', 'E(meV)',
+        self.plotter(lims_int[1, :], lims_int[3, :], '$q_b(rlu)$', 'E(meV)',
                      data4[self.cpos[0], :, self.cpos[2], :],
                      4, 3, cnum+3, self.devs[1], self.wholeranges[1, :],
                      self.wholeranges[3, :], cposinfo)
-        cposinfo = '$(q_b, q_c)$'+"=({:.1f}, {:.0f})".format(
+        cposinfo = '$(q_b, q_c)$' + "=({:.1f}, {:.0f})".format(
                    cposval[1], cposval[2])
-        self.plotter(lims_int[0, :], lims_int[3, :],
-                     '$q_a(rlu)$', 'E(meV)',
+        self.plotter(lims_int[0, :], lims_int[3, :], '$q_a(rlu)$', 'E(meV)',
                      data4[:, self.cpos[1], self.cpos[2], :],
                      4, 3, cnum+6, self.devs[2], self.wholeranges[0, :],
                      self.wholeranges[3, :], cposinfo)
-        cposinfo = '$(q_a, q_b)$'+"=({:.1f}, {:.0f})".format(
+        cposinfo = '$(q_a, q_b)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[1])
-        self.plotter(lims_int[2, :], lims_int[3, :],
-                     '$q_c(rlu)$', 'E(meV)',
+        self.plotter(lims_int[2, :], lims_int[3, :], '$q_c(rlu)$', 'E(meV)',
                      data4[self.cpos[0], self.cpos[1], :, :],
                      4, 3, cnum+9, self.devs[2], self.wholeranges[2, :],
                      self.wholeranges[3, :], cposinfo)
@@ -102,12 +98,12 @@ class CROSS:
         X, Y = np.meshgrid(u, v)
 
         c = ax.pcolor(X, Y, np.transpose(data), vmin=0,
-                      vmax=int(np.max(data[xlim[0]:xlim[1],
-                               ylim[0]:ylim[1]])/dev),
+                      vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
+                               / dev),
                       cmap=custom_cmap)
 
-        ax.set_xlabel(lx)
-        ax.set_ylabel(ly)
+        #ax.set_xlabel(lx, fontsize=12)
+        #ax.set_ylabel(ly, fontsize=12)
         if self.hvlofs:
             frac = 0.01
             yoff = float(data.shape[1])*frac
@@ -136,13 +132,13 @@ class CROSS:
         ax.yaxis.set_label_coords(-0.09, 0.5)
         ax.tick_params(direction="out", color="black", pad=0., labeltop=False,
                        labelbottom=True, bottom=True, top=False, left=True,
-                       right=False, labelleft=True)
-        ax.axis('tight')
-        ax.text((xr[1]+xr[0])*.6, yr[1]*1.02, cposinfo)
+                       right=False, labelleft=True, width=1.5)
+        #ax.axis('tight')
+        #ax.text((xr[1]+xr[0])*.6, yr[1]*1.04, cposinfo)
         self.fig.colorbar(c, ax=ax)
 
     def create_fig(self, title=None):
-        self.fig = plt.figure(figsize=(12, 14))
+        self.fig = plt.figure(figsize=(8.8, 8.8))
         if title is None:
             self.fig.suptitle("crosssections of 4D INS intensity initial " +
                               "aray for bin-widths optimization",

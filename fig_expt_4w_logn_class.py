@@ -8,15 +8,11 @@ from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
 from matplotlib.ticker import LogFormatterSciNotation, ScalarFormatter
 
+
 params = {'mathtext.default': 'regular'}
 plt.rcParams.update(params)
 plt.rcParams['font.size'] = 12
-
 plt.rcParams['font.family'] = 'Arial'
-fig = plt.figure(figsize=(12, 12.5))
-#fig.suptitle("ei42 cond09 orthotope data")
-#fig.suptitle("ei24 cond07 orthotope data")
-fig.suptitle("4w_logn_with_using_mask_info")
 
 
 class Plot_4w_Logn:
@@ -29,6 +25,10 @@ class Plot_4w_Logn:
         self.num_clms = num_clms
         self.mnj = mnj
         self.log = log
+
+    def create_fig(self):
+        self.fig = plt.figure(figsize=(10, 10.5))
+        self.fig.suptitle("4w_logn_with_using_mask_info")
 
     def get_data(self):
         f = open(self.infile, 'r')
@@ -106,8 +106,8 @@ class Plot_4w_Logn:
             else:
                 x_m = 1.0/self.list_m[0, :-5]
                 y_m = self.list_m[1+ip, :-5]*dp
-            msize = 50
-            ax = fig.add_subplot(4, self.num_clms, clm+self.num_clms*ip)
+            msize = 80
+            ax = self.fig.add_subplot(4, self.num_clms, clm+self.num_clms*ip)
             ax.scatter(x_n[self.m:], y_n[self.m:], marker='s',
                        edgecolor="black", s=msize, facecolors="white")
             ax.scatter(x_n[0:self.m-1], y_n[0:self.m-1], marker='s',
@@ -122,7 +122,7 @@ class Plot_4w_Logn:
                     color="k", linestyle="dotted")
             ax.scatter(x_n[self.m-1:self.m], y_n[self.m-1:self.m], marker='*',
                        edgecolor="black", s=msize, facecolors="white")
-            ax.tick_params(labelbottom=False)
+            ax.tick_params(labelbottom=True)
             ax.set_ylim(0, max([np.max(y_n), np.max(y_m), dp*(self.mnj-1)])+dp)
             #ax.set_yticks(np.arange(0,
             #              (max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2),
@@ -149,7 +149,7 @@ class Plot_4w_Logn:
             ax.yaxis.set_minor_locator(MultipleLocator(dp))
             ax.tick_params(length=6, which='major')
             ax.tick_params(length=3, which='minor')
-            plt.subplots_adjust(wspace=0.2, hspace=0.0)
+            plt.subplots_adjust(wspace=0.2, hspace=0.4)
 
 
 def samplerun():
@@ -164,6 +164,7 @@ def samplerun():
     mnj = 4
     log = False
     projectset = Plot_4w_Logn(infile, deltas, m, ulm, num_clms, mnj, log)
+    projectset.create_fig()
     projectset.plotter(clm, ylabel=True)
 
     projectset.infile = "/home/kazu/desktop/200522/Ei42/veryfineq/" +\
@@ -181,5 +182,5 @@ def samplerun():
     projectset.plotter(clm, ylabel=False)
 
 
-samplerun()
-plt.show()
+#samplerun()
+#plt.show()

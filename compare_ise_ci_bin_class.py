@@ -13,7 +13,7 @@ from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
 from matplotlib.ticker import LogFormatterSciNotation, ScalarFormatter
 
-params = {'mathtext.default': 'regular'}
+params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
 
 
@@ -35,12 +35,12 @@ class ise_ci:
         self.get_all_data()
 
     def create_fig(self, title=None):
-        fig = plt.figure(figsize=(16, 8))
+        self.fig = plt.figure(figsize=(16, 12))
         if title is None:
-            fig.suptitle("integrated squared errors with respect to total" +
+            self.fig.suptitle("integrated squared errors with respect to total" +
                          "counts for phantom data of 17714 Ei42 Ei24")
         else:
-            fig.suptitle(title)
+            self.fig.suptitle(title)
 
     def getdata(self, isefn):
         data = [np.loadtxt(self.head + "try" + str(tryidx) + "/" +
@@ -152,22 +152,23 @@ class ise_ci:
                 uc = uc/(diff.shape[0]*1.0)
                 ue = ue*self.stepsizes[widx]
                 xse = np.ones_like(ue)*xs[nidx]
-                ax.scatter(xse, ue, c=uc, ec='k', lw=0.5, cmap='binary',
-                           vmin=0.0, vmax=1.0, s=24)
+                c = ax.scatter(xse, ue, c=uc, ec='k', lw=1.5, cmap='binary',
+                           vmin=0.0, vmax=1.0, s=60)
 
             ax.yaxis.set_major_locator(MultipleLocator(
                                        self.stepsizes[widx]*self.mnj[widx]))
             if self.mnj[widx] != 1:
                 ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
-            ax.tick_params(top=True, right=True, direction='in', which='both')
-            ax.tick_params(labelbottom=False)
+            ax.tick_params(top=True, right=True, direction='in', which='both', width=2)
+            ax.tick_params(labelbottom=True, labelleft=True)
             ax.axhline(y=0, ls='--', c='k', lw=0.5)
             ax.set_xscale('log')
             if ylabel and widx == 1:
                 ax.set_ylabel('bin-width difference (rlu)')
             if ylabel and widx == 3:
                 ax.set_ylabel('bin-width difference (meV)')
-        plt.subplots_adjust(wspace=0.16, hspace=0.0)
+            self.fig.colorbar(c, ax=ax)
+        plt.subplots_adjust(wspace=0.16, hspace=0.16)
         ax.tick_params(labelbottom=True)
         ax.set_xlabel('total count')
 

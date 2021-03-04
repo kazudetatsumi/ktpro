@@ -45,6 +45,7 @@ def run():
     ic.get_all_data()
     ic.mnj = [7,2,1,4]
     ic.plot_bin(ylabel=False)
+    plt.savefig('binwidth_dif.png')
 
     plt.show()
 
