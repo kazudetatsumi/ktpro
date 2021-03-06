@@ -99,7 +99,7 @@ class ise_ci:
         #cis = sms.CompareMeans(sms.DescrStatsW(y1),
         #                       sms.DescrStatsW(y2)).tconfint_diff(
         #                       usevar='unequal')
-        diff = y1 - y2
+        diff = y2 - y1
         cls = []
         cus = []
         for idx in range(0, y1.shape[1]):

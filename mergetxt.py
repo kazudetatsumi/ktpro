@@ -40,7 +40,13 @@ class Merge_Txt:
             fig.suptitle(title)
 
     def plotter(self, label, color):
-        plt.scatter(self.x, self.y, label=label, color=color)
+        if '.' in label:
+            plt.scatter(self.x, self.y*100.0, label=label, color=color)
+            plt.plot(self.x, self.y*100.0, color=color, linestyle="dashed")
+        else:
+            plt.scatter(self.x, self.y*100.0, label=label, color=color, fc="white", s=90)
+            plt.plot(self.x, self.y*100.0, color=color, linestyle="dotted")
+
 
 
 
@@ -51,39 +57,40 @@ def samplerun():
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
     proj.create_fig()
-    proj.plotter('Ei24', 'blue')
+    proj.plotter(r'#3($\alpha$=0)', 'blue')
 
     yfile = "/home/kazu/desktop/200522/Ei24/fineq/add_random_mask/maxfrac_condparam07.txt"
     xfile = "/home/kazu/desktop/200522/Ei24/fineq/condparam07/nbins.txt"
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
-    proj.plotter('Ei24_cond', 'k')
+    proj.plotter(r'#3($\alpha$=0.7)', 'k')
 
     yfile = "/home/kazu/desktop/200522/Ei42/veryfineq/add_random_mask/maxfrac.txt"
     xfile = "/home/kazu/desktop/200522/Ei42/veryfineq/nbins.txt"
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
-    proj.plotter('Ei42', 'limegreen')
+    proj.plotter(r'#2($\alpha$=0)', 'limegreen')
 
     yfile = "/home/kazu/desktop/200522/Ei42/veryfineq/add_random_mask/maxfrac_condparam09.txt"
     xfile = "/home/kazu/desktop/200522/Ei42/veryfineq/condparam_09/nbins.txt"
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
-    proj.plotter('Ei42_cond', 'darkgreen')
+    proj.plotter(r'#2($\alpha$=0.9)', 'darkgreen')
 
     yfile = "/home/kazu/desktop/200204/fine/hourbyhour/add_random_mask/maxfrac.txt"
     xfile = "/home/kazu/desktop/200204/fine/hourbyhour/ortho_opt_without_mask/nbins.txt"
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
-    proj.plotter('13714', 'red')
+    proj.plotter(r'#1($\alpha$=0)', 'red')
 
     yfile = "/home/kazu/desktop/200204/fine/hourbyhour/add_random_mask/maxfrac_condparam09.txt"
     xfile = "/home/kazu/desktop/200204/fine/hourbyhour/ortho_opt_without_mask/condparam09/nbins.txt"
     proj = Merge_Txt(xfile, yfile)
     proj.merge()
-    proj.plotter('13714_cond', 'brown')
+    proj.plotter(r'#1($\alpha$=0.9)', 'brown')
     plt.xlabel('number of bins')
-    plt.ylabel('upper limit for additional mask volume fraction')
+    plt.ylabel('upper limit for additional mask volume fraction (%)')
+    plt.tick_params(top=True, right=True, direction='in', which='both')
 
     plt.legend()
 

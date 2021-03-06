@@ -19,8 +19,10 @@ def run():
     cn = 1
     ylabel = True
     mnj = 4
-    mycc = cc.Compare(infile1, label1, infile2, label2, "17714 Ei42 Ei24",
-                       stepsizes, tcn, cn, ylabel, mnj, dshifti=2)
+    title = "Extrapolated optimal bin-widths on experimental " +\
+            "data 17714 Ei42 Ei24"
+    mycc = cc.Compare(infile1, label1, infile2, label2, title,
+                      stepsizes, tcn, cn, ylabel, mnj, dshifti=2)
     mycc.create_fig()
     mycc.plot_all_data()
     mycc.cn = 2

@@ -80,7 +80,7 @@ class SIseci(cc.ise_ci):
                 ax.set_ylabel('bin-width difference (rlu)')
             if ylabel and widx == 3:
                 ax.set_ylabel('bin-width difference (meV)')
-        plt.subplots_adjust(wspace=0.16, hspace=0.04)
+        plt.subplots_adjust(wspace=0.16, hspace=0.0)
         ax.tick_params(labelbottom=True)
         ax.set_xlabel('total count')
 

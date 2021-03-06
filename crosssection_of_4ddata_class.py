@@ -134,7 +134,7 @@ class CROSS:
                        labelbottom=True, bottom=True, top=False, left=True,
                        right=False, labelleft=True, width=1.5)
         #ax.axis('tight')
-        #ax.text((xr[1]+xr[0])*.6, yr[1]*1.04, cposinfo)
+        ax.text((xr[1]+xr[0])*.6, yr[1]*1.04, cposinfo)
         self.fig.colorbar(c, ax=ax)
 
     def create_fig(self, title=None):

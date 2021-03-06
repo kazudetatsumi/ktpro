@@ -14,14 +14,13 @@ class CustomTicker(LogFormatterSciNotation):
 
 class Compare:
 
-    def __init__(self, infile1, label1, infile2, label2, dataname, stepsizes,
-                 tcn, cn, ylabel, mnj,
-                 dshifti=None, dshiftf=None):
+    def __init__(self, infile1, label1, infile2, label2, title, stepsizes,
+                 tcn, cn, ylabel, mnj, dshifti=None, dshiftf=None):
         self.infile1 = infile1
         self.infile2 = infile2
         self.label1 = label1
         self.label2 = label2
-        self.dataname = dataname
+        self.title = title
         self.stepsizes = stepsizes
         self.tcn = tcn
         self.cn = cn
@@ -67,14 +66,9 @@ class Compare:
 
     def create_fig(self):
         self.fig = plt.figure(figsize=(12, 9))
-        self.fig.suptitle("Extrapolated optimal bin-widths on experimental data "
-                          + self.dataname)
+        self.fig.suptitle(self.title)
 
-    def plot_all_data(self):
-        #self.fig = plt.figure(figsize=(6, 9))
-        #self.fig.suptitle("extrapolated bin-widths of 4D INS orthotope data "
-        #             + self.dataname)
-        #x = np.log10(self.all_data[0, 2:, 0])
+    def plot_all_data(self, log=True):
         x = self.all_data[0, self.dshifti:self.dshiftf, 0]
         ys = self.all_data[:, self.dshifti:self.dshiftf, 1:]*self.stepsizes
         wlist = ["qx", "qy", "qz", "w"]
@@ -87,24 +81,27 @@ class Compare:
             ax.plot(x, ys[1, :, widx],
                     clip_on=False, linestyle="dotted", lw=0.8, label=self.label2,
                     marker=".", ms=5, mec='k', mfc='w', mew=0.8, c='k')
-            ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
+
             ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
-            mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
-            ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
+            if log:
+                ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
+                mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
+                ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
+                ax.set_xscale('log')
+            else:
+                ax.text((np.max(x)-np.min(x))*0.7, np.max(ys[:, :, widx])*0.9,
+                        wlabel)
+                mergin = (np.max(x)-np.min(x))*0.02
+                ax.set_xlim(np.min(x)-mergin, np.max(x)+mergin)
+
             ax.yaxis.set_major_locator(MultipleLocator(self.stepsizes[widx]
                                                        * self.mnj))
             ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
-            #ax.xaxis.set_major_locator(MultipleLocator(1))
-            ax.set_xscale('log')
-            #ax.xaxis.set_major_locator(plt.NullLocator())
-            #ax.xaxis.set_major_formatter(plt.NullFormatter())
-            #ax.xaxis.set_minor_locator(plt.NullLocator())
             ax.xaxis.set_minor_formatter(plt.NullFormatter())
             ax.tick_params(top=True, right=True, direction='in', which='both')
             ax.tick_params(length=6, which='major')
             ax.tick_params(length=3, which='minor')
             ax.tick_params(labelbottom=False)
-            #ax.xaxis.set_major_formatter(CustomTicker())
             if widx == 3:
                 ax.tick_params(labelbottom=True)
                 ax.set_xlabel('total count')

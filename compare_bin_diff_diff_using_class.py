@@ -35,22 +35,22 @@ def run():
     ic.create_fig(title)
     ic.plot_bin()
 
-    #ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
-    #ic.stepsizes = np.array([0.0125, 0.025, 0.05, 0.2])
-    #ic.cn = 1
-    #ic.get_all_data()
-    #ic.plot_bin(ylabel=False)
+    ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
+    ic.stepsizes = np.array([0.0125, 0.025, 0.05, 0.2])
+    ic.cn = 1
+    ic.get_all_data()
+    ic.plot_bin(ylabel=False)
 
-    #ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
-    #          "samedataasfilled_again2_ddscs/"
-    #ic.isefn2 = "ise_condparam05"
-    #ic.infiler2 = "condparam05/result.txt_vec"
-    #ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
-    #ic.label2 = r'$\alpha=0.5$'
-    #ic.cn = 2
-    #ic.get_all_data()
-    #ic.plot_bin(ylabel=False)
-    plt.savefig('binwidth_dif_dif.pdf')
+    ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
+              "samedataasfilled_again2_ddscs/"
+    ic.isefn2 = "ise_condparam05"
+    ic.infiler2 = "condparam05/result.txt_vec"
+    ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
+    ic.label2 = r'$\alpha=0.5$'
+    ic.cn = 2
+    ic.get_all_data()
+    ic.plot_bin(ylabel=False)
+    #plt.savefig('binwidth_dif_dif.pdf')
 
     plt.show()
 

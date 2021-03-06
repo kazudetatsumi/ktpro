@@ -35,21 +35,21 @@ def run():
     projectset.create_fig()
     projectset.plotter(clm, ylabel=True)
 
-    #projectset.infile = "/home/kazu/desktop/200522/Ei42/veryfineq/" +\
-    #         "condparam_09/result.txt_vec"
-    #projectset.deltas = np.array([0.0125, 0.025, 0.050, 0.2])
-    #clm = 2
-    ##projectset_Ei42 = Plot_4w_Logn(infile, deltas, m, ulm, num_clms)
-    #projectset.plotter(clm, ylabel=False)
-#
-#    projectset.infile = "/home/kazu/desktop/200522/Ei24/fineq/" +\
-#             "/condparam07/result.txt_vec"
-#    projectset.deltas = np.array([0.01, 0.01, 0.04, 0.08])
-#    clm = 3
-#    projectset.mnj
-#    projectset.plotter(clm, ylabel=False)
+    projectset.infile = "/home/kazu/desktop/200522/Ei42/veryfineq/" +\
+             "condparam_09/result.txt_vec"
+    projectset.deltas = np.array([0.0125, 0.025, 0.050, 0.2])
+    clm = 2
+    #projectset_Ei42 = Plot_4w_Logn(infile, deltas, m, ulm, num_clms)
+    projectset.plotter(clm, ylabel=False)
+
+    projectset.infile = "/home/kazu/desktop/200522/Ei24/fineq/" +\
+             "/condparam07/result.txt_vec"
+    projectset.deltas = np.array([0.01, 0.01, 0.04, 0.08])
+    clm = 3
+    projectset.mnj
+    projectset.plotter(clm, ylabel=False)
 
 
 run()
-plt.savefig("fig_opt_ext_binwidths.pdf")
+#plt.savefig("fig_opt_ext_binwidths.pdf")
 plt.show()

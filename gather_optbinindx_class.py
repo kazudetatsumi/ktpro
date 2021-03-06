@@ -20,7 +20,7 @@ class gather_optbinidx:
         print("num_try:", num_try)
 
     def getbinidx(self, logfile):
-        #print(logfile)
+        print(logfile)
         line = subprocess.getoutput("tail --line=1 " + logfile)
         if "(" in line:
             values = line.split("(")

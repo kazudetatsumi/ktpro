@@ -122,7 +122,7 @@ class Plot_4w_Logn:
                     color="k", linestyle="dotted")
             ax.scatter(x_n[self.m-1:self.m], y_n[self.m-1:self.m], marker='*',
                        edgecolor="black", s=msize, facecolors="white")
-            ax.tick_params(labelbottom=True)
+            ax.tick_params(labelbottom=False)
             ax.set_ylim(0, max([np.max(y_n), np.max(y_m), dp*(self.mnj-1)])+dp)
             #ax.set_yticks(np.arange(0,
             #              (max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2),
@@ -149,7 +149,7 @@ class Plot_4w_Logn:
             ax.yaxis.set_minor_locator(MultipleLocator(dp))
             ax.tick_params(length=6, which='major')
             ax.tick_params(length=3, which='minor')
-            plt.subplots_adjust(wspace=0.2, hspace=0.4)
+            plt.subplots_adjust(wspace=0.2, hspace=0.0)
 
 
 def samplerun():

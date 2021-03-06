@@ -11,12 +11,12 @@ import numpy as np
 def run():
     head = "/home/kazu/desktop/200312/for_cu_new/old_orthotope/" +\
            "orthotope_ddscs_again2/expt_orthotope_bd/"
-    isefn1 = "ise_withoutcond"
+    isefn1 = "ise_searched"
     isefn2 = "ise_condparam09"
     infiler1 = "result.txt_vec"
     infiler2 = "condparam09/result.txt_vec"
     stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
-    label1 = r'$\alpha=0$'
+    label1 = 'ise_searched'
     label2 = r'$\alpha=0.9$'
     tcn = 3
     cn = 0
