@@ -15,7 +15,6 @@ class maxfracall(goc.gather_optbinidx):
 
     def get_all_maxfrac(self):
         dirs = subprocess.getoutput("/bin/ls -d *" + self.tail +"/").split()
-        print("try0_10m/"[:-2])
         times = np.sort(np.array([int(_[:-2]) for _ in dirs]))
         maxmaskfracs = []
         dirlist = []
