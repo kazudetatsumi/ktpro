@@ -47,7 +47,7 @@ def run():
     mycc.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     mycc.dshiftf = -6
     mycc.ylabel = False
-    mycc.label2 = r'$\alpha$=0.7'
+    mycc.label2 = r'$\alpha$=0.5'
     mycc.mnj = 5
     mycc.get_all_data()
     mycc.plot_all_data()

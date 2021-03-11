@@ -35,6 +35,7 @@ def run():
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
+    ic.isefn1 = "ise_searched_rev"
     ic.isefn2 = "ise_condparam05"
     ic.infiler2 = "condparam05/result.txt_vec"
     ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
@@ -43,7 +44,7 @@ def run():
     ic.cn = 2
     ic.mnj = 5
     ic.get_all_data()
-    ic.plot_cis(shift=0.01, ylabel=False)
+    ic.plot_cis(shift=0.01, ylabel=False, mdel=2)
 
     plt.show()
 

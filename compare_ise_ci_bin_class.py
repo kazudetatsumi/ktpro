@@ -89,11 +89,11 @@ class ise_ci:
         self.maxdiff = np.max(np.max(np.abs(self.tdatar1 - self.tdatar2),
                                      axis=2), axis=0)
 
-    def plot_cis(self, shift=0.025, ylabel=True):
-        y1 = self.tdata1[:, :, 1]/np.prod(self.stepsizes)
-        y2 = self.tdata2[:, :, 1]/np.prod(self.stepsizes)
-        x12 = np.tile(np.average(np.concatenate([self.tdata1[:, :, 0],
-                                                self.tdata2[:, :, 0]], axis=0),
+    def plot_cis(self, shift=0.025, ylabel=True, mdel=0):
+        y1 = self.tdata1[:, mdel:, 1]/np.prod(self.stepsizes)
+        y2 = self.tdata2[:, mdel:, 1]/np.prod(self.stepsizes)
+        x12 = np.tile(np.average(np.concatenate([self.tdata1[:, mdel:, 0],
+                                                self.tdata2[:, mdel:, 0]], axis=0),
                                  axis=0),
                       20).flatten()
         #cis = sms.CompareMeans(sms.DescrStatsW(y1),
@@ -121,14 +121,14 @@ class ise_ci:
             ax.set_ylabel('$\overline{ISE}$ ($rlu^{-3}meV^{-1}$)')
         miny = np.min([np.min(y1), np.min(y2)])
         maxy = np.max([np.max(y1), np.max(y2)])
-        margin = (maxy - miny)*0.01
+        margin = (maxy - miny)*0.05
         ax.set_ylim(0, maxy+margin)
         ax.set_xlim(np.min(x12)*10.0**(-2.5*shift), np.max(x12)*10.0**(2.5*shift))
         ax.tick_params(top=True, right=True, direction='in', which='both')
         plt.legend()
         ax = plt.subplot(gs[1, self.cn])
-        x = np.average(np.concatenate([self.tdata1[:, :, 0],
-                                       self.tdata2[:, :, 0]], axis=0), axis=0)
+        x = np.average(np.concatenate([self.tdata1[:, mdel:, 0],
+                                       self.tdata2[:, mdel:, 0]], axis=0), axis=0)
         ax.errorbar(x, y,  yerr=yerr,  capsize=3, fmt="none", ms="5", c='k')
         ax.axhline(y=0, ls='--', c='k', lw=0.5)
         ax.set_xscale('log')
@@ -138,7 +138,7 @@ class ise_ci:
         ax.set_xlabel('total count')
         ax.tick_params(top=True, right=True, direction='in', which='both')
 
-    def plot_bin(self, ylabel=True):
+    def plot_bin(self, ylabel=True, mdel=0):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
         ys1 = np.array(self.tdatar1[:, :, 1:], dtype=int)
         ys2 = np.array(self.tdatar2[:, :, 1:], dtype=int)
@@ -147,13 +147,13 @@ class ise_ci:
         wlist = ["qx", "qy", "qz", "w"]
         for widx, wlabel in enumerate(wlist):
             ax = plt.subplot(gs[widx, self.cn])
-            for nidx in range(0, diff.shape[1]):
+            for nidx in range(mdel, diff.shape[1]):
                 ue, uc = np.unique(diff[:, nidx, widx], return_counts=True)
                 uc = uc/(diff.shape[0]*1.0)
                 ue = ue*self.stepsizes[widx]
                 xse = np.ones_like(ue)*xs[nidx]
                 c = ax.scatter(xse, ue, c=uc, ec='k', lw=1.5, cmap='binary',
-                           vmin=0.0, vmax=1.0, s=60)
+                               vmin=0.0, vmax=1.0, s=60)
 
             ax.yaxis.set_major_locator(MultipleLocator(
                                        self.stepsizes[widx]*self.mnj[widx]))

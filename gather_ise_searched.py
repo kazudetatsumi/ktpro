@@ -13,9 +13,10 @@ import subprocess
 
 
 class gather_ise_search(cic.SCheckiselog):
-    def __init__(self, times, head):
+    def __init__(self, times, head, shift=None):
         self.times = times
         self.head = head
+        self.shift = shift
 
     def gather_ise(self):
         line = subprocess.getoutput("tail --line=1 " + self.log)
@@ -27,7 +28,7 @@ class gather_ise_search(cic.SCheckiselog):
 
     def gather_ise_fine(self):
         super(gather_ise_search, self).__init__(self.log, self.reflog)
-        super(gather_ise_search, self).getiselogdata()
+        super(gather_ise_search, self).getiselogdata(self._shift)
         self.minbw = np.squeeze(self.bw[self.ise == np.min(self.ise)])
         self.minise = np.min(self.ise)
 
@@ -38,23 +39,32 @@ class gather_ise_search(cic.SCheckiselog):
     def get_ise_from_one_dir(self):
         self.n = np.sum(self.read_h5py(self.workdir+"/eliminated_data.hdf5",
                                        "data4")*1.0)
-        self.gather_ise_fine()
-        #self.gather_ise()
+        if self.fine:
+            self.gather_ise_fine()
+        else:
+            self.gather_ise()
         self.avepdfs = 0.0  # dummy
         self.fracise = 0.0  # dummy
 
-    def printall(self):
+    def printall(self, fine=True):
+        self.fine = fine
         timelist = [str(t) + "m" for t in self.times]
         for tidx in range(1, 21):
             trydir = self.head + str(tidx) + "/"
-            outfile = trydir + "ise_searched_rev"
-            rfile = trydir + "result.txt_ise_rev"
+            if self.fine:
+                outfile = trydir + "ise_searched_rev"
+                rfile = trydir + "result.txt_ise_rev"
+            else:
+                outfile = trydir + "ise_searched"
+                rfile = trydir + "result.txt_ise"
             with open(outfile, 'w') as f, open(rfile, 'w') as r:
                 for idx, tname in enumerate(timelist):
                     self.workdir = trydir + tname + "/"
                     self.log = self.workdir + "std-ise-" + str(tidx) + "_"\
                         + tname + ".log"
                     self.reflog = self.workdir + "std-" + tname + ".log"
+                    if self.shift is not None:
+                        self._shift = self.shift[idx, :]
                     self.get_ise_from_one_dir()
                     print('{0}, {1}, {2}, {3}'.format(self.n, self.minise,
                                                       self.avepdfs,

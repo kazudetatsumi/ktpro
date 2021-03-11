@@ -36,12 +36,12 @@ class SIseci(cc.ise_ci):
         ax.scatter(xse, ue, c=uc, ec=ec, lw=0.5, cmap='binary',
                    vmin=0.0, vmax=1.0, s=size, marker=marker)
 
-    def plot_bin(self, ylabel=True):
+    def plot_bin(self, ylabel=True, mdel=0):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
-        ys1 = np.array(self.tdatar1[:, :, 1:], dtype=int)
-        ys2 = np.array(self.tdatar2[:, :, 1:], dtype=int)
-        ys3 = np.array(self.tdatar3[:, :, 1:], dtype=int)
-        xs = np.average(self.tdatar1[:, :, 0], axis=0)
+        ys1 = np.array(self.tdatar1[:, mdel:, 1:], dtype=int)
+        ys2 = np.array(self.tdatar2[:, mdel:, 1:], dtype=int)
+        ys3 = np.array(self.tdatar3[:, mdel:, 1:], dtype=int)
+        xs = np.average(self.tdatar1[:, mdel:, 0], axis=0)
         diff13 = np.abs(ys1 - ys3)
         diff23 = np.abs(ys2 - ys3)
         diff = (diff23 - diff13)*self.stepsizes
@@ -127,4 +127,4 @@ def samplerun():
     plt.show()
 
 
-samplerun()
+#samplerun()
