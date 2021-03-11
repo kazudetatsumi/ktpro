@@ -127,4 +127,4 @@ def samplerun():
     plt.show()
 
 
-#samplerun()
+samplerun()

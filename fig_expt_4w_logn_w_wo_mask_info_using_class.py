@@ -11,8 +11,8 @@ from matplotlib.ticker import LogFormatterSciNotation, ScalarFormatter
 
 class SCompare(cc.Compare):
     def __init__(self, infile1, label1, infile2, label2, dataname, stepsizes,
-                 tcn, cn, ylabel, mnj,
-                 dshifti=None, dshiftf=None):
+                 tcn, cn, ylabel, mnj, dshifti=None, dshiftf=None, log=True):
+        self.log = log
 
         super(SCompare, self).__init__(infile1, label1, infile2, label2,
                                        dataname, stepsizes,
@@ -22,7 +22,7 @@ class SCompare(cc.Compare):
     def create_fig(self):
         self.fig = plt.figure(figsize=(12, 9))
         self.fig.suptitle("Optimized bin-widths on experimental data " +
-                          self.dataname)
+                          self.title)
 
     def plot_all_data(self):
         x = self.all_data[0, self.dshifti:self.dshiftf, 0]
@@ -37,21 +37,28 @@ class SCompare(cc.Compare):
             ax.plot(x, ys[1, :, widx],
                     clip_on=False, linestyle="dotted", lw=1, label=self.label2,
                     marker=".", ms=8, mec='k', mfc='w', mew=1, c='k')
-            ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
             ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
-            mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
-            ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
             ax.yaxis.set_major_locator(MultipleLocator(self.stepsizes[widx]
                                                        * self.mnj))
             ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
-            ax.set_xscale('log')
+            if self.log:
+               ax.set_xscale('log')
+               ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
+               mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
+               ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
+            else:
+               ax.text(np.max(x)*0.7, np.max(ys[:, :, widx])*0.9, wlabel)
+               mergin = (np.max(x)-np.min(x))*0.02
+               ax.set_xlim(np.min(x)-mergin, np.max(x)+mergin)
+
             ax.xaxis.set_minor_formatter(plt.NullFormatter())
             ax.tick_params(top=True, right=True, direction='in', which='both')
             ax.tick_params(length=6, which='major')
             ax.tick_params(length=3, which='minor')
             ax.tick_params(labelbottom=False)
             if widx == 3:
-                ax.set_xscale('log')
+                if self.log:
+                    ax.set_xscale('log')
                 ax.tick_params(labelbottom=True)
                 ax.set_xlabel('total count')
             if widx == 1 and self.ylabel:
@@ -75,7 +82,7 @@ def run():
     ylabel = True
     mnj = 4
     mycc = SCompare(infile1, label1, infile2, label2, "17714 Ei42 Ei24",
-                    stepsizes, tcn, cn, ylabel, mnj)
+                    stepsizes, tcn, cn, ylabel, mnj, log=True)
     mycc.create_fig()
     mycc.plot_all_data()
     mycc.cn = 2
