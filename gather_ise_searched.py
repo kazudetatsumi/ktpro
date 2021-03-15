@@ -21,8 +21,14 @@ class gather_ise_search(cic.SCheckiselog):
     def gather_ise(self):
         line = subprocess.getoutput("tail --line=1 " + self.log)
         #print(line, self.log)
-        values = line.split("(")
-        values2 = values[1].split(")")
+        if "(" in line:
+            values = line.split("(")
+            values2 = values[1].split(")")
+        else:
+            for line in open(self.log):
+                if "(" in line:
+                    values = line.split("(")
+                    values2 = values[1].split(")")
         self.minbw = np.array(values2[0].split(","), dtype='int32')
         self.minise = float(values2[1].split(" ")[5])
 
@@ -46,22 +52,35 @@ class gather_ise_search(cic.SCheckiselog):
         self.avepdfs = 0.0  # dummy
         self.fracise = 0.0  # dummy
 
-    def printall(self, fine=True):
+    def printall(self, fine=False, lv=False):
         self.fine = fine
+        self.lv = lv
         timelist = [str(t) + "m" for t in self.times]
         for tidx in range(1, 21):
+            print(tidx)
             trydir = self.head + str(tidx) + "/"
-            if self.fine:
+            if self.fine and not self.lv:
                 outfile = trydir + "ise_searched_rev"
                 rfile = trydir + "result.txt_ise_rev"
+            elif self.lv and not self.fine:
+                outfile = trydir + "ise_searched_lv"
+                rfile = trydir + "result.txt_ise_lv"
+            elif self.lv and self.fine:
+                outfile = trydir + "ise_searched_rev_lv"
+                rfile = trydir + "result.txt_ise_rev_lv"
             else:
                 outfile = trydir + "ise_searched"
                 rfile = trydir + "result.txt_ise"
             with open(outfile, 'w') as f, open(rfile, 'w') as r:
                 for idx, tname in enumerate(timelist):
+                    print(tname)
                     self.workdir = trydir + tname + "/"
-                    self.log = self.workdir + "std-ise-" + str(tidx) + "_"\
-                        + tname + ".log"
+                    if self.lv:
+                        self.log = self.workdir + "std-ise-lv-" + str(tidx) + "_"\
+                            + tname + ".log"
+                    else:
+                        self.log = self.workdir + "std-ise-" + str(tidx) + "_"\
+                            + tname + ".log"
                     self.reflog = self.workdir + "std-" + tname + ".log"
                     if self.shift is not None:
                         self._shift = self.shift[idx, :]

@@ -34,8 +34,8 @@ class CountInt:
 
     def readhdf5(self):
         f = h5py.File(self.hdffile, 'r')
-        self.data4 = np.array(f["data4"])
         self.condition = np.array(f["condition"])
+        self.data4 = np.array(f["data4"])*self.condition
 
     def getcount(self):
         self.calc_binnumber()

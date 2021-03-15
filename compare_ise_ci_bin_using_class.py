@@ -13,7 +13,7 @@ def run():
            "orthotope_ddscs_again2/expt_orthotope_bd/"
     isefn1 = "ise_withoutcond"
     isefn2 = "ise_condparam09"
-    infiler1 = "result.txt_ise"
+    infiler1 = "result.txt_ise_lv"
     infiler2 = "condparam09/result.txt_vec"
     stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
     label1 = r'$\alpha=0$'
@@ -38,14 +38,14 @@ def run():
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
     ic.isefn2 = "ise_condparam05"
-    ic.infiler1 = "result.txt_ise_rev"
+    ic.infiler1 = "result.txt_ise_lv"
     ic.infiler2 = "condparam05/result.txt_vec"
     ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     ic.label2 = r'$\alpha=0.5$'
     ic.cn = 2
     ic.get_all_data()
     ic.mnj = [7,2,1,4]
-    ic.plot_bin(ylabel=False, mdel=2)
+    ic.plot_bin(ylabel=False, mdel=0)
     #plt.savefig('binwidth_dif.png')
 
     plt.show()

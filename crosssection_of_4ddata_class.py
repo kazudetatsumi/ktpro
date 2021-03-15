@@ -32,6 +32,11 @@ class CROSS:
         data4[condition <= 0.1] = -10000.0
         return(data4, condition)
 
+    def read_data(self):
+        f = h5py.File(self.outfile, 'r')
+        data4 = np.array(f["data4"])
+        return(data4)
+
     def lims_int(self):
         lims_int = np.zeros(self.orthotope_lims.shape, dtype=int)
         for i in range(0, self.orthotope_lims.shape[0]):
@@ -40,8 +45,12 @@ class CROSS:
                                      / self.binwidths[i]))
         return(lims_int)
 
-    def plot_crosssection(self, cnum, xyyx=False):
-        data4, condition = self.read_and_preprocess_data()
+    def plot_crosssection(self, cnum, xyyx=False, filled=False):
+        self.filled = filled
+        if self.filled:
+            data4 = self.read_data()
+        else:
+            data4, condition = self.read_and_preprocess_data()
         lims_int = self.lims_int()
         if xyyx:
             data4 = np.transpose(data4, (1, 0, 2, 3))
@@ -79,15 +88,26 @@ class CROSS:
     def plotter(self, xlim, ylim, lx, ly, data, vn, hn, cn, dev, xr, yr,
                 cposinfo):
 
-        cdict = {'red':   ((0.0, 0.3, 0.3),
-                           (1.0, 1.0, 1.0)),
+        if self.filled:
+            cdict = {'red':   ((0.0, 0.0, 0.0),
+                               (1.0, 1.0, 1.0)),
 
-                 'green': ((0.0, 0.3, 0.3),
-                           (1.0, 1.0, 1.0)),
+                     'green': ((0.0, 0.0, 0.0),
+                               (1.0, 1.0, 1.0)),
 
-                 'blue':  ((0.0, 0.3, 0.3),
-                           (1.0, 1.0, 1.0))
-                 }
+                     'blue':  ((0.0, 0.0, 0.0),
+                               (1.0, 1.0, 1.0))
+                     }
+        else:
+            cdict = {'red':   ((0.0, 0.3, 0.3),
+                               (1.0, 1.0, 1.0)),
+
+                     'green': ((0.0, 0.3, 0.3),
+                               (1.0, 1.0, 1.0)),
+
+                     'blue':  ((0.0, 0.3, 0.3),
+                               (1.0, 1.0, 1.0))
+                     }
 
         custom_cmap = LinearSegmentedColormap('truncated_gray', cdict)
         custom_cmap.set_under(color='black')

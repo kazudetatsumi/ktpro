@@ -160,7 +160,7 @@ class ise_ci:
             if self.mnj[widx] != 1:
                 ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
             ax.tick_params(top=True, right=True, direction='in', which='both', width=2)
-            ax.tick_params(labelbottom=True, labelleft=True)
+            ax.tick_params(labelbottom=False, labelleft=True)
             ax.axhline(y=0, ls='--', c='k', lw=0.5)
             ax.set_xscale('log')
             if ylabel and widx == 1:
@@ -168,7 +168,7 @@ class ise_ci:
             if ylabel and widx == 3:
                 ax.set_ylabel('bin-width difference (meV)')
             self.fig.colorbar(c, ax=ax)
-        plt.subplots_adjust(wspace=0.16, hspace=0.16)
+        plt.subplots_adjust(wspace=0.16, hspace=0.0)
         ax.tick_params(labelbottom=True)
         ax.set_xlabel('total count')
 

@@ -68,8 +68,8 @@ class Compare:
         self.fig = plt.figure(figsize=(12, 9))
         self.fig.suptitle(self.title)
 
-    def plot_all_data(self, log=True):
-        x = self.all_data[0, self.dshifti:self.dshiftf, 0]
+    def plot_all_data(self, log=True, xlim=None, vlims=None, alpha=1.0):
+        x = self.all_data[0, self.dshifti:self.dshiftf, 0]*alpha
         ys = self.all_data[:, self.dshifti:self.dshiftf, 1:]*self.stepsizes
         wlist = ["qx", "qy", "qz", "w"]
 
@@ -86,13 +86,21 @@ class Compare:
             if log:
                 ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
                 mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
-                ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
+                if xlim is not None:
+                    ax.set_xlim((xlim[0]*alpha, xlim[1]*alpha))
+                else:
+                    ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
+                #print(np.min(x)*10**(-mergin),  np.max(x)*10**(mergin))
                 ax.set_xscale('log')
             else:
                 ax.text((np.max(x)-np.min(x))*0.7, np.max(ys[:, :, widx])*0.9,
                         wlabel)
                 mergin = (np.max(x)-np.min(x))*0.02
                 ax.set_xlim(np.min(x)-mergin, np.max(x)+mergin)
+
+            if vlims is not None:
+                ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
+                ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
 
             ax.yaxis.set_major_locator(MultipleLocator(self.stepsizes[widx]
                                                        * self.mnj))
@@ -104,7 +112,10 @@ class Compare:
             ax.tick_params(labelbottom=False)
             if widx == 3:
                 ax.tick_params(labelbottom=True)
-                ax.set_xlabel('total count')
+                if abs(alpha - 1.0) > 0.0001:
+                    ax.set_xlabel('count in common space')
+                else:
+                    ax.set_xlabel('total count')
             if widx == 1 and self.ylabel:
                 ax.set_ylabel('bin width (rlu)')
             if widx == 3 and self.ylabel:

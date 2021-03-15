@@ -19,7 +19,7 @@ def run():
     isefn3 = "ise_searched"
     infiler1 = "result.txt_vec"
     infiler2 = "condparam09/result.txt_vec"
-    infiler3 = "result.txt_ise"
+    infiler3 = "result.txt_ise_lv"
     stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
     label1 = r'$\alpha=0$'
     label2 = r'$\alpha=0.9$'
@@ -45,12 +45,11 @@ def run():
               "samedataasfilled_again2_ddscs/"
     ic.isefn2 = "ise_condparam05"
     ic.infiler2 = "condparam05/result.txt_vec"
-    ic.infiler3 = "result.txt_ise_rev"
     ic.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     ic.label2 = r'$\alpha=0.5$'
     ic.cn = 2
     ic.get_all_data()
-    ic.plot_bin(ylabel=False, mdel=2)
+    ic.plot_bin(ylabel=False, mdel=0)
     #plt.savefig('binwidth_dif_dif.pdf')
 
     plt.show()
