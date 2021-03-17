@@ -22,6 +22,7 @@ def run():
     pro = c4c.CROSS(outfile, orthotope_lims, wholeranges, devs, cpos,
                     hvlofs=False, binwidths=binwidths, common_lims=common_lims)
     pro.create_fig()
+    pro.get_data()
     pro.plot_crosssection(1, xyyx=True)
 
     pro.outfile = "/home/kazu/desktop/200522/Ei42/veryfineq/14m/" + \
@@ -36,6 +37,7 @@ def run():
     pro.devs = np.array([1, 1, 1])
     pro.cpos = np.array([58, 39, 8, 10])*orgbinwidths
 
+    pro.get_data()
     pro.plot_crosssection(2)
 
     pro.outfile = "/home/kazu/desktop/200522/Ei24/fineq/26m/" + \
@@ -50,6 +52,7 @@ def run():
     pro.cpos = np.array([75, 39, 2, 6])*orgbinwidths
     pro.hvlofs = True
 
+    pro.get_data()
     pro.plot_crosssection(3)
     #plt.savefig("test.png")
     plt.show()

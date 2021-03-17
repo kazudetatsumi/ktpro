@@ -113,6 +113,17 @@ class gather_optbinidx:
                                            )
                                           )[0][0]
                 self.max_maskfrac = self.maskfrac[self.pngdatano]
+                self._pngdatano = np.where((self.difbinidx <= 1) &
+                                          (self.maskfrac ==
+                                           np.max(
+                                               self.maskfrac[(self.maskfrac
+                                                             < self.max_maskfrac) &
+                                                             (self.difbinidx <= 1)
+                                                             ]
+                                               )
+                                           )
+                                          )[0][0]
+                print("_pngdatano:", self._pngdatano)
             else:
                 self.maxfound = False
                 print('maximum difbin', np.max(self.difbinidx))
@@ -124,7 +135,7 @@ class gather_optbinidx:
             print("pngdatano:", self.pngdatano)
             print("that maskfrac:", self.maskfrac[self.pngdatano])
             pngfile = self.workdir + "/data4_" + self.timestr[:-2] + "_" +\
-                str(self.pngdatano)+".png"
+                str(self._pngdatano)+".png"
             print(pngfile)
             if os.path.exists(pngfile):
                 plt.imshow(mpimg.imread(pngfile))
@@ -175,6 +186,10 @@ class gather_optbinidx:
                            self.difbinidx[self.pngdatano],
                            marker='x', facecolors='gray', edgecolor='gray',
                            clip_on=True)
+                ax.scatter(self.radius[self._pngdatano]*self.dq*2.0,
+                           self.difbinidx[self._pngdatano],
+                           marker='x', facecolors='red', edgecolor='red',
+                           clip_on=True)
 
             ax = plt.subplot2grid((2, 2), (1, 0))
             ax.scatter(self.maskfrac*100.0, self.difbinidx, marker='x', c='k',
@@ -187,6 +202,10 @@ class gather_optbinidx:
                 ax.scatter(self.maskfrac[self.pngdatano]*100.0,
                            self.difbinidx[self.pngdatano],
                            marker='x',  facecolors='gray', edgecolor='gray',
+                           clip_on=True)
+                ax.scatter(self.maskfrac[self._pngdatano]*100.0,
+                           self.difbinidx[self._pngdatano],
+                           marker='x',  facecolors='red', edgecolor='red',
                            clip_on=True)
         plt.show()
 

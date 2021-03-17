@@ -22,6 +22,7 @@ def run():
     pro = c4c.CROSS(outfile, orthotope_lims, wholeranges, devs, cpos,
                     hvlofs=False, binwidths=binwidths)
     pro.create_fig()
+    pro.get_data()
     pro.plot_crosssection(1, xyyx=True)
 
     pro.outfile = head + "200522/Ei42/veryfineq/14m/" + tail
@@ -32,6 +33,7 @@ def run():
                                 [-0.8, 0.60], [-8.0, 36.4]])
     pro.cpos = np.array([58, 39, 8, 10])
 
+    pro.get_data()
     pro.plot_crosssection(2)
 
     pro.outfile = head + "200522/Ei24/fineq/26m/" + tail
@@ -42,6 +44,7 @@ def run():
     pro.cpos = np.array([75, 39, 2, 6])
     pro.hvlofs=True
 
+    pro.get_data()
     pro.plot_crosssection(3)
     plt.savefig("fig_hist_with_labels.png")
     plt.subplots_adjust(wspace=0.1, hspace=0.37)
