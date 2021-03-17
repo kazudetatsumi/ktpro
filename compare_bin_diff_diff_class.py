@@ -36,12 +36,16 @@ class SIseci(cc.ise_ci):
         ax.scatter(xse, ue, c=uc, ec=ec, lw=0.5, cmap='binary',
                    vmin=0.0, vmax=1.0, s=size, marker=marker)
 
-    def plot_bin(self, ylabel=True, mdel=0):
+    def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
-        ys1 = np.array(self.tdatar1[:, mdel:, 1:], dtype=int)
-        ys2 = np.array(self.tdatar2[:, mdel:, 1:], dtype=int)
-        ys3 = np.array(self.tdatar3[:, mdel:, 1:], dtype=int)
-        xs = np.average(self.tdatar1[:, mdel:, 0], axis=0)
+        if dels is not None:
+            self.tdatar1 = np.delete(self.tdatar1[:, :, :], dels, axis=1)
+            self.tdatar2 = np.delete(self.tdatar2[:, :, :], dels, axis=1)
+            self.tdatar3 = np.delete(self.tdatar3[:, :, :], dels, axis=1)
+        ys1 = np.array(self.tdatar1[:, :, 1:], dtype=int)
+        ys2 = np.array(self.tdatar2[:, :, 1:], dtype=int)
+        ys3 = np.array(self.tdatar3[:, :, 1:], dtype=int)
+        xs = np.average(self.tdatar1[:, :, 0], axis=0)*alpha
         diff13 = np.abs(ys1 - ys3)
         diff23 = np.abs(ys2 - ys3)
         diff = (diff23 - diff13)*self.stepsizes
@@ -80,9 +84,12 @@ class SIseci(cc.ise_ci):
                 ax.set_ylabel('bin-width difference (rlu)')
             if ylabel and widx == 3:
                 ax.set_ylabel('bin-width difference (meV)')
+            if vlims is not None:
+                ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
+                ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
         plt.subplots_adjust(wspace=0.16, hspace=0.0)
         ax.tick_params(labelbottom=True)
-        ax.set_xlabel('total count')
+        ax.set_xlabel('count in common space')
 
 
 def samplerun():

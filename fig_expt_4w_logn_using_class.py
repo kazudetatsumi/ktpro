@@ -7,6 +7,7 @@ import numpy as np
 import sys
 sys.path.append('/home/kazu/ktpro')
 import fig_expt_4w_logn_class as f4lc
+import alpha_17714_Ei42_Ei24 as a1EE
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
 from matplotlib.ticker import LogFormatterSciNotation, ScalarFormatter
@@ -33,21 +34,21 @@ def run():
     log = False
     projectset = f4lc.Plot_4w_Logn(infile, deltas, m, ulm, num_clms, mnj, log)
     projectset.create_fig()
-    projectset.plotter(clm, ylabel=True)
+    projectset.plotter(clm, ylabel=True, alpha=a1EE.alpha('17714'))
 
     projectset.infile = "/home/kazu/desktop/200522/Ei42/veryfineq/" +\
              "condparam_09/result.txt_vec"
     projectset.deltas = np.array([0.0125, 0.025, 0.050, 0.2])
     clm = 2
     #projectset_Ei42 = Plot_4w_Logn(infile, deltas, m, ulm, num_clms)
-    projectset.plotter(clm, ylabel=False)
+    projectset.plotter(clm, ylabel=False, alpha=a1EE.alpha('Ei42'))
 
     projectset.infile = "/home/kazu/desktop/200522/Ei24/fineq/" +\
              "/condparam07/result.txt_vec"
     projectset.deltas = np.array([0.01, 0.01, 0.04, 0.08])
     clm = 3
     projectset.mnj
-    projectset.plotter(clm, ylabel=False)
+    projectset.plotter(clm, ylabel=False, alpha=a1EE.alpha('Ei24'))
 
 
 run()

@@ -13,7 +13,8 @@ plt.rcParams.update(params)
 class CROSS:
 
     def __init__(self, outfile, orthotope_lims, wholeranges, devs,
-                 cpos, hvlofs=False, binwidths=np.ones(4)):
+                 cpos, hvlofs=False, binwidths=np.ones(4),
+                 common_lims=None):
         self.outfile = outfile
         self.orthotope_lims = orthotope_lims
         self.wholeranges = wholeranges
@@ -21,6 +22,7 @@ class CROSS:
         self.cpos = cpos
         self.hvlofs = hvlofs
         self.binwidths = binwidths
+        self.common_lims = common_lims
 
     def read_and_preprocess_data(self):
         f = h5py.File(self.outfile, 'r')
@@ -37,12 +39,11 @@ class CROSS:
         data4 = np.array(f["data4"])
         return(data4)
 
-    def lims_int(self):
-        lims_int = np.zeros(self.orthotope_lims.shape, dtype=int)
-        for i in range(0, self.orthotope_lims.shape[0]):
-            for j in range(0, self.orthotope_lims.shape[1]):
-                lims_int[i, j] = int(round(self.orthotope_lims[i, j]
-                                     / self.binwidths[i]))
+    def lims_int(self, lims):
+        lims_int = np.zeros(lims.shape, dtype=int)
+        for i in range(0, lims.shape[0]):
+            for j in range(0, lims.shape[1]):
+                lims_int[i, j] = int(round(lims[i, j] / self.binwidths[i]))
         return(lims_int)
 
     def plot_crosssection(self, cnum, xyyx=False, filled=False):
@@ -51,42 +52,71 @@ class CROSS:
             data4 = self.read_data()
         else:
             data4, condition = self.read_and_preprocess_data()
-        lims_int = self.lims_int()
+        lims_int = self.lims_int(self.orthotope_lims)
+        if self.common_lims is not None:
+            clims_int = self.lims_int(self.common_lims)
+        else:
+            clims_int = np.zeors(lims_int.shape, dtype=int)
         if xyyx:
             data4 = np.transpose(data4, (1, 0, 2, 3))
             self.cpos[[0, 1]] = self.cpos[[1, 0]]
             lims_int[[0, 1], :] = lims_int[[1, 0], :]
+            clims_int[[0, 1], :] = clims_int[[1, 0], :]
             self.wholeranges[[0, 1], :] = self.wholeranges[[1, 0], :]
         cposval = self.cpos*1.0/np.array(data4.shape)*1.0 *\
             (self.wholeranges[:, 1]-self.wholeranges[:, 0]) +\
             self.wholeranges[:, 0]
         cposinfo = '$(q_c, E)$' + "=({:.0f}, {:.0f})".format(
                    cposval[2], cposval[3])
-        self.plotter(lims_int[0, :], lims_int[1, :], '$q_a(rlu)$', '$q_b(rlu)$',
-                     data4[:, :, self.cpos[2], self.cpos[3]],
+        if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
+                and self.cpos[3] >= clims_int[3, 0] and\
+                self.cpos[3] <= clims_int[3, 1]:
+            clims = np.stack((clims_int[0, :], clims_int[1, :]))
+        else:
+            clims = None
+        self.plotter(lims_int[0, :], lims_int[1, :], '$q_a(rlu)$',
+                     '$q_b(rlu)$', data4[:, :, self.cpos[2], self.cpos[3]],
                      4, 3, cnum, self.devs[0], self.wholeranges[0, :],
-                     self.wholeranges[1, :], cposinfo)
+                     self.wholeranges[1, :], cposinfo, clims=clims)
         cposinfo = '$(q_a, q_c)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[2])
+        if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
+                and self.cpos[0] >= clims_int[0, 0] and\
+                self.cpos[0] <= clims_int[0, 1]:
+            clims = np.stack((clims_int[1, :], clims_int[3, :]))
+        else:
+            clims = None
         self.plotter(lims_int[1, :], lims_int[3, :], '$q_b(rlu)$', 'E(meV)',
                      data4[self.cpos[0], :, self.cpos[2], :],
                      4, 3, cnum+3, self.devs[1], self.wholeranges[1, :],
-                     self.wholeranges[3, :], cposinfo)
+                     self.wholeranges[3, :], cposinfo, clims=clims)
         cposinfo = '$(q_b, q_c)$' + "=({:.1f}, {:.0f})".format(
                    cposval[1], cposval[2])
+        if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
+                and self.cpos[1] >= clims_int[1, 0] and\
+                self.cpos[1] <= clims_int[1, 1]:
+            clims = np.stack((clims_int[0, :], clims_int[3, :]))
+        else:
+            clims = None
         self.plotter(lims_int[0, :], lims_int[3, :], '$q_a(rlu)$', 'E(meV)',
                      data4[:, self.cpos[1], self.cpos[2], :],
                      4, 3, cnum+6, self.devs[2], self.wholeranges[0, :],
-                     self.wholeranges[3, :], cposinfo)
+                     self.wholeranges[3, :], cposinfo, clims=clims)
         cposinfo = '$(q_a, q_b)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[1])
+        if self.cpos[0] >= clims_int[0, 0] and self.cpos[0] <= clims_int[0, 1]\
+                and self.cpos[1] >= clims_int[1, 0] and\
+                self.cpos[1] <= clims_int[1, 1]:
+            clims = np.stack((clims_int[2, :], clims_int[3, :]))
+        else:
+            clims = None
         self.plotter(lims_int[2, :], lims_int[3, :], '$q_c(rlu)$', 'E(meV)',
                      data4[self.cpos[0], self.cpos[1], :, :],
                      4, 3, cnum+9, self.devs[2], self.wholeranges[2, :],
-                     self.wholeranges[3, :], cposinfo)
+                     self.wholeranges[3, :], cposinfo, clims=clims)
 
     def plotter(self, xlim, ylim, lx, ly, data, vn, hn, cn, dev, xr, yr,
-                cposinfo):
+                cposinfo, clims=None):
 
         if self.filled:
             cdict = {'red':   ((0.0, 0.0, 0.0),
@@ -148,6 +178,24 @@ class CROSS:
         ax.axhline(y=yeval, color='white', lw=1.5,
                    xmin=float(xlim[0])/float(data.shape[0])+frac,
                    xmax=float(xlim[1])/float(data.shape[0])-frac)
+        if clims is not None:
+            cxival = clims[0, 0]/float(data.shape[0])*(xr[1] - xr[0]) + xr[0]
+            cxeval = clims[0, 1]/float(data.shape[0])*(xr[1] - xr[0]) + xr[0]
+            cyival = clims[1, 0]/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
+            cyeval = clims[1, 1]/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
+            ax.axvline(x=cxival, color='white', lw=0.5,
+                       ymin=float(clims[1, 0])/float(data.shape[1]),
+                       ymax=float(clims[1, 1])/float(data.shape[1]))
+            ax.axvline(x=cxeval, color='white', lw=0.5,
+                       ymin=float(clims[1, 0])/float(data.shape[1]),
+                       ymax=float(clims[1, 1])/float(data.shape[1]))
+            ax.axhline(y=cyival, color='white', lw=0.5,
+                       xmin=float(clims[0, 0])/float(data.shape[0]),
+                       xmax=float(clims[0, 1])/float(data.shape[0]))
+            ax.axhline(y=cyeval, color='white', lw=0.5,
+                       xmin=float(clims[0, 0])/float(data.shape[0]),
+                       xmax=float(clims[0, 1])/float(data.shape[0]))
+
         ax.xaxis.set_label_coords(0.5, -0.09)
         ax.yaxis.set_label_coords(-0.09, 0.5)
         ax.tick_params(direction="out", color="black", pad=0., labeltop=False,

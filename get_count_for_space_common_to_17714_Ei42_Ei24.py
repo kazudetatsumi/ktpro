@@ -11,21 +11,25 @@ def run():
                          [1.475, 1.525],
                          [-0.100, 0.100],
                          [13.0, 15.5]]).T
+    print('BOUNDARY', boundary)
     counter_17714 = ci.CountInt(hdffile, headfile, boundary)
     counter_17714.getcount()
 
-    hdffile = '/home/kazu/desktop/200522/Ei42/dq_0.025_dw_0.5/Output4D_00_840.hdf5'
-    headfile = '/home/kazu/desktop/200522/Ei42/dq_0.025_dw_0.5/Output4D_00_840.head.txt'
-    #hdffile = '/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.hdf5'
-    #headfile = '/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.txt.head'
+    #hdffile = '/home/kazu/desktop/200522/Ei42/dq_0.025_dw_0.5/Output4D_00_840.hdf5'
+    #headfile = '/home/kazu/desktop/200522/Ei42/dq_0.025_dw_0.5/Output4D_00_840.head.txt'
+    hdffile = '/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.hdf5'
+    headfile = '/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.txt.head'
     boundary_tmp = np.copy(boundary)
     boundary[:, 0] = boundary_tmp[:, 1]
     boundary[:, 1] = boundary_tmp[:, 0]
+    print('BOUNDARY', boundary)
     counter_Ei42 = ci.CountInt(hdffile, headfile, boundary)
     counter_Ei42.getcount()
     
-    hdffile = '/home/kazu/desktop/200522/Ei24/dq_0.025/Output4D_00_1560.hdf5'
-    headfile = '/home/kazu/desktop/200522/Ei24/dq_0.025/Output4D_00_1560.head.txt'
+    #hdffile = '/home/kazu/desktop/200522/Ei24/dq_0.025/Output4D_00_1560.hdf5'
+    #headfile = '/home/kazu/desktop/200522/Ei24/dq_0.025/Output4D_00_1560.head.txt'
+    hdffile = '/home/kazu/desktop/200522/Ei24/fineq/26m/Output4D_00_1560.hdf5'
+    headfile = '/home/kazu/desktop/200522/Ei24/fineq/26m/Output4D_00_1560.txt.head'
     counter_Ei24 = ci.CountInt(hdffile, headfile, boundary)
     counter_Ei24.getcount()
     

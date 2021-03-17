@@ -85,15 +85,15 @@ class Plot_4w_Logn:
         self.list_n = np.array([xlist_n, Dqxlist_n, Dqylist_n, Dqzlist_n,
                                 Dwlist_n])
 
-    def plotter(self, clm, ylabel=True):
+    def plotter(self, clm, ylabel=True, alpha=1.0):
         self.get_data()
         ymm = self.list_m.shape[1]
         wlist = ["$q_x$", "$q_y$", "$q_z$", "$\omega$"]
         for ip, dp in enumerate(self.deltas):
             y_n = self.list_n[1+ip, :]*dp
-            x_n = 1.0/self.list_n[0, :]
+            x_n = 1.0/self.list_n[0, :]*alpha
             if self.log:
-                x_m = 1.0/self.list_m[0, :]
+                x_m = 1.0/self.list_m[0, :]*alpha
                 y_m = self.list_m[1+ip, :]*dp
                 deleteidx = []
                 for idx in range(1, x_n.shape[0]):
@@ -104,7 +104,7 @@ class Plot_4w_Logn:
                 y_m = np.delete(y_m, deleteidx)
                 y_n = np.delete(y_n, deleteidx)
             else:
-                x_m = 1.0/self.list_m[0, :-5]
+                x_m = 1.0/self.list_m[0, :-5]*alpha
                 y_m = self.list_m[1+ip, :-5]*dp
             msize = 80
             ax = self.fig.add_subplot(4, self.num_clms, clm+self.num_clms*ip)
@@ -144,7 +144,7 @@ class Plot_4w_Logn:
                 if ylabel:
                     ax.set_ylabel('bin width (meV)')
                 ax.tick_params(labelbottom=True)
-            ax.set_xlabel('total count')
+            ax.set_xlabel('count in common space')
             ax.yaxis.set_major_locator(MultipleLocator(dp*self.mnj))
             ax.yaxis.set_minor_locator(MultipleLocator(dp))
             ax.tick_params(length=6, which='major')

@@ -66,7 +66,7 @@ def run():
                    "result_only_extrapolate"
     mycc.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     xlim = (654.519524723231, 3050611.069576253)
-    tcountcommon = 1424.0
+    tcountcommon = 3208.0
     tcountcommon_expt = 1885.0
     tcount = 103368.0
     alpha = tcountcommon/tcount

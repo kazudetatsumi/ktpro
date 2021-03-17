@@ -10,6 +10,7 @@ def run():
 
     outfile = "/home/kazu/desktop/200204/fine/hourbyhour/10h/out_hw_all.hdf5"
     orthotope_lims = np.array([[120, 172], [61, 145], [16, 53], [20, 70]])*1.0
+    common_lims = np.array([[85, 88], [143, 146], [30, 39], [26, 32]])*1.0
     orgbinwidths = np.array([4, 4, 5, 3])
     binwidths = np.array([1, 1, 1, 1])*1.
     wholeranges = np.array([[-1.65, 4.1], [-2.1, 2.8], [-0.85, 0.9], [0, 40.5]]
@@ -19,7 +20,7 @@ def run():
     cpos = np.array([107, 145, 34, 0])
 
     pro = c4c.CROSS(outfile, orthotope_lims, wholeranges, devs, cpos,
-                    hvlofs=False, binwidths=binwidths)
+                    hvlofs=False, binwidths=binwidths, common_lims=common_lims)
     pro.create_fig()
     pro.plot_crosssection(1, xyyx=True)
 
@@ -31,6 +32,7 @@ def run():
     pro.binwidths = np.array([1, 1, 1, 1])*1.
     pro.wholeranges = np.array([[-0.675, 3.0875], [-0.925, 4.400],
                                 [-0.8, 0.60], [-8.0, 36.4]])
+    pro.common_lims = np.array([[172, 177], [56, 59], [14, 19], [105, 119]])*1.0
     pro.devs = np.array([1, 1, 1])
     pro.cpos = np.array([58, 39, 8, 10])*orgbinwidths
 
@@ -43,8 +45,10 @@ def run():
     pro.binwidths = np.array([1, 1, 1, 1])*1.
     pro.wholeranges = np.array([[0.01, 2.31], [-0.67, 1.35], [-0.16, 0.18],
                                 [-2.0, 21.20]])
+    pro.common_lims = np.array([[146, 153], [114, 121], [2, 7], [188, 220]])*1.0
     pro.devs = np.array([1, 1, 1])
     pro.cpos = np.array([75, 39, 2, 6])*orgbinwidths
+    pro.hvlofs = True
 
     pro.plot_crosssection(3)
     #plt.savefig("test.png")

@@ -37,8 +37,9 @@ class ise_ci:
     def create_fig(self, title=None):
         self.fig = plt.figure(figsize=(16, 12))
         if title is None:
-            self.fig.suptitle("integrated squared errors with respect to total" +
-                         "counts for phantom data of 17714 Ei42 Ei24")
+            self.fig.suptitle("integrated squared errors with respect to" +
+                              " total counts for phantom data of 17714 Ei42" +
+                              " Ei24")
         else:
             self.fig.suptitle(title)
 
@@ -76,7 +77,8 @@ class ise_ci:
         return np.transpose(np.array([nn, nqx, nqy, nqz, nw]))
 
     def getdatar(self, infile):
-        data = [self.getdatar_sub(self.head + "try" + str(tryidx) + "/" + infile)
+        data = [self.getdatar_sub(self.head + "try" + str(tryidx) + "/"
+                                  + infile)
                 for tryidx in range(1, 21)]
         tdata = np.stack(data, axis=0)
         return np.array(tdata, dtype='int32')
@@ -89,13 +91,20 @@ class ise_ci:
         self.maxdiff = np.max(np.max(np.abs(self.tdatar1 - self.tdatar2),
                                      axis=2), axis=0)
 
-    def plot_cis(self, shift=0.025, ylabel=True, mdel=0):
-        y1 = self.tdata1[:, mdel:, 1]/np.prod(self.stepsizes)
-        y2 = self.tdata2[:, mdel:, 1]/np.prod(self.stepsizes)
-        x12 = np.tile(np.average(np.concatenate([self.tdata1[:, mdel:, 0],
-                                                self.tdata2[:, mdel:, 0]], axis=0),
+    def plot_cis(self, shift=0.025, ylabel=True, alpha=1.0, vlims=None,
+                 dels=None):
+        if dels is not None:
+            self.tdata1 = np.delete(self.tdata1[:, :, :], dels, axis=1)
+            self.tdata2 = np.delete(self.tdata2[:, :, :], dels, axis=1)
+        y1 = self.tdata1[:, :, 1]/np.prod(self.stepsizes)
+        y2 = self.tdata2[:, :, 1]/np.prod(self.stepsizes)
+        y1 = self.tdata1[:, :, 1]/np.prod(self.stepsizes)
+        y2 = self.tdata2[:, :, 1]/np.prod(self.stepsizes)
+        x12 = np.tile(np.average(np.concatenate([self.tdata1[:, :, 0],
+                                                self.tdata2[:, :, 0]],
+                                                axis=0),
                                  axis=0),
-                      20).flatten()
+                      20).flatten()*alpha
         #cis = sms.CompareMeans(sms.DescrStatsW(y1),
         #                       sms.DescrStatsW(y2)).tconfint_diff(
         #                       usevar='unequal')
@@ -117,37 +126,61 @@ class ise_ci:
         ax.scatter(x12*10.0**(-shift), y2.flatten(), marker='_', s=2, c='blue',
                    lw=1, label=self.label2)
         ax.set_xscale('log')
+        if vlims is not None:
+            ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
+            ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
+            ax.set_xlim(min(vlims[0]*alpha*10.0**(-2.5*shift),
+                            np.min(x12)*10.0**(-2.5*shift)),
+                        max(np.max(x12)*10.0**(2.5*shift),
+                            vlims[1]*alpha*10.0**(2.5*shift)))
+        else:
+            ax.set_xlim(np.min(x12)*10.0**(-2.5*shift),
+                        np.max(x12)*10.0**(2.5*shift))
+
         if ylabel:
             ax.set_ylabel('$\overline{ISE}$ ($rlu^{-3}meV^{-1}$)')
         miny = np.min([np.min(y1), np.min(y2)])
         maxy = np.max([np.max(y1), np.max(y2)])
         margin = (maxy - miny)*0.05
         ax.set_ylim(0, maxy+margin)
-        ax.set_xlim(np.min(x12)*10.0**(-2.5*shift), np.max(x12)*10.0**(2.5*shift))
         ax.tick_params(top=True, right=True, direction='in', which='both')
         plt.legend()
         ax = plt.subplot(gs[1, self.cn])
-        x = np.average(np.concatenate([self.tdata1[:, mdel:, 0],
-                                       self.tdata2[:, mdel:, 0]], axis=0), axis=0)
+        x = np.average(np.concatenate([self.tdata1[:, :, 0],
+                                       self.tdata2[:, :, 0]], axis=0),
+                       axis=0)*alpha
         ax.errorbar(x, y,  yerr=yerr,  capsize=3, fmt="none", ms="5", c='k')
         ax.axhline(y=0, ls='--', c='k', lw=0.5)
         ax.set_xscale('log')
-        ax.set_xlim(np.min(x)*10.0**(-2.5*shift), np.max(x)*10.0**(2.5*shift))
+        if vlims is not None:
+            ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
+            ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
+            ax.set_xlim(min(vlims[0]*alpha*10.0**(-2.5*shift),
+                            np.min(x12)*10.0**(-2.5*shift)),
+                        max(np.max(x12)*10.0**(2.5*shift),
+                            vlims[1]*alpha*10.0**(2.5*shift)))
+        else:
+            ax.set_xlim(np.min(x12)*10.0**(-2.5*shift),
+                        np.max(x12)*10.0**(2.5*shift))
         if ylabel:
             ax.set_ylabel('mean difference \n ($rlu^{-3}meV^{-1}$)')
-        ax.set_xlabel('total count')
+        ax.set_xlabel('count in common space')
         ax.tick_params(top=True, right=True, direction='in', which='both')
+        plt.subplots_adjust(wspace=0.16, hspace=0.0)
 
-    def plot_bin(self, ylabel=True, mdel=0):
+    def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
+        if dels is not None:
+            self.tdatar1 = np.delete(self.tdatar1[:, :, :], dels, axis=1)
+            self.tdatar2 = np.delete(self.tdatar2[:, :, :], dels, axis=1)
         ys1 = np.array(self.tdatar1[:, :, 1:], dtype=int)
         ys2 = np.array(self.tdatar2[:, :, 1:], dtype=int)
-        xs = np.average(self.tdatar1[:, :, 0], axis=0)
+        xs = np.average(self.tdatar1[:, :, 0], axis=0)*alpha
         diff = ys1 - ys2
         wlist = ["qx", "qy", "qz", "w"]
         for widx, wlabel in enumerate(wlist):
             ax = plt.subplot(gs[widx, self.cn])
-            for nidx in range(mdel, diff.shape[1]):
+            for nidx in range(0, diff.shape[1]):
                 ue, uc = np.unique(diff[:, nidx, widx], return_counts=True)
                 uc = uc/(diff.shape[0]*1.0)
                 ue = ue*self.stepsizes[widx]
@@ -158,8 +191,10 @@ class ise_ci:
             ax.yaxis.set_major_locator(MultipleLocator(
                                        self.stepsizes[widx]*self.mnj[widx]))
             if self.mnj[widx] != 1:
-                ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
-            ax.tick_params(top=True, right=True, direction='in', which='both', width=2)
+                ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]
+                                                           ))
+            ax.tick_params(top=True, right=True, direction='in', which='both',
+                           width=2)
             ax.tick_params(labelbottom=False, labelleft=True)
             ax.axhline(y=0, ls='--', c='k', lw=0.5)
             ax.set_xscale('log')
@@ -168,9 +203,12 @@ class ise_ci:
             if ylabel and widx == 3:
                 ax.set_ylabel('bin-width difference (meV)')
             self.fig.colorbar(c, ax=ax)
+            if vlims is not None:
+                ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
+                ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
         plt.subplots_adjust(wspace=0.16, hspace=0.0)
         ax.tick_params(labelbottom=True)
-        ax.set_xlabel('total count')
+        ax.set_xlabel('count in common space')
 
 
 def samplerunbin():
@@ -216,6 +254,7 @@ def samplerunbin():
     ic.plot_bin(ylabel=False)
 
     plt.show()
+
 
 def samplerunise():
     head = "/home/kazu/desktop/200312/for_cu_new/old_orthotope/" +\

@@ -24,8 +24,8 @@ class SCompare(cc.Compare):
         self.fig.suptitle("Optimized bin-widths on experimental data " +
                           self.title)
 
-    def plot_all_data(self):
-        x = self.all_data[0, self.dshifti:self.dshiftf, 0]
+    def plot_all_data(self, alpha=1.0):
+        x = self.all_data[0, self.dshifti:self.dshiftf, 0]*alpha
         ys = self.all_data[:, self.dshifti:self.dshiftf, 1:]*self.stepsizes
         wlist = ["qx", "qy", "qz", "w"]
 
@@ -43,7 +43,7 @@ class SCompare(cc.Compare):
             ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]))
             if self.log:
                ax.set_xscale('log')
-               ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
+               ax.text(np.max(x)*0.6, np.max(ys[:, :, widx])*0.85, wlabel)
                mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
                ax.set_xlim(np.min(x)*10**(-mergin), np.max(x)*10**(mergin))
             else:
@@ -60,7 +60,7 @@ class SCompare(cc.Compare):
                 if self.log:
                     ax.set_xscale('log')
                 ax.tick_params(labelbottom=True)
-                ax.set_xlabel('total count')
+                ax.set_xlabel('count in common space')
             if widx == 1 and self.ylabel:
                 ax.set_ylabel('bin width (rlu)')
             if widx == 3 and self.ylabel:
@@ -84,7 +84,7 @@ def run():
     mycc = SCompare(infile1, label1, infile2, label2, "17714 Ei42 Ei24",
                     stepsizes, tcn, cn, ylabel, mnj, log=True)
     mycc.create_fig()
-    mycc.plot_all_data()
+    mycc.plot_all_data(alpha=123.0/5.189990e+05)
     mycc.cn = 2
     mycc.infile1 = "/home/kazu/desktop/200522/" +\
                    "Ei42/veryfineq/result.txt_vec"
@@ -94,7 +94,7 @@ def run():
     mycc.dshifti = None
     mycc.ylabel = False
     mycc.get_all_data()
-    mycc.plot_all_data()
+    mycc.plot_all_data(alpha=483.0/5.906150e+05)
     mycc.cn = 3
     mycc.infile1 = "/home/kazu/desktop/200522/" +\
                    "Ei24/fineq/result.txt_vec"
@@ -105,7 +105,7 @@ def run():
     mycc.label2 = r'$\alpha$=0.7'
     mycc.mnj = 5
     mycc.get_all_data()
-    mycc.plot_all_data()
+    mycc.plot_all_data(alpha=1885.0/9.685300e+04)
 
 run()
 plt.show()
