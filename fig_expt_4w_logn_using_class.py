@@ -52,5 +52,5 @@ def run():
 
 
 run()
-#plt.savefig("fig_opt_ext_binwidths.pdf")
+plt.savefig("fig_opt_ext_binwidths.pdf")
 plt.show()

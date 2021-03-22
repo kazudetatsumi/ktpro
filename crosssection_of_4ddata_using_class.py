@@ -54,7 +54,7 @@ def run():
 
     pro.get_data()
     pro.plot_crosssection(3)
-    #plt.savefig("test.png")
+    plt.savefig("Fig1_crosssections.pdf")
     plt.show()
 
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# A test program for Gaussian Process.
+# This is an exercise 2.9 #1 of Rasmussen's text book.
+# Kazuyoshi TATSUMI 2021/03/22
 import numpy as np
 import math
 import matplotlib.pyplot as plt
@@ -120,8 +123,8 @@ def samplerun_test():
         prj.draw_random_func_with_train()
 
 
-#samplerun_test()
-#plt.show()
+samplerun_test()
+plt.show()
 
 
 

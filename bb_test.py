@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# A test program for Brownian Bridge Process.
+# This is an exercise 2.9  # 3  of Rasmussen's text book.
+# Kazuyoshi TATSUMI 2021/03/22
 import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
