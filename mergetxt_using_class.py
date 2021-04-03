@@ -16,7 +16,7 @@ def run():
     proj.yfile = "/home/kazu/desktop/200522/Ei24/fineq/add_random_mask/maxfrac_condparam07.txt"
     proj.xfile = "/home/kazu/desktop/200522/Ei24/fineq/condparam07/nbins.txt"
     proj.merge()
-    proj.plotter(r'#3($\alpha$=0.7)', 'k')
+    proj.plotter(r'#3($\alpha$=0.7)', 'darkblue')
 
     proj.yfile = "/home/kazu/desktop/200522/Ei42/veryfineq/add_random_mask/maxfrac.txt"
     proj.xfile = "/home/kazu/desktop/200522/Ei42/veryfineq/nbins.txt"
@@ -43,6 +43,7 @@ def run():
 
     plt.legend()
 
+    plt.savefig('mask_effect.pdf')
     plt.show()
 
 

@@ -76,13 +76,16 @@ class Compare:
         for widx, wlabel in enumerate(wlist):
             ax = self.fig.add_subplot(4, self.tcn, self.tcn*widx+self.cn)
             ax.plot(x, ys[0, :, widx],
-                    clip_on=False, linestyle="dotted", lw=0.8, label=self.label1,
-                    marker="x", ms=5, mec='k', mfc='white', mew=0.8,  c='k')
+                    clip_on=False, linestyle="dotted", lw=1.0, label=self.label1,
+                    marker="x", ms=5, mec='k', mfc='white', mew=1.4,  c='k')
             ax.plot(x, ys[1, :, widx],
-                    clip_on=False, linestyle="dotted", lw=0.8, label=self.label2,
-                    marker=".", ms=5, mec='k', mfc='w', mew=0.8, c='k')
+                    clip_on=False, linestyle="dotted", lw=1.0, label=self.label2,
+                    marker=".", ms=6, mec='k', mfc='white', mew=1.4, c='k')
 
             ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
+            if (np.max(ys[:, :, widx]) + self.stepsizes[widx]) % \
+               (self.stepsizes[widx]*self.mnj) < self.stepsizes[widx]*0.5:
+                ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx]*2.0)
             if log:
                 ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
                 mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02

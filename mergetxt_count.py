@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 sys.path.append("/home/kazu/ktpro")
-import mergetxt as mg
+import mergetxt_class as mg
 import alpha_17714_Ei42_Ei24 as a1EE
 import get_all_totalcount_class as gatc
 import numpy as np

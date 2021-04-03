@@ -36,7 +36,8 @@ class SIseci(cc.ise_ci):
         ax.scatter(xse, ue, c=uc, ec=ec, lw=0.5, cmap='binary',
                    vmin=0.0, vmax=1.0, s=size, marker=marker)
 
-    def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None):
+    def plot_bin(self, shift=0.025, ylabel=True, alpha=1.0, vlims=None,
+                 dels=None):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
         if dels is not None:
             self.tdatar1 = np.delete(self.tdatar1[:, :, :], dels, axis=1)
@@ -55,12 +56,14 @@ class SIseci(cc.ise_ci):
             y = []
             yerr = []
             for nidx in range(0, diff13.shape[1]):
-                cl, cu = mybootstrap.bootstrap(diff[:, nidx, widx], 10000, np.mean, 0.95)
+                cl, cu = mybootstrap.bootstrap(diff[:, nidx, widx], 10000,
+                                               np.mean, 0.95)
                 yerr.append((cu - cl)/2.0)
                 y.append((cl+cu)/2.0)
             y = np.array(y)
             yerr = np.array(yerr)
-            ax.errorbar(xs, y, yerr=yerr, capsize=3, fmt="none", ms="5", c="k", elinewidth=3, capthick=3)
+            ax.errorbar(xs, y, yerr=yerr, capsize=3, fmt="none", ms="5", c="k",
+                        elinewidth=3, capthick=3)
             if np.max(y+yerr) % self.stepsizes[widx] > 0.00001:
                 ymax = (np.max(y+yerr)//self.stepsizes[widx] + 1)\
                         * self.stepsizes[widx]
@@ -76,7 +79,8 @@ class SIseci(cc.ise_ci):
             ax.set_ylim(ymin, ymax)
             ax.yaxis.set_major_locator(MultipleLocator(
                                        self.stepsizes[widx]*self.mnj[widx]))
-            ax.tick_params(top=True, right=True, direction='in', which='both', width=1.5)
+            ax.tick_params(top=True, right=True, direction='in', which='both',
+                           width=1.5)
             ax.tick_params(labelbottom=False)
             ax.axhline(y=0, ls='--', c='k', lw=0.5)
             ax.set_xscale('log')
@@ -87,6 +91,11 @@ class SIseci(cc.ise_ci):
             if vlims is not None:
                 ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
                 ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
+                ax.set_xlim(min(vlims[0]*alpha*10.0**(-2.5*shift),
+                                np.min(xs)*10.0**(-2.5*shift)),
+                            max(np.max(xs)*10.0**(2.5*shift),
+                                vlims[1]*alpha*10.0**(2.5*shift)))
+
         plt.subplots_adjust(wspace=0.16, hspace=0.0)
         ax.tick_params(labelbottom=True)
         ax.set_xlabel('count in common space')

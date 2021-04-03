@@ -121,10 +121,10 @@ class ise_ci:
         y = (cls+cus)/2.0
         gs = gridspec.GridSpec(2, self.tcn, height_ratios=[3.2, 1])
         ax = plt.subplot(gs[0, self.cn])
-        ax.scatter(x12*10.0**(shift), y1.flatten(), marker='_', s=2, c='red',
-                   lw=1, label=self.label1)
-        ax.scatter(x12*10.0**(-shift), y2.flatten(), marker='_', s=2, c='blue',
-                   lw=1, label=self.label2)
+        ax.scatter(x12*10.0**(shift), y1.flatten(), marker='_', s=16, c='red',
+                   lw=2, label=self.label1)
+        ax.scatter(x12*10.0**(-shift), y2.flatten(), marker='_', s=16, c='blue',
+                   lw=2, label=self.label2)
         ax.set_xscale('log')
         if vlims is not None:
             ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
@@ -149,7 +149,7 @@ class ise_ci:
         x = np.average(np.concatenate([self.tdata1[:, :, 0],
                                        self.tdata2[:, :, 0]], axis=0),
                        axis=0)*alpha
-        ax.errorbar(x, y,  yerr=yerr,  capsize=3, fmt="none", ms="5", c='k')
+        ax.errorbar(x, y,  yerr=yerr,  capsize=4, mew=3, fmt="none", ms="5", c='k')
         ax.axhline(y=0, ls='--', c='k', lw=0.5)
         ax.set_xscale('log')
         if vlims is not None:
@@ -168,7 +168,7 @@ class ise_ci:
         ax.tick_params(top=True, right=True, direction='in', which='both')
         plt.subplots_adjust(wspace=0.16, hspace=0.0)
 
-    def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None):
+    def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None, shift=0.050):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
         if dels is not None:
             self.tdatar1 = np.delete(self.tdatar1[:, :, :], dels, axis=1)
@@ -206,6 +206,10 @@ class ise_ci:
             if vlims is not None:
                 ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
                 ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
+                ax.set_xlim(min(vlims[0]*alpha*10.0**(-2.5*shift),
+                                np.min(xs)*10.0**(-2.5*shift)),
+                            max(np.max(xs)*10.0**(2.5*shift),
+                                vlims[1]*alpha*10.0**(2.5*shift)))
         plt.subplots_adjust(wspace=0.16, hspace=0.0)
         ax.tick_params(labelbottom=True)
         ax.set_xlabel('count in common space')

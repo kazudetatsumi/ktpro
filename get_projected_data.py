@@ -156,6 +156,7 @@ def samplerun():
     prj.cpos = np.array([75, 39, 2, 6])*orgbinwidths
 
     prj.process()
+    plt.savefig("example_mask.png")
     plt.show()
 
 

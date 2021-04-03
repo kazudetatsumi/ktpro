@@ -32,7 +32,7 @@ def run():
     ic = cicbc.ise_ci(head, isefn1, isefn2, label1, label2, tcn, cn,
                       infiler1, infiler2, stepsizes, mnj)
     ic.create_fig()
-    ic.plot_cis(shift=0.018, alpha=alpha, vlims=vlims)
+    ic.plot_cis(shift=0.030, alpha=alpha, vlims=vlims)
 
     ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
     ic.stepsizes = np.array([0.0125, 0.025, 0.05, 0.2])
@@ -46,8 +46,8 @@ def run():
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     ic.get_all_data()
-    ic.plot_cis(shift=0.012, ylabel=False, alpha=alpha, vlims=vlims,
-                dels=[11, 15])
+    ic.plot_cis(shift=0.022, ylabel=False, alpha=alpha, vlims=vlims,
+                dels=[5, 7, 10, 11, 15])
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
@@ -66,7 +66,9 @@ def run():
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     ic.get_all_data()
-    ic.plot_cis(shift=0.005, ylabel=False, vlims=vlims, alpha=alpha)
+    ic.plot_cis(shift=0.011, ylabel=False, vlims=vlims, alpha=alpha, dels=[11])
+
+    plt.savefig("ise_bw_alphas.pdf")
 
     plt.show()
 

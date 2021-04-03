@@ -20,7 +20,7 @@ def run():
     label2 = r'$\alpha=0.9$'
     tcn = 3
     cn = 0
-    mnj = [1,2,2,2]
+    mnj = [2,2,6,2]
     tcount = 5.640260e+05
     tcountcommon_expt = 123.0
     tcountcommon = 343.0
@@ -47,8 +47,8 @@ def run():
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     ic.get_all_data()
-    ic.mnj = [1,1,1,1]
-    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[11,15])
+    ic.mnj = [3,1,1,3]
+    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[5, 7, 10, 11,15])
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
@@ -59,7 +59,7 @@ def run():
     ic.label2 = r'$\alpha=0.5$'
     ic.cn = 2
     ic.get_all_data()
-    ic.mnj = [7,2,1,4]
+    ic.mnj = [2,2,1,1]
     tcount = 103368.0
     tcountcommon_expt = 1885.0
     tcountcommon = 3208.0
@@ -67,8 +67,8 @@ def run():
     vlims_expt = np.array([7.821000e+03, 9.685300e+04])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
-    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims)
-    #plt.savefig('binwidth_dif.png')
+    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[11])
+    plt.savefig('binwidth_dif.pdf')
 
     plt.show()
 

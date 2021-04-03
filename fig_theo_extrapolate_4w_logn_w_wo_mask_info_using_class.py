@@ -83,4 +83,5 @@ def run():
     mycc.plot_all_data(xlim=xlim, vlims=vlims, alpha=alpha)
 
 run()
+plt.savefig("theo_extrapolate.pdf")
 plt.show()

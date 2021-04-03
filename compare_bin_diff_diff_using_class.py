@@ -53,7 +53,7 @@ def run():
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     ic.get_all_data()
-    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[11, 15])
+    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[5, 7, 10, 11, 15])
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_again2_ddscs/"
@@ -70,8 +70,8 @@ def run():
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     ic.get_all_data()
-    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims)
-    #plt.savefig('binwidth_dif_dif.pdf')
+    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[11])
+    plt.savefig('binwidth_dif_dif.pdf')
 
     plt.show()
 

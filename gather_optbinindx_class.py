@@ -207,7 +207,7 @@ class gather_optbinidx:
                            self.difbinidx[self._pngdatano],
                            marker='x',  facecolors='red', edgecolor='red',
                            clip_on=True)
-        plt.show()
+        #plt.show()
 
 
 def samplerun():
