@@ -21,9 +21,14 @@ import ssvkernel, sskernel, sshist
 
 
 class qens:
-    def __init__(self, datadir, save_file):
+    def __init__(self, datadir, save_file, odata=True):
         self.datadir = datadir
         self.save_file = save_file
+        self.odata = odata
+        if not os.path.exists(self.save_file):
+            self.init_qens()
+        with open(self.save_file, 'rb') as f:
+            self.dataset = pickle.load(f)
 
     def get_filenames(self):
         self.filenames = os.popen('/bin/ls ' + self.datadir + self.string)\
@@ -47,31 +52,29 @@ class qens:
                     _error.append(float(values[2]))
             if fidx == 0:
                 self.spectra = np.zeros((len(self.filenames), 3, len(_tof)))
-                self.detector_position = np.zeros((len(self.filenames), 2))
+                if self.odata:
+                    self.detector_position = np.zeros((len(self.filenames), 2))
             self.spectra[fidx, 0, :] = _tof
             self.spectra[fidx, 1, :] = _intensity
             self.spectra[fidx, 2, :] = _error
-            self.detector_position[fidx, 0] = int(_psd)
-            self.detector_position[fidx, 1] = int(_pix)
+            if self.odata:
+                self.detector_position[fidx, 0] = int(_psd)
+                self.detector_position[fidx, 1] = int(_pix)
             f.close()
 
     def init_qens(self):
         self.get_data_from_container_txt()
         dataset = {}
         dataset['spectra'] = self.spectra
-        dataset['detector_position'] = self.detector_position
+        if self.odata:
+            dataset['detector_position'] = self.detector_position
         with open(self.save_file, 'wb') as f:
             pickle.dump(dataset, f, -1)
         print("Done!")
 
     def check_qens(self):
-        if not os.path.exists(self.save_file):
-            self.init_qens()
-        with open(self.save_file, 'rb') as f:
-            dataset = pickle.load(f)
-
-        total_intensity = np.sum(dataset['spectra'][:, 1, :], axis=0)
-        hw = dataset['spectra'][1010, 0, :]
+        total_intensity = np.sum(self.dataset['spectra'][:, 1, :], axis=0)
+        hw = self.dataset['spectra'][1010, 0, :]
         print(hw.shape)
 
         plt.plot(hw, np.log10(total_intensity))
@@ -80,15 +83,25 @@ class qens:
         plt.show()
 
     def select_spectra(self):
-        if not os.path.exists(self.save_file):
-            self.init_qens()
-        with open(self.save_file, 'rb') as f:
-            dataset = pickle.load(f)
+        spectra = self.dataset['spectra']
+        if self.odata:
+            dp = self.dataset['detector_position']
+            mask = np.where((dp[:, 0] >= 10) & (dp[:, 1] <= 65))[0]
+            self.selected_spectra = np.sum(spectra[mask, 1, :], axis=0)
+            self.xlim = np.array([spectra[0, 0, 0], spectra[0, 0, -1]])
+        else:
+            spectra[0, 0, :] = spectra[0, 0, :] - 2.085
+            mergin = 0.015
+            self.xlim = np.array([-0.05025 - mergin, 0.09975 + mergin])
+            mask = np.where((spectra[0, 0, :] >= self.xlim[0]) &
+                            (spectra[0, 0, :] <= self.xlim[1]))[0]
+            self.selected_spectra = spectra[0, 1, mask]
+            #plt.plot(spectra[0, 0, mask], spectra[0, 1, mask])
+            #plt.plot(spectra[0, 0, :] - 2.085, spectra[0, 1, :])
+            #plt.yscale('log')
+            #plt.xlim(-0.05025, 0.09975)
+            #plt.show()
 
-        spectra = dataset['spectra']
-        dp = dataset['detector_position']
-        mask = np.where((dp[:, 0] >= 10) & (dp[:, 1] <= 65))[0]
-        self.selected_spectra = np.sum(spectra[mask, 1, :], axis=0)
         #np.savetxt('spectra.txt', self.selected_spectra, delimiter=',')
         self.xvec = np.array([idx for idx in
                              range(0, self.selected_spectra.shape[0]) for
@@ -103,19 +116,26 @@ class qens:
         #print(self.xvec[0:30])
 
     def run_ssvkernel(self):
-        testx = [4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62,
-             3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77, 4.08, 1.75, 3.20, 1.85,
-             4.62, 1.97, 4.50, 3.92, 4.35, 2.33, 3.83, 1.88, 4.60, 1.80, 4.73, 1.77,
-             4.57, 1.85, 3.52, 4.00, 3.70, 3.72, 4.25, 3.58, 3.80, 3.77, 3.75, 2.50,
-             4.50, 4.10, 3.70, 3.80, 3.43, 4.00, 2.27, 4.40, 4.05, 4.25, 3.33, 2.00,
-             4.33, 2.93, 4.58, 1.90, 3.58, 3.73, 3.73, 1.82, 4.63, 3.50, 4.00, 3.67,
-             1.67, 4.60, 1.67, 4.00, 1.80, 4.42, 1.90, 4.63, 2.93, 3.50, 1.97, 4.28,
-             1.83, 4.13, 1.83, 4.65, 4.20, 3.93, 4.33, 1.83, 4.53, 2.03, 4.18, 4.43,
-             4.07, 4.13, 3.95, 4.10, 2.72, 4.58, 1.90, 4.50, 1.95, 4.83, 4.12]
+        #testx = [4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62,
+        #     3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77, 4.08, 1.75, 3.20, 1.85,
+        #     4.62, 1.97, 4.50, 3.92, 4.35, 2.33, 3.83, 1.88, 4.60, 1.80, 4.73, 1.77,
+        #     4.57, 1.85, 3.52, 4.00, 3.70, 3.72, 4.25, 3.58, 3.80, 3.77, 3.75, 2.50,
+        #     4.50, 4.10, 3.70, 3.80, 3.43, 4.00, 2.27, 4.40, 4.05, 4.25, 3.33, 2.00,
+        #     4.33, 2.93, 4.58, 1.90, 3.58, 3.73, 3.73, 1.82, 4.63, 3.50, 4.00, 3.67,
+        #     1.67, 4.60, 1.67, 4.00, 1.80, 4.42, 1.90, 4.63, 2.93, 3.50, 1.97, 4.28,
+        #     1.83, 4.13, 1.83, 4.65, 4.20, 3.93, 4.33, 1.83, 4.53, 2.03, 4.18, 4.43,
+        #     4.07, 4.13, 3.95, 4.10, 2.72, 4.58, 1.90, 4.50, 1.95, 4.83, 4.12]
 
         #self.y = ssvkernel.ssvkernel(np.array(testx))
-        self.y = ssvkernel.ssvkernel(self.xvec)
-        self.y_ = sskernel.sskernel(self.xvec)
+        T = (np.max(self.xvec) - np.min(self.xvec))
+        mergin = T*0.2
+        dx = np.sort(np.diff(np.sort(self.xvec)))
+        dt_samp = dx[np.nonzero(dx)][0]
+        tin = np.linspace(np.min(self.xvec) - mergin, np.max(self.xvec) + mergin,
+                          int(min(np.ceil(T*1.4 / dt_samp), 1e3)))
+
+        self.y = ssvkernel.ssvkernel(self.xvec, tin)
+        self.y_ = sskernel.sskernel(self.xvec, tin)
         #print(self.y[0].shape)
         #print(self.y[1].shape)
         #print(self.y[2].shape)
@@ -138,6 +158,7 @@ class qens:
         ax.plot(self.y[1], self.y[0], c='r', label='ssvkernel')
         ax.plot(self.y_[1], self.y_[0], c='k', label='sskernel')
         ax.set_yscale('log')
+        ax.set_ylim(0.00002, np.max(self.y_[0]))
         ax.tick_params(top=True, right=True, direction='in', which='both', labelbottom=False)
         ax = fig.add_subplot(3, 1, 3)
         ax.plot(self.y[1], self.y[2], c='r', label='ssvkernel')
@@ -148,6 +169,14 @@ class qens:
         plt.subplots_adjust(hspace=0.0)
         plt.legend()
         plt.show()
+
+    def save_output(self,  output_file):
+        dataset = {}
+        dataset['y_ssvk'] = self.y
+        dataset['y_ssk'] = self.y_
+        dataset['xlim'] = self.xlim
+        with open(output_file, 'wb') as f:
+            pickle.dump(dataset, f, -1)
 
 
 def samplerun():
