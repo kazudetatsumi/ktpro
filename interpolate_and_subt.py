@@ -60,10 +60,11 @@ def run():
             if fine_data[findx, 0] >= coarse_data[cindx, 0] and fine_data[findx, 0] < coarse_data[cindx + 1, 0]:
                 interpolated[findx, 1] = ( coarse_data[cindx+1, 1] - coarse_data[cindx, 1 ]) /( coarse_data[cindx+1, 0] - coarse_data[cindx, 0] ) * ( fine_data[findx, 0] -  coarse_data[cindx, 0] ) + coarse_data[cindx, 1]
                 fine_data_subtracted[findx, 1] = fine_data[findx, 1] - interpolated[findx, 1]
+    print(interpolated[0:10, 1])
     plotter(fine_data, coarse_data, fine_data_subtracted)
 
 
 
 run()
-#plt.show()
-plt.savefig("INS_polyLaNi5.pdf")
+plt.show()
+#plt.savefig("INS_polyLaNi5.pdf")
