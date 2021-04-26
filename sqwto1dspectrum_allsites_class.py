@@ -10,6 +10,8 @@ import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
 import interpolate_and_subt_class as isc
+params = {'mathtext.default': 'regular'}
+plt.rcParams.update(params)
 
 
 plt.rcParams['font.size'] = 18
@@ -72,9 +74,12 @@ class sqwto1dspectrum(isc.interpolate_and_subt):
         data[:, 1] = intensity
         return(data)
 
-    def create_fig(self, nr=7, figsize=(6, 15)):
+    def create_fig(self, nr=7, figsize=(6, 15), suptitle=None):
+        if suptitle is None:
+            suptitle = "inc q between "+str(self.qmin)+" and "+str(self.qmax) \
+                       + " $\AA^{-1}$"
         self.fig = plt.figure(figsize=figsize)
-        self.fig.suptitle("inc 1-8 Angs-1")
+        self.fig.suptitle(suptitle)
         self.gs = self.fig.add_gridspec(nr, 1, hspace=0, wspace=0)
 
     def plotter(self, bottomno=None):
@@ -185,7 +190,6 @@ def samplerun():
     prj.plotter()
     prj.sumplot()
     plt.show()
-
 
 
 #samplerun()

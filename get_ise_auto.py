@@ -2,7 +2,7 @@
 # This script calculates an integrated squared error between pdf and histogram. 
 # You should list the work dirs of optimal bin-widths calculation  and this script calculates the histogram with the optimal bin-widths.
 # You should prepare pdf.hdf5.
-# Kazuyoshi TATSUMI 2020.
+# KT 2020.
 import numpy as np
 import h5py
 import ctypes
