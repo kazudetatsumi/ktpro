@@ -19,6 +19,9 @@ import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 import ssvkernel, sskernel, sshist
 
+params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
+plt.rcParams.update(params)
+
 
 class qens:
     def __init__(self, datadir, save_file, odata=True):
@@ -88,31 +91,31 @@ class qens:
             dp = self.dataset['detector_position']
             mask = np.where((dp[:, 0] >= 10) & (dp[:, 1] <= 65))[0]
             self.selected_spectra = np.sum(spectra[mask, 1, :], axis=0)
-            self.xlim = np.array([spectra[0, 0, 0], spectra[0, 0, -1]])
+            self.selected_energy = spectra[0, 0, :]
         else:
             spectra[0, 0, :] = spectra[0, 0, :] - 2.085
-            mergin = 0.015
-            self.xlim = np.array([-0.05025 - mergin, 0.09975 + mergin])
-            mask = np.where((spectra[0, 0, :] >= self.xlim[0]) &
-                            (spectra[0, 0, :] <= self.xlim[1]))[0]
+            mergin = 0.001
+            xlim = np.array([-0.10025 - mergin, 0.14975 + mergin])
+            mask = np.where((spectra[0, 0, :] >= xlim[0]) &
+                            (spectra[0, 0, :] <= xlim[1]))[0]
             self.selected_spectra = spectra[0, 1, mask]
+            self.selected_energy = spectra[0, 0, mask]
+            self.de = spectra[0, 0, 1] - spectra[0, 0, 0]
             #plt.plot(spectra[0, 0, mask], spectra[0, 1, mask])
             #plt.plot(spectra[0, 0, :] - 2.085, spectra[0, 1, :])
             #plt.yscale('log')
             #plt.xlim(-0.05025, 0.09975)
             #plt.show()
 
-        #np.savetxt('spectra.txt', self.selected_spectra, delimiter=',')
-        self.xvec = np.array([idx for idx in
+        self.xvec = np.array([self.selected_energy[idx] for idx in
                              range(0, self.selected_spectra.shape[0]) for
                              num_repeat in
                              range(0, int(self.selected_spectra[idx]))
                               ], dtype=float)
-        #np.savetxt('xvec.txt', self.xvec, delimiter=',')
 
     def add_shift(self):
         #print(self.xvec[0:30])
-        self.xvec = self.xvec + np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
+        self.xvec = self.xvec + np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])*self.de
         #print(self.xvec[0:30])
 
     def run_ssvkernel(self):
@@ -128,11 +131,15 @@ class qens:
 
         #self.y = ssvkernel.ssvkernel(np.array(testx))
         T = (np.max(self.xvec) - np.min(self.xvec))
-        mergin = T*0.2
         dx = np.sort(np.diff(np.sort(self.xvec)))
         dt_samp = dx[np.nonzero(dx)][0]
-        tin = np.linspace(np.min(self.xvec) - mergin, np.max(self.xvec) + mergin,
-                          int(min(np.ceil(T*1.4 / dt_samp), 1e3)))
+        # To relieve the effect of the finite counts near the upper and lower bounds of the measurement range
+        # we extend the range by some fraction of the original range
+        #mergin = T*0.2
+        #tin = np.linspace(np.min(self.xvec) - mergin, np.max(self.xvec) + mergin,
+        #                  int(min(np.ceil(T*1.4 / dt_samp), 1e3)))
+        tin = np.linspace(np.min(self.xvec), np.max(self.xvec),
+                          int(min(np.ceil(T / dt_samp), 1e3))) 
 
         self.y = ssvkernel.ssvkernel(self.xvec, tin)
         self.y_ = sskernel.sskernel(self.xvec, tin)
@@ -140,33 +147,41 @@ class qens:
         #print(self.y[1].shape)
         #print(self.y[2].shape)
         #print(self.y_[2])
-        norms = self.selected_spectra/np.sum(self.selected_spectra)
-        ch = np.arange(0, norms.shape[0])
+        norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de
+        # channel number is depricated now!
+        #ch = np.arange(0, norms.shape[0])
         fig = plt.figure(figsize=(12, 12))
         ax = fig.add_subplot(3, 1, 1)
-        ax.bar(ch, norms, width=1.0, label='expt data')
+        #ax.bar(ch, norms, width=1.0, label='expt data')
+        ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
+        #ax.plot(self.selected_energy, norms)
         ax.plot(self.y[1], self.y[0], c='r', label='ssvkernel')
         ax.plot(self.y_[1], self.y_[0], c='k', label='sskernel')
-        plt.legend()
+        xlim = ax.get_xlim()
         ax.tick_params(top=True, right=True, direction='in', which='both', labelbottom=False)
         ax.set_ylabel('density')
-        ax.set_xlabel('# of energy channel')
+        ax.set_xlabel('energy ($\mu eV$)')
+        plt.legend()
         ax = fig.add_subplot(3, 1, 2)
         ax.set_ylabel('density')
-        ax.set_xlabel('# of energy channel')
-        ax.bar(ch, norms, width=1.0, label='expt data')
+        #ax.set_xlabel('# of energy channel')
+        ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
         ax.plot(self.y[1], self.y[0], c='r', label='ssvkernel')
         ax.plot(self.y_[1], self.y_[0], c='k', label='sskernel')
         ax.set_yscale('log')
-        ax.set_ylim(0.00002, np.max(self.y_[0]))
+        ax.set_ylim(0.00000001, np.max(self.y_[0]))
         ax.tick_params(top=True, right=True, direction='in', which='both', labelbottom=False)
+        ax.set_xlim(xlim)
+        plt.legend()
         ax = fig.add_subplot(3, 1, 3)
         ax.plot(self.y[1], self.y[2], c='r', label='ssvkernel')
         ax.plot(self.y_[1], np.ones(self.y_[1].shape[0])*self.y_[2], c='k', label='sskernel')
         ax.set_ylabel('band-width')
-        ax.set_xlabel('# of energy channel')
+        #ax.set_xlabel('energy ($\mu eV$)')
         ax.tick_params(top=True, right=True, direction='in', which='both', labelbottom=True)
+        #ax.set_xlim(xlim)
         plt.subplots_adjust(hspace=0.0)
+        ax.set_xlim(xlim)
         plt.legend()
         plt.show()
 
@@ -174,7 +189,6 @@ class qens:
         dataset = {}
         dataset['y_ssvk'] = self.y
         dataset['y_ssk'] = self.y_
-        dataset['xlim'] = self.xlim
         with open(output_file, 'wb') as f:
             pickle.dump(dataset, f, -1)
 
