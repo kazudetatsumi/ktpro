@@ -87,6 +87,8 @@ class Plot_4w_Logn:
 
     def plotter(self, clm, ylabel=True, alpha=1.0):
         self.get_data()
+        print(self.list_m.shape)
+        print(self.list_n.shape)
         ymm = self.list_m.shape[1]
         wlist = ["$q_x$", "$q_y$", "$q_z$", "$\omega$"]
         for ip, dp in enumerate(self.deltas):
@@ -150,6 +152,55 @@ class Plot_4w_Logn:
             ax.tick_params(length=6, which='major')
             ax.tick_params(length=3, which='minor')
             plt.subplots_adjust(wspace=0.2, hspace=0.0)
+
+    def invplotter(self, clm, ylabel=True, alpha=1.0):
+        self.get_data()
+        ymm = self.list_m.shape[1]
+        wlist = ["$q_x$", "$q_y$", "$q_z$", "$\omega$"]
+        y_n = 1.0/np.prod(self.list_n[1:5, :], axis=0)/np.prod(self.deltas)
+        x_n = self.list_n[0, :]/alpha
+        y_m = 1.0/np.prod(self.list_m[1:5, :], axis=0)/np.prod(self.deltas)
+        x_m = self.list_m[0, :]/alpha
+        deleteidx = []
+        #for idx in range(1, x_n.shape[0]):
+        #    if abs(x_n[idx] - x_n[idx-1])/(np.max(x_n) - np.min(x_n)) < 0.020:
+        #        deleteidx.append(idx)
+        #x_n = np.delete(x_n, deleteidx)
+        #x_m = np.delete(x_m, deleteidx)
+        #y_m = np.delete(y_m, deleteidx)
+        #y_n = np.delete(y_n, deleteidx)
+        msize = 20
+        ax = self.fig.add_subplot(3, 1, clm+self.num_clms*0)
+        ax.scatter(x_n[self.m:], y_n[self.m:], marker='s',
+                   edgecolor="black", s=msize, facecolors="white")
+        ax.scatter(x_n[0:self.m-1], y_n[0:self.m-1], marker='s',
+                   edgecolor="black", s=msize, facecolors="white")
+        ax.scatter(x_m[self.m:ymm+self.ulm], y_m[self.m:ymm+self.ulm],
+                   marker='.', edgecolor="black", s=msize, facecolors="black")
+        ax.scatter(x_m[0:self.m-1], y_m[0:self.m-1],
+                   marker='.', edgecolor="black", s=msize, facecolors="black")
+        ax.scatter(x_n[self.m-1:self.m], y_n[self.m-1:self.m], marker='*',
+                   edgecolor="black", s=msize, facecolors="white")
+        #ax.set_xlim(0, 0.015)
+        #ax.tick_params(labelbottom=False)
+        #ax.set_ylim(0, max([np.max(y_n), np.max(y_m), dp*(self.mnj-1)])+dp)
+        #ax.text(np.max(x_m)*0.95,
+        #        (max(np.max(y_n), np.max(y_m))//(dp*2)+1)*(dp*2)*0.75,
+        #        wlist[ip], size=15)
+        ax.tick_params(top=True, right=True, direction='in', which='both')
+        #if ylabel and ip == 1:
+        #    ax.set_ylabel('bin width (rlu)')
+        #if ip == 3:
+        #    if ylabel:
+        #        ax.set_ylabel('bin width (meV)')
+        #    ax.tick_params(labelbottom=True)
+        ##ax.set_xlabel('count in common space')
+        #ax.yaxis.set_major_locator(MultipleLocator(dp*self.mnj))
+        #ax.yaxis.set_minor_locator(MultipleLocator(dp))
+        #ax.tick_params(length=6, which='major')
+        #ax.tick_params(length=3, which='minor')
+        plt.subplots_adjust(wspace=0.1, hspace=0.3)
+
 
 
 def samplerun():
