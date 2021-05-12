@@ -29,6 +29,7 @@ class Compare:
         self.dshifti = dshifti
         self.dshiftf = dshiftf
         self.get_all_data()
+        self.ymax = np.zeros((tcn, stepsizes.shape[0]))
         #self.plot_all_data()
 
     def getdata(self, infile):
@@ -68,7 +69,8 @@ class Compare:
         self.fig = plt.figure(figsize=(12, 9))
         self.fig.suptitle(self.title)
 
-    def plot_all_data(self, log=True, xlim=None, vlims=None, alpha=1.0):
+    def plot_all_data(self, log=True, xlim=None, vlims=None, alpha=1.0,
+                      onlyone=False, c='k', marker='x'):
         x = self.all_data[0, self.dshifti:self.dshiftf, 0]*alpha
         ys = self.all_data[:, self.dshifti:self.dshiftf, 1:]*self.stepsizes
         wlist = ["qx", "qy", "qz", "w"]
@@ -76,16 +78,26 @@ class Compare:
         for widx, wlabel in enumerate(wlist):
             ax = self.fig.add_subplot(4, self.tcn, self.tcn*widx+self.cn)
             ax.plot(x, ys[0, :, widx],
-                    clip_on=False, linestyle="dotted", lw=1.0, label=self.label1,
-                    marker="x", ms=5, mec='k', mfc='white', mew=1.4,  c='k')
-            ax.plot(x, ys[1, :, widx],
-                    clip_on=False, linestyle="dotted", lw=1.0, label=self.label2,
-                    marker=".", ms=6, mec='k', mfc='white', mew=1.4, c='k')
+                    clip_on=False, linestyle="dotted", lw=1.0,
+                    label=self.label1, marker=marker, ms=5, mec=c, mfc='white',
+                    mew=1.4,  c=c)
+            if self.ymax[self.cn-1, widx] < np.max(ys[:, :, widx]):
+                self.ymax[self.cn-1, widx] = np.max(ys[:, :, widx])
+            if not onlyone:
+                ax.plot(x, ys[1, :, widx],
+                        clip_on=False, linestyle="dotted", lw=1.0,
+                        label=self.label2, marker=marker, ms=6, mec=c,
+                        mfc='white', mew=1.4, c=c)
 
-            ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
-            if (np.max(ys[:, :, widx]) + self.stepsizes[widx]) % \
+            #ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
+            ax.set_ylim(0, self.ymax[self.cn-1, widx] + self.stepsizes[widx])
+            if (self.ymax[self.cn-1, widx] + self.stepsizes[widx]) % \
                (self.stepsizes[widx]*self.mnj) < self.stepsizes[widx]*0.5:
-                ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx]*2.0)
+                ax.set_ylim(0, self.ymax[self.cn-1, widx] +
+                            self.stepsizes[widx]*2.0)
+            #if (np.max(ys[:, :, widx]) + self.stepsizes[widx]) % \
+            #   (self.stepsizes[widx]*self.mnj) < self.stepsizes[widx]*0.5:
+            #    ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx]*2.0)
             if log:
                 ax.text(np.max(x)*0.5, np.max(ys[:, :, widx])*0.9, wlabel)
                 mergin = (np.max(np.log10(x))-np.min(np.log10(x)))*0.02
