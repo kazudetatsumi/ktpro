@@ -140,7 +140,6 @@ class qens:
                           int(min(np.ceil(T / dt_samp), 1e3)))
         tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
                                int(min(np.ceil(T / dt_samp), 1e3)))
-
         self.y = ssvkernel.ssvkernel(self.xvec, tin)
         self.y_ = sskernel.sskernel(self.xvec, tin)
         norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de
