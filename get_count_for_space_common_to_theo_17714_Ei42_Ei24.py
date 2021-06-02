@@ -17,6 +17,7 @@ def run():
 
     #hdffile = '/home/kazu/desktop/200522/Ei42/dq_0.025_dw_0.5/Output4D_00_840.hdf5'
     hdffile = '/home/kazu/desktop/200701/all/filled_again_ddscs/14m/eliminated_data.hdf5'
+    hdffile = '/home/kazu/desktop/200701/all/filled_again_ddscs2/14m/eliminated_data.hdf5'
     #headfile = '/home/kazu/desktop/200522/Ei42/dq_0.025_dw_0.5/Output4D_00_840.head.txt'
     headfile = '/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.txt.head'
     boundary_tmp = np.copy(boundary)

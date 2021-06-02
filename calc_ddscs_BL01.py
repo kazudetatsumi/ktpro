@@ -5,11 +5,15 @@
 import h5py
 import numpy as np
 
-temperature = 300                     # [K]
+temperature = 15                      # [K]
 PlanckConstant = 4.13566733e-15       # [eV s]
 THzTomev = PlanckConstant * 1e15      # [meV]
 kb = 8.617333262145e-2                # [meV K-1]
 Ecut = 0.1                            # [meV]
+u2 = 0.0018364                          # [angs2]
+Ein = 50.0                           # [meV]
+rlat = 0.275360831107482          # [Angs-1]
+
 
 def getphonopydatafromqpoint(fn, mesh):
     f = h5py.File(fn, 'r')
@@ -28,13 +32,17 @@ def bose_distribution_func(omega, temperature):
     return(nb)
 
 
-def sumofxd_func(eigvec, qvec):
+def sumofxd_func(eigvec, qvec, omega):
     # at present, assuming a Bravais Crystal, where the atom position is only (0,0,0).
     xd = np.zeros((eigvec.shape[0], eigvec.shape[1], eigvec.shape[2], eigvec.shape[4]), dtype=np.complex)
+    _qvec = qvec * rlat * 2.0 * math.pi
+    dwfac = np.exp(-np.sum(_qvec*_qvec, axis=3)*u2)
+    kfki = np.sqrt((Ein - omega)/Ein)
     for imode in range(0, eigvec.shape[4]):
         xd[:, :, :, imode] = (qvec[:, :, :, 0]*eigvec[:, :, :, 0, imode] +
                               qvec[:, :, :, 1]*eigvec[:, :, :, 1, imode] +
-                              qvec[:, :, :, 2]*eigvec[:, :, :, 2, imode])
+                              qvec[:, :, :, 2]*eigvec[:, :, :, 2, imode]) * dwfac
+    xd = xd * kfki
     return(xd)
 
 
@@ -62,15 +70,15 @@ def run():
     mesh = np.array([nx, ny, nz])
     print(mesh)
 
-    qpointsfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test/qpoints.hdf5"
-    outfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test/ddscs.hdf5"
+    qpointsfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test_kfki_debye/qpoints.hdf5"
+    outfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test_kfki_debye/ddscs.hdf5"
     omega, eigvec, qvec = getphonopydatafromqpoint(qpointsfile, mesh)
     print(omega.shape)
     print(eigvec.shape)
     print(qvec.shape)
     omega = omega*THzTomev
     nb = bose_distribution_func(omega, temperature)
-    sumofxd = sumofxd_func(eigvec, qvec)
+    sumofxd = sumofxd_func(eigvec, qvec, omega)
     ddscs = np.abs(sumofxd)**2 * (nb + 1.0) / omega
     ddscs[omega < Ecut] = 0.
     save_h5py(ddscs, outfile)

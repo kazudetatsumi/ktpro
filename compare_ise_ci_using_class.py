@@ -68,7 +68,7 @@ def run():
     ic.get_all_data()
     ic.plot_cis(shift=0.011, ylabel=False, vlims=vlims, alpha=alpha, dels=[11])
 
-    plt.savefig("ise_bw_alphas.pdf")
+    #plt.savefig("ise_bw_alphas.pdf")
 
     plt.show()
 
