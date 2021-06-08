@@ -24,7 +24,7 @@ plt.rcParams.update(params)
 
 
 class qens:
-    def __init__(self, datadir, save_file, odata=True):
+    def __init__(self, datadir, save_file, odata=True, sfile=None):
         self.datadir = datadir
         self.save_file = save_file
         self.odata = odata
@@ -32,6 +32,11 @@ class qens:
             self.init_qens()
         with open(self.save_file, 'rb') as f:
             self.dataset = pickle.load(f)
+        if sfile:
+            with open(sfile, 'rb') as f:
+                dataset = pickle.load(f)
+                self.senergy = dataset['energy']
+                self.sspectra = dataset['spectra']
 
     def get_filenames(self):
         self.filenames = os.popen('/bin/ls ' + self.datadir + self.string)\
@@ -146,9 +151,9 @@ class qens:
 
     def run_ssvkernel(self):
         #self.y = ssvkernel.ssvkernel(np.array(testx))
-        T = (np.max(self.xvec) - np.min(self.xvec))
-        dx = np.sort(np.diff(np.sort(self.xvec)))
-        dt_samp = dx[np.nonzero(dx)][0]
+        #T = (np.max(self.xvec) - np.min(self.xvec))
+        #dx = np.sort(np.diff(np.sort(self.xvec)))
+        #dt_samp = dx[np.nonzero(dx)][0]
         # To relieve the effect of the finite counts near the upper and lower
         # bounds of the measurement range
         # we extend the range by some fraction of the original range
@@ -165,7 +170,8 @@ class qens:
         #                       int(min(np.ceil(T / dt_samp), 1e3)))
         self.tin = np.linspace(0.0, 500.0, 1001)
         print("Check parameters of horizontal axis")
-        print("de=",self.de, "selected_energy[0]=", self.selected_energy[0], "num channels=",self.tin.shape[0])
+        print("de=", self.de, "selected_energy[0]=",
+              self.selected_energy[0], "num channels=", self.tin.shape[0])
         self.tin_real = self.tin*self.de + self.selected_energy[0]
 
         self.y = ssvkernel.ssvkernel(self.xvec, self.tin)
@@ -176,13 +182,14 @@ class qens:
 
         self.optsmear()
 
-
         norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de
+        snorms = self.sspectra/np.sum(self.sspectra)/self.sde
         fig = plt.figure(figsize=(12, 12))
         ax = fig.add_subplot(3, 1, 1)
-        ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
-        ax.plot(self.tin_real, self.yck/self.de, lw=3.5, c='k', label='yck')
-        ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
+        #ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
+        ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
+        ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
+        #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
         ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
         #ax.tick_params(top=True, right=True, direction='in', which='both',
         #               labelbottom=False)
@@ -191,9 +198,10 @@ class qens:
         plt.legend()
         ax = fig.add_subplot(3, 1, 2)
         ax.set_ylabel('density')
-        ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
-        ax.plot(self.tin_real, self.yck/self.de, lw=3.5, c='k', label='yck')
-        ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
+        #ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
+        ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
+        ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
+        #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
         ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
         ax.set_yscale('log')
         ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)
@@ -213,16 +221,20 @@ class qens:
         plt.show()
 
     def optsmear(self):
+        #yinp = np.interp(self.tin_real, self.selected_energy, self.selected_spectra)
+        yinp = np.interp(self.tin_real, self.senergy, self.sspectra)
         dt = min(np.diff(self.tin))
-        thist = np.concatenate((self.tin, (self.tin[-1]+dt)[np.newaxis]))
-        y_hist = np.histogram(self.xvecorg, thist-dt/2)[0] / dt
-        idx = y_hist.nonzero()
-        t_nz = self.tin[idx]
-        y_hist_nz = y_hist[idx]
+        #thist = np.concatenate((self.tin, (self.tin[-1]+dt)[np.newaxis]))
+        #y_hist = np.histogram(self.xvecorg, thist-dt/2)[0] / dt
+        #idx = y_hist.nonzero()
+        #t_nz = self.tin[idx]
+        #y_hist_nz = y_hist[idx]
         yck = np.zeros_like(self.tin)
         for k in range(yck.shape[0]):
-            yck[k] = np.sum(y_hist_nz *
-                            self.Gauss(self.tin[k] - t_nz, self.y[2][k]))
+            #yck[k] = np.sum(y_hist_nz *
+            #                self.Gauss(self.tin[k] - t_nz, self.y[2][k]))
+            yck[k] = np.sum(yinp *
+                            self.Gauss(self.tin[k] - self.tin, self.y[2][k]))
         self.yck = yck / np.sum(yck*dt)
         print(np.sum(yck))
         print(np.sum(self.y[0]))
