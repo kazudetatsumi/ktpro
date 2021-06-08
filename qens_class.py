@@ -136,11 +136,13 @@ class qens:
                                    ], dtype=float)
 
     def add_shift(self):
+        self.xvecorg = np.array(self.xvec)
         self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
         self.xvec += self.shift
         self.xvec_real += self.shift*self.de
 
         #print(self.xvec[0:30])
+
 
     def run_ssvkernel(self):
         #self.y = ssvkernel.ssvkernel(np.array(testx))
@@ -154,36 +156,53 @@ class qens:
         #tin = np.linspace(np.min(self.xvec) - mergin, np.max(self.xvec) + mergin,
         #                  int(min(np.ceil(T*1.4 / dt_samp), 1e3)))
         # tin is the space where densities are inferred.
-        tin = np.linspace(np.min(self.xvec), np.max(self.xvec),
-                          int(min(np.ceil(T / dt_samp), 1e3)))
-        tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
-                               int(min(np.ceil(T / dt_samp), 1e3)))
-        self.y = ssvkernel.ssvkernel(self.xvec, tin)
-        self.y_ = sskernel.sskernel(self.xvec, tin)
+
+        ## tin and tin_real are modified now, so as to be used commonly for
+        ## different data sets.
+        #tin = np.linspace(np.min(self.xvec), np.max(self.xvec),
+        #                  int(min(np.ceil(T / dt_samp), 1e3)))
+        #tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
+        #                       int(min(np.ceil(T / dt_samp), 1e3)))
+        self.tin = np.linspace(0.0, 500.0, 1001)
+        print("Check parameters of horizontal axis")
+        print("de=",self.de, "selected_energy[0]=", self.selected_energy[0], "num channels=",self.tin.shape[0])
+        self.tin_real = self.tin*self.de + self.selected_energy[0]
+
+        self.y = ssvkernel.ssvkernel(self.xvec, self.tin)
+        self.y_ = sskernel.sskernel(self.xvec, self.tin)
+
+        scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\
+              (np.min(self.xvec) - np.max(self.xvec))
+
+        self.optsmear()
+
+
         norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de
         fig = plt.figure(figsize=(12, 12))
         ax = fig.add_subplot(3, 1, 1)
         ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
-        ax.plot(tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
-        ax.plot(tin_real, self.y_[0]/self.de, c='k', label='sskernel')
-        ax.tick_params(top=True, right=True, direction='in', which='both',
-                       labelbottom=False)
+        ax.plot(self.tin_real, self.yck/self.de, lw=3.5, c='k', label='yck')
+        ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
+        ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
+        #ax.tick_params(top=True, right=True, direction='in', which='both',
+        #               labelbottom=False)
         ax.set_ylabel('density')
         ax.set_xlabel('energy ($\mu eV$)')
         plt.legend()
         ax = fig.add_subplot(3, 1, 2)
         ax.set_ylabel('density')
         ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
-        ax.plot(tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
-        ax.plot(tin_real, self.y_[0]/self.de, c='k', label='sskernel')
+        ax.plot(self.tin_real, self.yck/self.de, lw=3.5, c='k', label='yck')
+        ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
+        ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
         ax.set_yscale('log')
         ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=False)
         plt.legend()
         ax = fig.add_subplot(3, 1, 3)
-        ax.plot(tin_real, self.y[2], c='r', label='ssvkernel')
-        ax.plot(tin_real, np.ones(self.y_[1].shape[0])*self.y_[2], c='k',
+        ax.plot(self.tin_real, self.y[2]*scf, c='r', label='ssvkernel')
+        ax.plot(self.tin_real, np.ones(self.y_[1].shape[0])*self.y_[2]*scf, c='k',
                 label='sskernel')
         ax.set_ylabel('band-width')
         ax.set_xlabel('energy ($\mu eV$)')
@@ -193,12 +212,31 @@ class qens:
         plt.legend()
         plt.show()
 
+    def optsmear(self):
+        dt = min(np.diff(self.tin))
+        thist = np.concatenate((self.tin, (self.tin[-1]+dt)[np.newaxis]))
+        y_hist = np.histogram(self.xvecorg, thist-dt/2)[0] / dt
+        idx = y_hist.nonzero()
+        t_nz = self.tin[idx]
+        y_hist_nz = y_hist[idx]
+        yck = np.zeros_like(self.tin)
+        for k in range(yck.shape[0]):
+            yck[k] = np.sum(y_hist_nz *
+                            self.Gauss(self.tin[k] - t_nz, self.y[2][k]))
+        self.yck = yck / np.sum(yck*dt)
+        print(np.sum(yck))
+        print(np.sum(self.y[0]))
+
+    def Gauss(self, x, w):
+        return 1.0/((2.0*np.pi)**0.5*w)*np.exp(-(x/w)**2/2.0)
+
     def save_output(self,  output_file):
         dataset = {}
         dataset['y_ssvk'] = self.y
         dataset['y_ssk'] = self.y_
-        dataset['xlim'] = np.array([np.min(self.xvec_real),
-                                   np.max(self.xvec_real)])
+        dataset['tin_real'] = self.tin_real
+        #dataset['xlim'] = np.array([np.min(self.xvec_real),
+        #                           np.max(self.xvec_real)])
         with open(output_file, 'wb') as f:
             pickle.dump(dataset, f, -1)
 
