@@ -39,14 +39,16 @@ def run():
 
     mycc.cn = 2
     mycc.infile1 = "/home/kazu/desktop/200701/" +\
-                   "orthotope_again_ddscs/result_only_extrapolate"
+                   "orthotope_ddscs_kfki_debye/result_only_extrapolate"
     mycc.infile2 = "/home/kazu/desktop/200701/" +\
-                   "orthotope_again_ddscs/condparam09/result_only_extrapolate"
+                   "orthotope_ddscs_kfki_debye/condparam09/result_only_extrapolate"
     mycc.stepsizes = np.array([0.0125, 0.025, 0.05, 0.2])
     xlim = (3956.076238453173, 27880800.646331012)
-    tcountcommon = 1424.0
+    #tcountcommon = 1424.0
+    tcountcommon = 1610.0
     tcountcommon_expt = 483.0
-    tcount = 702056.0
+    #tcount = 702056.0
+    tcount = 797882.0
     alpha = tcountcommon/tcount
     vlims_expt = np.array([1.140130e+05, 5.906150e+05])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
@@ -60,15 +62,15 @@ def run():
 
     mycc.cn = 3
     mycc.infile1 = "/home/kazu/desktop/200903/morethan10meV/" +\
-                   "samedataasfilled_again2_ddscs/result_only_extrapolate"
+                   "samedataasfilled_ddscs_kfki_debye/result_only_extrapolate"
     mycc.infile2 = "/home/kazu/desktop/200903/morethan10meV/" +\
-                   "samedataasfilled_again2_ddscs/condparam05/" +\
+                   "samedataasfilled_ddscs_kfki_debye/condparam05/" +\
                    "result_only_extrapolate"
     mycc.stepsizes = np.array([0.01, 0.01, 0.04, 0.08])
     xlim = (654.519524723231, 3050611.069576253)
-    tcountcommon = 3208.0
+    tcountcommon = 4324.0
     tcountcommon_expt = 1885.0
-    tcount = 103368.0
+    tcount = 131514.0
     alpha = tcountcommon/tcount
     vlims_expt = np.array([7.821000e+03, 9.685300e+04])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
@@ -83,5 +85,5 @@ def run():
     mycc.plot_all_data(xlim=xlim, vlims=vlims, alpha=alpha)
 
 run()
-plt.savefig("theo_extrapolate.pdf")
+#plt.savefig("theo_extrapolate.pdf")
 plt.show()

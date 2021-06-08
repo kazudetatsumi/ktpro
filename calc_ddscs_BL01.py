@@ -4,6 +4,7 @@
 # Atomic masses and coherent scattering lengths should be hard-coded in this script.
 import h5py
 import numpy as np
+import math
 
 temperature = 15                      # [K]
 PlanckConstant = 4.13566733e-15       # [eV s]
@@ -35,14 +36,10 @@ def bose_distribution_func(omega, temperature):
 def sumofxd_func(eigvec, qvec, omega):
     # at present, assuming a Bravais Crystal, where the atom position is only (0,0,0).
     xd = np.zeros((eigvec.shape[0], eigvec.shape[1], eigvec.shape[2], eigvec.shape[4]), dtype=np.complex)
-    _qvec = qvec * rlat * 2.0 * math.pi
-    dwfac = np.exp(-np.sum(_qvec*_qvec, axis=3)*u2)
-    kfki = np.sqrt((Ein - omega)/Ein)
     for imode in range(0, eigvec.shape[4]):
         xd[:, :, :, imode] = (qvec[:, :, :, 0]*eigvec[:, :, :, 0, imode] +
                               qvec[:, :, :, 1]*eigvec[:, :, :, 1, imode] +
-                              qvec[:, :, :, 2]*eigvec[:, :, :, 2, imode]) * dwfac
-    xd = xd * kfki
+                              qvec[:, :, :, 2]*eigvec[:, :, :, 2, imode])
     return(xd)
 
 
@@ -79,8 +76,14 @@ def run():
     omega = omega*THzTomev
     nb = bose_distribution_func(omega, temperature)
     sumofxd = sumofxd_func(eigvec, qvec, omega)
-    ddscs = np.abs(sumofxd)**2 * (nb + 1.0) / omega
+    kfki = np.sqrt((Ein - omega)/Ein)
+    _qvec = qvec * rlat * 2.0 * math.pi
+    dwfac = np.zeros(omega.shape)
+    for imode in range(0, dwfac.shape[3]):
+        dwfac[:, :, :, imode] = np.exp(-np.sum(_qvec*_qvec, axis=3)*u2)
+    ddscs = kfki * dwfac * np.abs(sumofxd)**2 * (nb + 1.0) / omega
     ddscs[omega < Ecut] = 0.
+    print(np.sum(ddscs))
     save_h5py(ddscs, outfile)
 
 

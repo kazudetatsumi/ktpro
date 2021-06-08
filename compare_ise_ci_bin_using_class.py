@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 def run():
     head = "/home/kazu/desktop/200312/for_cu_new/old_orthotope/" +\
-           "orthotope_ddscs_again2/expt_orthotope_bd/"
+           "orthotope_ddscs_kfki_debye/"
     isefn1 = "ise_withoutcond"
     isefn2 = "ise_condparam09"
     infiler1 = "result.txt_ise_lv"
@@ -21,9 +21,9 @@ def run():
     tcn = 3
     cn = 0
     mnj = [2,2,6,2]
-    tcount = 5.640260e+05
+    tcount = 626836.0
     tcountcommon_expt = 123.0
-    tcountcommon = 343.0
+    tcountcommon = 371.0
     alpha = tcountcommon/tcount
     vlims_expt = np.array([5.155200e+04, 5.189990e+05])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
@@ -54,7 +54,7 @@ def run():
     ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[5, 7, 10, 11,15])
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
-              "samedataasfilled_again2_ddscs/"
+              "samedataasfilled_ddscs_kfki_debye/"
     ic.isefn2 = "ise_condparam05"
     ic.infiler1 = "result.txt_ise_lv"
     ic.infiler2 = "condparam05/result.txt_vec"
@@ -63,14 +63,14 @@ def run():
     ic.cn = 2
     ic.get_all_data()
     ic.mnj = [2,2,1,1]
-    tcount = 103368.0
+    tcount = 131514.0
     tcountcommon_expt = 1885.0
-    tcountcommon = 3208.0
+    tcountcommon = 4234.0
     alpha = tcountcommon/tcount
     vlims_expt = np.array([7.821000e+03, 9.685300e+04])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
-    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[11])
+    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[9,11] )
     plt.savefig('binwidth_dif.pdf')
 
     plt.show()

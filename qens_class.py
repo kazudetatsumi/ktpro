@@ -101,8 +101,26 @@ class qens:
             self.selected_spectra = spectra[0, 1, mask]
             self.selected_energy = spectra[0, 0, mask]
 
+        print(self.selected_energy[np.argmax(self.selected_spectra)])
+
         self.de = spectra[0, 0, 1] - spectra[0, 0, 0]
 
+    #def get_xvec(self):
+        # To keep the accuracy, kde is executed on the channel numbers in the
+        # histogram data.
+        # The actual energies were retrieved by "_real" variables.
+        self.xvec = np.array([idx for idx in
+                             range(0, self.selected_spectra.shape[0]) for
+                             num_repeat in
+                             range(0, int(self.selected_spectra[idx]))
+                              ], dtype=float)
+        self.xvec_real = np.array([self.selected_energy[idx] for idx in
+                                  range(0, self.selected_spectra.shape[0]) for
+                                  num_repeat in
+                                  range(0, int(self.selected_spectra[idx]))
+                                   ], dtype=float)
+
+    def get_xvec(self):
         # To keep the accuracy, kde is executed on the channel numbers in the
         # histogram data.
         # The actual energies were retrieved by "_real" variables.

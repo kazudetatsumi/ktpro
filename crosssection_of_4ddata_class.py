@@ -68,7 +68,7 @@ class CROSS:
         cposval = self.cpos*1.0/np.array(self.data4.shape)*1.0 *\
             (self.wholeranges[:, 1]-self.wholeranges[:, 0]) +\
             self.wholeranges[:, 0]
-        cposinfo = '$(q_c, E)$' + "=({:.0f}, {:.0f})".format(
+        cposinfo = '$(q_z, E)$' + "=({:.0f}, {:.0f})".format(
                    cposval[2], cposval[3])
         if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
                 and self.cpos[3] >= clims_int[3, 0] and\
@@ -76,11 +76,11 @@ class CROSS:
             clims = np.stack((clims_int[0, :], clims_int[1, :]))
         else:
             clims = None
-        self.plotter(lims_int[0, :], lims_int[1, :], '$q_a(rlu)$',
-                     '$q_b(rlu)$', self.data4[:, :, self.cpos[2], self.cpos[3]],
+        self.plotter(lims_int[0, :], lims_int[1, :], '$q_x(rlu)$',
+                     '$q_y(rlu)$', self.data4[:, :, self.cpos[2], self.cpos[3]],
                      4, 3, cnum, self.devs[0], self.wholeranges[0, :],
                      self.wholeranges[1, :], cposinfo, clims=clims)
-        cposinfo = '$(q_a, q_c)$' + "=({:.1f}, {:.0f})".format(
+        cposinfo = '$(q_x, q_z)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[2])
         if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
                 and self.cpos[0] >= clims_int[0, 0] and\
@@ -88,11 +88,11 @@ class CROSS:
             clims = np.stack((clims_int[1, :], clims_int[3, :]))
         else:
             clims = None
-        self.plotter(lims_int[1, :], lims_int[3, :], '$q_b(rlu)$', 'E(meV)',
+        self.plotter(lims_int[1, :], lims_int[3, :], '$q_y(rlu)$', 'E(meV)',
                      self.data4[self.cpos[0], :, self.cpos[2], :],
                      4, 3, cnum+3, self.devs[1], self.wholeranges[1, :],
                      self.wholeranges[3, :], cposinfo, clims=clims)
-        cposinfo = '$(q_b, q_c)$' + "=({:.1f}, {:.0f})".format(
+        cposinfo = '$(q_y, q_z)$' + "=({:.1f}, {:.0f})".format(
                    cposval[1], cposval[2])
         if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
                 and self.cpos[1] >= clims_int[1, 0] and\
@@ -100,11 +100,11 @@ class CROSS:
             clims = np.stack((clims_int[0, :], clims_int[3, :]))
         else:
             clims = None
-        self.plotter(lims_int[0, :], lims_int[3, :], '$q_a(rlu)$', 'E(meV)',
+        self.plotter(lims_int[0, :], lims_int[3, :], '$q_x(rlu)$', 'E(meV)',
                      self.data4[:, self.cpos[1], self.cpos[2], :],
                      4, 3, cnum+6, self.devs[2], self.wholeranges[0, :],
                      self.wholeranges[3, :], cposinfo, clims=clims)
-        cposinfo = '$(q_a, q_b)$' + "=({:.1f}, {:.0f})".format(
+        cposinfo = '$(q_x, q_y)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[1])
         if self.cpos[0] >= clims_int[0, 0] and self.cpos[0] <= clims_int[0, 1]\
                 and self.cpos[1] >= clims_int[1, 0] and\
@@ -112,7 +112,7 @@ class CROSS:
             clims = np.stack((clims_int[2, :], clims_int[3, :]))
         else:
             clims = None
-        self.plotter(lims_int[2, :], lims_int[3, :], '$q_c(rlu)$', 'E(meV)',
+        self.plotter(lims_int[2, :], lims_int[3, :], '$q_z(rlu)$', 'E(meV)',
                      self.data4[self.cpos[0], self.cpos[1], :, :],
                      4, 3, cnum+9, self.devs[2], self.wholeranges[2, :],
                      self.wholeranges[3, :], cposinfo, clims=clims)

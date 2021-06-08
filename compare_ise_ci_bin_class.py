@@ -204,6 +204,7 @@ class ise_ci:
                 ax.set_ylabel('bin-width difference (meV)')
             self.fig.colorbar(c, ax=ax)
             if vlims is not None:
+                print(vlims*alpha)
                 ax.axvline(x=vlims[0]*alpha, color='gray', lw=0.5)
                 ax.axvline(x=vlims[1]*alpha, color='gray', lw=0.5)
                 ax.set_xlim(min(vlims[0]*alpha*10.0**(-2.5*shift),
