@@ -168,7 +168,7 @@ class qens:
         #                  int(min(np.ceil(T / dt_samp), 1e3)))
         #tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
         #                       int(min(np.ceil(T / dt_samp), 1e3)))
-        self.tin = np.linspace(0.0, 500.0, 1001)
+        self.tin = np.linspace(0.0, 1000.0, 2001)
         print("Check parameters of horizontal axis")
         print("de=", self.de, "selected_energy[0]=",
               self.selected_energy[0], "num channels=", self.tin.shape[0])
@@ -186,10 +186,10 @@ class qens:
         snorms = self.sspectra/np.sum(self.sspectra)/self.sde
         fig = plt.figure(figsize=(12, 12))
         ax = fig.add_subplot(3, 1, 1)
-        #ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
-        ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
-        ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
-        #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
+        ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
+        #ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
+        #ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
+        ax.plot(self.tin_real, self.y[0]/self.de, c='k', label='ssvkernel')
         ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
         #ax.tick_params(top=True, right=True, direction='in', which='both',
         #               labelbottom=False)
@@ -202,7 +202,7 @@ class qens:
         ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
         ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
         #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
-        ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
+        #ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
         ax.set_yscale('log')
         ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)
         ax.tick_params(top=True, right=True, direction='in', which='both',
@@ -238,6 +238,7 @@ class qens:
         self.yck = yck / np.sum(yck*dt)
         print(np.sum(yck))
         print(np.sum(self.y[0]))
+        self.ys = (self.yck, self.y[1], self.y[2])
 
     def Gauss(self, x, w):
         return 1.0/((2.0*np.pi)**0.5*w)*np.exp(-(x/w)**2/2.0)
@@ -246,6 +247,15 @@ class qens:
         dataset = {}
         dataset['y_ssvk'] = self.y
         dataset['y_ssk'] = self.y_
+        dataset['tin_real'] = self.tin_real
+        #dataset['xlim'] = np.array([np.min(self.xvec_real),
+        #                           np.max(self.xvec_real)])
+        with open(output_file, 'wb') as f:
+            pickle.dump(dataset, f, -1)
+
+    def save_outputs(self,  output_file):
+        dataset = {}
+        dataset['ys_ssvk'] = self.ys
         dataset['tin_real'] = self.tin_real
         #dataset['xlim'] = np.array([np.min(self.xvec_real),
         #                           np.max(self.xvec_real)])
