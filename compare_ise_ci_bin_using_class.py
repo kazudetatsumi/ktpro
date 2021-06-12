@@ -14,6 +14,7 @@ def run():
     isefn1 = "ise_withoutcond"
     isefn2 = "ise_condparam09"
     infiler1 = "result.txt_ise_lv"
+    infiler1 = "result.txt_ise_withcond"
     infiler2 = "condparam09/result.txt_vec"
     stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
     label1 = r'$\alpha=0$'
@@ -39,6 +40,7 @@ def run():
     #ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
     ic.head = "/home/kazu/desktop/200701/orthotope_ddscs_kfki_debye/"
     ic.stepsizes = np.array([0.0125, 0.025, 0.05, 0.2])
+    ic.infiler1 = "result.txt_ise_lv"
     ic.cn = 1
     #tcount = 702056.0
     tcount = 797882.0

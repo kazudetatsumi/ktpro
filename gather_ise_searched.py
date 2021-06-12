@@ -52,9 +52,10 @@ class gather_ise_search(cic.SCheckiselog):
         self.avepdfs = 0.0  # dummy
         self.fracise = 0.0  # dummy
 
-    def printall(self, fine=False, lv=False):
+    def printall(self, fine=False, lv=False, cond=False):
         self.fine = fine
         self.lv = lv
+        self.cond = cond
         timelist = [str(t) + "m" for t in self.times]
         for tidx in range(1, 21):
             print(tidx)
@@ -65,6 +66,9 @@ class gather_ise_search(cic.SCheckiselog):
             elif self.lv and not self.fine:
                 outfile = trydir + "ise_searched_lv"
                 rfile = trydir + "result.txt_ise_lv"
+            elif self.cond and not self.lv and not self.fine:
+                outfile = trydir + "ise_searched_withcond"
+                rfile = trydir + "result.txt_ise_withcond"
             elif self.lv and self.fine:
                 outfile = trydir + "ise_searched_rev_lv"
                 rfile = trydir + "result.txt_ise_rev_lv"
@@ -77,6 +81,9 @@ class gather_ise_search(cic.SCheckiselog):
                     self.workdir = trydir + tname + "/"
                     if self.lv:
                         self.log = self.workdir + "std-ise-lv-" + str(tidx) + "_"\
+                            + tname + ".log"
+                    elif self.cond:
+                        self.log = self.workdir + "std-ise-withcond-" + str(tidx) + "_"\
                             + tname + ".log"
                     else:
                         self.log = self.workdir + "std-ise-" + str(tidx) + "_"\
