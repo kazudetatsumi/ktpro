@@ -194,7 +194,8 @@ class ise_ci:
                 ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]
                                                            ))
             ax.tick_params(top=True, right=True, direction='in', which='both',
-                           width=2)
+                           width=2, length=8)
+            ax.tick_params(which='minor', width=2, length=4)
             ax.tick_params(labelbottom=False, labelleft=True)
             ax.axhline(y=0, ls='--', c='k', lw=0.5)
             ax.set_xscale('log')

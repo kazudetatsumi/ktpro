@@ -21,7 +21,7 @@ def run():
     label2 = r'$\alpha=0.9$'
     tcn = 3
     cn = 0
-    mnj = [2,2,6,2]
+    mnj = [6,12,6,2]
     tcount = 626836.0
     tcountcommon_expt = 123.0
     tcountcommon = 371.0
@@ -43,10 +43,10 @@ def run():
     ic.infiler1 = "result.txt_ise_lv"
     ic.cn = 1
     #tcount = 702056.0
-    tcount = 797882.0
+    tcount = 796273.0
     tcountcommon_expt = 483.0
     #tcountcommon = 1424.0
-    tcountcommon = 1610.0
+    tcountcommon = 1669.0
     alpha = tcountcommon/tcount
     vlims_expt = np.array([1.140130e+05, 5.906150e+05])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
@@ -65,9 +65,9 @@ def run():
     ic.cn = 2
     ic.get_all_data()
     ic.mnj = [2,2,1,1]
-    tcount = 131514.0
+    tcount = 131074.0
     tcountcommon_expt = 1885.0
-    tcountcommon = 4234.0
+    tcountcommon = 4342.0
     alpha = tcountcommon/tcount
     vlims_expt = np.array([7.821000e+03, 9.685300e+04])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
