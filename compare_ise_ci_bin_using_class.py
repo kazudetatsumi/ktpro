@@ -52,7 +52,7 @@ def run():
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     ic.get_all_data()
-    ic.mnj = [3,1,1,3]
+    ic.mnj = [2,1,1,1]
     ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[5, 7, 10, 11,15])
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
@@ -64,7 +64,7 @@ def run():
     ic.label2 = r'$\alpha=0.5$'
     ic.cn = 2
     ic.get_all_data()
-    ic.mnj = [2,2,1,1]
+    ic.mnj = [4,2,1,1]
     tcount = 131074.0
     tcountcommon_expt = 1885.0
     tcountcommon = 4342.0

@@ -125,7 +125,10 @@ class Plot_4w_Logn:
             ax.scatter(x_n[self.m-1:self.m], y_n[self.m-1:self.m], marker='*',
                        edgecolor="black", s=msize, facecolors="white")
             ax.tick_params(labelbottom=False)
-            ax.set_ylim(0, max([np.max(y_n), np.max(y_m), dp*(self.mnj-1)])+dp)
+            if isinstance(self.mnj, list):
+                ax.set_ylim(0, max([np.max(y_n), np.max(y_m), dp*(self.mnj[ip]-1)])+dp)
+            else:
+                ax.set_ylim(0, max([np.max(y_n), np.max(y_m), dp*(self.mnj-1)])+dp)
             #ax.set_yticks(np.arange(0,
             #              (max(np.max(y_n), np.max(y_m))//(dp*2)+2)*(dp*2),
             #              (dp*2)))
@@ -147,7 +150,10 @@ class Plot_4w_Logn:
                     ax.set_ylabel('bin width (meV)')
                 ax.tick_params(labelbottom=True)
             ax.set_xlabel('count in common space')
-            ax.yaxis.set_major_locator(MultipleLocator(dp*self.mnj))
+            if isinstance(self.mnj, list):
+                ax.yaxis.set_major_locator(MultipleLocator(dp*self.mnj[ip]))
+            else:
+                ax.yaxis.set_major_locator(MultipleLocator(dp*self.mnj))
             ax.yaxis.set_minor_locator(MultipleLocator(dp))
             ax.tick_params(length=6, which='major')
             ax.tick_params(length=3, which='minor')

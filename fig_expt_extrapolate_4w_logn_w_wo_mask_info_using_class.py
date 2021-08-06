@@ -62,5 +62,5 @@ def run():
     mycc.plot_all_data(xlim=xlim, vlims=vlims, alpha=alpha)
 
 run()
-plt.savefig("expt_extraploate.pdf")
+plt.savefig("expt_extraploate.eps")
 plt.show()

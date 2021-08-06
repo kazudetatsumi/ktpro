@@ -47,7 +47,7 @@ def run():
              "/condparam07/result.txt_vec"
     projectset.deltas = np.array([0.01, 0.01, 0.04, 0.08])
     clm = 3
-    projectset.mnj
+    projectset.mnj = [4, 10, 2, 10]
     projectset.plotter(clm, ylabel=False, alpha=a1EE.alpha('Ei24'))
 
 

@@ -86,7 +86,8 @@ class Compare:
             if not onlyone:
                 ax.plot(x, ys[1, :, widx],
                         clip_on=False, linestyle="dotted", lw=1.0,
-                        label=self.label2, marker=marker, ms=6, mec=c,
+                        #label=self.label2, marker=marker, ms=6, mec=c,
+                        label=self.label2, marker="+", ms=6, mec=c,
                         mfc='white', mew=1.4, c=c)
 
             #ax.set_ylim(0, np.max(ys[:, :, widx]) + self.stepsizes[widx])
