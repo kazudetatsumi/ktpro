@@ -20,8 +20,8 @@ def run():
     #cpos = np.array([107, 145, 34, 0])
 
     pro = c4c.CROSS(outfile, orthotope_lims, wholeranges, devs, cpos,
-                    hvlofs=False, binwidths=binwidths)
-    pro.create_fig()
+                    hvlofs=False, binwidths=binwidths, showorthob=False, vivid=True)
+    pro.create_fig(xdim=24, ydim=24)
     pro.get_data()
     pro.plot_crosssection(1, xyyx=True)
 

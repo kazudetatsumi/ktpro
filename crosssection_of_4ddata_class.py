@@ -14,7 +14,8 @@ class CROSS:
 
     def __init__(self, outfile, orthotope_lims, wholeranges, devs,
                  cpos, hvlofs=False, binwidths=np.ones(4),
-                 common_lims=None, filled=False, mb=0.3, showorthob=True):
+                 common_lims=None, filled=False, mb=0.3, showorthob=True,
+                 vivid=False):
         self.outfile = outfile
         self.orthotope_lims = orthotope_lims
         self.wholeranges = wholeranges
@@ -26,6 +27,7 @@ class CROSS:
         self.filled = filled
         self.mb = mb
         self.showorthob = showorthob
+        self.vivid = vivid
     
     def get_data(self):
         if self.filled:
@@ -150,10 +152,21 @@ class CROSS:
         v = np.linspace(yr[0], yr[1], data.shape[1]+1)
         X, Y = np.meshgrid(u, v)
 
-        c = ax.pcolor(X, Y, np.transpose(data), vmin=0,
+        if not self.vivid:
+            c = ax.pcolor(X, Y, np.transpose(data), vmin=0,
+                          vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
+                                   / dev),
+                          cmap=self.custom_cmap)
+            self.fig.colorbar(c, ax=ax)
+        else:
+            zm = np.ma.masked_where(data >= 0, data).T
+            ax.pcolor(X, Y, np.transpose(data), vmin=0,
                       vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
                                / dev),
-                      cmap=self.custom_cmap)
+                      cmap='jet')
+            cmap = get_cmap("gist_gray")
+            cmap.set_under(color='white')
+            ax.pcolor(X, Y, zm, color='k', cmap=cmap)
 
         #ax.set_xlabel(lx, fontsize=12)
         #ax.set_ylabel(ly, fontsize=12)
@@ -207,11 +220,10 @@ class CROSS:
                        right=False, labelleft=True, width=1.5)
         #ax.axis('tight')
         ax.text((xr[1]+xr[0])*.6, yr[1]*1.04, cposinfo)
-        self.fig.colorbar(c, ax=ax)
 
-    def create_fig(self, title=None):
+    def create_fig(self, title=None, xdim=8.8, ydim=8.8):
         self.create_cmap()
-        self.fig = plt.figure(figsize=(8.8, 8.8))
+        self.fig = plt.figure(figsize=(xdim, ydim))
         if title is None:
             self.fig.suptitle("crosssections of 4D INS intensity initial " +
                               "aray for bin-widths optimization",

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 
 
@@ -17,6 +16,7 @@ class generate_testdata:
         for sigma, mean, weight in zip(self.sigmas, self.means, self.ints):
             self.pdf[1, :] += weight*np.exp(-(x - mean)**2/sigma**2)\
                          / (2.0*np.pi)**0.5 / sigma
+        self.pdf[1, :] = self.pdf[1, :]/np.sum(self.pdf[1, :])/(x[1]-x[0])
         self.pdf[0, :] = x
 
     def rate(self, x):
@@ -32,6 +32,7 @@ class generate_testdata:
     def get_maxrate(self):
         x0 = 0.5
         results = minimize(self.neg_rate, x0)
+        print(results)
         self.maxrate = -results.fun
 
     def generate_homogeneous_point_process(self):
@@ -43,20 +44,44 @@ class generate_testdata:
                                           self.numpoints) <
                                           self.rate(self.homoxdata)]
 
-    def histogram(self, nbins):
+    def mise(self, x):
+        bins = np.arange(0, 1.0+x, x)
+        histdata = np.histogram(self.inhomoxdata, bins=bins, density=True)
+        theta = histdata[0]
+        x = histdata[1][:]
+        mise = 0.0
+        dpdfx = self.pdf[0, 1] - self.pdf[0, 0]
+        for idx, xi in enumerate(x[:-1]):
+            for jdx, pdf in enumerate(self.pdf[1, :]):
+                if self.pdf[0, jdx] >= xi and self.pdf[0, jdx] < x[idx+1]:
+                    mise += (theta[idx] - pdf)**2*dpdfx
+        return(mise)
+
+    def pdfhist(self, x):
+        bins = np.arange(0, 1.0+x, x)
+        dpdfx = self.pdf[0, 1] - self.pdf[0, 0]
+        hist = np.zeros((2, bins.shape[0]-1))
+        for idx, xi in enumerate(bins[0:-1]):
+            hist[0, idx] = (bins[idx]+bins[idx+1])/2
+            for jdx, pdf in enumerate(self.pdf[0, :]):
+                if pdf >= xi and pdf < bins[idx+1]:
+                    hist[1, idx] += self.pdf[1, jdx]*dpdfx/x
+        return hist
 
 
-def samplerun():
-    proj = generate_testdata([0.3, 0.8], [0.2, 0.4], [0.2, 0.2], 400)
-    proj.get_maxrate()
-    print(proj.maxrate)
-    proj.generate_homogeneous_point_process()
-    proj.thinning()
-    proj.pdf()
-    print(proj.inhomoxdata)
-    plt.scatter(proj.inhomoxdata, np.zeros_like(proj.inhomoxdata), marker='|')
-    plt.plot(proj.pdf[0, :], proj.pdf[1, :])
-    plt.show()
 
 
-samplerun()
+
+#def samplerun():
+#    proj = generate_testdata([0.3, 0.8], [0.2, 0.4], [0.2, 0.2], 400)
+#    proj.get_maxrate()
+#    print(proj.maxrate)
+#    proj.generate_homogeneous_point_process()
+#    proj.thinning()
+#    proj.pdf()
+#    print(proj.inhomoxdata)
+#    plt.scatter(proj.inhomoxdata, np.zeros_like(proj.inhomoxdata), marker='|')
+##    plt.plot(proj.pdf[0, :], proj.pdf[1, :])
+#    plt.show()
+
+#samplerun()
