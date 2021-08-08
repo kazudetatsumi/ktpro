@@ -120,29 +120,33 @@ class CROSS:
                      self.wholeranges[3, :], cposinfo, clims=clims)
     
     def create_cmap(self):
-        if self.filled:
-            cdict = {'red':   ((0.0, 0.0, 0.0),
-                               (1.0, 1.0, 1.0)),
+        if not self.vivid:
+            if self.filled:
+                cdict = {'red':   ((0.0, 0.0, 0.0),
+                                   (1.0, 1.0, 1.0)),
 
-                     'green': ((0.0, 0.0, 0.0),
-                               (1.0, 1.0, 1.0)),
+                         'green': ((0.0, 0.0, 0.0),
+                                   (1.0, 1.0, 1.0)),
 
-                     'blue':  ((0.0, 0.0, 0.0),
-                               (1.0, 1.0, 1.0))
-                     }
+                         'blue':  ((0.0, 0.0, 0.0),
+                                   (1.0, 1.0, 1.0))
+                         }
+            else:
+                cdict = {'red':   ((0.0, self.mb, self.mb),
+                                   (1.0, 1.0, 1.0)),
+
+                         'green': ((0.0, self.mb, self.mb),
+                                   (1.0, 1.0, 1.0)),
+
+                         'blue':  ((0.0, self.mb, self.mb),
+                                   (1.0, 1.0, 1.0))
+                         }
+
+            self.custom_cmap = LinearSegmentedColormap('truncated_gray', cdict)
+            self.custom_cmap.set_under(color='black')
         else:
-            cdict = {'red':   ((0.0, self.mb, self.mb),
-                               (1.0, 1.0, 1.0)),
-
-                     'green': ((0.0, self.mb, self.mb),
-                               (1.0, 1.0, 1.0)),
-
-                     'blue':  ((0.0, self.mb, self.mb),
-                               (1.0, 1.0, 1.0))
-                     }
-
-        self.custom_cmap = LinearSegmentedColormap('truncated_gray', cdict)
-        self.custom_cmap.set_under(color='black')
+            self.custom_cmap = get_cmap("jet")
+            self.custom_cmap.set_under(color='k')
 
     def plotter(self, xlim, ylim, lx, ly, data, vn, hn, cn, dev, xr, yr,
                 cposinfo, clims=None):
@@ -152,21 +156,21 @@ class CROSS:
         v = np.linspace(yr[0], yr[1], data.shape[1]+1)
         X, Y = np.meshgrid(u, v)
 
-        if not self.vivid:
-            c = ax.pcolor(X, Y, np.transpose(data), vmin=0,
-                          vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
-                                   / dev),
-                          cmap=self.custom_cmap)
-            self.fig.colorbar(c, ax=ax)
-        else:
-            zm = np.ma.masked_where(data >= 0, data).T
-            ax.pcolor(X, Y, np.transpose(data), vmin=0,
+        #if not self.vivid:
+        c = ax.pcolor(X, Y, np.transpose(data), vmin=0,
                       vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
                                / dev),
-                      cmap='jet')
-            cmap = get_cmap("gist_gray")
-            cmap.set_under(color='white')
-            ax.pcolor(X, Y, zm, color='k', cmap=cmap)
+                      cmap=self.custom_cmap)
+        self.fig.colorbar(c, ax=ax)
+        #else:
+        #    zm = np.ma.masked_where(data >= 0, data).T
+        #    ax.pcolor(X, Y, np.transpose(data), vmin=0,
+        #              vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
+        #                       / dev),
+        #              cmap='jet')
+        #    cmap = get_cmap("gist_gray")
+        #    cmap.set_under(color='white')
+        #    ax.pcolor(X, Y, zm, color='k', cmap=cmap)
 
         #ax.set_xlabel(lx, fontsize=12)
         #ax.set_ylabel(ly, fontsize=12)

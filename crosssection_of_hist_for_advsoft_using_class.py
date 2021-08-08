@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('/home/kazu/ktpro/')
 import crosssection_of_4ddata_class as c4c
+plt.rcParams.update({'font.size': 20})
+
 
 
 def run():
@@ -20,8 +22,8 @@ def run():
     #cpos = np.array([107, 145, 34, 0])
 
     pro = c4c.CROSS(outfile, orthotope_lims, wholeranges, devs, cpos,
-                    hvlofs=False, binwidths=binwidths)
-    pro.create_fig()
+                    hvlofs=False, binwidths=binwidths, showorthob=False, vivid=True)
+    pro.create_fig(xdim=24, ydim=24)
     pro.get_data()
     pro.plot_crosssection(1, xyyx=True)
 
@@ -46,7 +48,7 @@ def run():
 
     pro.get_data()
     pro.plot_crosssection(3)
-    plt.savefig("fig_hist_with_labels.png")
+    plt.savefig("fig_adv_hist_with_labels.png")
     plt.subplots_adjust(wspace=0.1, hspace=0.37)
     plt.show()
 

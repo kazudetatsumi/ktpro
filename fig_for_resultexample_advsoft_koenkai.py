@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import h5py
 
 plt.rcParams['font.family'] = 'Arial'
-plt.rcParams["font.size"] = 14
+plt.rcParams["font.size"] = 20
 #plt.rcParams["xtick.top"] = True
 #plt.rcParams["xtick.labeltop"] = True
-fig = plt.figure(figsize=(16, 16))
+fig = plt.figure(figsize=(24, 24))
 fig.suptitle("crosssections of 4D INS data")
 
 
@@ -89,7 +89,7 @@ def plot_crosssection_more_useful(cnum, lims_int,
     print(np.min(condition2d))
     data2d = preprocess(data2d, condition2d)
     plotter(lims_int[0,:], lims_int[1,:], '$\mathregular{q_a(rlu)}$', '$\mathregular{q_b(rlu)}$', data2d,
-            3, 2, cnum, devs[0], ranges[0, :], ranges[1, :],
+            4, 3, cnum, devs[0], ranges[0, :], ranges[1, :],
             hvlofs, cposinfo)
     cposinfo = '@$\mathregular{(q_a, q_c)}$'+"=({:.1f}, {:.0f})".format(cposval[0], cposval[2])
     data2d = np.sum(np.sum(data4[cpos[0]:cpos[0]+3, :, cpos[2]:cpos[2]+2, :],axis=2),axis=0)
@@ -99,7 +99,7 @@ def plot_crosssection_more_useful(cnum, lims_int,
     print(np.min(condition2d))
     data2d = preprocess(data2d, condition2d)
     plotter(lims_int[1,:], lims_int[3,:], '$\mathregular{q_b(rlu)}$', 'E(meV)',  data2d,
-            3, 2, cnum+2, devs[1], ranges[1, :], ranges[3, :],
+            4, 3, cnum+3, devs[1], ranges[1, :], ranges[3, :],
             hvlofs, cposinfo)
     cposinfo = '@$\mathregular{(q_b, q_c)}$'+"=({:.1f}, {:.0f})".format(cposval[1],cposval[2])
     data2d = np.sum(np.sum(data4[:, cpos[1]:cpos[1]+2, cpos[2]:cpos[2]+2, :], axis=2),axis=1)
@@ -109,7 +109,7 @@ def plot_crosssection_more_useful(cnum, lims_int,
     print(np.min(condition2d))
     data2d = preprocess(data2d, condition2d)
     plotter(lims_int[0,:],lims_int[3,:], '$\mathregular{q_a(rlu)}$', 'E(meV)',  data2d,
-            3, 2, cnum+4, devs[2], ranges[0, :], ranges[3, :],
+            4, 3, cnum+6, devs[2], ranges[0, :], ranges[3, :],
             hvlofs, cposinfo)
 
 
