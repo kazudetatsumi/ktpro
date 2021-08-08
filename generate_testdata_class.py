@@ -68,9 +68,27 @@ class generate_testdata:
                     hist[1, idx] += self.pdf[1, jdx]*dpdfx/x
         return hist
 
+    def fun_gauss(self, x, h):
+        return np.exp(-x**2/h**2)/(2.0*np.pi)**0.5 / h
 
+    def kde(self, h):
+        kde = np.zeros_like(self.pdf)
+        kde[0, :] = self.pdf[0, :]
+        dx = kde[0, 1] - kde[0, 0]
+        for _x in self.inhomoxdata:
+            for ixx, _xx in enumerate(kde[0, :]):
+                kde[1, ixx] += self.fun_gauss(_x-_xx, h)
+        kde[1, :] = kde[1, :]/np.sum(kde[1, :])/dx
+        return kde
 
-
+    def misekde(self, h):
+        kde = self.kde(h)
+        misekde = 0.0
+        dpdfx = self.pdf[0, 1] - self.pdf[0, 0]
+        for jdx, pdf in enumerate(self.pdf[1, :]):
+            misekde += (kde[1, jdx] - pdf)**2*dpdfx
+        return(misekde)
+        
 
 #def samplerun():
 #    proj = generate_testdata([0.3, 0.8], [0.2, 0.4], [0.2, 0.2], 400)
