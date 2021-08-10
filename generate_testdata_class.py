@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 import numpy as np
 from scipy.optimize import minimize
+import sys
+sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
+import ssvkernel_for_advsoft_koenkai as ssvkernel
+import pickle
 
 
 class generate_testdata:
@@ -30,10 +34,12 @@ class generate_testdata:
         return -self.rate(x)
 
     def get_maxrate(self):
-        x0 = 0.5
-        results = minimize(self.neg_rate, x0)
-        print(results)
-        self.maxrate = -results.fun
+        gmax = 0.0
+        for x0 in np.linspace(0, 1.0, 100):
+            results = minimize(self.neg_rate, x0)
+            if gmax < -results.fun:
+                gmax = -results.fun
+        self.maxrate = gmax*1.001
 
     def generate_homogeneous_point_process(self):
         self.numpoints = np.random.poisson(self.maxrate*self.ntot)
@@ -42,7 +48,8 @@ class generate_testdata:
     def thinning(self):
         self.inhomoxdata = self.homoxdata[np.random.uniform(0, 1,
                                           self.numpoints) <
-                                          self.rate(self.homoxdata)]
+                                          self.rate(self.homoxdata)
+                                          / self.maxrate]
 
     def mise(self, x):
         bins = np.arange(0, 1.0+x, x)
@@ -88,6 +95,31 @@ class generate_testdata:
         for jdx, pdf in enumerate(self.pdf[1, :]):
             misekde += (kde[1, jdx] - pdf)**2*dpdfx
         return(misekde)
+
+    def vkde(self):
+        #results = ssvkernel.ssvkernel(self.inhomoxdata, self.pdf[0, :])
+        results = ssvkernel.ssvkernel(self.inhomoxdata)
+        print('gs:',results[3])
+        print('C:',results[4])
+        #results = ssvkernel.ssvkernel(self.inhomoxdata, np.linspace(0, 1, 5000))
+        misevkde = 0.0
+        dpdfx = self.pdf[0, 1] - self.pdf[0, 0]
+        y = np.interp(self.pdf[0], results[1], results[0])
+        print(y.shape)
+        for jdx, pdf in enumerate(self.pdf[1, :]):
+            misevkde += (y[jdx] - pdf)**2*dpdfx
+        return results, misevkde, y
+        #return results
+
+    def load_vkde(self):
+        with open("vkde.pkl", 'rb') as f:
+            dataset = pickle.load(f)
+        self.costfunc = dataset['costfunc']
+        self.localcost = dataset['localcost']
+        self.W = dataset['W']
+        self.wv = dataset['wv']
+        self.ww = dataset['ww']
+
         
 
 #def samplerun():
