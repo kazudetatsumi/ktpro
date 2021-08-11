@@ -187,7 +187,7 @@ class qens:
             snorms = self.sspectra/np.sum(self.sspectra)/self.sde
 
         norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de
-        fig = plt.figure(figsize=(12, 12))
+        fig = plt.figure(figsize=(6, 8))
         ax = fig.add_subplot(3, 1, 1)
         ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
         if optsmear:
@@ -205,11 +205,13 @@ class qens:
         ax = fig.add_subplot(3, 1, 2)
         ax.set_ylabel('density')
         if optsmear:
-            ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
+            ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata',
+                   bottom=0.0001)
             ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
             ax.plot(self.tin_real, self.y[0]/self.de, c='k', label='ssvkernel')
         if not optsmear:
-            ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
+            ax.bar(self.selected_energy, norms, width=self.de,
+                   label='expt data', bottom=0.0001)
             ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
             ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
         ax.set_yscale('log')
@@ -220,13 +222,14 @@ class qens:
         plt.legend()
         ax = fig.add_subplot(3, 1, 3)
         ax.plot(self.tin_real, self.y[2]*scf, c='r', label='ssvkernel')
-        ax.plot(self.tin_real, np.ones(self.y_[1].shape[0])*self.y_[2]*scf, c='k',
+        ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2]*scf, c='k',
                 label='sskernel')
         ax.set_ylabel('band-width')
-        ax.set_xlabel('energy ($\mu eV$)')
+        ax.set_xlabel('energy (meV)')
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=True, width=1.5)
         ax.set_xlim(tmprange)
+        ax.set_ylim(0, np.max(self.y[2]*scf))
         plt.subplots_adjust(hspace=0.0)
         plt.legend()
         plt.savefig("qens_out.pdf")
