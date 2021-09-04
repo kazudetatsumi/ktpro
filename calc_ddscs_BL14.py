@@ -36,14 +36,7 @@ def bose_distribution_func(omega, temperature):
 
 
 def sumofxd_func(eigvec, qvec):
-    # at present, assuming a Bravais Crystal, where the atom position is only (0,0,0).
-    xd = np.zeros((eigvec.shape[0], eigvec.shape[1], eigvec.shape[2], eigvec.shape[4]), dtype=np.complex)
-    for imode in range(0, eigvec.shape[4]):
-        xd[:, :, :, imode] = (qvec[:, :, :, 0]*eigvec[:, :, :, 0, imode] +
-                              qvec[:, :, :, 1]*eigvec[:, :, :, 1, imode] +
-                              qvec[:, :, :, 2]*eigvec[:, :, :, 2, imode]) 
-    xd = xd 
-    return(xd)
+    return np.sum(qvec[:, :, :, :, np.newaxis]*eigvec, axis=3)
 
 
 def save_h5py(ddscs, outfile):

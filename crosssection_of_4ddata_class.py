@@ -187,16 +187,16 @@ class CROSS:
             xeval = (xlim[1]-xoff)/float(data.shape[0])*(xr[1] - xr[0]) + xr[0]
             yival = (ylim[0]+yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
             yeval = (ylim[1]-yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
-            ax.axvline(x=xival, color='white', lw=1.5,
+            ax.axvline(x=xival, color='white', lw=0.5,
                        ymin=float(ylim[0])/float(data.shape[1]),
                        ymax=float(ylim[1])/float(data.shape[1]))
-            ax.axvline(x=xeval, color='white', lw=1.5,
+            ax.axvline(x=xeval, color='white', lw=0.5,
                        ymin=float(ylim[0])/float(data.shape[1]),
                        ymax=float(ylim[1])/float(data.shape[1]))
-            ax.axhline(y=yival, color='white', lw=1.5,
+            ax.axhline(y=yival, color='white', lw=0.5,
                        xmin=float(xlim[0])/float(data.shape[0])+frac,
                        xmax=float(xlim[1])/float(data.shape[0])-frac)
-            ax.axhline(y=yeval, color='white', lw=1.5,
+            ax.axhline(y=yeval, color='white', lw=0.5,
                        xmin=float(xlim[0])/float(data.shape[0])+frac,
                        xmax=float(xlim[1])/float(data.shape[0])-frac)
         if clims is not None:
@@ -204,16 +204,16 @@ class CROSS:
             cxeval = clims[0, 1]/float(data.shape[0])*(xr[1] - xr[0]) + xr[0]
             cyival = clims[1, 0]/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
             cyeval = clims[1, 1]/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
-            ax.axvline(x=cxival, color='limegreen', lw=0.5,
+            ax.axvline(x=cxival, color='pink', lw=0.5,
                        ymin=float(clims[1, 0])/float(data.shape[1]),
                        ymax=float(clims[1, 1])/float(data.shape[1]))
-            ax.axvline(x=cxeval, color='limegreen', lw=0.5,
+            ax.axvline(x=cxeval, color='pink', lw=0.5,
                        ymin=float(clims[1, 0])/float(data.shape[1]),
                        ymax=float(clims[1, 1])/float(data.shape[1]))
-            ax.axhline(y=cyival, color='limegreen', lw=0.5,
+            ax.axhline(y=cyival, color='pink', lw=0.5,
                        xmin=float(clims[0, 0])/float(data.shape[0]),
                        xmax=float(clims[0, 1])/float(data.shape[0]))
-            ax.axhline(y=cyeval, color='limegreen', lw=0.5,
+            ax.axhline(y=cyeval, color='pink', lw=0.5,
                        xmin=float(clims[0, 0])/float(data.shape[0]),
                        xmax=float(clims[0, 1])/float(data.shape[0]))
 

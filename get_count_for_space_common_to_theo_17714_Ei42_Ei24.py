@@ -21,6 +21,7 @@ def run():
     hdffile = '/home/kazu/desktop/200701/all/filled_again_ddscs/14m/eliminated_data.hdf5'
     hdffile = '/home/kazu/desktop/200701/all/filled_again_ddscs2/4m/eliminated_data.hdf5'
     hdffile = '/home/kazu/desktop/200701/all/filled_again_ddscs2/14m/eliminated_data.hdf5'
+
     #headfile = '/home/kazu/desktop/200522/Ei42/dq_0.025_dw_0.5/Output4D_00_840.head.txt'
     headfile = '/home/kazu/desktop/200522/Ei42/veryfineq/14m/Output4D_00_840.txt.head'
     boundary_tmp = np.copy(boundary)
@@ -32,6 +33,7 @@ def run():
     #hdffile = '/home/kazu/desktop/200522/Ei24/dq_0.025/Output4D_00_1560.hdf5'
     #hdffile = '/home/kazu/desktop/200903/all/filled_ddscs_kfki_debye/12m/eliminated_data.hdf5'
     hdffile = '/home/kazu/desktop/200903/all/filled_ddscs_kfki_debye/26m/eliminated_data.hdf5'
+    hdffile = '/home/kazu/desktop/200903/all/filled_gamma_corrected/54m/eliminated_data.hdf5'
     headfile = '/home/kazu/desktop/200522/Ei24/fineq/26m/Output4D_00_1560.txt.head'
     counter_Ei24 = ci.CountInt(hdffile, headfile, boundary)
     counter_Ei24.getcount()

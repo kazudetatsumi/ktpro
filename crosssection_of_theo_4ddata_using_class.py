@@ -8,7 +8,8 @@ import crosssection_of_4ddata_class as c4c
 
 def run():
 
-    outfile = "/home/kazu/desktop/200312/for_cu_new/old_filled/filled_ddscs_kfki_debye/4h/eliminated_data.hdf5"
+    #outfile = "/home/kazu/desktop/200312/for_cu_new/old_filled/filled_ddscs_kfki_debye/4h/eliminated_data.hdf5"
+    outfile = "/home/kazu/desktop/200312/for_cu_new/old_filled/filled_ddscs_kfki_debye/422h/eliminated_data.hdf5"
     orthotope_lims = np.array([[120, 172], [61, 145], [16, 53], [20, 70]])*1.0
     common_lims = np.array([[85, 88], [143, 146], [30, 39], [26, 32]])*1.0
     orgbinwidths = np.array([4, 4, 5, 3])
@@ -26,6 +27,7 @@ def run():
     pro.plot_crosssection(1, xyyx=True)
 
     pro.outfile = "/home/kazu/desktop/200701/all/filled_again_ddscs2/4m/eliminated_data.hdf5"
+    #pro.outfile = "/home/kazu/desktop/200701/all/filled_again_ddscs2/284m/eliminated_data.hdf5"
     pro.orthotope_lims = np.array([[114, 200], [69, 122], [11, 20],
                                   [81, 207]])*1.0
     orgbinwidths = np.array([3, 2, 2, 4])

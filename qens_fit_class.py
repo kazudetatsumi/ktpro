@@ -23,6 +23,7 @@ class qens_fit:
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_sdata(self.tf)
+        self.bg = ys_ssvk_tf[0][x_tf > 0.10][0]
         print(np.sum(np.abs(x_tf - x_devf)))
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf[0], mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf[0], mergin=0.00)
@@ -86,9 +87,11 @@ class qens_fit:
             y = self.convlore(alpha*d, gamma, x)
             y += delta*d + base
         if len(coeffs) == 3:
+            #print(self.y_tf[-1])
             [alpha, gamma, delta] = coeffs
             y = self.convlore(alpha*d, gamma, x)
-            y += delta*d + self.y_tf[-1]
+            #y += delta*d + self.y_tf[-1]
+            y += delta*d + self.bg
         return t - y
 
     def res_icorr(self, coeffs, x, t):
@@ -102,7 +105,7 @@ class qens_fit:
         variables = [1.58837344e-04, 1.00454636e-02, 4.57573203e-01, 0.009]
         variables = [1.38746043e-04, 8.27288080e-03, 4.47976536e-01, 1.75691683e-02]
         variables = [1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]
-        #variables = [1.38876225e-04, 8.09183272e-03, 4.42217308e-01]
+        variables = [1.38876225e-04, 8.09183272e-03, 4.42217308e-01]
         out = so.leastsq(self.res, variables,
                          args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
                          epsfcn=0.0001)

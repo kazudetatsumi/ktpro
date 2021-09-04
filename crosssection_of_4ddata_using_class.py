@@ -20,7 +20,8 @@ def run():
     cpos = np.array([107, 145, 34, 0])
 
     pro = c4c.CROSS(outfile, orthotope_lims, wholeranges, devs, cpos,
-                    hvlofs=False, binwidths=binwidths, common_lims=common_lims)
+                    hvlofs=False, binwidths=binwidths, common_lims=common_lims,
+                    vivid=True)
     pro.create_fig()
     pro.get_data()
     pro.plot_crosssection(1, xyyx=True)
@@ -54,7 +55,7 @@ def run():
 
     pro.get_data()
     pro.plot_crosssection(3)
-    plt.savefig("Fig1_crosssections.pdf")
+    plt.savefig("Fig1_crosssections_vivid.png")
     plt.show()
 
 
