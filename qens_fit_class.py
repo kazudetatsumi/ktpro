@@ -23,10 +23,26 @@ class qens_fit:
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_sdata(self.tf)
-        self.bg = ys_ssvk_tf[0][x_tf > 0.10][0]
         print(np.sum(np.abs(x_tf - x_devf)))
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf[0], mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf[0], mergin=0.00)
+        if doicorr:
+           x = self.x_tf + 2.085
+           self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+                                    + self.k[2]*x**2
+                                    + self.k[3]*x**3)
+           self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+                                    + self.k[2]*x**2
+                                    + self.k[3]*x**3)
+
+    def preprocessh(self, doicorr=False):
+        x_devf, ys_ssvk_devf = self.get_hdata(self.devf)
+        x_tf, ys_ssvk_tf = self.get_hdata(self.tf)
+        self.bg = 0.0032044070019324375*np.max(ys_ssvk_tf)
+        print("bg:", self.bg)
+        print(np.sum(np.abs(x_tf - x_devf)))
+        x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf, mergin=0.00)
+        self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf, mergin=0.00)
         if doicorr:
            x = self.x_tf + 2.085
            self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
@@ -45,6 +61,11 @@ class qens_fit:
         with open(infile, 'rb') as f:
             data = pickle.load(f)
         return data['tin_real'], data['ys_ssvk']
+
+    def get_hdata(self, infile):
+        with open(infile, 'rb') as f:
+            data = pickle.load(f)
+        return data['energy'], data['spectra']
 
     def limit(self, x, y, mergin=0.0):
         mask = np.where((x > self.elim[0] - mergin) &
@@ -99,13 +120,13 @@ class qens_fit:
         y = k0 + k1*x + k2*x**2+ k3*x**3
         return t - y
 
-    def optimize(self):
+    def optimize(self, variables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]):
         # initial guess on the parameters are hard-coded here.
-        variables = [0.00001, 0.0015, 0.01]
-        variables = [1.58837344e-04, 1.00454636e-02, 4.57573203e-01, 0.009]
-        variables = [1.38746043e-04, 8.27288080e-03, 4.47976536e-01, 1.75691683e-02]
-        variables = [1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]
-        variables = [1.38876225e-04, 8.09183272e-03, 4.42217308e-01]
+        #variables = [0.00001, 0.0015, 0.01]
+        #variables = [1.58837344e-04, 1.00454636e-02, 4.57573203e-01, 0.009]
+        #variables = [1.38746043e-04, 8.27288080e-03, 4.47976536e-01, 1.75691683e-02]
+        #variables = [1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]
+        #variables = [1.38876225e-04, 8.09183272e-03, 4.42217308e-01]
         out = so.leastsq(self.res, variables,
                          args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
                          epsfcn=0.0001)
@@ -122,6 +143,8 @@ class qens_fit:
             _base = self.y_tf[-1]
         _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
         _y += _delta*self.y_df + _base
+        print("optbg/peak:", _base/np.max(self.y_tf))
+        self.bgpeakr = _base/np.max(self.y_tf)
         plt.plot(self.x_tf, _y, label='ML')
         plt.plot(self.x_tf, self.y_tf, label='target')
         plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base, label='constant')

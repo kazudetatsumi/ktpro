@@ -161,6 +161,13 @@ class CROSS:
                       vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
                                / dev),
                       cmap=self.custom_cmap)
+        if ly == 'E(meV)':
+            ax.set_ylim(0, yr[1])
+            delta = int(round(-yr[0]/((self.wholeranges[3, 1] -
+                              self.wholeranges[3, 0])/data.shape[1] /
+                              self.binwidths[3])))
+        else:
+            delta = 0
         self.fig.colorbar(c, ax=ax)
         #else:
         #    zm = np.ma.masked_where(data >= 0, data).T
@@ -188,11 +195,11 @@ class CROSS:
             yival = (ylim[0]+yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
             yeval = (ylim[1]-yoff)/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
             ax.axvline(x=xival, color='white', lw=0.5,
-                       ymin=float(ylim[0])/float(data.shape[1]),
-                       ymax=float(ylim[1])/float(data.shape[1]))
+                       ymin=float(ylim[0]-delta)/float(data.shape[1]-delta),
+                       ymax=float(ylim[1]-delta)/float(data.shape[1]-delta))
             ax.axvline(x=xeval, color='white', lw=0.5,
-                       ymin=float(ylim[0])/float(data.shape[1]),
-                       ymax=float(ylim[1])/float(data.shape[1]))
+                       ymin=float(ylim[0]-delta)/float(data.shape[1]-delta),
+                       ymax=float(ylim[1]-delta)/float(data.shape[1]-delta))
             ax.axhline(y=yival, color='white', lw=0.5,
                        xmin=float(xlim[0])/float(data.shape[0])+frac,
                        xmax=float(xlim[1])/float(data.shape[0])-frac)
@@ -205,11 +212,15 @@ class CROSS:
             cyival = clims[1, 0]/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
             cyeval = clims[1, 1]/float(data.shape[1])*(yr[1] - yr[0]) + yr[0]
             ax.axvline(x=cxival, color='pink', lw=0.5,
-                       ymin=float(clims[1, 0])/float(data.shape[1]),
-                       ymax=float(clims[1, 1])/float(data.shape[1]))
+                       ymin=float(clims[1, 0]-delta)/float(data.shape[1]
+                                                           - delta),
+                       ymax=float(clims[1, 1]-delta)/float(data.shape[1]
+                                                           - delta))
             ax.axvline(x=cxeval, color='pink', lw=0.5,
-                       ymin=float(clims[1, 0])/float(data.shape[1]),
-                       ymax=float(clims[1, 1])/float(data.shape[1]))
+                       ymin=float(clims[1, 0]-delta)/float(data.shape[1]
+                                                           - delta),
+                       ymax=float(clims[1, 1]-delta)/float(data.shape[1]
+                                                           - delta))
             ax.axhline(y=cyival, color='pink', lw=0.5,
                        xmin=float(clims[0, 0])/float(data.shape[0]),
                        xmax=float(clims[0, 1])/float(data.shape[0]))
