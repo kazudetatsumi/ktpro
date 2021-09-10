@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 import math
 
-temperature = 15                      # [K]
+temperature = 292                     # [K]
 PlanckConstant = 4.13566733e-15       # [eV s]
 THzTomev = PlanckConstant * 1e15      # [meV]
 kb = 8.617333262145e-2                # [meV K-1]
@@ -67,8 +67,8 @@ def run():
     mesh = np.array([nx, ny, nz])
     print(mesh)
 
-    qpointsfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test_kfki_debye/qpoints.hdf5"
-    outfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test_kfki_debye/ddscs.hdf5"
+    qpointsfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test_kfki_debye_rt/qpoints.hdf5"
+    outfile = "/home/kazu/WORK/vasp-phonopy/cu_BL01/test_kfki_debye_rt/ddscs.hdf5"
     omega, eigvec, qvec = getphonopydatafromqpoint(qpointsfile, mesh)
     print(omega.shape)
     print(eigvec.shape)

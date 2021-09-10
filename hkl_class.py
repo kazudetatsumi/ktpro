@@ -5,13 +5,14 @@ import re
 
 class hkl:
     def __init__(self, hkl_file, prot_file, out_file, latconst, atomd, atomw,
-                 imag, nmag):
+                 imag, nmag, atomw2=None):
         self.hkl_file = hkl_file
         self.prot_file = prot_file
         self.out_file = out_file
         self.latconst = latconst
         self.atomd = atomd
         self.atomw = atomw
+        self.atomw2 = atomw2
         self.imag = imag
         self.nmag = nmag
 
@@ -44,10 +45,17 @@ class hkl:
         a = self.latconst
         w = self.atomw
         d = self.atomd
-        self.hklm[4] = 2.0*self.imag*np.cos(np.pi*d*l/a) \
-            * np.exp(-w**2*np.pi**2*(h**2+k**2+l**2)/(a**2))
+        if self.atomw2:
+            print("single")
+            w2 = self.atomw2
+            self.hklm[4] = self.imag*np.exp(-np.pi**2*(w**2*(h**2+k**2) +
+                                                       w2**2*l**2)/(a**2))
+        else:
+            print("twoatoms")
+            self.hklm[4] = 2.0*self.imag*np.cos(np.pi*d*l/a) \
+                * np.exp(-w**2*np.pi**2*(h**2+k**2+l**2)/(a**2))
 
-        self.hklm = self.hklm[:,np.lexsort((l, k, h, h**2+k**2+l**2))]
+        self.hklm = self.hklm[:, np.lexsort((l, k, h, h**2+k**2+l**2))]
 
     def output(self):
         dummy = 0.00
@@ -82,4 +90,4 @@ def samplerun():
     proj.output()
 
 
-samplerun()
+#samplerun()
