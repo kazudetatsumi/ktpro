@@ -15,7 +15,7 @@ class CROSS:
     def __init__(self, outfile, orthotope_lims, wholeranges, devs,
                  cpos, hvlofs=False, binwidths=np.ones(4),
                  common_lims=None, filled=False, mb=0.3, showorthob=True,
-                 vivid=False):
+                 vivid=False, plotranges=None):
         self.outfile = outfile
         self.orthotope_lims = orthotope_lims
         self.wholeranges = wholeranges
@@ -28,7 +28,11 @@ class CROSS:
         self.mb = mb
         self.showorthob = showorthob
         self.vivid = vivid
-    
+        if plotranges.any():
+            self.plotranges = plotranges
+        else:
+            self.plotranges = wholeranges
+
     def get_data(self):
         if self.filled:
             self.read_data()
@@ -81,7 +85,8 @@ class CROSS:
         self.plotter(lims_int[0, :], lims_int[1, :], '$q_x(rlu)$',
                      '$q_y(rlu)$', self.data4[:, :, self.cpos[2], self.cpos[3]],
                      4, 3, cnum, self.devs[0], self.wholeranges[0, :],
-                     self.wholeranges[1, :], cposinfo, clims=clims)
+                     self.wholeranges[1, :], self.plotranges[0, :],
+                     self.plotranges[1, :], cposinfo, clims=clims)
         cposinfo = '$(q_x, q_z)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[2])
         if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
@@ -93,7 +98,8 @@ class CROSS:
         self.plotter(lims_int[1, :], lims_int[3, :], '$q_y(rlu)$', 'E(meV)',
                      self.data4[self.cpos[0], :, self.cpos[2], :],
                      4, 3, cnum+3, self.devs[1], self.wholeranges[1, :],
-                     self.wholeranges[3, :], cposinfo, clims=clims)
+                     self.wholeranges[3, :], self.plotranges[1, :],
+                     self.plotranges[3, :], cposinfo, clims=clims)
         cposinfo = '$(q_y, q_z)$' + "=({:.1f}, {:.0f})".format(
                    cposval[1], cposval[2])
         if self.cpos[2] >= clims_int[2, 0] and self.cpos[2] <= clims_int[2, 1]\
@@ -105,7 +111,8 @@ class CROSS:
         self.plotter(lims_int[0, :], lims_int[3, :], '$q_x(rlu)$', 'E(meV)',
                      self.data4[:, self.cpos[1], self.cpos[2], :],
                      4, 3, cnum+6, self.devs[2], self.wholeranges[0, :],
-                     self.wholeranges[3, :], cposinfo, clims=clims)
+                     self.wholeranges[3, :], self.plotranges[0, :],
+                     self.plotranges[3, :], cposinfo, clims=clims)
         cposinfo = '$(q_x, q_y)$' + "=({:.1f}, {:.0f})".format(
                    cposval[0], cposval[1])
         if self.cpos[0] >= clims_int[0, 0] and self.cpos[0] <= clims_int[0, 1]\
@@ -117,7 +124,8 @@ class CROSS:
         self.plotter(lims_int[2, :], lims_int[3, :], '$q_z(rlu)$', 'E(meV)',
                      self.data4[self.cpos[0], self.cpos[1], :, :],
                      4, 3, cnum+9, self.devs[2], self.wholeranges[2, :],
-                     self.wholeranges[3, :], cposinfo, clims=clims)
+                     self.wholeranges[3, :], self.plotranges[2, :],
+                     self.plotranges[3, :], cposinfo, clims=clims)
     
     def create_cmap(self):
         if not self.vivid:
@@ -149,38 +157,33 @@ class CROSS:
             self.custom_cmap.set_under(color='k')
 
     def plotter(self, xlim, ylim, lx, ly, data, vn, hn, cn, dev, xr, yr,
-                cposinfo, clims=None):
+                pxr, pyr, cposinfo, clims=None):
         ax = self.fig.add_subplot(vn,  hn, cn)
 
         u = np.linspace(xr[0], xr[1], data.shape[0]+1)
         v = np.linspace(yr[0], yr[1], data.shape[1]+1)
         X, Y = np.meshgrid(u, v)
 
-        #if not self.vivid:
         c = ax.pcolor(X, Y, np.transpose(data), vmin=0,
                       vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
                                / dev),
                       cmap=self.custom_cmap)
-        if ly == 'E(meV)':
+        # pxr and pyr, energy ranges in the plot are modified by the following if 
+        if np.sum(np.abs(xr - pxr)) > 0.000001 or\
+           np.sum(np.abs(yr - pyr)) > 0.000001:
+            ax.set_xlim(pxr[0], pxr[1])
+            ax.set_ylim(pyr[0], pyr[1])
+            ax.text((pxr[1]+pxr[0])*.6, pyr[1]*1.04, cposinfo)
+        elif ly == 'E(meV)':
             ax.set_ylim(0, yr[1])
             delta = int(round(-yr[0]/((self.wholeranges[3, 1] -
                               self.wholeranges[3, 0])/data.shape[1] /
                               self.binwidths[3])))
+            ax.text((xr[1]+xr[0])*.6, yr[1]*1.04, cposinfo)
         else:
             delta = 0
+            ax.text((xr[1]+xr[0])*.6, yr[1]*1.04, cposinfo)
         self.fig.colorbar(c, ax=ax)
-        #else:
-        #    zm = np.ma.masked_where(data >= 0, data).T
-        #    ax.pcolor(X, Y, np.transpose(data), vmin=0,
-        #              vmax=int(np.max(data[xlim[0]:xlim[1], ylim[0]:ylim[1]])
-        #                       / dev),
-        #              cmap='jet')
-        #    cmap = get_cmap("gist_gray")
-        #    cmap.set_under(color='white')
-        #    ax.pcolor(X, Y, zm, color='k', cmap=cmap)
-
-        #ax.set_xlabel(lx, fontsize=12)
-        #ax.set_ylabel(ly, fontsize=12)
         if self.hvlofs:
             frac = 0.01
             yoff = float(data.shape[1])*frac
@@ -234,7 +237,6 @@ class CROSS:
                        labelbottom=True, bottom=True, top=False, left=True,
                        right=False, labelleft=True, width=1.5)
         #ax.axis('tight')
-        ax.text((xr[1]+xr[0])*.6, yr[1]*1.04, cposinfo)
 
     def create_fig(self, title=None, xdim=8.8, ydim=8.8):
         self.create_cmap()
