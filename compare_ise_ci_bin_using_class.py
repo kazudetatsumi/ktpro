@@ -14,7 +14,7 @@ def run():
     isefn1 = "ise_withoutcond"
     isefn2 = "ise_condparam09"
     infiler1 = "result.txt_ise_lv"
-    infiler1 = "result.txt_ise_withcond"
+    #infiler1 = "result.txt_ise_withcond"
     infiler2 = "condparam09/result.txt_vec"
     stepsizes = np.array([0.025, 0.025, 0.025, 0.5])
     label1 = r'$\alpha=0$'
@@ -73,7 +73,7 @@ def run():
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[9,11] )
-    plt.savefig('binwidth_dif.pdf')
+    #plt.savefig('binwidth_dif.pdf')
 
     plt.show()
 

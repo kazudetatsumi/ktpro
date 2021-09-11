@@ -23,6 +23,8 @@ class qens_fit:
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_sdata(self.tf)
+        self.bg =  0.0032044070019324375*np.max(ys_ssvk_tf[0])
+        #self.bg =  0.014310858233559216*np.max(ys_ssvk_tf[0])
         print(np.sum(np.abs(x_tf - x_devf)))
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf[0], mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf[0], mergin=0.00)
@@ -39,7 +41,7 @@ class qens_fit:
         x_devf, ys_ssvk_devf = self.get_hdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_hdata(self.tf)
         self.bg = 0.0032044070019324375*np.max(ys_ssvk_tf)
-        self.bg =  0.014310858233559216*np.max(ys_ssvk_tf)
+        #self.bg =  0.014310858233559216*np.max(ys_ssvk_tf)
         #self.bg = 0.010425780481009218*np.max(ys_ssvk_tf)
         #self.bg = 0.0026995685204103215*np.max(ys_ssvk_tf)
         print("bg:", self.bg)
