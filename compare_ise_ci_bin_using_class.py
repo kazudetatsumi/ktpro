@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 def run():
     head = "/home/kazu/desktop/200312/for_cu_new/old_orthotope/" +\
-           "orthotope_ddscs_kfki_debye/"
+           "orthotope_ddscs_kfki_debye_rt/"
     isefn1 = "ise_withoutcond"
     isefn2 = "ise_condparam09"
     infiler1 = "result.txt_ise_lv"
@@ -35,7 +35,7 @@ def run():
 
     ic = cicbc.ise_ci(head, isefn1, isefn2, label1, label2, tcn, cn, infiler1, infiler2, stepsizes, mnj)
     ic.create_fig(title)
-    ic.plot_bin(alpha=alpha, vlims=vlims)
+    ic.plot_bin(alpha=alpha, vlims=vlims, rel=False)
 
     #ic.head = "/home/kazu/desktop/200701/orthotope_again_ddscs/"
     ic.head = "/home/kazu/desktop/200701/orthotope_ddscs_kfki_debye/"
@@ -53,7 +53,7 @@ def run():
     vlims = vlims_expt/alpha*alpha_expt
     ic.get_all_data()
     ic.mnj = [2,1,1,1]
-    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[5, 7, 10, 11,15])
+    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[5, 7, 10, 11,15], rel=False)
 
     ic.head = "/home/kazu/desktop/200903/morethan10meV/" +\
               "samedataasfilled_ddscs_kfki_debye/"
@@ -72,8 +72,8 @@ def run():
     vlims_expt = np.array([7.821000e+03, 9.685300e+04])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
-    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[9,11] )
-    #plt.savefig('binwidth_dif.pdf')
+    ic.plot_bin(ylabel=False, alpha=alpha, vlims=vlims, dels=[9,11], rel=False )
+    plt.savefig('binwidth_dif_rel.pdf')
 
     plt.show()
 

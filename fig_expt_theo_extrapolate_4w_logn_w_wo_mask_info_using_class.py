@@ -36,21 +36,23 @@ def run():
                        c='b',marker='x')
 
     mycc.infile2 = "/home/kazu/desktop/200312/for_cu_new/old_orthotope" +\
-                   "/orthotope_ddscs_kfki_debye/" + \
+                   "/orthotope_ddscs_kfki_debye_rt/" + \
                    "result_only_extrapolate"
     mycc.infile1 = "/home/kazu/desktop/200312/for_cu_new/old_orthotope" +\
-                   "/orthotope_ddscs_kfki_debye/condparam09/" +\
+                   "/orthotope_ddscs_kfki_debye_rt/condparam09/" +\
                    "result_only_extrapolate"
     xlim = (1952.42556793021, 62110867.96516186)
-    tcountcommon = 371.0
+    tcountcommon = 421.0
     tcountcommon_expt = 123.0
-    tcount = 626836.0
+    tcount = 603225.0
     alpha = tcountcommon/tcount
     vlims_expt = np.array([5.155200e+04, 5.189990e+05])
     alpha_expt = tcountcommon_expt/vlims_expt[1]
     vlims = vlims_expt/alpha*alpha_expt
     xlim = (1.0/alpha, xlim[1]*alpha_expt/alpha)
     mycc.label1 = 'simu'
+    mycc.dshifti = None
+    mycc.dshiftf = -1
     mycc.get_all_data()
     mycc.plot_all_data(xlim=xlim, vlims=vlims, alpha=alpha, onlyone=True,
                        c='r', marker='.')

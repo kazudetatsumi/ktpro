@@ -168,7 +168,8 @@ class ise_ci:
         ax.tick_params(top=True, right=True, direction='in', which='both')
         plt.subplots_adjust(wspace=0.16, hspace=0.0)
 
-    def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None, shift=0.050):
+    def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None,
+                 shift=0.050, rel=False):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
         if dels is not None:
             self.tdatar1 = np.delete(self.tdatar1[:, :, :], dels, axis=1)
@@ -176,25 +177,30 @@ class ise_ci:
         ys1 = np.array(self.tdatar1[:, :, 1:], dtype=int)
         ys2 = np.array(self.tdatar2[:, :, 1:], dtype=int)
         xs = np.average(self.tdatar1[:, :, 0], axis=0)*alpha
-        diff = ys1 - ys2
+        if rel:
+            diff = (ys1 - ys2) / ys1
+        else:
+            diff = ys1 - ys2
         wlist = ["qx", "qy", "qz", "w"]
         for widx, wlabel in enumerate(wlist):
             ax = plt.subplot(gs[widx, self.cn])
             for nidx in range(0, diff.shape[1]):
                 ue, uc = np.unique(diff[:, nidx, widx], return_counts=True)
                 uc = uc/(diff.shape[0]*1.0)
-                ue = ue*self.stepsizes[widx]
+                if not rel:
+                    ue = ue*self.stepsizes[widx]
                 xse = np.ones_like(ue)*xs[nidx]
                 c = ax.scatter(xse, ue, c=uc, ec='k', lw=1.5, cmap='binary',
                                vmin=0.0, vmax=1.0, s=60)
 
-            ax.yaxis.set_major_locator(MultipleLocator(
+            if not rel:
+                ax.yaxis.set_major_locator(MultipleLocator(
                                        self.stepsizes[widx]*self.mnj[widx]))
-            if self.mnj[widx] != 1:
-                ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]
-                                                           ))
-            ax.tick_params(top=True, right=True, direction='in', which='both',
-                           width=2, length=8)
+                if self.mnj[widx] != 1:
+                    ax.yaxis.set_minor_locator(MultipleLocator(self.stepsizes[widx]
+                                                               ))
+                ax.tick_params(top=True, right=True, direction='in', which='both',
+                               width=2, length=8)
             ax.tick_params(which='minor', width=2, length=4)
             ax.tick_params(labelbottom=False, labelleft=True)
             ax.axhline(y=0, ls='--', c='k', lw=0.5)

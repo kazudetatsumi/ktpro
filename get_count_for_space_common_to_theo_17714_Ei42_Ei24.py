@@ -9,6 +9,7 @@ def run():
     hdffile = '/home/kazu/desktop/200312/for_cu_new/old_filled/filled_again2_ddscs/10h/eliminated_data.hdf5'
     hdffile = '/home/kazu/desktop/200312/for_cu_new/old_filled/filled_ddscs_kfki_debye/5h/eliminated_data.hdf5'
     hdffile = '/home/kazu/desktop/200312/for_cu_new/old_filled/filled_ddscs_kfki_debye/10h/eliminated_data.hdf5'
+    hdffile = '/home/kazu/desktop/200312/for_cu_new/old_filled/filled_ddscs_kfki_debye_rt/10h/eliminated_data.hdf5'
     headfile = '/home/kazu/desktop/200204/fine/hourbyhour/10h/dummy_head.txt'
     boundary = np.array([[0.475, 0.525],
                          [1.475, 1.525],

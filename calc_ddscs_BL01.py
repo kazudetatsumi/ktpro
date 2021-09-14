@@ -11,7 +11,7 @@ PlanckConstant = 4.13566733e-15       # [eV s]
 THzTomev = PlanckConstant * 1e15      # [meV]
 kb = 8.617333262145e-2                # [meV K-1]
 Ecut = 0.1                            # [meV]
-u2 = 0.0018364                          # [angs2]
+u2 = 0.00623                          # [angs2]
 Ein = 50.0                           # [meV]
 rlat = 0.275360831107482          # [Angs-1]
 
