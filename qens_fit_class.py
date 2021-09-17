@@ -40,7 +40,10 @@ class qens_fit:
     def preprocessh(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_hdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_hdata(self.tf)
-        self.bg = 0.0032044070019324375*np.max(ys_ssvk_tf)
+        #self.bg =  0.011919152312616402*np.max(ys_ssvk_tf)
+        self.bg = 5.9124242930341945e-05 *\
+            np.sum(ys_ssvk_tf[np.argmax(ys_ssvk_tf)-10:
+                              np.argmax(ys_ssvk_tf)+10])
         #self.bg =  0.014310858233559216*np.max(ys_ssvk_tf)
         #self.bg = 0.010425780481009218*np.max(ys_ssvk_tf)
         #self.bg = 0.0026995685204103215*np.max(ys_ssvk_tf)
@@ -125,7 +128,7 @@ class qens_fit:
         y = k0 + k1*x + k2*x**2+ k3*x**3
         return t - y
 
-    def optimize(self, variables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]):
+    def optimize(self, variables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-06]):
         # initial guess on the parameters are hard-coded here.
         #variables = [0.00001, 0.0015, 0.01]
         #variables = [1.58837344e-04, 1.00454636e-02, 4.57573203e-01, 0.009]
@@ -148,7 +151,9 @@ class qens_fit:
             _base = self.y_tf[-1]
         _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
         _y += _delta*self.y_df + _base
-        print("optbg/peak:", _base/np.max(self.y_tf))
+        #print("optbg/peak:", _base/np.max(self.y_tf))
+        print("optbg/peak:", _base/np.sum(self.y_tf[np.argmax(self.y_tf)-10:
+                                                    np.argmax(self.y_tf)+10]))
         self.bgpeakr = _base/np.max(self.y_tf)
         plt.plot(self.x_tf, _y, label='ML')
         plt.plot(self.x_tf, self.y_tf, label='target')
