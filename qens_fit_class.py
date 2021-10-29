@@ -10,10 +10,11 @@ plt.rcParams.update(params)
 
 
 class qens_fit:
-    def __init__(self, devf, tf, elim):
+    def __init__(self, devf, tf, elim, plot=True):
         self.devf = devf
         self.tf = tf
         self.elim = elim
+        self.plot = plot
 
     def preprocess(self):
         self.xo_devf, self.yr_ssvk_devf = self.get_data(self.devf)
@@ -23,56 +24,51 @@ class qens_fit:
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_sdata(self.tf)
-        self.bg =  0.0032044070019324375*np.max(ys_ssvk_tf[0])
-        #self.bg =  0.014310858233559216*np.max(ys_ssvk_tf[0])
-        print(np.sum(np.abs(x_tf - x_devf)))
+        self.bg = 0.000000
+        #print(np.sum(np.abs(x_tf - x_devf)))
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf[0], mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf[0], mergin=0.00)
+        #print("y_tf[-1]", self.y_tf[-1])
         if doicorr:
-           x = self.x_tf + 2.085
-           self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-                                    + self.k[2]*x**2
-                                    + self.k[3]*x**3)
-           self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-                                    + self.k[2]*x**2
-                                    + self.k[3]*x**3)
+            x = self.x_tf + 2.085
+            self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+                                     + self.k[2]*x**2
+                                     + self.k[3]*x**3)
+            self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+                                     + self.k[2]*x**2
+                                     + self.k[3]*x**3)
 
     def preprocessh(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_hdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_hdata(self.tf)
-        #self.bg =  0.011919152312616402*np.max(ys_ssvk_tf)
-        self.bg = 5.9124242930341945e-05 *\
-            np.sum(ys_ssvk_tf[np.argmax(ys_ssvk_tf)-10:
-                              np.argmax(ys_ssvk_tf)+10])
-        #self.bg =  0.014310858233559216*np.max(ys_ssvk_tf)
-        #self.bg = 0.010425780481009218*np.max(ys_ssvk_tf)
-        #self.bg = 0.0026995685204103215*np.max(ys_ssvk_tf)
-        print("bg:", self.bg)
-        print(np.sum(np.abs(x_tf - x_devf)))
+        #print(np.sum(np.abs(x_tf - x_devf)))
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf, mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf, mergin=0.00)
         if doicorr:
-           x = self.x_tf + 2.085
-           self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-                                    + self.k[2]*x**2
-                                    + self.k[3]*x**3)
-           self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-                                    + self.k[2]*x**2
-                                    + self.k[3]*x**3)
+            x = self.x_tf + 2.085
+            self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+                                     + self.k[2]*x**2
+                                     + self.k[3]*x**3)
+            self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+                                     + self.k[2]*x**2
+                                     + self.k[3]*x**3)
+        self.bg = self.optbgpeakratio *\
+            np.sum(self.y_tf[np.argmax(self.y_tf)-10:
+                             np.argmax(self.y_tf)+10])
 
     def get_data(self, infile):
         with open(infile, 'rb') as f:
-            data = pickle.load(f)
+            data = pickle.load(f, encoding='latin1')
         return data['xo'], data['yr_ssvk']
 
     def get_sdata(self, infile):
         with open(infile, 'rb') as f:
-            data = pickle.load(f)
+            data = pickle.load(f, encoding='latin1')
         return data['tin_real'], data['ys_ssvk']
 
     def get_hdata(self, infile):
         with open(infile, 'rb') as f:
-            data = pickle.load(f)
+            data = pickle.load(f, encoding='latin1')
         return data['energy'], data['spectra']
 
     def limit(self, x, y, mergin=0.0):
@@ -117,6 +113,7 @@ class qens_fit:
             y += delta*d + base
         if len(coeffs) == 3:
             #print(self.y_tf[-1])
+            #print(self.bg)
             [alpha, gamma, delta] = coeffs
             y = self.convlore(alpha*d, gamma, x)
             #y += delta*d + self.y_tf[-1]
@@ -142,33 +139,40 @@ class qens_fit:
                (len(self.y_tf)-len(out[0]))
         print("estimated constants alpha, gamma, delta, base")
         print(out[0])
+        self.gamma = out[0][1]
         print("cov**0.5")
         print(np.absolute(out[1]*s_sq)**0.5)
+        self.gammaerror = np.absolute(out[1][1][1]*s_sq)**0.5
         if len(variables) == 4:
             _alpha, _gamma, _delta, _base = out[0]
         elif len(variables) == 3:
             _alpha, _gamma, _delta = out[0]
-            _base = self.y_tf[-1]
-        _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
-        _y += _delta*self.y_df + _base
+            #_base = self.y_tf[-1]
+            _base = self.bg
         #print("optbg/peak:", _base/np.max(self.y_tf))
+        #self.bgpeakr = _base/np.max(self.y_tf)
         print("optbg/peak:", _base/np.sum(self.y_tf[np.argmax(self.y_tf)-10:
-                                                    np.argmax(self.y_tf)+10]))
-        self.bgpeakr = _base/np.max(self.y_tf)
-        plt.plot(self.x_tf, _y, label='ML')
-        plt.plot(self.x_tf, self.y_tf, label='target')
-        plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base, label='constant')
-        plt.plot(self.x_tf, _delta*self.y_df, label='delta_conv')
-        plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma, self.x_tf),
-                 label='lore_conv')
-        plt.xlabel('energy (meV)')
-        plt.tick_params(top=True, right=True, direction='in', which='both',
-                        labelbottom=True, width=1.5)
-
-        plt.yscale('log')
-        plt.legend()
-        plt.savefig('qens_fit.pdf')
-        plt.show()
+                                                    np.argmax(self.y_tf)+10]),
+              _base)
+        self.optbgpeakratio = _base/np.sum(self.y_tf[np.argmax(self.y_tf)-10:np
+                                           .argmax(self.y_tf)+10])
+        if self.plot:
+            _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
+            _y += _delta*self.y_df + _base
+            plt.plot(self.x_tf, self.y_tf, label='target')
+            plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base,
+                     label='constant')
+            plt.plot(self.x_tf, _delta*self.y_df, label='delta_conv')
+            plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
+                     self.x_tf), label='lore_conv')
+            plt.plot(self.x_tf, _y, label='ML')
+            plt.xlabel('energy (meV)')
+            plt.tick_params(top=True, right=True, direction='in', which='both',
+                            labelbottom=True, width=1.5)
+            plt.yscale('log')
+            plt.legend()
+            plt.savefig('qens_fit.pdf')
+            plt.show()
 
     def get_icorrdata(self, icorrfile):
         x = []
@@ -189,19 +193,54 @@ class qens_fit:
                          args=(x, y), full_output=1,
                          epsfcn=0.0001)
         
-        s_sq = (self.res_icorr(out[0], x, y)**2).sum()/(len(y)-len(out[0]))
-        print(s_sq)
-        print(out[0])
-        print(out[1])
-        print("cov**0.5")
-        print(np.absolute(out[1]*s_sq)**0.5)
+        #s_sq = (self.res_icorr(out[0], x, y)**2).sum()/(len(y)-len(out[0]))
+        #print(s_sq)
+        #print(out[0])
+        #print(out[1])
+        #print("cov**0.5")
+        #print(np.absolute(out[1]*s_sq)**0.5)
         [_k0, _k1, _k2, _k3] = out[0]
-        _x = np.linspace(np.min(x), np.max(x), 200)
-        _y = _k0 + _k1*_x + _k2*_x**2 + _k3*_x**3
+        #_x = np.linspace(np.min(x), np.max(x), 200)
+        #_y = _k0 + _k1*_x + _k2*_x**2 + _k3*_x**3
         #plt.plot(x, y, marker='o', lw=0)
         #plt.plot(_x, _y)
         #plt.show()
         self.k = out[0]
+
+    def check_spectra(self):
+        plt.plot(self.x_tf, self.y_tf, label=self.tf)
+        plt.plot(self.x_tf, self.y_df, label=self.devf)
+        plt.yscale('log')
+        plt.legend()
+        plt.show()
+
+    def kde_hist_sub(self, tf, devf, kde=True, variables=None):
+        self.devf = devf
+        self.tf = tf
+        print(self.devf)
+        print(self.tf)
+        if kde:
+            self.preprocesss(doicorr=True)
+        else:
+            self.preprocessh(doicorr=True)
+        if variables:
+            self.optimize(variables=variables)
+        else:
+            self.optimize()
+
+    def kde_hist(self, kvariables=None,
+                 hvariables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01]):
+        self.icorr()
+        print("entering kde part")
+        self.kde_hist_sub(self.ktf, self.kdevf, kde=True, variables=kvariables)
+        kgamma = self.gamma
+        kgammaerror = self.gammaerror
+        print("entering histogram part")
+        self.kde_hist_sub(self.htf, self.hdevf, kde=False, variables=hvariables)
+        hgamma = self.gamma
+        hgammaerror = self.gammaerror
+        return(kgamma, kgammaerror, hgamma, hgammaerror)
+
 
 def samplerun():
     head = "/home/kazu/desktop/210108/Tatsumi/pickles/"

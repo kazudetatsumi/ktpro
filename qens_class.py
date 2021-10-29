@@ -31,10 +31,10 @@ class qens:
         if not os.path.exists(self.save_file):
             self.init_qens()
         with open(self.save_file, 'rb') as f:
-            self.dataset = pickle.load(f)
+            self.dataset = pickle.load(f, encoding='latin1')
         if sfile:
             with open(sfile, 'rb') as f:
-                dataset = pickle.load(f)
+                dataset = pickle.load(f, encoding='latin1')
                 self.senergy = dataset['energy']
                 self.sspectra = dataset['spectra']
 
@@ -129,6 +129,7 @@ class qens:
         # To keep the accuracy, kde is executed on the channel numbers in the
         # histogram data.
         # The actual energies were retrieved by "_real" variables.
+        print("CHK", self.selected_spectra.shape[0])
         self.xvec = np.array([idx for idx in
                              range(0, self.selected_spectra.shape[0]) for
                              num_repeat in
@@ -170,7 +171,9 @@ class qens:
         if optsmear:
         ## tin and tin_real are modified now, so as to be used commonly for
         ## different data sets.
-            self.tin = np.linspace(0.0, 1000.0, 2001)
+            #self.tin = np.linspace(0.0, 1000.0, 2001)
+            tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
+            self.tin = np.linspace(0.0, tinmax, int(tinmax)*2+1)
             print("Check parameters of horizontal axis")
             print("de=", self.de, "selected_energy[0]=",
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
