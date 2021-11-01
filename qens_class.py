@@ -17,18 +17,23 @@ import pickle
 import matplotlib.pylab as plt
 import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
-import ssvkernel, sskernel, sshist
+import ssvkernel
+import sskernel
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
 
 
 class qens:
-    def __init__(self, datadir, save_file, odata=True, sfile=None):
+    def __init__(self, datadir, save_file, odata=True, sfile=None, qsel=False,
+                 optsm=False):
         self.datadir = datadir
         self.save_file = save_file
         self.odata = odata
+        self.qsel = qsel               # in def self.select_energy()
+        self.optsm = optsm             # in def run_ssvkernel()
         if not os.path.exists(self.save_file):
+            print(self.save_file, "is not found. Entering init_qens()")
             self.init_qens()
         with open(self.save_file, 'rb') as f:
             self.dataset = pickle.load(f, encoding='latin1')
@@ -37,6 +42,7 @@ class qens:
                 dataset = pickle.load(f, encoding='latin1')
                 self.senergy = dataset['energy']
                 self.sspectra = dataset['spectra']
+                self.sde = self.senergy[1] - self.senergy[0]
 
     def get_filenames(self):
         self.filenames = os.popen('/bin/ls ' + self.datadir + self.string)\
@@ -92,11 +98,16 @@ class qens:
 
     def select_spectra(self):
         spectra = self.dataset['spectra']
-        if self.odata:
-            dp = self.dataset['detector_position']
-            mask = np.where((dp[:, 0] >= 10) & (dp[:, 1] <= 65))[0]
-            self.selected_spectra = np.sum(spectra[mask, 1, :], axis=0)
-            self.selected_energy = spectra[0, 0, :]
+        if self.odata:  # case outgoing beam
+            if self.qsel:   # case spectra are already integrated over a
+                            # specific q range.
+                self.selected_spectra = self.dataset['spectra']
+                self.selected_energy = self.dataset['energy']
+            else:       # case dataset are distributed over 2-D PSD elements.
+                dp = self.dataset['detector_position']
+                mask = np.where((dp[:, 0] >= 10) & (dp[:, 1] <= 65))[0]
+                self.selected_spectra = np.sum(spectra[mask, 1, :], axis=0)
+                self.selected_energy = spectra[0, 0, :]
         else:
             spectra[0, 0, :] = spectra[0, 0, :] - 2.085
             mergin = 0.001
@@ -105,25 +116,24 @@ class qens:
                             (spectra[0, 0, :] <= xlim[1]))[0]
             self.selected_spectra = spectra[0, 1, mask]
             self.selected_energy = spectra[0, 0, mask]
-
-        print(self.selected_energy[np.argmax(self.selected_spectra)])
-
-        self.de = spectra[0, 0, 1] - spectra[0, 0, 0]
+        #print(self.selected_energy[np.argmax(self.selected_spectra)])
+        self.de = self.selected_energy[1] - self.selected_energy[0]
+        self.get_xvec()
 
     #def get_xvec(self):
         # To keep the accuracy, kde is executed on the channel numbers in the
         # histogram data.
         # The actual energies were retrieved by "_real" variables.
-        self.xvec = np.array([idx for idx in
-                             range(0, self.selected_spectra.shape[0]) for
-                             num_repeat in
-                             range(0, int(self.selected_spectra[idx]))
-                              ], dtype=float)
-        self.xvec_real = np.array([self.selected_energy[idx] for idx in
-                                  range(0, self.selected_spectra.shape[0]) for
-                                  num_repeat in
-                                  range(0, int(self.selected_spectra[idx]))
-                                   ], dtype=float)
+        #self.xvec = np.array([idx for idx in
+        #                     range(0, self.selected_spectra.shape[0]) for
+        #                     num_repeat in
+        #                     range(0, int(self.selected_spectra[idx]))
+        #                      ], dtype=float)
+        #self.xvec_real = np.array([self.selected_energy[idx] for idx in
+        #                          range(0, self.selected_spectra.shape[0]) for
+        #                          num_repeat in
+        #                          range(0, int(self.selected_spectra[idx]))
+        #                           ], dtype=float)
 
     def get_xvec(self):
         # To keep the accuracy, kde is executed on the channel numbers in the
@@ -150,8 +160,18 @@ class qens:
         #print(self.xvec[0:30])
 
 
-    def run_ssvkernel(self, optsmear=True):
-        if not optsmear:
+    def run_ssvkernel(self):
+        if self.optsm:
+        ## tin and tin_real are modified now, so as to be used commonly for
+        ## different data sets.
+            #self.tin = np.linspace(0.0, 1000.0, 2001)
+            tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
+            self.tin = np.linspace(0.0, tinmax, int(tinmax)*2+1)
+            print("Check parameters of horizontal axis")
+            print("de=", self.de, "selected_energy[0]=",
+                  self.selected_energy[0], "num channels=", self.tin.shape[0])
+            self.tin_real = self.tin*self.de + self.selected_energy[0]
+        else:
             #self.y = ssvkernel.ssvkernel(np.array(testx))
             T = (np.max(self.xvec) - np.min(self.xvec))
             dx = np.sort(np.diff(np.sort(self.xvec)))
@@ -168,24 +188,13 @@ class qens:
                               int(min(np.ceil(T / dt_samp), 1e3)))
             self.tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
                                    int(min(np.ceil(T / dt_samp), 1e3)))
-        if optsmear:
-        ## tin and tin_real are modified now, so as to be used commonly for
-        ## different data sets.
-            #self.tin = np.linspace(0.0, 1000.0, 2001)
-            tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
-            self.tin = np.linspace(0.0, tinmax, int(tinmax)*2+1)
-            print("Check parameters of horizontal axis")
-            print("de=", self.de, "selected_energy[0]=",
-                  self.selected_energy[0], "num channels=", self.tin.shape[0])
-            self.tin_real = self.tin*self.de + self.selected_energy[0]
-
         self.y = ssvkernel.ssvkernel(self.xvec, self.tin)
         self.y_ = sskernel.sskernel(self.xvec, self.tin)
 
         scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\
               (np.min(self.xvec) - np.max(self.xvec))
 
-        if optsmear:
+        if self.optsm:
             self.optsmear()
             snorms = self.sspectra/np.sum(self.sspectra)/self.sde
 
@@ -193,11 +202,11 @@ class qens:
         fig = plt.figure(figsize=(6, 8))
         ax = fig.add_subplot(3, 1, 1)
         ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
-        if optsmear:
+        if self.optsm:
             #ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
             ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
             ax.plot(self.tin_real, self.y[0]/self.de, c='k', label='ssvkernel')
-        if not optsmear:
+        else:
             ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
             ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
         ax.tick_params(top=True, right=True, direction='in', which='both',
@@ -208,12 +217,12 @@ class qens:
         plt.legend()
         ax = fig.add_subplot(3, 1, 2)
         ax.set_ylabel('density')
-        if optsmear:
+        if self.optsm:
             ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata',
                    bottom=0.0001)
             ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
             ax.plot(self.tin_real, self.y[0]/self.de, c='k', label='ssvkernel')
-        if not optsmear:
+        else:
             ax.bar(self.selected_energy, norms, width=self.de,
                    label='expt data', bottom=0.0001)
             ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
@@ -226,8 +235,8 @@ class qens:
         plt.legend()
         ax = fig.add_subplot(3, 1, 3)
         ax.plot(self.tin_real, self.y[2]*scf, c='r', label='ssvkernel')
-        ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2]*scf, c='k',
-                label='sskernel')
+        ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2]*scf,
+                c='k', label='sskernel')
         ax.set_ylabel('band-width')
         ax.set_xlabel('energy (meV)')
         ax.tick_params(top=True, right=True, direction='in', which='both',
@@ -241,7 +250,8 @@ class qens:
         plt.show()
 
     def optsmear(self):
-        #yinp = np.interp(self.tin_real, self.selected_energy, self.selected_spectra)
+        #yinp = np.interp(self.tin_real, self.selected_energy,
+        #                 self.selected_spectra)
         yinp = np.interp(self.tin_real, self.senergy, self.sspectra)
         dt = min(np.diff(self.tin))
         #thist = np.concatenate((self.tin, (self.tin[-1]+dt)[np.newaxis]))

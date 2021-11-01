@@ -23,7 +23,7 @@ class sqrun_kde_hist(qfc.qens_fit):
         outfile = khead + "kh_fit_results.txt"
         self.data = np.zeros((len(fsts), 5))
         for ifx, fs in enumerate(fsts):
-            print("fracevents: ", fs)
+            #print("fracevents: ", fs)
             if fs == "1":
                 sfs = "_"
             else:
@@ -36,6 +36,7 @@ class sqrun_kde_hist(qfc.qens_fit):
             self.hdevf = hhead + "run6204united_sspectra.pkl"
             self.htf = hhead + "run6202united" + sfs + "sspectra.pkl"
             self.data[ifx, 0] = float(fs)
+            self.quiet = True
             self.data[ifx, 1:] = self.kde_hist()
         np.savetxt(outfile, self.data, fmt='%.5e')
 

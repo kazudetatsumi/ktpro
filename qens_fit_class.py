@@ -15,6 +15,7 @@ class qens_fit:
         self.tf = tf
         self.elim = elim
         self.plot = plot
+        self.quiet = False
 
     def preprocess(self):
         self.xo_devf, self.yr_ssvk_devf = self.get_data(self.devf)
@@ -93,8 +94,9 @@ class qens_fit:
     def checkdata(self):
         plt.plot(self.x_df, self.y_df)
         plt.plot(self.x_tf, self.y_tf)
-        print(self.x_df.shape)
-        print(self.x_tf.shape)
+        if not self.quiet:
+            print(self.x_df.shape)
+            print(self.x_tf.shape)
         plt.show()
 
     def fun_lore(self, x, gamma):
@@ -137,11 +139,13 @@ class qens_fit:
                          epsfcn=0.0001)
         s_sq = (self.res(out[0], self.x_tf, self.y_df, self.y_tf)**2).sum() /\
                (len(self.y_tf)-len(out[0]))
-        print("estimated constants alpha, gamma, delta, base")
-        print(out[0])
+        if not self.quiet:
+            print("estimated constants alpha, gamma, delta, base")
+            print(out[0])
         self.gamma = out[0][1]
-        print("cov**0.5")
-        print(np.absolute(out[1]*s_sq)**0.5)
+        if not self.quiet:
+            print("cov**0.5")
+            print(np.absolute(out[1]*s_sq)**0.5)
         self.gammaerror = np.absolute(out[1][1][1]*s_sq)**0.5
         if len(variables) == 4:
             _alpha, _gamma, _delta, _base = out[0]
@@ -151,8 +155,9 @@ class qens_fit:
             _base = self.bg
         #print("optbg/peak:", _base/np.max(self.y_tf))
         #self.bgpeakr = _base/np.max(self.y_tf)
-        print("optbg/peak:", _base/np.sum(self.y_tf[np.argmax(self.y_tf)-10:
-                                                    np.argmax(self.y_tf)+10]),
+        if not self.quiet:
+            print("optbg/peak:", _base/np.sum(
+                self.y_tf[np.argmax(self.y_tf)-10:np.argmax(self.y_tf)+10]),
               _base)
         self.optbgpeakratio = _base/np.sum(self.y_tf[np.argmax(self.y_tf)-10:np
                                            .argmax(self.y_tf)+10])
@@ -217,8 +222,9 @@ class qens_fit:
     def kde_hist_sub(self, tf, devf, kde=True, variables=None):
         self.devf = devf
         self.tf = tf
-        print(self.devf)
-        print(self.tf)
+        if not self.quiet:
+            print(self.devf)
+            print(self.tf)
         if kde:
             self.preprocesss(doicorr=True)
         else:
@@ -231,11 +237,13 @@ class qens_fit:
     def kde_hist(self, kvariables=None,
                  hvariables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01]):
         self.icorr()
-        print("entering kde part")
+        if not self.quiet:
+            print("entering kde part")
         self.kde_hist_sub(self.ktf, self.kdevf, kde=True, variables=kvariables)
         kgamma = self.gamma
         kgammaerror = self.gammaerror
-        print("entering histogram part")
+        if not self.quiet:
+            print("entering histogram part")
         self.kde_hist_sub(self.htf, self.hdevf, kde=False, variables=hvariables)
         hgamma = self.gamma
         hgammaerror = self.gammaerror
