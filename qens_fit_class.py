@@ -17,10 +17,26 @@ class qens_fit:
         self.plot = plot
         self.quiet = False
 
-    def preprocess(self):
-        self.xo_devf, self.yr_ssvk_devf = self.get_data(self.devf)
-        self.xo_tf, self.yr_ssvk_tf = self.get_data(self.tf)
-        self.interpolate()
+    def preprocess(self, doicorr=False):
+        x_devf, y_ssvk_devf = self.get_data(self.devf)
+        x_tf, y_ssvk_tf = self.get_data(self.tf)
+        #self.interpolate()
+        x_df, self.y_df = self.limit(x_devf, y_ssvk_devf, mergin=0.00)
+        self.x_tf, self.y_tf = self.limit(x_tf, y_ssvk_tf, mergin=0.00)
+        #self.x_df, self.y_df = self.get_data(self.devf)
+        #self.x_tf, self.y_tf = self.get_data(self.tf)
+        print(x_df[0:10])
+        print(self.x_tf[0:10])
+        print(self.x_tf.shape)
+        if doicorr:
+            x = self.x_tf + 2.085
+            self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+                                     + self.k[2]*x**2
+                                     + self.k[3]*x**3)
+            self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+                                     + self.k[2]*x**2
+                                     + self.k[3]*x**3)
+
 
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
@@ -53,9 +69,8 @@ class qens_fit:
             self.y_df = self.y_df / (self.k[0] + self.k[1]*x
                                      + self.k[2]*x**2
                                      + self.k[3]*x**3)
-        self.bg = self.optbgpeakratio *\
-            np.sum(self.y_tf[np.argmax(self.y_tf)-10:
-                             np.argmax(self.y_tf)+10])
+        self.bg = self.optbgpeakratio *np.sum(self.y_tf)
+            #np.sum(self.y_tf[np.argmax(self.y_tf)-100:np.argmax(self.y_tf)+100])
 
     def get_data(self, infile):
         with open(infile, 'rb') as f:
@@ -159,8 +174,9 @@ class qens_fit:
             print("optbg/peak:", _base/np.sum(
                 self.y_tf[np.argmax(self.y_tf)-10:np.argmax(self.y_tf)+10]),
               _base)
-        self.optbgpeakratio = _base/np.sum(self.y_tf[np.argmax(self.y_tf)-10:np
-                                           .argmax(self.y_tf)+10])
+        #self.optbgpeakratio = _base/np.sum(self.y_tf[np.argmax(self.y_tf)-100:np
+        #                                   .argmax(self.y_tf)+100])
+        self.optbgpeakratio = _base/np.sum(self.y_tf)
         if self.plot:
             _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
             _y += _delta*self.y_df + _base
