@@ -278,8 +278,8 @@ class qens:
         dataset['y_ssvk'] = self.y
         dataset['y_ssk'] = self.y_
         dataset['tin_real'] = self.tin_real
-        #dataset['xlim'] = np.array([np.min(self.xvec_real),
-        #                           np.max(self.xvec_real)])
+        dataset['xlim'] = np.array([np.min(self.xvec_real),
+                                   np.max(self.xvec_real)])
         with open(output_file, 'wb') as f:
             pickle.dump(dataset, f, -1)
 

@@ -25,16 +25,18 @@ class odata_divided_by_idata:
     def interpolate(self, _yo, _yi):
         self.xo = np.linspace(self.oxlim[0], self.oxlim[1], _yo[1].shape[0])
         self.xi = np.linspace(self.ixlim[0], self.ixlim[1], _yi[1].shape[0])
-        yo = _yo[0]
+        ## comment-outed for use np.interp
+        #yo = _yo[0]
         yi = _yi[0]
-        yi_ip = np.zeros_like(yo)
-        for oidx, _xo in enumerate(self.xo):
-            for iidx, _xi in enumerate(self.xi[:-1]):
-                if _xo > _xi and _xo <= self.xi[iidx+1]:
-                    yi_ip[oidx] = yi[iidx] + (yi[iidx+1] - yi[iidx]) /\
-                                             (self.xi[iidx+1] - self.xi[iidx]) *\
-                                             (_xo - _xi)
-        return(yi_ip)
+        #yi_ip = np.zeros_like(yo)
+        #for oidx, _xo in enumerate(self.xo):
+        #    for iidx, _xi in enumerate(self.xi[:-1]):
+        #        if _xo > _xi and _xo <= self.xi[iidx+1]:
+        #            yi_ip[oidx] = yi[iidx] + (yi[iidx+1] - yi[iidx]) /\
+        #                                     (self.xi[iidx+1] - self.xi[iidx]) *\
+        #                                     (_xo - _xi)
+        #return(yi_ip)
+        return(np.interp(self.xo, self.xi, yi))
 
     def get_data(self):
         self.odataset = self.read_pkl(self.ofile)
