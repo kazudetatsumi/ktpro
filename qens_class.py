@@ -179,8 +179,8 @@ class qens:
             print("Check parameters of horizontal axis")
             print("de=", self.de, "selected_energy[0]=",
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
-            self.tin_real = self.tin*self.de + self.selected_energy[0]
-            #self.tin_real = np.linspace(self.selected_energy[0], self.selected_energy[-1], num=800)
+            #self.tin_real = self.tin*self.de + self.selected_energy[0]
+            self.tin_real = np.linspace(self.selected_energy[0], self.selected_energy[-1], num=800)
             print(self.tin_real[0:10])
         #    #self.y = ssvkernel.ssvkernel(np.array(testx))
         #    T = (np.max(self.xvec) - np.min(self.xvec))
