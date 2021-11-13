@@ -178,38 +178,26 @@ class qens:
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = self.tin*self.de + self.selected_energy[0]
         else:
-            #tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
-            #self.tin = np.linspace(0.0, tinmax, int(tinmax)*1+1)
-            #self.tin = np.linspace(0, self.selected_energy.shape[0], self.selected_energy.shape[0]+1)
-            self.tin = np.arange(self.selected_energy.shape[0])
-            print("Check parameters of horizontal axis")
-            print("de=", self.de, "selected_energy[0]=",
-                  self.selected_energy[0], "num channels=", self.tin.shape[0])
-            #self.tin_real = self.tin*self.de + self.selected_energy[0]
-            self.tin_real = np.linspace(self.selected_energy[0], self.selected_energy[-1], num=800)
-            print(self.tin_real[0:10])
-        #    #self.y = ssvkernel.ssvkernel(np.array(testx))
-        #    T = (np.max(self.xvec) - np.min(self.xvec))
-        #    dx = np.sort(np.diff(np.sort(self.xvec)))
-        #    dt_samp = dx[np.nonzero(dx)][0]
-        #    # To relieve the effect of the finite counts near the upper and lower
-        #    # bounds of the measurement range
-        #    # we extend the range by some fraction of the original range
-        #    #mergin = T*0.2
-        #    #tin = np.linspace(np.min(self.xvec) - mergin, np.max(self.xvec) + mergin,
-        #    #                  int(min(np.ceil(T*1.4 / dt_samp), 1e3)))
-        #    # tin is the space where densities are inferred.
-#
-#            self.tin = np.linspace(np.min(self.xvec), np.max(self.xvec),
-##                              int(min(np.ceil(T / dt_samp), 1e3)))
-#            self.tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
-#                                   int(min(np.ceil(T / dt_samp), 1e3)))
-        #self.y = ssvkernel.ssvkernel(self.xvec, self.tin)
-        #self.y_ = sskernel.sskernel(self.xvec, self.tin)
-        self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
+            #self.y = ssvkernel.ssvkernel(np.array(testx))
+            T = (np.max(self.xvec) - np.min(self.xvec))
+            dx = np.sort(np.diff(np.sort(self.xvec)))
+            dt_samp = dx[np.nonzero(dx)][0]
+            # To relieve the effect of the finite counts near the upper and lower
+            # bounds of the measurement range
+            # we extend the range by some fraction of the original range
+            #mergin = T*0.2
+            #tin = np.linspace(np.min(self.xvec) - mergin, np.max(self.xvec) + mergin,
+            #                  int(min(np.ceil(T*1.4 / dt_samp), 1e3)))
+            # tin is the space where densities are inferred.
+
+            self.tin = np.linspace(np.min(self.xvec), np.max(self.xvec),
+                              int(min(np.ceil(T / dt_samp), 1e3)))
+            self.tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
+                                   int(min(np.ceil(T / dt_samp), 1e3)))
+        self.y = ssvkernel.ssvkernel(self.xvec, self.tin, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)
-        self.y_ = sskernel.sskernel(self.xvec_real, self.tin_real)
+        self.y_ = sskernel.sskernel(self.xvec, self.tin)
 
         scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\
               (np.min(self.xvec) - np.max(self.xvec))
@@ -227,10 +215,8 @@ class qens:
             ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
             ax.plot(self.tin_real, self.y[0]/self.de, c='k', label='ssvkernel')
         else:
-            #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
-            #ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
-            ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
-            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
+            ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
+            ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=False, width=1.5)
         ax.set_ylabel('density')
@@ -247,31 +233,25 @@ class qens:
         else:
             ax.bar(self.selected_energy, norms, width=self.de,
                    label='expt data', bottom=0.0001)
-            #ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
-            #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
-            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
-            ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
+            ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
+            ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
         ax.set_yscale('log')
         ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)
-        ax.set_ylim(0.0001, np.max(self.y_[0]))
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=False, width=1.5)
         tmprange = ax.get_xlim()
         plt.legend()
         ax = fig.add_subplot(3, 1, 3)
-        #ax.plot(self.tin_real, self.y[2]*scf, c='r', label='ssvkernel')
-        #ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2]*scf,
-        ax.plot(self.tin_real, self.y[2], c='r', label='ssvkernel')
-        ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2],
+        ax.plot(self.tin_real, self.y[2]*scf, c='r', label='ssvkernel')
+        ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2]*scf,
                 c='k', label='sskernel')
         ax.set_ylabel('band-width')
         ax.set_xlabel('energy (meV)')
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=True, width=1.5)
         ax.set_xlim(tmprange)
-        #ax.set_ylim(0, np.max(self.y[2]*scf))
-        #ax.set_ylim(0, 5)
-        #ax.set_yticks([0, 0.003, 0.006])
+        ax.set_ylim(0, np.max(self.y[2]*scf))
+        ax.set_yticks([0, 0.003, 0.006])
         plt.subplots_adjust(hspace=0.0)
         plt.legend()
         plt.savefig(self.figname)
@@ -307,8 +287,8 @@ class qens:
         dataset['y_ssvk'] = self.y
         dataset['y_ssk'] = self.y_
         dataset['tin_real'] = self.tin_real
-        dataset['xlim'] = np.array([np.min(self.xvec_real),
-                                   np.max(self.xvec_real)])
+        #dataset['xlim'] = np.array([np.min(self.xvec_real),
+        #                           np.max(self.xvec_real)])
         with open(output_file, 'wb') as f:
             pickle.dump(dataset, f, -1)
 

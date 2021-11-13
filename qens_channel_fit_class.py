@@ -10,23 +10,17 @@ plt.rcParams.update(params)
 
 
 class qens_fit:
-    def __init__(self, devf, tf, elim, showplot=True):
+    def __init__(self, devf, tf, elim, plot=True):
         self.devf = devf
         self.tf = tf
         self.elim = elim
-        self.showplot = showplot
+        self.plot = plot
         self.quiet = False
 
     def preprocess(self, doicorr=False):
-        x_devf, y_ssvk_devf = self.get_data(self.devf)
-        x_tf, y_ssvk_tf = self.get_data(self.tf)
-        #self.interpolate()
-        x_df, self.y_df = self.limit(x_devf, y_ssvk_devf, mergin=0.00)
-        self.x_tf, self.y_tf = self.limit(x_tf, y_ssvk_tf, mergin=0.00)
-        #self.x_df, self.y_df = self.get_data(self.devf)
-        #self.x_tf, self.y_tf = self.get_data(self.tf)
-        print(x_df[0:10])
-        print(self.x_tf[0:10])
+        self.xo_devf, self.yr_ssvk_devf = self.get_data(self.devf)
+        self.xo_tf, self.yr_ssvk_tf = self.get_data(self.tf)
+        self.interpolate()
         if doicorr:
             x = self.x_tf + 2.085
             self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
@@ -35,7 +29,6 @@ class qens_fit:
             self.y_df = self.y_df / (self.k[0] + self.k[1]*x
                                      + self.k[2]*x**2
                                      + self.k[3]*x**3)
-
 
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
@@ -68,8 +61,9 @@ class qens_fit:
             self.y_df = self.y_df / (self.k[0] + self.k[1]*x
                                      + self.k[2]*x**2
                                      + self.k[3]*x**3)
-        self.bg = self.optbgpeakratio*np.sum(self.y_tf)*(x_tf[1]-x_tf[0])
-            #np.sum(self.y_tf[np.argmax(self.y_tf)-100:np.argmax(self.y_tf)+100])
+        self.bg = self.optbgpeakratio *\
+            np.sum(self.y_tf[np.argmax(self.y_tf)-10:
+                             np.argmax(self.y_tf)+10])
 
     def get_data(self, infile):
         with open(infile, 'rb') as f:
@@ -141,8 +135,7 @@ class qens_fit:
         y = k0 + k1*x + k2*x**2+ k3*x**3
         return t - y
 
-    def optimize(self, variables=[1.46103037e-04, 1.23754329e-02,
-                 5.20429443e-01, 9.30889687e-06], figname='qenf_fit.png'):
+    def optimize(self, variables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-06]):
         # initial guess on the parameters are hard-coded here.
         #variables = [0.00001, 0.0015, 0.01]
         #variables = [1.58837344e-04, 1.00454636e-02, 4.57573203e-01, 0.009]
@@ -170,35 +163,29 @@ class qens_fit:
             _base = self.bg
         #print("optbg/peak:", _base/np.max(self.y_tf))
         #self.bgpeakr = _base/np.max(self.y_tf)
-        #if not self.quiet:
-        #    print("optbg/peak:", _base/np.sum(
-        #        self.y_tf[np.argmax(self.y_tf)-10:np.argmax(self.y_tf)+10]),
-        #      _base)
-        #self.optbgpeakratio = _base/np.sum(self.y_tf[np.argmax(self.y_tf)-100:np
-        #                                   .argmax(self.y_tf)+100])
-        self.optbgpeakratio = _base/np.sum(self.y_tf)\
-            / (self.x_tf[1]-self.x_tf[0])
         if not self.quiet:
-            print("optbg/peak:", self.optbgpeakratio)
-
-        _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
-        _y += _delta*self.y_df + _base
-        plt.plot(self.x_tf, self.y_tf, label='target')
-        plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base,
-                 label='constant')
-        plt.plot(self.x_tf, _delta*self.y_df, label='delta_conv')
-        plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
-                 self.x_tf), label='lore_conv')
-        plt.plot(self.x_tf, _y, label='ML')
-        plt.xlabel('energy (meV)')
-        plt.tick_params(top=True, right=True, direction='in', which='both',
-                        labelbottom=True, width=1.5)
-        plt.yscale('log')
-        plt.legend()
-        plt.savefig(figname)
-        if self.showplot:
+            print("optbg/peak:", _base/np.sum(
+                self.y_tf[np.argmax(self.y_tf)-10:np.argmax(self.y_tf)+10]),
+              _base)
+        self.optbgpeakratio = _base/np.sum(self.y_tf[np.argmax(self.y_tf)-10:np
+                                           .argmax(self.y_tf)+10])
+        if self.plot:
+            _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
+            _y += _delta*self.y_df + _base
+            plt.plot(self.x_tf, self.y_tf, label='target')
+            plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base,
+                     label='constant')
+            plt.plot(self.x_tf, _delta*self.y_df, label='delta_conv')
+            plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
+                     self.x_tf), label='lore_conv')
+            plt.plot(self.x_tf, _y, label='ML')
+            plt.xlabel('energy (meV)')
+            plt.tick_params(top=True, right=True, direction='in', which='both',
+                            labelbottom=True, width=1.5)
+            plt.yscale('log')
+            plt.legend()
+            plt.savefig('qens_fit.pdf')
             plt.show()
-        plt.close()
 
     def get_icorrdata(self, icorrfile):
         x = []

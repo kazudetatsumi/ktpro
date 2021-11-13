@@ -2,7 +2,7 @@
 # example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar
 import sys
 sys.path.append("/home/kazu/ktpro")
-import qens_class as qc
+import qens_channel_class as qc
 
 
 def run():

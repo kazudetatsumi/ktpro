@@ -16,12 +16,11 @@ def run():
     else:
         print("using default dirname 000025io")
         dirname = "000025io"
-    headorg = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
-    head = "./"
-    ofile = head + "qens_run"+runno+"united_kde_results_on_data_qsel.pkl"
-    ifile = headorg + "qens_kde_results_on_idata_"+runno+".pkl"
-    rfile = head + "qens_kde_o_divided_by_i_"+runno+".pkl"
-    proj = qkrodic.odata_divided_by_idata(ofile, ifile)
+    head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
+    ofile = head + "run"+runno+"united_spectra.pkl"
+    ifile = head + "run"+runno+"united_monispectra.pkl"
+    rfile = head + "qens_hist_o_divided_by_i_"+runno+".pkl"
+    proj = qkrodic.odata_divided_by_idata(ofile, ifile, iskde=False)
     proj.get_data()
     #proj.plot_data()
     proj.save_data(rfile)
