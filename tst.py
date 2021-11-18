@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
+import pickl
 
 
 def highResPoints(x, y, factor=10):
