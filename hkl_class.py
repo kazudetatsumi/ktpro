@@ -5,7 +5,7 @@ import re
 
 class hkl:
     def __init__(self, hkl_file, prot_file, out_file, latconst, atomd, atomw,
-                 imag, nmag, atomw2=None):
+                 imag, nmag, atomw2=None, single=False):
         self.hkl_file = hkl_file
         self.prot_file = prot_file
         self.out_file = out_file
@@ -15,6 +15,7 @@ class hkl:
         self.atomw2 = atomw2
         self.imag = imag
         self.nmag = nmag
+        self.single = single
 
     def read_hklfile(self):
         f = open(self.hkl_file)
@@ -45,7 +46,7 @@ class hkl:
         a = self.latconst
         w = self.atomw
         d = self.atomd
-        if self.atomw2:
+        if self.single:
             print("single")
             w2 = self.atomw2
             self.hklm[4] = self.imag*np.exp(-np.pi**2*(w**2*(h**2+k**2) +
@@ -65,7 +66,10 @@ class hkl:
             head = g.readlines()[0:4]
             for item in head:
                 f.write(item)
-            f.write("%15.7f%15.7f%15.7f \n" % (2.0*self.imag, dummy, dummy2))
+            if self.single:
+                f.write("%15.7f%15.7f%15.7f \n" % (self.imag, dummy, dummy2))
+            else:
+                f.write("%15.7f%15.7f%15.7f \n" % (2.0*self.imag, dummy, dummy2))
             f.write("%5d\n" % self.hklm.shape[1])
             for hklidx in range(0, self.hklm.shape[1]):
                 f.write("%5d%5d%5d%15.7f%15.7f%15.7f \n" %
