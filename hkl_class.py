@@ -90,4 +90,4 @@ def samplerun():
     proj.output()
 
 
-#samplerun()
+samplerun()
