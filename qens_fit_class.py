@@ -123,6 +123,16 @@ class qens_fit:
         return _convd
 
     def res(self, coeffs, x, d, t):
+        if len(coeffs) == 6:
+            [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
+            y = self.convlore(alpha1*d, gamma1, x)
+            y += self.convlore(alpha2*d, gamma2, x)
+            y += delta*d + base
+        if len(coeffs) == 5:
+            [alpha1, gamma1, alpha2, gamma2,  delta] = coeffs
+            y = self.convlore(alpha1*d, gamma1, x)
+            y += self.convlore(alpha2*d, gamma2, x)
+            y += delta*d + self.bg
         if len(coeffs) == 4:
             [alpha, gamma, delta, base] = coeffs
             y = self.convlore(alpha*d, gamma, x)
@@ -168,6 +178,11 @@ class qens_fit:
             _alpha, _gamma, _delta = out[0]
             #_base = self.y_tf[-1]
             _base = self.bg
+        elif len(variables) == 6:
+            _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = out[0]
+        elif len(variables) == 5:
+            _alpha, _gamma, _alpha2, _gamma2,  _delta = out[0]
+            _base = self.bg
         #print("optbg/peak:", _base/np.max(self.y_tf))
         #self.bgpeakr = _base/np.max(self.y_tf)
         #if not self.quiet:
@@ -183,6 +198,8 @@ class qens_fit:
 
         _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
         _y += _delta*self.y_df + _base
+        if len(variables) >= 5:
+            _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
         plt.plot(self.x_tf, self.y_tf, label='target')
         plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base,
                  label='constant')
@@ -190,12 +207,16 @@ class qens_fit:
         plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
                  self.x_tf), label='lore_conv')
         plt.plot(self.x_tf, _y, label='ML')
+        if len(variables) >= 5:
+            plt.plot(self.x_tf, self.convlore(_alpha2*self.y_df, _gamma2,
+                     self.x_tf), label='lore_conv')
+
         plt.xlabel('energy (meV)')
         plt.tick_params(top=True, right=True, direction='in', which='both',
                         labelbottom=True, width=1.5)
         plt.yscale('log')
         plt.legend()
-        plt.savefig(figname)
+        #plt.savefig(figname)
         if self.showplot:
             plt.show()
         plt.close()

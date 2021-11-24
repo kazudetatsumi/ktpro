@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Kazuyoshi TATSUMI 2021/09/04
 import sys
-print("CHK")
 sys.path.append("/home/kazu/ktpro")
 import hkl_class as hc
 
@@ -26,9 +25,8 @@ def runsingle(atomw2):
     out_file = datadir + "out_single_" + str(atomw2) + ".mem"
     imag = 100.0
     nmag = 0.01
-    print("CHK1")
     proj = hc.hkl(hkl_file, prot_file, out_file, 5.0, 1.1, 0.2, imag, nmag,
-                  atomw2=atomw2)
+                  atomw2=atomw2, single=True)
     proj.read_hklfile()
     proj.calc_strfac()
     proj.output()

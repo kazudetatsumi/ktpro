@@ -1,5 +1,13 @@
 #!/usr/bin/env python
+# This script generates a text file of a scattering length density of an
+# isonuclear diatomic molecule, whose nuclear density is used to generate
+# a simulated diffraction intensities.
+# The total scattering length per atom is 100.
+# The file is aimed to be compared with the results of thesparse nuclear
+# reconstruction.
+# Kazuyoshi TATSUMI 2021/09/06
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class create_den:
@@ -20,9 +28,9 @@ class create_den:
         self.X = np.ravel(_X)
         self.Y = np.ravel(_Y)
         self.Z = np.ravel(_Z)
-        print(self.X)
-        print(self.Y)
-        print(self.Z)
+        #print(self.X)
+        #print(self.Y)
+        #print(self.Z)
 
     def get_density(self):
         x = self.X*1.0/self.mesh*self.latconst
@@ -30,10 +38,9 @@ class create_den:
         z = self.Z*1.0/self.mesh*self.latconst
         d = self.atomd
         w = self.atomw
-        self.den = (np.pi*w**2)**(-1.5)*(np.exp(-(z-d/2.0)**2/w**2 - y**2/w**2
-                                         - x**2/w**2) +
-                                         np.exp(-(z+d/2.0)**2/w**2 - y**2/w**2
-                                         - x**2/w**2))
+        self.den = 100.0*(np.pi*w**2)**(-1.5) *\
+            (np.exp(-(z-d/2.0)**2/w**2 - y**2/w**2 - x**2/w**2) +
+             np.exp(-(z+d/2.0)**2/w**2 - y**2/w**2 - x**2/w**2))
 
     def output(self):
         dummy = 0.0
@@ -48,31 +55,43 @@ class create_den:
             for line in lines[-11:]:
                 f.write("%s" % (line))
 
-    def checkdensity(self):
-        with open('dnsity.den', mode='r') as g:
+    def readden(self, denfile):
+        with open(denfile, mode='r') as g:
             lines = g.readlines()
         denlines = lines[3:-11]
         density = []
         for line in denlines:
             density.append(float(line.split()[3])*float(line.split()[5]))
-
         density = np.array(density)
-        print("sum", np.sum(density))
+        #print("sum", np.sum(density))
+        #print("total scattering length:", np.sum(density)*10.0**3/128.0**3)
 
-    def checkdensity2(self):
-        with open('outsave.grd', mode='r') as g:
-        #with open('dnsitysave.grd', mode='r') as g:
+    def readgrd(self, grdfile):
+        with open(grdfile, mode='r') as g:
             lines = g.readlines()
         density = []
         denlines = lines[3:]
-        print(denlines[0])
         for line in denlines:
             for val in line[:-1].split():
                 density.append(float(val))
 
         density = np.array(density)
-        print(np.sum(density))
-        print(np.sum(density)/128.0**3)
+        #print("sum",np.sum(density))
+        #print("total scattering length:", np.sum(density)*10.0**3/128.0**3)
+        density2 = np.reshape(density, (128,128,128))
+        density3 = np.zeros((128, 128, 256))
+        density3[:, :, 0:128] = density2
+        density3[:, :, 128:] = density2
+        density4 = density3[:, :, 64:192]
+        density5 = np.zeros((256, 128, 128))
+        density5[0:128, :, :] = density4
+        density5[128:, :, :] = density4
+        density6 = density5[64:192, :, :]
+        density7 = np.zeros((128, 256, 128))
+        density7[:, 0:128, :] = density6
+        density7[:, 128:, :] = density6
+        density8 = density7[:, 64:192, :]
+        return(density8)
         
 def samplerun():
     mesh = 128
@@ -89,7 +108,7 @@ def samplerun():
     #proj.read_prot()
 
 
-samplerun()
+#samplerun()
 
 
 

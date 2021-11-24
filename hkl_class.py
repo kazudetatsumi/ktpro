@@ -52,7 +52,7 @@ class hkl:
             self.hklm[4] = self.imag*np.exp(-np.pi**2*(w**2*(h**2+k**2) +
                                                        w2**2*l**2)/(a**2))
         else:
-            print("twoatoms")
+            print("twoatoms?")
             self.hklm[4] = 2.0*self.imag*np.cos(np.pi*d*l/a) \
                 * np.exp(-w**2*np.pi**2*(h**2+k**2+l**2)/(a**2))
 
@@ -94,4 +94,4 @@ def samplerun():
     proj.output()
 
 
-samplerun()
+#samplerun()
