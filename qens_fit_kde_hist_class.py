@@ -50,7 +50,7 @@ class sqrun_kde_hist(qfc.qens_fit):
         plt.xlabel('Fraction of event data used')
         plt.ylabel('Gamma (meV)')
         plt.tick_params(direction='in', right=True, top=True)
-        plt.ylim([0, 0.015])
+        #plt.ylim([0, 0.015])
         plt.legend()
         plt.show()
 

@@ -37,7 +37,7 @@ def run():
                             else:
                                 #print(logfile,"is not found")
                                 hwhfs[im, ipw, ipf, ic, ib, ifr] = 0.0
-    with open('results_hwhfs.txt', 'w') as f:
+    with open('results_hwhms.txt', 'w') as f:
         for ifr, frc in enumerate(fracs):
             for ib, bn in enumerate(bins):
                 for ipf, pf in enumerate(pfs):

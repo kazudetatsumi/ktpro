@@ -7,13 +7,14 @@ import qens_fit_kde_hist_class as qfkhc
 
 
 class read_hwhm(qfkhc.sqrun_kde_hist):
-    def __init__(self, Ms, pws, pfs, channels, bins, fracs):
+    def __init__(self, Ms, pws, pfs, channels, bins, fracs, prefix="./"):
         self.Ms = Ms
         self.pws = pws
         self.pfs = pfs
         self.channels = channels
         self.bins = bins
         self.fracs = fracs
+        self.prefix = prefix
 
     def getfrac(self, frc):
         if frc == "":
@@ -34,17 +35,17 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                             for ifr, frc in enumerate(self.fracs):
                                 if chn == "channel":
                                     if frc == "":
-                                        dirname = str(M)+"_"+chn+"_"+str(pw) +\
+                                        dirname = self.prefix + "/" + str(M)+"_"+chn+"_"+str(pw) +\
                                                 "_"+bn+"_"+pf
                                     else:
-                                        dirname = str(M)+"_"+chn+"_"+str(pw) +\
+                                        dirname = self.prefix + "/" + str(M)+"_"+chn+"_"+str(pw) +\
                                                 "_"+bn+"_"+pf+"_"+frc
                                 else:
                                     if frc == "":
-                                        dirname = str(M)+"_"+str(pw)+"_"+bn +\
+                                        dirname = self.prefix + "/" + str(M)+"_"+str(pw)+"_"+bn +\
                                                 "_"+pf
                                     else:
-                                        dirname = str(M)+"_"+str(pw)+"_"+bn +\
+                                        dirname = self.prefix + "/" + str(M)+"_"+str(pw)+"_"+bn +\
                                                 "_"+pf+"_"+frc
                                 if frc == "":
                                     logfile = dirname + "/std-"+bn+"-" +\
@@ -83,7 +84,7 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                 if 'estimated constants' in line:
                     hwhms.append(float(lines[il+1].split(" ")[1]))
                     stdhwhms.append(float(lines[il+4].split(" ")[2]))
-        print("chk", hwhms, filename)
+        #print("chk", hwhms, filename)
         if len(hwhms) >= 2:
             return(np.array([hwhms[0], stdhwhms[0], hwhms[2], stdhwhms[2]]))
         else:
@@ -103,13 +104,13 @@ def samplerun():
         pfs = ["Boxcar"]
         channels = [""]
         bins = ["0000025io"]
-        fracs = ["", "0875", "075", "05", "0375"]
-        prj = read_hwhm(Ms, pws, pfs, channels, bins, fracs)
+        fracs = ["", "0875", "075", "0625",  "05", "0375"]
+        prj = read_hwhm(Ms, pws, pfs, channels, bins, fracs, prefix="/home/kazu/desktop/210108/Tatsumi/winparam_exam")
         prj.create_array()
         prj.data = prj.hwhms.squeeze()
         prj.plotter()
-        print(prj.hwhms.squeeze())
-        print(prj.hwhms.squeeze().shape)
+        #print(prj.hwhms.squeeze())
+        #print(prj.hwhms.squeeze().shape)
 
 
 samplerun()
