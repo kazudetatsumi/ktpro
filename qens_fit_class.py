@@ -165,7 +165,14 @@ class qens_fit:
         s_sq = (self.res(out[0], self.x_tf, self.y_df, self.y_tf)**2).sum() /\
                (len(self.y_tf)-len(out[0]))
         if not self.quiet:
-            print("estimated constants alpha, gamma, delta, base")
+            if len(variables) == 4:
+                print("estimated constants alpha, gamma, delta, base")
+            if len(variables) == 3:
+                print("estimated constants alpha, gamma, delta")
+            if len(variables) == 5:
+                print("estimated constants alpha1, gamma1, alpha2, gamma2, delta")
+            if len(variables) == 6:
+                print("estimated constants alpha1, gamma1, alpha2, gamma2, delta, base")
             print(out[0])
         self.gamma = out[0][1]
         if not self.quiet:
@@ -216,7 +223,7 @@ class qens_fit:
                         labelbottom=True, width=1.5)
         plt.yscale('log')
         plt.legend()
-        #plt.savefig(figname)
+        plt.savefig(figname)
         if self.showplot:
             plt.show()
         plt.close()

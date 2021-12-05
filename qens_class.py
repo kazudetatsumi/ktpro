@@ -168,9 +168,6 @@ class qens:
 
     def run_ssvkernel(self):
         if self.optsm:
-        ## tin and tin_real are modified now, so as to be used commonly for
-        ## different data sets.
-            #self.tin = np.linspace(0.0, 1000.0, 2001)
             tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
             self.tin = np.linspace(0.0, tinmax, int(tinmax)*2+1)
             print("Check parameters of horizontal axis")
@@ -178,34 +175,12 @@ class qens:
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = self.tin*self.de + self.selected_energy[0]
         else:
-            #tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
-            #self.tin = np.linspace(0.0, tinmax, int(tinmax)*1+1)
-            #self.tin = np.linspace(0, self.selected_energy.shape[0], self.selected_energy.shape[0]+1)
             self.tin = np.arange(self.selected_energy.shape[0])
             print("Check parameters of horizontal axis")
             print("de=", self.de, "selected_energy[0]=",
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
-            #self.tin_real = self.tin*self.de + self.selected_energy[0]
             self.tin_real = np.linspace(self.selected_energy[0], self.selected_energy[-1], num=800)
             print(self.tin_real[0:10])
-        #    #self.y = ssvkernel.ssvkernel(np.array(testx))
-        #    T = (np.max(self.xvec) - np.min(self.xvec))
-        #    dx = np.sort(np.diff(np.sort(self.xvec)))
-        #    dt_samp = dx[np.nonzero(dx)][0]
-        #    # To relieve the effect of the finite counts near the upper and lower
-        #    # bounds of the measurement range
-        #    # we extend the range by some fraction of the original range
-        #    #mergin = T*0.2
-        #    #tin = np.linspace(np.min(self.xvec) - mergin, np.max(self.xvec) + mergin,
-        #    #                  int(min(np.ceil(T*1.4 / dt_samp), 1e3)))
-        #    # tin is the space where densities are inferred.
-#
-#            self.tin = np.linspace(np.min(self.xvec), np.max(self.xvec),
-##                              int(min(np.ceil(T / dt_samp), 1e3)))
-#            self.tin_real = np.linspace(np.min(self.xvec_real), np.max(self.xvec_real),
-#                                   int(min(np.ceil(T / dt_samp), 1e3)))
-        #self.y = ssvkernel.ssvkernel(self.xvec, self.tin)
-        #self.y_ = sskernel.sskernel(self.xvec, self.tin)
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)

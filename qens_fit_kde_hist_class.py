@@ -40,20 +40,29 @@ class sqrun_kde_hist(qfc.qens_fit):
             self.data[ifx, 1:] = self.kde_hist()
         np.savetxt(outfile, self.data, fmt='%.5e')
 
-    def plotter(self):
-        plt.errorbar(self.data[:, 0], self.data[:, 1], yerr=self.data[:, 2],
-                     marker="o", label='kde', ms=2, elinewidth=1, lw=0,
-                     capsize=3)
-        plt.errorbar(self.data[:, 0], self.data[:, 3], yerr=self.data[:, 4],
-                     marker="o", label='hist', ms=2, elinewidth=1, lw=0,
-                     capsize=3)
-        plt.xlabel('Fraction of event data used')
-        plt.ylabel('Gamma (meV)')
-        plt.tick_params(direction='in', right=True, top=True)
-        #plt.ylim([0, 0.015])
-        plt.legend()
-        plt.show()
-
+    def plotter(self, dataname=None, isend=False):
+        if dataname is None:
+            plt.errorbar(self.data[:, 0], self.data[:, 1],
+                         yerr=self.data[:, 2], marker="o", label='kde', ms=2,
+                         elinewidth=1, lw=0, capsize=3)
+            plt.errorbar(self.data[:, 0], self.data[:, 3],
+                         yerr=self.data[:, 4], marker="o", label='hist',
+                         ms=2, elinewidth=1, lw=0, capsize=3)
+            plt.xlabel('Fraction of event data used')
+            plt.ylabel('Gamma (meV)')
+            plt.tick_params(direction='in', right=True, top=True)
+            plt.legend()
+            plt.show()
+        else:
+            plt.errorbar(self.data[:, 0], self.data[:, 1],
+                         yerr=self.data[:, 2], marker="o", label=dataname,
+                         ms=2, elinewidth=1, lw=0, capsize=3)
+            if isend:
+                plt.xlabel('Fraction of event data used')
+                plt.ylabel('Gamma (meV)')
+                plt.tick_params(direction='in', right=True, top=True)
+                plt.legend()
+                plt.show()
 
 def samplerun():
     head = "/home/kazu/desktop/210108/Tatsumi/"
