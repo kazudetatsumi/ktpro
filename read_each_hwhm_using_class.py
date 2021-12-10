@@ -6,10 +6,10 @@ import read_each_hwhm_class as rehc
 
 def samplerun():
         Ms = [160]
-        pws = [0.5]
+        pws = [0.125]
         pfs = ["Boxcar"]
         channels = [""]
-        bins = ["0000025io"]
+        bins = ["0000003io"]
         fracs = ["", "0875", "075", "0625",  "05", "0375", "025", "0125"]
         prj = rehc.read_each_hwhm(Ms, pws, pfs, channels, bins, fracs,
                                   prefix="/home/kazu/desktop/210108/" +
@@ -19,6 +19,7 @@ def samplerun():
         prj.data = prj.hwhms.squeeze()
         prj.plotter(dataname='kde')
         prj.bins = ["000010io"]
+        prj.pws = [0.5]
         prj.resultid = 2
         prj.create_array()
         prj.data = prj.hwhms.squeeze()

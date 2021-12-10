@@ -13,7 +13,7 @@ import qens_fit_class as qfc
 
 
 def sqrun_kde_hist_2lore():
-    np.set_printoptions(linewidth=100)
+    np.set_printoptions(linewidth=120)
 
     #if len(sys.argv) >= 2:
     #    dirname = sys.argv[1]

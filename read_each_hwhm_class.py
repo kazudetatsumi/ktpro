@@ -73,8 +73,8 @@ class read_each_hwhm(qfkhc.sqrun_kde_hist):
             lines = f.readlines()
             for il, line in enumerate(lines):
                 if 'estimated constants' in line:
-                    hwhms.append(float(lines[il+1].split(" ")[1]))
-                    stdhwhms.append(float(lines[il+4].split(" ")[2]))
+                    hwhms.append(float(lines[il+1].split()[1]))
+                    stdhwhms.append(float(lines[il+4].split()[1]))
         #print("chk", hwhms, filename)
         # we assume the log file of the fitting contains the fitting paramters
         # in the correct order, i.e., firstly, those obtained using the kde,

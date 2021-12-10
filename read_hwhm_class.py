@@ -7,7 +7,7 @@ import qens_fit_kde_hist_class as qfkhc
 
 
 class read_hwhm(qfkhc.sqrun_kde_hist):
-    def __init__(self, Ms, pws, pfs, channels, bins, fracs, prefix="./", numlore=1):
+    def __init__(self, Ms, pws, pfs, channels, bins, fracs, prefix="./", numlore=1, fixbg=True):
         self.Ms = Ms
         self.pws = pws
         self.pfs = pfs
@@ -16,6 +16,7 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
         self.fracs = fracs
         self.prefix = prefix
         self.numlore = numlore
+        self.fixbg = fixbg
 
     def getfrac(self, frc):
         if frc == "":
@@ -49,12 +50,21 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                                         dirname = self.prefix + "/" + str(M)+"_"+str(pw)+"_"+bn +\
                                                 "_"+pf+"_"+frc
                                 if frc == "":
-                                    logfile = dirname + "/std-"+bn+"-" +\
-                                            str(M)+"-"+str(pw)+"-"+pf+".log"
+                                    if self.numlore == 1:
+                                        logfile = dirname + "/std-"+bn+"-" +\
+                                         str(M)+"-"+str(pw)+"-"+pf+".log"
+                                    elif self.numlore == 2:
+                                        logfile = dirname + "/std-"+bn+"-" +\
+                                         str(M)+"-"+str(pw)+"-"+pf+"-2lore.log"
                                 else:
-                                    logfile = dirname + "/std-"+bn+"-" +\
-                                            str(M)+"-"+str(pw)+"-"+pf +\
-                                            "-"+frc+".log"
+                                    if self.numlore == 1:
+                                        logfile = dirname + "/std-"+bn+"-" +\
+                                         str(M)+"-"+str(pw)+"-"+pf+"-"+frc +\
+                                         ".log"
+                                    elif self.numlore == 2:
+                                        logfile = dirname + "/std-"+bn+"-" +\
+                                         str(M)+"-"+str(pw)+"-"+pf+"-"+frc +\
+                                         "-2lore.log"
                                 if os.path.exists(logfile):
                                     #print(logfile,"is found")
                                     self.hwhms[im, ipw, ipf, ic, ib, ifr, 1:] =\
@@ -77,25 +87,45 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                                             h[5], h[6]))
 
     def gethwhm(self, filename):
+        #print(filename)
         hwhms = []
         stdhwhms = []
         with open(filename, 'r') as f:
             lines = f.readlines()
             for il, line in enumerate(lines):
                 if 'estimated constants' in line:
-                    hwhms.append(float(lines[il+1].split(" ")[1]))
-                    stdhwhms.append(float(lines[il+4].split(" ")[2]))
                     if self.numlore == 2:
-                        hwhms.append(float(lines[il+1].split(" ")[3]))
-                        stdhwhms.append(float(lines[il+6].split(" ")[4]))
+                        if lines[il+1].split()[0] == "[":
+                            hwhms.append(float(lines[il+1].split()[2]))
+                            hwhms.append(float(lines[il+1].split()[4]))
+                        else:
+                            hwhms.append(float(lines[il+1].split()[1]))
+                            hwhms.append(float(lines[il+1].split()[3]))
+                        stdhwhms.append(float(lines[il+4].split()[1]))
+                        stdhwhms.append(float(lines[il+6].split()[3]))
+                    else:
+                        hwhms.append(float(lines[il+1].split(" ")[1]))
+                        stdhwhms.append(float(lines[il+4].split(" ")[2]))
         #print("chk", hwhms, filename)
         if len(hwhms) >= 3:
             if self.numlore == 1:
-                return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]]))
+                return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]])
+                       )
             elif self.numlore == 2:
-                return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1], hwhms[2], stdhwhms[2], hwhms[3], stdhwhms[3]]))
+                if self.fixbg:
+                    #print(hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1],
+                    #      hwhms[2], stdhwhms[2], hwhms[3], stdhwhms[3])
+                    return(np.array([hwhms[0], stdhwhms[0], hwhms[1],
+                           stdhwhms[1], hwhms[2], stdhwhms[2], hwhms[3],
+                           stdhwhms[3]]))
+                else:
+                    print(hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1],
+                          hwhms[4], stdhwhms[4], hwhms[5], stdhwhms[5])
+                    return(np.array([hwhms[0], stdhwhms[0], hwhms[1],
+                           stdhwhms[1], hwhms[4], stdhwhms[4], hwhms[5],
+                           stdhwhms[5]]))
         else:
-            print("number of hwhms is smaller than 2 check logfile")
+            #print("number of hwhms is smaller than 2 check logfile")
             return(np.zeros((4)))
 
 

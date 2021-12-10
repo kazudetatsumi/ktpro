@@ -40,19 +40,40 @@ class sqrun_kde_hist(qfc.qens_fit):
             self.data[ifx, 1:] = self.kde_hist()
         np.savetxt(outfile, self.data, fmt='%.5e')
 
-    def plotter(self, dataname=None, isend=False):
+    def plotter(self, dataname=None, isend=False, twocomp=False, ymin=None, ymax=None):
         if dataname is None:
-            plt.errorbar(self.data[:, 0], self.data[:, 1],
-                         yerr=self.data[:, 2], marker="o", label='kde', ms=2,
-                         elinewidth=1, lw=0, capsize=3)
-            plt.errorbar(self.data[:, 0], self.data[:, 3],
-                         yerr=self.data[:, 4], marker="o", label='hist',
-                         ms=2, elinewidth=1, lw=0, capsize=3)
-            plt.xlabel('Fraction of event data used')
-            plt.ylabel('Gamma (meV)')
-            plt.tick_params(direction='in', right=True, top=True)
-            plt.legend()
-            plt.show()
+            if twocomp:
+                plt.errorbar(self.data[:, 0], self.data[:, 1],
+                             yerr=self.data[:, 2], marker="o", label='kde1',
+                             ms=2, elinewidth=1, lw=0, capsize=3, c='pink')
+                plt.errorbar(self.data[:, 0], self.data[:, 3],
+                             yerr=self.data[:, 4], marker="o", label='kde2',
+                             ms=2, elinewidth=1, lw=0, capsize=3, c='red')
+                plt.errorbar(self.data[:, 0], self.data[:, 5],
+                             yerr=self.data[:, 6], marker="o", label='hist1',
+                             ms=2, elinewidth=1, lw=0, capsize=3, c='lightblue')
+                plt.errorbar(self.data[:, 0], self.data[:, 7],
+                             yerr=self.data[:, 8], marker="o", label='hist2',
+                             ms=2, elinewidth=1, lw=0, capsize=3, c='blue')
+                plt.xlabel('Fraction of event data used')
+                plt.ylabel('Gamma (meV)')
+                plt.tick_params(direction='in', right=True, top=True)
+                if ymin is not None and ymax is not None:
+                    plt.ylim([ymin, ymax])
+                plt.legend()
+                plt.show()
+            else:
+                plt.errorbar(self.data[:, 0], self.data[:, 1],
+                             yerr=self.data[:, 2], marker="o", label='kde',
+                             ms=2, elinewidth=1, lw=0, capsize=3)
+                plt.errorbar(self.data[:, 0], self.data[:, 3],
+                             yerr=self.data[:, 4], marker="o", label='hist',
+                             ms=2, elinewidth=1, lw=0, capsize=3)
+                plt.xlabel('Fraction of event data used')
+                plt.ylabel('Gamma (meV)')
+                plt.tick_params(direction='in', right=True, top=True)
+                plt.legend()
+                plt.show()
         else:
             plt.errorbar(self.data[:, 0], self.data[:, 1],
                          yerr=self.data[:, 2], marker="o", label=dataname,
