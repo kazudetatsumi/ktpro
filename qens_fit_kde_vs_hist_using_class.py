@@ -3,7 +3,7 @@
 # For kde results, the background is optimized.
 # For histograms, the background is fixed as the bkg_peak_ratio(kde) * peak(histogram)
 # as suggested by Dr. Matsuura.
-# example usage qens_fit_kde_vs_hist_using_class.py 6202 0000025io 0875
+# example usage qens_fit_kde_vs_hist_using_class.py 6204 6202 0000025io 0875
 # Kazuyoshi TATSUMI 2021/09/06
 import numpy as np
 import sys
@@ -18,12 +18,17 @@ def sqrun_kde_hist():
         print("using default runno 6202")
         runno = "6202"
     if len(sys.argv) >= 3:
-        dirname = sys.argv[2]
+        runnod = sys.argv[2]
+    else:
+        print("using default runnod 6204")
+        runnod = "6204"
+    if len(sys.argv) >= 4:
+        dirname = sys.argv[3]
     else:
         print("using default dirname 000025io")
         dirname = "000025io"
-    if len(sys.argv) >= 4:
-        frac = sys.argv[3]
+    if len(sys.argv) >= 5:
+        frac = sys.argv[4]
     else:
         print("using default frac """)
         frac = ""
@@ -31,7 +36,7 @@ def sqrun_kde_hist():
     #head = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
     #note that we use the device function collected in the total measument time.
     head = "./"
-    devf = head + "qens_kde_o_divided_by_i_6204.pkl"
+    devf = head + "qens_kde_o_divided_by_i_"+runnod+".pkl"
     tf = head + "qens_kde_o_divided_by_i_"+runno+frac+".pkl"
     elim = [-0.03, 0.07]
     proj = qfc.qens_fit(devf, tf, elim, showplot=False)
@@ -40,7 +45,7 @@ def sqrun_kde_hist():
     proj.optimize(figname="qens_kde_fit.png")
 
     head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
-    devf = head + "qens_hist_o_divided_by_i_6204.pkl"
+    devf = head + "qens_hist_o_divided_by_i_"+runnod+".pkl"
     tf = head + "qens_hist_o_divided_by_i_"+runno+frac+".pkl"
     proj.devf = devf
     proj.tf = tf
