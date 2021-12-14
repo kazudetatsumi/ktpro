@@ -9,7 +9,7 @@
 import numpy as np
 import sys 
 sys.path.append("/home/kazu/ktpro")
-import qens_fit_class as qfc 
+import qens_fit_part_class as qfc 
 
 
 def sqrun_kde_hist_2lore():
@@ -49,21 +49,21 @@ def sqrun_kde_hist_2lore():
 
     #head = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
     #note that we use the device function collected in the total measument time.
-    head = "./"
-    devf = head + "qens_kde_o_divided_by_i_"+runnod+".pkl"
-    tf = head + "qens_kde_o_divided_by_i_"+runno+".pkl"
-    elim = [-0.03, 0.07]
-    proj = qfc.qens_fit(devf, tf, elim, showplot=False)
-    proj.icorr()
-    proj.preprocess(doicorr=True)
+    #head = "./"
+    #devf = head + "qens_kde_o_divided_by_i_"+runnod+".pkl"
+    #tf = head + "qens_kde_o_divided_by_i_"+runno+".pkl"
+    #proj.icorr()
+    #proj.preprocess(doicorr=True)
     #proj.optimize(figname="qens_kde_fit.png")
-    proj.optimize(variables=[1.67780642e-04, 3.08144561e-02, 1.16049540e-04, 7.85885231e-03, 2.04665269e-01, 4.17453525e+00], figname="qens_kde_fit2.png")
+    #proj.optimize(variables=[1.67780642e-04, 3.08144561e-02, 1.16049540e-04, 7.85885231e-03, 2.04665269e-01, 4.17453525e+00], figname="qens_kde_fit2.png")
 
     head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     devf = head + "qens_hist_o_divided_by_i_"+runno+".pkl"
     tf = head + "qens_hist_o_divided_by_i_"+runno+frac+".pkl"
-    proj.devf = devf
-    proj.tf = tf
+    elim = [-0.03, 0.07]
+    proj = qfc.qens_fit(devf, tf, elim, showplot=False)
+    #proj.devf = devf
+    #proj.tf = tf
     proj.icorr()
     proj.preprocessh(doicorr=True)
     #proj.optimize(variables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01],
