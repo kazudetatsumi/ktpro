@@ -72,19 +72,82 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                                     self.hwhms[im, ipw, ipf, ic, ib, ifr, 0] =\
                                         self.getfrac(frc)
 
-    def outhwhm(self):
-        with open('results_hwhms.txt', 'w') as f:
-            for ifr, frc in enumerate(self.fracs):
-                for ib, bn in enumerate(self.bins):
-                    for ipf, pf in enumerate(self.pfs):
-                        for ic, chn in enumerate(self.channels):
-                            f.write("%s, %s, %s, %s\n" % (pf, chn, bn, frc))
-                            f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
-                            for im, M in enumerate(self.Ms):
-                                h = self.hwhms[im, :, ipf, ic, ib, ifr]
-                                f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
-                                        % (M, h[0], h[1], h[2], h[3], h[4],
+    def subouthwhm(self, prop="HWHM", lore="1st", addidx=0):
+        self.f.write("%s \n" % (prop))
+        for ifr, frc in enumerate(self.fracs):
+            for ib, bn in enumerate(self.bins):
+                for ipf, pf in enumerate(self.pfs):
+                    for ic, chn in enumerate(self.channels):
+                        self.f.write("%s Lorentzian %s, %s, %s, %s \n"
+                                     % (lore, pf, chn, bn, frc))
+                        self.f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
+                        for im, M in enumerate(self.Ms):
+                            h = self.hwhms[im, :, ipf, ic, ib, ifr, 1+addidx]
+                            self.f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
+                                         % (M, h[0], h[1], h[2], h[3], h[4],
                                             h[5], h[6]))
+
+
+
+    def outhwhm(self):
+        with open('results_hwhms.txt', 'w') as self.f:
+            self.subouthwhm(prop="HWHM", lore="1st", addidx=0)
+            self.subouthwhm(prop="HWHM", lore="2nd", addidx=2)
+            self.subouthwhm(prop="STD", lore="1st", addidx=1)
+            self.subouthwhm(prop="STD", lore="2nd", addidx=3)
+            self.subouthwhm(prop="HWHMhist", lore="1st", addidx=4)
+            self.subouthwhm(prop="HWHMhist", lore="2nd", addidx=6)
+            self.subouthwhm(prop="STDhist", lore="1st", addidx=5)
+            self.subouthwhm(prop="STDhist", lore="2nd", addidx=7)
+
+        #    f.write("HWHM  \n")
+        #    for ifr, frc in enumerate(self.fracs):
+        #        for ib, bn in enumerate(self.bins):
+        #            for ipf, pf in enumerate(self.pfs):
+        #                for ic, chn in enumerate(self.channels):
+        #                    f.write("1st Lorentzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
+        #                    f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
+        #                    for im, M in enumerate(self.Ms):
+        #                        h = self.hwhms[im, :, ipf, ic, ib, ifr, 1]
+        #                        f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
+        #                                % (M, h[0], h[1], h[2], h[3], h[4],
+        #                                    h[5], h[6]))
+        #    if self.numlore == 2:
+        #        for ifr, frc in enumerate(self.fracs):
+        #            for ib, bn in enumerate(self.bins):
+        #                for ipf, pf in enumerate(self.pfs):
+        #                    for ic, chn in enumerate(self.channels):
+        #                        f.write("2nd Lorentzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
+        #                        f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
+        #                        for im, M in enumerate(self.Ms):
+        #                            h = self.hwhms[im, :, ipf, ic, ib, ifr, 3]
+        #                            f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
+        #                                    % (M, h[0], h[1], h[2], h[3], h[4],
+        #                                        h[5], h[6]))
+        #    f.write("STD of HWHM  \n")
+        #    for ib, bn in enumerate(self.bins):
+        #        for ipf, pf in enumerate(self.pfs):
+        #            for ic, chn in enumerate(self.channels):
+        #                f.write("1st Lorenzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
+        #                f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
+        #                for im, M in enumerate(self.Ms):
+        #                    h = self.hwhms[im, :, ipf, ic, ib, ifr, 3]
+        #                    f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
+        #                            % (M, h[0], h[1], h[2], h[3], h[4],
+        #                                h[5], h[6]))
+        #    if self.numlore == 2:
+        #        for ib, bn in enumerate(self.bins):
+        #            for ipf, pf in enumerate(self.pfs):
+        #                for ic, chn in enumerate(self.channels):
+        #                    f.write("2nd Lorentzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
+        #                    f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
+        #                    for im, M in enumerate(self.Ms):
+        #                        h = self.hwhms[im, :, ipf, ic, ib, ifr, 4]
+        #                        f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
+        #                                % (M, h[0], h[1], h[2], h[3], h[4],
+        #                                    h[5], h[6]))
+
+
 
     def gethwhm(self, filename):
         #print(filename)
@@ -104,13 +167,18 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                         stdhwhms.append(float(lines[il+4].split()[1]))
                         stdhwhms.append(float(lines[il+6].split()[3]))
                     else:
-                        hwhms.append(float(lines[il+1].split(" ")[1]))
+                        #hwhms.append(float(lines[il+1].split(" ")[1]))
+                        hwhms.append(float(lines[il+1].split()[1]))
                         stdhwhms.append(float(lines[il+4].split(" ")[2]))
         #print("chk", hwhms, filename)
         if len(hwhms) >= 3:
             if self.numlore == 1:
-                return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]])
-                       )
+                if self.fixbg:
+                    return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]])
+                           )
+                else:
+                    return(np.array([hwhms[0], stdhwhms[0], hwhms[2], stdhwhms[2]])
+                           )
             elif self.numlore == 2:
                 if self.fixbg:
                     #print(hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1],
@@ -119,14 +187,14 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                            stdhwhms[1], hwhms[2], stdhwhms[2], hwhms[3],
                            stdhwhms[3]]))
                 else:
-                    print(hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1],
-                          hwhms[4], stdhwhms[4], hwhms[5], stdhwhms[5])
+                    #print(hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1],
+                    #      hwhms[4], stdhwhms[4], hwhms[5], stdhwhms[5])
                     return(np.array([hwhms[0], stdhwhms[0], hwhms[1],
                            stdhwhms[1], hwhms[4], stdhwhms[4], hwhms[5],
                            stdhwhms[5]]))
         else:
             #print("number of hwhms is smaller than 2 check logfile")
-            return(np.zeros((4)))
+            return(np.zeros((self.numlore*4)))
 
 
 def samplerun():

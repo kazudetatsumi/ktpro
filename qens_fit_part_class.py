@@ -18,6 +18,7 @@ class qens_fit:
         self.quiet = False
 
     def preprocessh(self, doicorr=False):
+        self.optbgpeakratio = 0.3439274070690423
         x_devf, ys_ssvk_devf = self.get_hdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_hdata(self.tf)
         #print(np.sum(np.abs(x_tf - x_devf)))
@@ -107,11 +108,13 @@ class qens_fit:
                  5.20429443e-01, 9.30889687e-06], figname='qenf_fit.png'):
         _gamma = variables[1]
         _gamma2 = variables[3]
-        variables = variables[0:1,2:3,4:]
+        variables.pop(3)
+        variables.pop(1)
+        print(variables)
         out = so.leastsq(self.res, variables,
                          args=(_gamma, _gamma2, self.x_tf, self.y_df, self.y_tf), full_output=1,
                          epsfcn=0.0001)
-        s_sq = (self.res(out[0], self.x_tf, self.y_df, self.y_tf)**2).sum() /\
+        s_sq = (self.res(out[0], _gamma, _gamma2, self.x_tf, self.y_df, self.y_tf)**2).sum() /\
                (len(self.y_tf)-len(out[0]))
         if not self.quiet:
             if len(variables) == 3:

@@ -40,28 +40,26 @@ class sqrun_kde_hist(qfc.qens_fit):
             self.data[ifx, 1:] = self.kde_hist()
         np.savetxt(outfile, self.data, fmt='%.5e')
 
-    def plotter(self, dataname=None, isend=False, twocomp=False, ymin=None, ymax=None):
+    def plotter(self, dataname=None, isend=True, twocomp=False,
+                ymin=None, ymax=None,
+                c=['pink', 'red', 'lightblue', 'blue'],
+                loc=None, bbox_to_anchor=None):
         if dataname is None:
             if twocomp:
                 plt.errorbar(self.data[:, 0], self.data[:, 1],
                              yerr=self.data[:, 2], marker="o", label='kde1',
-                             ms=2, elinewidth=1, lw=0, capsize=3, c='pink')
+                             ms=2, elinewidth=1, lw=0, capsize=3, c=c[0])
                 plt.errorbar(self.data[:, 0], self.data[:, 3],
                              yerr=self.data[:, 4], marker="o", label='kde2',
-                             ms=2, elinewidth=1, lw=0, capsize=3, c='red')
+                             ms=2, elinewidth=1, lw=0, capsize=3, c=c[1])
                 plt.errorbar(self.data[:, 0], self.data[:, 5],
                              yerr=self.data[:, 6], marker="o", label='hist1',
-                             ms=2, elinewidth=1, lw=0, capsize=3, c='lightblue')
+                             ms=2, elinewidth=1, lw=0, capsize=3, c=c[2])
                 plt.errorbar(self.data[:, 0], self.data[:, 7],
                              yerr=self.data[:, 8], marker="o", label='hist2',
-                             ms=2, elinewidth=1, lw=0, capsize=3, c='blue')
-                plt.xlabel('Fraction of event data used')
-                plt.ylabel('Gamma (meV)')
-                plt.tick_params(direction='in', right=True, top=True)
+                             ms=2, elinewidth=1, lw=0, capsize=3, c=c[3])
                 if ymin is not None and ymax is not None:
                     plt.ylim([ymin, ymax])
-                plt.legend()
-                plt.show()
             else:
                 plt.errorbar(self.data[:, 0], self.data[:, 1],
                              yerr=self.data[:, 2], marker="o", label='kde',
@@ -69,21 +67,19 @@ class sqrun_kde_hist(qfc.qens_fit):
                 plt.errorbar(self.data[:, 0], self.data[:, 3],
                              yerr=self.data[:, 4], marker="o", label='hist',
                              ms=2, elinewidth=1, lw=0, capsize=3)
-                plt.xlabel('Fraction of event data used')
-                plt.ylabel('Gamma (meV)')
-                plt.tick_params(direction='in', right=True, top=True)
-                plt.legend()
-                plt.show()
+                if ymin is not None and ymax is not None:
+                    plt.ylim([ymin, ymax])
         else:
             plt.errorbar(self.data[:, 0], self.data[:, 1],
                          yerr=self.data[:, 2], marker="o", label=dataname,
                          ms=2, elinewidth=1, lw=0, capsize=3)
-            if isend:
-                plt.xlabel('Fraction of event data used')
-                plt.ylabel('Gamma (meV)')
-                plt.tick_params(direction='in', right=True, top=True)
-                plt.legend()
-                plt.show()
+        if isend:
+            plt.xlabel('Fraction of event data used')
+            plt.ylabel('Gamma (meV)')
+            plt.tick_params(direction='in', right=True, top=True)
+            if loc is not None and bbox_to_anchor is not None:
+                plt.legend(loc=loc, bbox_to_anchor=bbox_to_anchor)
+            plt.show()
 
 def samplerun():
     head = "/home/kazu/desktop/210108/Tatsumi/"

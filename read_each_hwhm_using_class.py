@@ -6,7 +6,7 @@ import read_each_hwhm_class as rehc
 
 def samplerun():
         Ms = [160]
-        pws = [0.125]
+        pws = [0.5]
         pfs = ["Boxcar"]
         channels = [""]
         bins = ["0000003io"]
@@ -17,10 +17,10 @@ def samplerun():
                                   resultid=0)
         prj.create_array()
         prj.data = prj.hwhms.squeeze()
-        prj.plotter(dataname='kde')
+        prj.plotter(dataname='kde', isend=False)
         prj.bins = ["000010io"]
         prj.pws = [0.5]
-        prj.resultid = 2
+        prj.resultid = 1
         prj.create_array()
         prj.data = prj.hwhms.squeeze()
         prj.plotter(dataname='hist', isend=True)
