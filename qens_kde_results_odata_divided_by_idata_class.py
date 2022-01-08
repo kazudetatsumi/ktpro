@@ -40,7 +40,7 @@ class odata_divided_by_idata:
         #    yi = _yi
         #return(np.interp(self.xo, self.xi, yi))
 
-    def get_data(self):
+    def get_data(self, norm=False):
         self.odataset = self.read_pkl(self.ofile)
         self.idataset = self.read_pkl(self.ifile)
         if self.iskde:
@@ -63,6 +63,15 @@ class odata_divided_by_idata:
             self.xo = self.odataset['energy']
             self.yi = self.idataset['spectra'][0, 1, :]
             self.xi = self.idataset['spectra'][0, 0, :] - 2.085
+            if norm:
+                self.yo = self.yo/np.sum(self.yo)/(self.xo[1] - self.xo[0])
+                mergin = 0.001
+                xlim = np.array([-0.10025 - mergin, 0.14975 + mergin])
+                mask = np.where((self.xi >= xlim[0]) & (self.xi <= xlim[1]))[0]
+                self.selected_spectra = self.yi[mask]
+                self.selected_energy = self.xi[mask]
+                self.yi = self.selected_spectra/np.sum(self.selected_spectra)/(self.selected_energy[1] - self.selected_energy[0])
+                self.xi = self.selected_energy
             #self.yi_ip = self.interpolate(self.yo, self.yi)
             self.yi_ip = np.interp(self.xo, self.xi, self.yi)
             self.y = self.yo / self.yi_ip

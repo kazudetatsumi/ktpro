@@ -7,6 +7,7 @@ sys.path.append("/home/kazu/ktpro")
 import mybootstrap
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
+from matplotlib import colors
 #import statsmodels.stats.api as sms
 import re
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
@@ -169,7 +170,7 @@ class ise_ci:
         plt.subplots_adjust(wspace=0.16, hspace=0.0)
 
     def plot_bin(self, ylabel=True, alpha=1.0, vlims=None, dels=None,
-                 shift=0.050, rel=False):
+                 shift=0.050, rel=False, disc=False):
         gs = gridspec.GridSpec(4, self.tcn, height_ratios=[1, 1, 1, 1])
         if dels is not None:
             self.tdatar1 = np.delete(self.tdatar1[:, :, :], dels, axis=1)
@@ -182,16 +183,27 @@ class ise_ci:
         else:
             diff = ys1 - ys2
         wlist = ["qx", "qy", "qz", "w"]
+
+        if disc:
+            cmap = plt.cm.plasma.reversed()
+            bounds = np.linspace(1.5, 20.5, 20)
+            norm = colors.BoundaryNorm(bounds, cmap.N)
+
         for widx, wlabel in enumerate(wlist):
             ax = plt.subplot(gs[widx, self.cn])
             for nidx in range(0, diff.shape[1]):
                 ue, uc = np.unique(diff[:, nidx, widx], return_counts=True)
-                uc = uc/(diff.shape[0]*1.0)
+                print('check uc',uc)
+                #uc = uc/(diff.shape[0]*1.0)
                 if not rel:
                     ue = ue*self.stepsizes[widx]
                 xse = np.ones_like(ue)*xs[nidx]
-                c = ax.scatter(xse, ue, c=uc, ec='k', lw=1.5, cmap='binary',
-                               vmin=0.0, vmax=1.0, s=60)
+                if disc:
+                    c = ax.scatter(xse, ue, c=uc, ec='k', lw=1.5, cmap=cmap,
+                                   norm=norm, s=60)
+                else:
+                    c = ax.scatter(xse, ue, c=uc, ec='k', lw=1.5, cmap='binary',
+                                   vmin=0.0, vmax=1.0, s=60)
 
             if not rel:
                 ax.yaxis.set_major_locator(MultipleLocator(
