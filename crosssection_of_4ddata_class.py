@@ -29,6 +29,7 @@ class CROSS:
         self.showorthob = showorthob
         self.vivid = vivid
         if plotranges.any():
+        #if plotranges:
             self.plotranges = plotranges
         else:
             self.plotranges = wholeranges

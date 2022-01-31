@@ -186,7 +186,7 @@ class ise_ci:
 
         if disc:
             cmap = plt.cm.plasma.reversed()
-            bounds = np.linspace(1.5, 20.5, 20)
+            bounds = np.linspace(0.5, 20.5, 21)
             norm = colors.BoundaryNorm(bounds, cmap.N)
 
         for widx, wlabel in enumerate(wlist):

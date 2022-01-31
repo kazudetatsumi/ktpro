@@ -75,7 +75,7 @@ class sqrun_kde_hist(qfc.qens_fit):
                          ms=2, elinewidth=1, lw=0, capsize=3)
         if isend:
             plt.xlabel('Fraction of event data used')
-            plt.ylabel('Gamma (meV)')
+            plt.ylabel('HWHM (meV)')
             plt.tick_params(direction='in', right=True, top=True)
             if loc is not None and bbox_to_anchor is not None:
                 plt.legend(loc=loc, bbox_to_anchor=bbox_to_anchor)

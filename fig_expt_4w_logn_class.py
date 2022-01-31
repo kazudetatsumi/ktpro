@@ -109,6 +109,7 @@ class Plot_4w_Logn:
                 x_m = 1.0/self.list_m[0, :-5]*alpha
                 y_m = self.list_m[1+ip, :-5]*dp
             msize = 80
+            print("chk!!", x_n)
             ax = self.fig.add_subplot(4, self.num_clms, clm+self.num_clms*ip)
             ax.scatter(x_n[self.m:], y_n[self.m:], marker='s',
                        edgecolor="black", s=msize, facecolors="white")

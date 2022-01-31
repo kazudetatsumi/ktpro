@@ -110,17 +110,19 @@ def run():
     #ny = 3 # for Ei24
     #nz = 2 # for Ei24
     #ne = 4 # for Ei24
-    nx = 3
-    ny = 2
+    nx = 4
+    ny = 4
     nz = 2
     ne = 4
     head ="./"
     #datafile = head + "out_hw_all.hdf5"
     #datafile = head + "Output4D_00_1560.hdf5"  # for Ei24
     #datafile = head + "Output4D_00_840.hdf5"  # for Ei42
-    datafile = head + "eliminated_data.hdf5"
+    datafile = head + "Output4D_00_195.hdf5"  # for Ei42
+    #datafile = head + "eliminated_data.hdf5"
 
-    outfile = head + "hist_eliminated.hdf5"
+    #outfile = head + "hist_eliminated.hdf5"
+    outfile = head + "hist.hdf5"
     f = h5py.File(datafile,'r')
     data = f["data4"][:]*1.0 # nqx, nqy, nqz, nomega
     #condition = np.ones(data.shape, dtype=bool)
