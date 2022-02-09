@@ -45,6 +45,7 @@ def samplerun():
     prj.bins = ["0000025lastio"]
     prj.create_array()
     prj.data = prj.hwhms.squeeze()
+    print(prj.data.shape)
     tcountlast = np.array([46236., 33528.])
     prj.data[:, 0] = tcountlast[:]/tcount[0]
     prj.plotter(twocomp=True, isend=True, ymin=ymin, ymax=ymax,

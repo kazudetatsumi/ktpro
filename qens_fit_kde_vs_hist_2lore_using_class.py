@@ -57,7 +57,8 @@ def sqrun_kde_hist_2lore():
     proj.icorr()
     proj.preprocess(doicorr=True)
     #proj.optimize(figname="qens_kde_fit.png")
-    proj.optimize(variables=[1.67780642e-04, 3.08144561e-02, 1.16049540e-04, 7.85885231e-03, 2.04665269e-01, 4.17453525e+00], figname="qens_kde_fit2.png")
+    #proj.optimize(variables=[1.67780642e-04, 3.08144561e-02, 1.16049540e-04, 7.85885231e-03, 2.04665269e-01, 4.17453525e+00], figname="qens_kde_fit2.png")
+    proj.optimize(variables=[2.18704786e-04, 1.67980295e-02, 4.92405238e-05, 1.88866588e-03, 1.21127501e-01, 5.02759930e-02], figname="qens_kde_fit2.png")
 
     head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     devf = head + "qens_hist_o_divided_by_i_"+runnod+".pkl"
