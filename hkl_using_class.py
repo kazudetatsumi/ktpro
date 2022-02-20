@@ -32,5 +32,5 @@ def runsingle(atomw2):
     proj.output()
 
 
-runsingle(0.2)
-#run(1.1)
+#runsingle(0.2)
+run(0.48)
