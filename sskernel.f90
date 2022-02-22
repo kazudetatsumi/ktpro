@@ -5,15 +5,19 @@ module sskernel
   implicit none
   include 'fftw3.f'
   integer, parameter :: xsize=107
-  integer, parameter :: tinsize=327
+  integer :: tinsize
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
   subroutine ssk
     implicit none 
     double precision xdat(xsize), xdatstd(xsize), xdatstddiff(xsize-1), xdatstddiffstd(xsize-1)
-    double precision T, dt_samp, dt, tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), cost, w
-    integer nbin, yhist(tinsize), nsmpl, i
+    !double precision T, dt_samp, dt, tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), cost, w
+    !integer nbin, yhist(tinsize), nsmpl, i
+    double precision, allocatable ::  tin(:), thist(:), y_hist(:), yh(:), y(:)
+    double precision T, dt_samp, dt, cost, w
+    integer, allocatable :: yhist(:)
+    integer nbin, nsmpl, i
 	data xdat/4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62, 3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77,&
 	4.08, 1.75, 3.20, 1.85, 4.62, 1.97, 4.50, 3.92, 4.35, 2.33, 3.83, 1.88, 4.60, 1.80, 4.73, 1.77, 4.57, 1.85, 3.52, 4.00, 3.70,&
 	3.72, 4.25, 3.58, 3.80, 3.77, 3.75, 2.50, 4.50, 4.10, 3.70, 3.80, 3.43, 4.00, 2.27, 4.40, 4.05, 4.25, 3.33, 2.00, 4.33, 2.93,&
@@ -28,21 +32,21 @@ contains
 	call quicksort(xdatstddiffstd, 1, size(xdat)-1)
 	dt_samp=minval(pack(xdatstddiffstd, xdatstddiffstd > 0.))
 	if (ceiling(T/dt_samp) > 1e3) then
-		nbin = 1e3
+		tinsize = 1e3
 	else
-		nbin = ceiling(T/dt_samp)
+		tinsize = ceiling(T/dt_samp)
 	endif
-	print *, nbin
-	tinsize = nbin
-	dt=T/(nbin-1)
-	tin = (/(((i-1)*dt+minval(xdat)), i=1,nbin)/)
+	allocate(tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), yhist(tinsize), y(tinsize))
+	dt=T/(tinsize-1)
+	tin = (/(((i-1)*dt+minval(xdat)), i=1,tinsize)/)
 	thist(1:tinsize)=tin(:)
 	thist(tinsize+1)=tin(tinsize)+dt
 	thist = thist - dt/2
 	yhist=hist(xdat, thist)
 	nsmpl=sum(yhist)
 	y_hist=real(yhist)/real(nsmpl)/dt
-	call opt(y_hist, xdat, nsmpl, dt)
+	call opt(y, y_hist, xdat, nsmpl, dt)
+	write(*, '(f12.5)') y
   end subroutine ssk
 
   function hist(x, th)
@@ -67,14 +71,14 @@ contains
 	end do
   end subroutine plothist
 
-  subroutine opt(y_hist, xdat, nsmpl, dt)
+  subroutine opt(y, y_hist, xdat, nsmpl, dt)
 	double precision, intent(in) :: y_hist(tinsize), dt, xdat(xsize)
 	integer, intent(in) :: nsmpl
 	integer, parameter :: maxiter = 20
 	double precision, parameter :: tol = 10e-5
 	double precision, parameter :: phi = (5**0.5 + 1) / 2
 	double precision :: cost(maxiter), Win(maxiter), dummy(tinsize), yh1(tinsize), yh2(tinsize)
-	double precision :: y(tinsize)
+	double precision, intent(out) :: y(tinsize)
 	double precision :: Winmin, Winmax, a, b, c1, c2, f1, f2, optw
 	integer :: kiter
 	kiter=1
