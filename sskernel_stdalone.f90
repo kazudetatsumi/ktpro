@@ -4,17 +4,16 @@
 module sskernel
   implicit none
   include 'fftw3.f'
-  integer, parameter :: xsize
+  integer, parameter :: xsize=107
   integer :: tinsize
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
-  subroutine ssk(optw, xsize, tinsize, xdat, yh) bind(C)
-	double precision, intent(out) :: optw
-	integer, intent(in) :: xsize, tinsize
-	double precision, intent(in) :: xdat(xsize)
-	double precision, intent(out) :: yh(tinsize)
+  subroutine ssk
+    implicit none 
     double precision xdat(xsize), xdatstd(xsize), xdatstddiff(xsize-1), xdatstddiffstd(xsize-1)
+    !double precision T, dt_samp, dt, tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), cost, w
+    !integer nbin, yhist(tinsize), nsmpl, i
     double precision, allocatable ::  tin(:), thist(:), y_hist(:), yh(:), y(:)
     double precision T, dt_samp, dt, cost, w
     integer, allocatable :: yhist(:)
@@ -215,9 +214,9 @@ contains
 end module sskernel
 
 
-!program main
-!  use sskernel
-!  call ssk
-!  stop
-!  end
+program main
+  use sskernel
+  call ssk
+  stop
+  end
 
