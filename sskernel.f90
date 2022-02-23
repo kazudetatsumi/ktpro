@@ -4,7 +4,7 @@
 module sskernel
   implicit none
   include 'fftw3.f'
-  integer, parameter :: xsize
+  integer :: xsize
   integer :: tinsize
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
@@ -14,17 +14,17 @@ contains
 	integer, intent(in) :: xsize, tinsize
 	double precision, intent(in) :: xdat(xsize)
 	double precision, intent(out) :: yh(tinsize)
-    double precision xdat(xsize), xdatstd(xsize), xdatstddiff(xsize-1), xdatstddiffstd(xsize-1)
-    double precision, allocatable ::  tin(:), thist(:), y_hist(:), yh(:), y(:)
+    double precision :: xdatstd(xsize), xdatstddiff(xsize-1), xdatstddiffstd(xsize-1)
+    double precision :: tin(tinsize), thist(tinsize+1), y_hist(tinsize), y(tinsize)
     double precision T, dt_samp, dt, cost, w
-    integer, allocatable :: yhist(:)
-    integer nbin, nsmpl, i
-	data xdat/4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62, 3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77,&
-	4.08, 1.75, 3.20, 1.85, 4.62, 1.97, 4.50, 3.92, 4.35, 2.33, 3.83, 1.88, 4.60, 1.80, 4.73, 1.77, 4.57, 1.85, 3.52, 4.00, 3.70,&
-	3.72, 4.25, 3.58, 3.80, 3.77, 3.75, 2.50, 4.50, 4.10, 3.70, 3.80, 3.43, 4.00, 2.27, 4.40, 4.05, 4.25, 3.33, 2.00, 4.33, 2.93,&
-	4.58, 1.90, 3.58, 3.73, 3.73, 1.82, 4.63, 3.50, 4.00, 3.67, 1.67, 4.60, 1.67, 4.00, 1.80, 4.42, 1.90, 4.63, 2.93, 3.50, 1.97,&
-	4.28, 1.83, 4.13, 1.83, 4.65, 4.20, 3.93, 4.33, 1.83, 4.53, 2.03, 4.18, 4.43, 4.07, 4.13, 3.95, 4.10, 2.72, 4.58, 1.90, 4.50,&
-	1.95, 4.83, 4.12/
+    integer :: yhist(tinsize)
+    integer nbin, nsmpl, i, tinsize2
+	!data xdat/4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62, 3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77,&
+	!4.08, 1.75, 3.20, 1.85, 4.62, 1.97, 4.50, 3.92, 4.35, 2.33, 3.83, 1.88, 4.60, 1.80, 4.73, 1.77, 4.57, 1.85, 3.52, 4.00, 3.70,&
+	!3.72, 4.25, 3.58, 3.80, 3.77, 3.75, 2.50, 4.50, 4.10, 3.70, 3.80, 3.43, 4.00, 2.27, 4.40, 4.05, 4.25, 3.33, 2.00, 4.33, 2.93,&
+	!4.58, 1.90, 3.58, 3.73, 3.73, 1.82, 4.63, 3.50, 4.00, 3.67, 1.67, 4.60, 1.67, 4.00, 1.80, 4.42, 1.90, 4.63, 2.93, 3.50, 1.97,&
+	!4.28, 1.83, 4.13, 1.83, 4.65, 4.20, 3.93, 4.33, 1.83, 4.53, 2.03, 4.18, 4.43, 4.07, 4.13, 3.95, 4.10, 2.72, 4.58, 1.90, 4.50,&
+	!1.95, 4.83, 4.12/
 	T=maxval(xdat)-minval(xdat)
 	xdatstd=xdat
 	call quicksort(xdatstd, 1, xsize)
@@ -33,11 +33,11 @@ contains
 	call quicksort(xdatstddiffstd, 1, size(xdat)-1)
 	dt_samp=minval(pack(xdatstddiffstd, xdatstddiffstd > 0.))
 	if (ceiling(T/dt_samp) > 1e3) then
-		tinsize = 1e3
+		tinsize2 = 1e3
 	else
-		tinsize = ceiling(T/dt_samp)
+		tinsize2 = ceiling(T/dt_samp)
 	endif
-	allocate(tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), yhist(tinsize), y(tinsize))
+	!allocate(tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), yhist(tinsize), y(tinsize))
 	dt=T/(tinsize-1)
 	tin = (/(((i-1)*dt+minval(xdat)), i=1,tinsize)/)
 	thist(1:tinsize)=tin(:)
