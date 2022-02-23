@@ -2,6 +2,7 @@
 !Kazuyoshi TATSUMI 2021/12/08
 
 module sskernel
+  use ISO_C_BINDING
   implicit none
   include 'fftw3.f'
   integer :: xsize
@@ -9,16 +10,18 @@ module sskernel
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
-  subroutine ssk(optw, xsize, tinsize, xdat, yh) bind(C)
-	double precision, intent(out) :: optw
-	integer, intent(in) :: xsize, tinsize
-	double precision, intent(in) :: xdat(xsize)
-	double precision, intent(out) :: yh(tinsize)
-    double precision :: xdatstd(xsize), xdatstddiff(xsize-1), xdatstddiffstd(xsize-1)
-    double precision :: tin(tinsize), thist(tinsize+1), y_hist(tinsize), y(tinsize)
+  subroutine ssk(optw, xsize0, tinsize0, xdat, yh) bind(C, name="ssk")
+	real(c_double), intent(out) :: optw
+	integer, intent(in) :: xsize0, tinsize0
+	double precision, intent(in) :: xdat(xsize0)
+	double precision, intent(inout) :: yh(tinsize0)
+    double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
+    double precision :: tin(tinsize0), thist(tinsize0+1), y_hist(tinsize0), y(tinsize0)
     double precision T, dt_samp, dt, cost, w
-    integer :: yhist(tinsize)
+    integer :: yhist(tinsize0)
     integer nbin, nsmpl, i, tinsize2
+	tinsize=tinsize0
+	xsize=xsize0
 	!data xdat/4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62, 3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77,&
 	!4.08, 1.75, 3.20, 1.85, 4.62, 1.97, 4.50, 3.92, 4.35, 2.33, 3.83, 1.88, 4.60, 1.80, 4.73, 1.77, 4.57, 1.85, 3.52, 4.00, 3.70,&
 	!3.72, 4.25, 3.58, 3.80, 3.77, 3.75, 2.50, 4.50, 4.10, 3.70, 3.80, 3.43, 4.00, 2.27, 4.40, 4.05, 4.25, 3.33, 2.00, 4.33, 2.93,&
@@ -37,6 +40,7 @@ contains
 	else
 		tinsize2 = ceiling(T/dt_samp)
 	endif
+	print *, 'tinsize2=',tinsize2
 	!allocate(tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), yhist(tinsize), y(tinsize))
 	dt=T/(tinsize-1)
 	tin = (/(((i-1)*dt+minval(xdat)), i=1,tinsize)/)
@@ -46,8 +50,8 @@ contains
 	yhist=hist(xdat, thist)
 	nsmpl=sum(yhist)
 	y_hist=real(yhist)/real(nsmpl)/dt
-	call opt(y, y_hist, xdat, nsmpl, dt)
-	write(*, '(f12.5)') y
+	call opt(optw, yh, y_hist, xdat, nsmpl, dt)
+	write(*, '(f12.5)') optw
   end subroutine ssk
 
   function hist(x, th)
@@ -72,15 +76,15 @@ contains
 	end do
   end subroutine plothist
 
-  subroutine opt(y, y_hist, xdat, nsmpl, dt)
+  subroutine opt(optw, y, y_hist, xdat, nsmpl, dt)
 	double precision, intent(in) :: y_hist(tinsize), dt, xdat(xsize)
 	integer, intent(in) :: nsmpl
 	integer, parameter :: maxiter = 20
 	double precision, parameter :: tol = 10e-5
 	double precision, parameter :: phi = (5**0.5 + 1) / 2
 	double precision :: cost(maxiter), Win(maxiter), dummy(tinsize), yh1(tinsize), yh2(tinsize)
-	double precision, intent(out) :: y(tinsize)
-	double precision :: Winmin, Winmax, a, b, c1, c2, f1, f2, optw
+	double precision, intent(out) :: y(tinsize), optw
+	double precision :: Winmin, Winmax, a, b, c1, c2, f1, f2
 	integer :: kiter
 	kiter=1
 	cost=0.
