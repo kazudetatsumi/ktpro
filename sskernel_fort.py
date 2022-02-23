@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import numpy as np
 from ctypes import *
-lib = CDLL("/home/kazu/ktpro/sskernel.so")
+import os
+lib = CDLL(os.environ["HOME"]+"/ktpro/sskernel.so")
 
 
 def calc_sskernel_f90(x, tinsize):
