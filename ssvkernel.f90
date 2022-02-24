@@ -17,10 +17,11 @@ contains
 	double precision, intent(inout) :: yh(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
     double precision :: tin(tinsize0), thist(tinsize0+1), y_hist(tinsize0), y(tinsize0)
-    double precision T, dt_samp, dt, cost, Wins(M), dw, cfxw(M,tinsize0), wi, optws(M, tinsize0)
-    double precision, dimension( 
-    integer :: yhist(tinsize0)
+    double precision T, dt_samp, dt, cost, Wins(M), dw, wi, Win
+    double precision, dimension(M, tinsize0) :: cfxw, optws, C_local
+    integer :: yhist(tinsize0), minkbwidx(tinsize0)
     integer nbin, nsmpl, i, tinsize2
+	integer kbwidx, winidx, xchidx
 	tinsize=tinsize0
 	xsize=xsize0
 	!data xdat/4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62, 3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77,&
@@ -44,27 +45,41 @@ contains
 	print *, 'tinsize2=',tinsize2
 	!allocate(tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), yhist(tinsize), y(tinsize))
 	dt=T/(tinsize-1)
-	tin = (/(((i-1)*dt+minval(xdat)), i=1,tinsize)/)
+	tin = (/(((xchidx-1)*dt+minval(xdat)), xchidx=1,tinsize)/)
 	thist(1:tinsize)=tin(:)
 	thist(tinsize+1)=tin(tinsize)+dt
 	thist = thist - dt/2
 	yhist=hist(xdat, thist)
 	nsmpl=sum(yhist)
 	y_hist=real(yhist)/real(nsmpl)/dt
-    dw=(ilogexp(T)-ilogexp(winparam*dt)/M
-	Wins=(/((i-1)*dw+ilogexp(winparam * dt), i=1,M)/)
+    dw=(ilogexp(T)-ilogexp(winparam*dt))/M
+	! Wins contains all widths to be considered for kernels as well as window functions, 
+	! playing a dual role to put kernel band-widths as well as window-widths.
+	Wins=(/((winidx-1)*dw+ilogexp(winparam * dt), winidx=1,M)/)
     print *, "check ssvkernel param", winparam, M
-    print *, "check Win", Win(1:10)
-    cfxw=0.
-    do i=1, M
-      wi=Win(i)
-      yh=fftkernel(y_hist, wi/dt)
-      cfxw(j,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
-    enddo
-    optws=0.
+    print *, "check Win", Wins(1:10)
 
-    do i=1, M
-      wi=Win(i)
+	!integrand of cost func, for fixed kernel band-widths
+    cfxw=0.
+    do kbwidx=1, M
+      wi=Wins(kbwidx)
+      yh=fftkernel(y_hist, wi/dt)
+      cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
+    enddo
+	!optw is a conversion maxtrix containing an optimum kernel band width for a pair of a window width and a x channel.
+    optws=0.
+	do winidx=1, M    ! do loop wrt window-widths
+      Win=Wins(winidx)
+	  C_local=0.
+	  do kbwidx=1, M   ! do loop wrt kernel band-widths
+	     !C_local(kbwidx, :)=fftkernelWin(c[kbwidx,:], Win/dt, 'Gauss')
+	  enddo
+	  minkbwidx=minloc(C_local, 1)  
+	  do xchidx=1, tinsize ! do loop wrt x channels
+	     optws(winidx, xchidx) = Wins(minkbwidx(xchidx))
+	  enddo
+    enddo
+
 
 	call opt(optw, yh, y_hist, xdat, nsmpl, dt)
 	write(*, '(f12.5)') optw
