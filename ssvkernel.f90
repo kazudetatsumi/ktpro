@@ -9,9 +9,9 @@ module ssvkernel
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
-  subroutine ssvk(M0, winparam, xsize0, tinsize0, xdat, optw, yopt) bind(C, name="ssk")
-    integer, intent(in) :: M0, winparam, xsize0, tinsize0
-    double precision, intent(in) :: xdat(xsize0)
+  subroutine ssvk(M0, winparam, xsize0, tinsize0, xdat, optw, yopt) bind(C, name="ssvk")
+    integer, intent(in) :: M0, xsize0, tinsize0
+    double precision, intent(in) :: winparam, xdat(xsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
     double precision :: tin(tinsize0), thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0)
@@ -50,13 +50,10 @@ contains
     yhist=hist(xdat, thist)
     nsmpl=sum(yhist)
     y_hist=real(yhist)/dt
-    dw=(ilogexp(T)-ilogexp(winparam*dt))/M
+    dw=(ilogexp(T)-ilogexp(winparam*dt))/(M-1)
     ! Wins contains all widths to be considered for kernels as well as window functions, 
     ! playing a dual role to put kernel band-widths as well as window-widths.
-    Wins=(/((winidx-1)*dw+ilogexp(winparam * dt), winidx=1,M)/)
-    print *, "check ssvkernel param", winparam, M
-    print *, "check Win", Wins(1:10)
-
+    Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
     !integrand of cost func, for fixed kernel band-widths
     cfxw=0.
     do kbwidx=1, M
@@ -71,7 +68,7 @@ contains
       Win=Wins(winidx)
       C_local=0.
       do kbwidx=1, M   ! do loop wrt kernel band-widths
-         C_local(kbwidx, :)=fftkernel(cfxw(kbwidx,:), Win/dt)
+         C_local(kbwidx, :)=fftkernelWin(cfxw(kbwidx,:), Win/dt)
       enddo
       minkbwidx=minloc(C_local, 1)  
       do xchidx=1, tinsize ! do loop wrt x channels
@@ -123,30 +120,32 @@ contains
     c1=(phi - 1)*a + (2 - phi)*b
     c2=(2 - phi)*a + (phi - 1)*b
     call costfunction(f1, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c1)
+	print *, "CHK", f1, c1
     call costfunction(f2, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
-    do while ( (abs(a-b) > tol*(abs(c1)+abs(c2))) .and. (kiter <= maxiter) )
-      if (f1 < f2) then
-         b=c2
-         c2=c1
-         c1=(phi-1)*a + (2-phi)*b
-         f2=f1
-         call costfunction(f1, yv1, optwp1, y_hist, nsmpl, tin, dt, optws, Wins, c1)
-         yopt=yv1/sum(yv1*dt)
-         optw=optwp1
-      else
-         a=c1
-         c1=c2
-         c2=(2-phi)*a + (phi-1)*b
-         f1=f2
-         call costfunction(f2, yv2, optwp2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
-         yopt=yv2/sum(yv2*dt)
-         optw=optwp1
-      endif
-      !print *, kiter, cost(kiter), optw
-      gs(kiter)=c1
-      cost(kiter)=f1
-      kiter=kiter+1
-    enddo
+	print *, "CHK", f2, c2
+    !do while ( (abs(a-b) > tol*(abs(c1)+abs(c2))) .and. (kiter <= maxiter) )
+    !  if (f1 < f2) then
+    !     b=c2
+    !     c2=c1
+    !     c1=(phi-1)*a + (2-phi)*b
+    !     f2=f1
+    !     call costfunction(f1, yv1, optwp1, y_hist, nsmpl, tin, dt, optws, Wins, c1)
+    !     yopt=yv1/sum(yv1*dt)
+    !     optw=optwp1
+    !  else
+    !     a=c1
+    !     c1=c2
+    !     c2=(2-phi)*a + (phi-1)*b
+    !     f1=f2
+    !     call costfunction(f2, yv2, optwp2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
+    !     yopt=yv2/sum(yv2*dt)
+    !     optw=optwp1
+    !  endif
+    !  gs(kiter)=c1
+    !  cost(kiter)=f1
+	!  print *, kiter, cost(kiter), gs(kiter)
+    !  kiter=kiter+1
+    !enddo
   end subroutine opt
 
   subroutine costfunction(Cg, yv, optwp, y_hist, nsmpl, tin, dt, optws, Wins, g)
@@ -172,6 +171,7 @@ contains
         endif
       endif
     enddo
+	!write(*, '(6f12.10)') optwv
     optwp=0.
     do xchidx=1, tinsize
       Z=Gauss(tin(xchidx)-tin, optwv/g)
@@ -219,6 +219,42 @@ contains
     fftkernel=real(Youtput(1:L)/N)
   end function fftkernel
 
+  function fftkernelWin(x, w)
+    double precision, intent(in) :: x(tinsize), w
+    double precision :: fftkernelWin(tinsize), Lmax, a
+    integer :: L, N, i
+    integer(8) :: plan
+    double complex, allocatable :: input(:), output(:), xinput(:), Xoutput(:), Youtput(:), K(:), t(:)
+    double precision, allocatable :: f(:), expa(:)
+    L=tinsize
+    Lmax=L+3*w
+    N = 2**ceiling(log(Lmax)/log(2.))
+    allocate(input(N), output(N), xinput(N), Xoutput(N), f(N), expa(N), K(N), Youtput(N), t(N))
+    call dfftw_plan_dft_1d(plan, N, input, output, FFTW_FORWARD, FFTW_ESTIMATE)
+    xinput(1:tinsize)=x
+    xinput(tinsize+1:N)=0.0
+    call dfftw_execute_dft(plan, xinput, Xoutput)
+    f(1:N/2+1) = -1.0*real((/(i, i=0, N/2, 1)/))/real(N)
+    f(N/2+2:N) = 0.5 - real((/(i, i=1, N/2 - 1, 1)/))/real(N)
+    ! for preventing the procedure from underflow exception.
+    !expa=-0.5*(w*2*pi*f)**2
+    !K = 0.
+    !where (expa > -708) K=exp(expa)
+	!Boxcar
+	t=2*pi*f
+	a=12**0.5*w
+	K(2:)=2*sin(a*t(2:)/2)/(a*t(2:))
+	K(1)=1.
+    call dfftw_destroy_plan(plan)
+    call dfftw_plan_dft_1d(plan, N, input, output, FFTW_BACKWARD, FFTW_ESTIMATE)
+    call dfftw_execute_dft(plan, Xoutput*K, Youtput)
+    call dfftw_destroy_plan(plan)
+    ! Computing a fftw forward followed by a fftw backward results in the original
+    ! array scaled by N. So, we should divid the result by N so as to obtain the
+    ! count dependent cost fucntion.
+    fftkernelWin=real(Youtput(1:L)/N)
+  end function fftkernelWin
+
   function Gauss(x, w)
     double precision :: Gauss(tinsize)
     double precision, intent(in) :: x(tinsize), w(tinsize)
@@ -235,6 +271,13 @@ contains
     endif 
   end function ilogexp
 
+  function ilogexparr(x)
+    double precision, intent(in) :: x(:)
+    double precision :: ilogexparr(size(x))
+    where(x<1e2) ilogexparr(:)=log(exp(x(:)) - 1)
+    where(x>=1e2) ilogexparr(:)=x(:)
+  end function ilogexparr
+
   function logexp(x)
     double precision, intent(in) :: x
     double precision :: logexp
@@ -244,6 +287,13 @@ contains
        logexp = x
     endif 
   end function logexp
+
+  function logexparr(x)
+    double precision, intent(in) :: x(:)
+    double precision :: logexparr(size(x))
+    where(x<1e2) logexparr=log(exp(x) + 1)
+    where(x>=1e2) logexparr=x
+  end function logexparr
 
 ! quicksort.f -*-f90-*-
 ! Author: t-nissie
