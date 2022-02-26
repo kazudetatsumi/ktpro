@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -122,7 +123,7 @@ def ssvkernel(x, tin=None, M=80, nbs=1e2, WinFunc='Boxcar'):
             C_local[j, :] = fftkernelWin(c[j, :], Win / dt, WinFunc)
         n = np.argmin(C_local, axis=0)
         optws[i, :] = W[n]
-    print(optws[0:10,1])
+    #print(optws[0:10,1])
 
     # golden section search for stiffness parameter of variable bandwidths
     k = 0
@@ -138,37 +139,37 @@ def ssvkernel(x, tin=None, M=80, nbs=1e2, WinFunc='Boxcar'):
     print("CHK", f1, c1)
     f2 = CostFunction(y_hist, N, t, dt, optws, W, WinFunc, c2)[0]
     print("CHK", f2, c2)
-    #while (np.abs(b-a) > tol * (abs(c1) + abs(c2))) & (k < 30):
-    #    if f1 < f2:
-    #        b = c2
-    #        c2 = c1
-    #        c1 = (phi - 1) * a + (2 - phi) * b
-    #        f2 = f1
-    #        f1, yv1, optwp1 = CostFunction(y_hist, N, t, dt, optws, W,
-    #                                       WinFunc, c1)
-    #        yopt = yv1 / np.sum(yv1 * dt)
-    #        optw = optwp1
-    #    else:
-    #        a = c1
-    #        c1 = c2
-    #        c2 = (2 - phi) * a + (phi - 1) * b
-    #        f1 = f2
-    #        f2, yv2, optwp2 = CostFunction(y_hist, N, t, dt, optws, W,
-    #                                       WinFunc, c2)
-    #        yopt = yv2 / np.sum(yv2 * dt)
-    #        optw = optwp2
-#
-#        # capture estimates and increment iteration counter
-#        gs[k] = c1
-#        C[k] = f1
-#        print('chk', k, C[k], gs[k])
-#        k = k + 1
-#
-#    # discard unused entries in gs, C
-#    gs = gs[0:k]
-#    C = C[0:k]
-#
-#    # estimate confidence intervals by bootstrapping
+    while (np.abs(b-a) > tol * (abs(c1) + abs(c2))) & (k < 30):
+        if f1 < f2:
+            b = c2
+            c2 = c1
+            c1 = (phi - 1) * a + (2 - phi) * b
+            f2 = f1
+            f1, yv1, optwp1 = CostFunction(y_hist, N, t, dt, optws, W,
+                                           WinFunc, c1)
+            yopt = yv1 / np.sum(yv1 * dt)
+            optw = optwp1
+        else:
+            a = c1
+            c1 = c2
+            c2 = (2 - phi) * a + (phi - 1) * b
+            f1 = f2
+            f2, yv2, optwp2 = CostFunction(y_hist, N, t, dt, optws, W,
+                                           WinFunc, c2)
+            yopt = yv2 / np.sum(yv2 * dt)
+            optw = optwp2
+
+        # capture estimates and increment iteration counter
+        gs[k] = c1
+        C[k] = f1
+        print('chk', k, C[k], gs[k])
+        k = k + 1
+
+    # discard unused entries in gs, C
+    gs = gs[0:k]
+    C = C[0:k]
+
+    # estimate confidence intervals by bootstrapping
 #    nbs = int(np.asarray(nbs))
 #    yb = np.zeros((nbs, tin.size))
 #    for i in range(nbs):
@@ -226,15 +227,19 @@ def CostFunction(y_hist, N, t, dt, optws, WIN, WinFunc, g):
         else:  # WinFunc == 'Gauss'
             Z = Gauss(t[k]-t, optwv / g)
         optwp[k] = np.sum(optwv * Z) / np.sum(Z)
+    #!print(optwp)
 
     # speed-optimized baloon estimator
     idx = y_hist.nonzero()
     y_hist_nz = y_hist[idx]
+    #print(y_hist_nz)
     t_nz = t[idx]
+    #print(t_nz)
     yv = np.zeros((L, ))
     for k in range(L):
         yv[k] = np.sum(y_hist_nz * dt * Gauss(t[k]-t_nz, optwp[k]))
     yv = yv * N / np.sum(yv * dt)
+    #print(yv)
 
     # cost function of estimated kernel
     cg = yv**2 - 2 * yv * y_hist + 2 / (2 * np.pi)**0.5 / optwp * y_hist

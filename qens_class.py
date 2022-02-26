@@ -162,9 +162,7 @@ class qens:
         self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
         self.xvec += self.shift
         self.xvec_real += self.shift*self.de
-
         #print(self.xvec[0:30])
-
 
     def run_ssvkernel(self):
         if self.optsm:
@@ -179,7 +177,8 @@ class qens:
             print("Check parameters of horizontal axis")
             print("de=", self.de, "selected_energy[0]=",
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
-            self.tin_real = np.linspace(self.selected_energy[0], self.selected_energy[-1], num=800)
+            self.tin_real = np.linspace(self.selected_energy[0],
+                                        self.selected_energy[-1], num=800)
             print(self.tin_real[0:10])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,

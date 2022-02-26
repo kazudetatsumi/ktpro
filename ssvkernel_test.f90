@@ -9,12 +9,12 @@ module ssvkernel
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
-  subroutine ssvk(M0, winparam, xsize0, tinsize0, xdat, tin, optw, yopt) bind(C, name="ssvk")
+  subroutine ssvk(M0, winparam, xsize0, tinsize0, xdat, optw, yopt) bind(C, name="ssvk")
     integer, intent(in) :: M0, xsize0, tinsize0
-    double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
+    double precision, intent(in) :: winparam, xdat(xsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
-    double precision :: thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0)
+    double precision :: tin(tinsize0), thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0)
     double precision T, dt_samp, dt, cost, Wins(M0), dw, wi, Win
     double precision, dimension(M0, tinsize0) :: cfxw, optws, C_local
     integer :: yhist(tinsize0), minkbwidx(tinsize0)
@@ -24,21 +24,20 @@ contains
     xsize=xsize0
     M=M0
     T=maxval(xdat)-minval(xdat)
-    !xdatstd=xdat
-    !call quicksort(xdatstd, 1, xsize)
-    !xdatstddiff=xdatstd(2:xsize)-xdatstd(1:xsize-1)
-    !xdatstddiffstd=xdatstddiff
-    !call quicksort(xdatstddiffstd, 1, size(xdat)-1)
-    !dt_samp=minval(pack(xdatstddiffstd, xdatstddiffstd > 0.))
-    !if (ceiling(T/dt_samp) > 1e3) then
-    !    tinsize2 = 1e3
-    !else
-    !    tinsize2 = ceiling(T/dt_samp)
-    !endif
-    !print *, 'tinsize2=',tinsize2
-    !dt=T/(tinsize-1)
-    !tin = (/(((xchidx-1)*dt+minval(xdat)), xchidx=1,tinsize)/)
-	dt=minval(tin(2:)-tin(1:tinsize-1))
+    xdatstd=xdat
+    call quicksort(xdatstd, 1, xsize)
+    xdatstddiff=xdatstd(2:xsize)-xdatstd(1:xsize-1)
+    xdatstddiffstd=xdatstddiff
+    call quicksort(xdatstddiffstd, 1, size(xdat)-1)
+    dt_samp=minval(pack(xdatstddiffstd, xdatstddiffstd > 0.))
+    if (ceiling(T/dt_samp) > 1e3) then
+        tinsize2 = 1e3
+    else
+        tinsize2 = ceiling(T/dt_samp)
+    endif
+    print *, 'tinsize2=',tinsize2
+    dt=T/(tinsize-1)
+    tin = (/(((xchidx-1)*dt+minval(xdat)), xchidx=1,tinsize)/)
     thist(1:tinsize)=tin(:)
     thist(tinsize+1)=tin(tinsize)+dt
     thist = thist - dt/2
@@ -51,7 +50,7 @@ contains
     Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
     !integrand of cost func, for fixed kernel band-widths
     cfxw=0.
-    do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
+    do kbwidx=1, M
       wi=Wins(kbwidx)
       yh=fftkernel(y_hist, wi/dt)
       cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
@@ -59,8 +58,8 @@ contains
     !optws is a conversion maxtrix containing an optimum kernel band width for a pair of
     ! a window width and a x channel.
     optws=0.
-    do winidx=1, M     ! do loop wrt window-widths This loop can be parallelized
-      Win=Wins(winidx) ! by using mpi library.
+    do winidx=1, M    ! do loop wrt window-widths
+      Win=Wins(winidx)
       C_local=0.
       do kbwidx=1, M   ! do loop wrt kernel band-widths
          C_local(kbwidx, :)=fftkernelWin(cfxw(kbwidx,:), Win/dt)
@@ -153,7 +152,7 @@ contains
     double precision :: gammas(M)
     integer :: xchidx, maxidx, wchidx
     optwv=0.
-    do xchidx=1, tinsize  
+    do xchidx=1, tinsize
       gammas = optws(:, xchidx)/Wins
       if (g > maxval(gammas)) then
         optwv(xchidx)=minval(Wins)
@@ -167,12 +166,10 @@ contains
       endif
     enddo
     optwp=0.
-	! Nadaraya-Watson kernel regression to smooth optw.
     do xchidx=1, tinsize
       Z=Boxcar(tin(xchidx)-tin, optwv/g)
       optwp(xchidx)=sum(optwv*Z)/sum(Z)
     enddo
-	! Balloon estimator only on non-zero bins.
     y_hist_nz=pack(y_hist, y_hist > 0.) 
     tin_nz=pack(tin, y_hist>0)
     yv = 0.
