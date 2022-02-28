@@ -43,7 +43,7 @@ class sqrun_kde_hist(qfc.qens_fit):
     def plotter(self, dataname=None, isend=True, twocomp=False,
                 ymin=None, ymax=None,
                 c=['pink', 'red', 'lightblue', 'blue'],
-                loc=None, bbox_to_anchor=None):
+                loc=None, bbox_to_anchor=None, figfile=None):
         if dataname is None:
             if twocomp:
                 plt.errorbar(self.data[:, 0], self.data[:, 1],
@@ -79,6 +79,8 @@ class sqrun_kde_hist(qfc.qens_fit):
             plt.tick_params(direction='in', right=True, top=True)
             if loc is not None and bbox_to_anchor is not None:
                 plt.legend(loc=loc, bbox_to_anchor=bbox_to_anchor)
+            if figfile:
+                plt.savefig(figfile)
             plt.show()
 
 def samplerun():

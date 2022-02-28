@@ -18,6 +18,11 @@ def samplerun():
     else:
         ymin = None
         ymax = None
+    if len(sys.argv) >= 5:
+        figfile = sys.argv[4]
+    else:
+        figfile = None
+
 
     #Ms = [80, 160, 320, 640, 1280, 2560]
     #pws = [0.0625, 0.125, 0.25, 0.5, 1, 2, 5]
@@ -50,7 +55,7 @@ def samplerun():
     prj.data[:, 0] = tcountlast[:]/tcount[0]
     prj.plotter(twocomp=True, isend=True, ymin=ymin, ymax=ymax,
                 c=['salmon', 'brown', 'cornflowerblue', 'midnightblue'],
-                loc='center left', bbox_to_anchor=(1, 0.5))
+                loc='center left', bbox_to_anchor=(1, 0.5), figfile=figfile)
     #print(prj.hwhms.squeeze())
     #print(prj.hwhms.squeeze().shape)
 
