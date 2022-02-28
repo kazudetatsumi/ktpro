@@ -17,6 +17,10 @@ import pickle
 import matplotlib.pylab as plt
 import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
+## if you use fotran library of ssvk or ssk, uncomment the corresponding lines
+## and comment out the import lines of the  python library.
+#import ssvkernel_fort as ssvkernel
+#import sskernel_fort as sskernel This contains normalization problem.
 import ssvkernel
 import sskernel
 

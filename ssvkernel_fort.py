@@ -3,7 +3,7 @@ import numpy as np
 from ctypes import *
 import os, sys
 #import matplotlib.pyplot as plt
-lib = CDLL(os.environ["HOME"]+"/ktpro/ssvkernel.so")
+lib = CDLL(os.environ["HOME"]+"/ktpro/ssvkernel_f90.so")
 
 def calc_ssvkernel_f90(x, tin, M0, winparam):
     lib.ssvk.restype = c_void_p
@@ -34,7 +34,7 @@ def calc_ssvkernel_f90(x, tin, M0, winparam):
             )
     #print('yopt=', yopt)
     #print('optw=',optw)
-    return yopt, optw
+    return yopt, tin, optw
 
 def calc_ssvkernel_f90_tst(x, tinsize):
     lib.ssvk.restype = c_void_p
@@ -88,7 +88,8 @@ def testrun():
     ssvkernel_fort(xdat)
 
 
-def ssvkernel_fort(x, tin=None, M=80, winparam=5, WinFunc='Gauss'):
+#def ssvkernel_fort(x, tin=None, M=80, winparam=5, WinFunc='Gauss'):
+def ssvkernel(x, tin=None, M=80, winparam=5, WinFunc='Gauss'):
     if tin is None:
         T = np.max(x) - np.min(x)
         dx = np.sort(np.diff(np.sort(x)))
@@ -106,7 +107,6 @@ def ssvkernel_fort(x, tin=None, M=80, winparam=5, WinFunc='Gauss'):
             sys.exit("t is NOT tin, which is not implemented yet in the fortran code!")
         else:
             t = tin
+    return calc_ssvkernel_f90(x, t, M, winparam)
 
-    res = calc_ssvkernel_f90(x, t, M, winparam)
-
-testrun()
+#testrun()

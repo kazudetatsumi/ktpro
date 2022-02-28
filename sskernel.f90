@@ -10,13 +10,14 @@ module sskernel
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
-  subroutine ssk(optw, xsize0, tinsize0, xdat, yh) bind(C, name="ssk")
+  subroutine ssk(optw, xsize0, tinsize0, xdat, tin, yh) bind(C, name="ssk")
 	real(c_double), intent(out) :: optw
 	integer, intent(in) :: xsize0, tinsize0
 	double precision, intent(in) :: xdat(xsize0)
+	double precision, intent(in) :: tin(tinsize0)
 	double precision, intent(inout) :: yh(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
-    double precision :: tin(tinsize0), thist(tinsize0+1), y_hist(tinsize0), y(tinsize0)
+    double precision :: thist(tinsize0+1), y_hist(tinsize0), y(tinsize0)
     double precision T, dt_samp, dt, cost, w
     integer :: yhist(tinsize0)
     integer nbin, nsmpl, i, tinsize2
@@ -29,21 +30,21 @@ contains
 	!4.28, 1.83, 4.13, 1.83, 4.65, 4.20, 3.93, 4.33, 1.83, 4.53, 2.03, 4.18, 4.43, 4.07, 4.13, 3.95, 4.10, 2.72, 4.58, 1.90, 4.50,&
 	!1.95, 4.83, 4.12/
 	T=maxval(xdat)-minval(xdat)
-	xdatstd=xdat
-	call quicksort(xdatstd, 1, xsize)
-	xdatstddiff=xdatstd(2:xsize)-xdatstd(1:xsize-1)
-	xdatstddiffstd=xdatstddiff
-	call quicksort(xdatstddiffstd, 1, size(xdat)-1)
-	dt_samp=minval(pack(xdatstddiffstd, xdatstddiffstd > 0.))
-	if (ceiling(T/dt_samp) > 1e3) then
-		tinsize2 = 1e3
-	else
-		tinsize2 = ceiling(T/dt_samp)
-	endif
-	print *, 'tinsize2=',tinsize2
+	!xdatstd=xdat
+	!call quicksort(xdatstd, 1, xsize)
+	!xdatstddiff=xdatstd(2:xsize)-xdatstd(1:xsize-1)
+	!xdatstddiffstd=xdatstddiff
+	!call quicksort(xdatstddiffstd, 1, size(xdat)-1)
+	!dt_samp=minval(pack(xdatstddiffstd, xdatstddiffstd > 0.))
+	!if (ceiling(T/dt_samp) > 1e3) then
+	!	tinsize2 = 1e3
+	!else
+	!	tinsize2 = ceiling(T/dt_samp)
+	!endif
+	!print *, 'tinsize2=',tinsize2
 	!allocate(tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), yhist(tinsize), y(tinsize))
 	dt=T/(tinsize-1)
-	tin = (/(((i-1)*dt+minval(xdat)), i=1,tinsize)/)
+	!tin = (/(((i-1)*dt+minval(xdat)), i=1,tinsize)/)
 	thist(1:tinsize)=tin(:)
 	thist(tinsize+1)=tin(tinsize)+dt
 	thist = thist - dt/2
