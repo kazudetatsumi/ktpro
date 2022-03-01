@@ -138,7 +138,7 @@ contains
       endif
       gs(kiter)=c1
       cost(kiter)=f1
-	  print *, kiter, cost(kiter), gs(kiter)
+	  !print *, kiter, cost(kiter), gs(kiter)
       kiter=kiter+1
     enddo
   end subroutine opt

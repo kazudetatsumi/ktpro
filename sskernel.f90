@@ -29,7 +29,7 @@ contains
 	!4.58, 1.90, 3.58, 3.73, 3.73, 1.82, 4.63, 3.50, 4.00, 3.67, 1.67, 4.60, 1.67, 4.00, 1.80, 4.42, 1.90, 4.63, 2.93, 3.50, 1.97,&
 	!4.28, 1.83, 4.13, 1.83, 4.65, 4.20, 3.93, 4.33, 1.83, 4.53, 2.03, 4.18, 4.43, 4.07, 4.13, 3.95, 4.10, 2.72, 4.58, 1.90, 4.50,&
 	!1.95, 4.83, 4.12/
-	T=maxval(xdat)-minval(xdat)
+	!T=maxval(xdat)-minval(xdat)
 	!xdatstd=xdat
 	!call quicksort(xdatstd, 1, xsize)
 	!xdatstddiff=xdatstd(2:xsize)-xdatstd(1:xsize-1)
@@ -43,7 +43,8 @@ contains
 	!endif
 	!print *, 'tinsize2=',tinsize2
 	!allocate(tin(tinsize), thist(tinsize+1), y_hist(tinsize), yh(tinsize), yhist(tinsize), y(tinsize))
-	dt=T/(tinsize-1)
+	!dt=T/(tinsize-1)
+	dt=minval(tin(2:)-tin(1:tinsize-1))
 	!tin = (/(((i-1)*dt+minval(xdat)), i=1,tinsize)/)
 	thist(1:tinsize)=tin(:)
 	thist(tinsize+1)=tin(tinsize)+dt
@@ -120,9 +121,11 @@ contains
 		 optw=logexp(c2)
 		 y=yh2/sum(yh2*dt)
 	  endif
-	  print *, kiter, cost(kiter), optw
+	  !print *, kiter, cost(kiter), optw
 	  kiter=kiter+1
 	enddo
+	!print *, 'dt=', dt
+	!write(*,'(4e18.9)') y
   end subroutine opt
 
   subroutine costfunction(yh, cost, y_hist, nsmpl, w, dt)
