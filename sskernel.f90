@@ -17,10 +17,9 @@ contains
 	double precision, intent(in) :: tin(tinsize0)
 	double precision, intent(inout) :: yh(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
-    double precision :: thist(tinsize0+1), y_hist(tinsize0), y(tinsize0)
-    double precision T, dt_samp, dt, cost, w
-    integer :: yhist(tinsize0)
-    integer nbin, nsmpl, i, tinsize2
+    double precision :: thist(tinsize0+1), y_hist(tinsize0), y(tinsize0), yhist(tinsize0)
+    double precision T, dt_samp, dt, cost, w, nsmpl
+    integer i, tinsize2
 	tinsize=tinsize0
 	xsize=xsize0
 	!data xdat/4.37, 3.87, 4.00, 4.03, 3.50, 4.08, 2.25, 4.70, 1.73, 4.93, 1.73, 4.62, 3.43, 4.25, 1.68, 3.92, 3.68, 3.10, 4.03, 1.77,&
@@ -51,36 +50,35 @@ contains
 	thist = thist - dt/2
 	yhist=hist(xdat, thist)
 	nsmpl=sum(yhist)
-	y_hist=real(yhist)/real(nsmpl)/dt
+	y_hist=yhist/nsmpl/dt
 	call opt(optw, yh, y_hist, xdat, nsmpl, dt)
 	write(*, '(f12.5)') optw
   end subroutine ssk
 
   function hist(x, th)
 	double precision, intent(in) :: x(xsize), th(tinsize+1)
-	integer :: hist(tinsize)
+	double precision :: hist(tinsize)
 	integer ix, it
-	hist(:) = 0
+	hist(:) = 0.
 	do ix = 1, xsize
 	   do it = 1, tinsize
 	      if ( x(ix) >= th(it) .and. x(ix) < th(it+1) ) then
-			   hist(it) = hist(it) + 1
+			   hist(it) = hist(it) + 1.
 		  end if
 	   end do
 	end do
   end function hist
 	
-  subroutine plothist(yhist)
-	integer, intent(in) ::  yhist(tinsize)
-	integer ix, j
-	do ix = 1, tinsize
-      print *, ("*", j=1,yhist(ix))
-	end do
-  end subroutine plothist
+  !subroutine plothist(yhist)
+!	integer, intent(in) ::  yhist(tinsize)
+!	integer ix, j
+!	do ix = 1, tinsize
+!      print *, ("*", j=1,yhist(ix))
+!	end do
+!  end subroutine plothist
 
   subroutine opt(optw, y, y_hist, xdat, nsmpl, dt)
-	double precision, intent(in) :: y_hist(tinsize), dt, xdat(xsize)
-	integer, intent(in) :: nsmpl
+	double precision, intent(in) :: y_hist(tinsize), dt, xdat(xsize), nsmpl
 	integer, parameter :: maxiter = 20
 	double precision, parameter :: tol = 10e-5
 	double precision, parameter :: phi = (5**0.5 + 1) / 2
@@ -121,16 +119,13 @@ contains
 		 optw=logexp(c2)
 		 y=yh2/sum(yh2*dt)
 	  endif
-	  !print *, kiter, cost(kiter), optw
 	  kiter=kiter+1
 	enddo
-	!print *, 'dt=', dt
 	!write(*,'(4e18.9)') y
   end subroutine opt
 
   subroutine costfunction(yh, cost, y_hist, nsmpl, w, dt)
-	integer, intent(in) :: nsmpl
-	double precision, intent(in) ::  y_hist(tinsize), w, dt
+	double precision, intent(in) ::  y_hist(tinsize), nsmpl, w, dt
 	double precision, intent(out) :: yh(tinsize), cost
 	yh=0.
 	yh=fftkernel(y_hist, w/dt)

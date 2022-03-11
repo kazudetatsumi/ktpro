@@ -19,10 +19,10 @@ import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## if you use fotran library of ssvk or ssk, uncomment the corresponding lines
 ## and comment out the import lines of the  python library.
-#import ssvkernel_fort as ssvkernel
-#import sskernel_fort as sskernel 
-import ssvkernel
-import sskernel
+import ssvkernel_fort as ssvkernel
+import sskernel_fort as sskernel 
+#import ssvkernel
+#import sskernel
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)

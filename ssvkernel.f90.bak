@@ -14,12 +14,12 @@ contains
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
-    double precision :: thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0), yhist(tinsize0)
-    double precision T, dt_samp, dt, cost, Wins(M0), dw, wi, Win, nsmpl
+    double precision :: thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0)
+    double precision T, dt_samp, dt, cost, Wins(M0), dw, wi, Win
     double precision, dimension(M0, tinsize0) :: cfxw, optws, C_local
-    integer :: minkbwidx(tinsize0)
-    !integer nbin, tinsize2
-    integer i, kbwidx, winidx, xchidx
+    integer :: yhist(tinsize0), minkbwidx(tinsize0)
+    integer nbin, nsmpl, i, tinsize2
+    integer kbwidx, winidx, xchidx
     tinsize=tinsize0
     xsize=xsize0
     M=M0
@@ -44,7 +44,7 @@ contains
     thist = thist - dt/2
     yhist=hist(xdat, thist)
     nsmpl=sum(yhist)
-    y_hist=yhist/dt
+    y_hist=real(yhist)/dt
     dw=(ilogexp(T)-ilogexp(winparam*dt))/(M-1)
     ! Wins contains all widths to be considered for kernels as well as window functions, 
     ! playing a dual role to put kernel band-widths as well as window-widths.
@@ -75,30 +75,30 @@ contains
 
   function hist(x, th)
     double precision, intent(in) :: x(xsize), th(tinsize+1)
-	double precision :: hist(tinsize)
+    integer :: hist(tinsize)
     integer ix, it
-    hist(:) = 0.
+    hist(:) = 0
     do ix = 1, xsize
        do it = 1, tinsize
           if ( x(ix) >= th(it) .and. x(ix) < th(it+1) ) then
-               hist(it) = hist(it) + 1.
+               hist(it) = hist(it) + 1
           end if
        end do
     end do
   end function hist
     
-  !subroutine plothist(yhist)
-  !  integer, intent(in) ::  yhist(tinsize)
-  !  integer ix, j
-  !  do ix = 1, tinsize
-  !    print *, ("*", j=1,yhist(ix))
-  !  end do
-  !end subroutine plothist
+  subroutine plothist(yhist)
+    integer, intent(in) ::  yhist(tinsize)
+    integer ix, j
+    do ix = 1, tinsize
+      print *, ("*", j=1,yhist(ix))
+    end do
+  end subroutine plothist
 
   subroutine opt(optw, yopt, y_hist, xdat, nsmpl, tin, dt, Wins, optws)
     double precision, intent(in) :: y_hist(tinsize), dt, xdat(xsize), tin(tinsize)
-    double precision, intent(in) :: Wins(M), optws(M, tinsize), nsmpl
-    !integer, intent(in) :: nsmpl
+    double precision, intent(in) :: Wins(M), optws(M, tinsize)
+    integer, intent(in) :: nsmpl
     integer, parameter :: maxiter = 30
     double precision, parameter :: tol = 10e-5
     double precision, parameter :: phi = (5**0.5 + 1) / 2
@@ -144,9 +144,9 @@ contains
   end subroutine opt
 
   subroutine costfunction(Cg, yv, optwp, y_hist, nsmpl, tin, dt, optws, Wins, g)
-    !integer, intent(in) :: nsmpl
+    integer, intent(in) :: nsmpl
     double precision, dimension(tinsize), intent(in) ::  y_hist, tin
-    double precision, intent(in) :: optws(M, tinsize), Wins(M), dt, g, nsmpl
+    double precision, intent(in) :: optws(M, tinsize), Wins(M), dt, g
     double precision, intent(out) :: Cg, yv(tinsize), optwp(tinsize)
     double precision, dimension(tinsize) :: optwv, cintegrand, Z
     double precision, allocatable :: y_hist_nz(:), tin_nz(:)
