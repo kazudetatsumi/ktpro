@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 import scipy.optimize as so
+import scipy.signal as ss
 import re
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
@@ -35,7 +36,6 @@ class qens_fit:
             self.y_df = self.y_df / (self.k[0] + self.k[1]*x
                                      + self.k[2]*x**2
                                      + self.k[3]*x**3)
-
 
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
@@ -116,11 +116,24 @@ class qens_fit:
     def fun_lore(self, x, gamma):
         return 1/np.pi*gamma/(x**2 + gamma**2)
 
-    def convlore(self, f, gamma, x):
+    def convloreorg(self, f, gamma, x):
         _convd = np.zeros_like(x)
         for _x, _f, in zip(x, f):
             _convd += self.fun_lore(x - _x, gamma)*_f
         return _convd
+
+    def convlore(self, f, gamma, x):
+        ex = np.linspace(np.min(x)-(np.max(x)-np.min(x))*0.5,
+                         np.max(x)+(np.max(x)-np.min(x))*0.5, x.shape[0]*2+1)
+        win = self.fun_lore(ex - ex[int(x.shape[0])], gamma)
+        _convd = ss.convolve(f, win, mode='same', method='fft')
+        return _convd
+
+    def testconv(self):
+        plt.plot(self.convloreorg(self.y_df, 0.001, self.x_tf), lw=10)
+        plt.plot(self.convlore(self.y_df, 0.001, self.x_tf))
+        plt.yscale('log')
+        plt.show()
 
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
@@ -148,7 +161,7 @@ class qens_fit:
 
     def res_icorr(self, coeffs, x, t):
         [k0, k1, k2, k3] = coeffs
-        y = k0 + k1*x + k2*x**2+ k3*x**3
+        y = k0 + k1*x + k2*x**2 + k3*x**3
         return t - y
 
     def optimize(self, variables=[1.46103037e-04, 1.23754329e-02,
@@ -159,6 +172,7 @@ class qens_fit:
         #variables = [1.38746043e-04, 8.27288080e-03, 4.47976536e-01, 1.75691683e-02]
         #variables = [1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]
         #variables = [1.38876225e-04, 8.09183272e-03, 4.42217308e-01]
+        print(self.x_tf.shape)
         out = so.leastsq(self.res, variables,
                          args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
                          epsfcn=0.0001)
@@ -241,7 +255,7 @@ class qens_fit:
 
     def icorr(self):
         x, y = self.get_icorrdata("/home/kazu/desktop/210108/Tatsumi/" +
-                                   "Ilambda_correction.txt")
+                                  "Ilambda_correction.txt")
         variables = [10, 10, 10, 10]
         out = so.leastsq(self.res_icorr, variables,
                          args=(x, y), full_output=1,
