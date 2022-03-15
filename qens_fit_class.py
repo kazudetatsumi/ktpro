@@ -152,7 +152,7 @@ class qens_fit:
         return t - y
 
     def optimize(self, variables=[1.46103037e-04, 1.23754329e-02,
-                 5.20429443e-01, 9.30889687e-06], figname='qenf_fit.png'):
+                 5.20429443e-01, 9.30889687e-06], figname=None):
         # initial guess on the parameters are hard-coded here.
         #variables = [0.00001, 0.0015, 0.01]
         #variables = [1.58837344e-04, 1.00454636e-02, 4.57573203e-01, 0.009]
@@ -202,31 +202,31 @@ class qens_fit:
             / (self.x_tf[1]-self.x_tf[0])
         if not self.quiet:
             print("optbg/peak:", self.optbgpeakratio)
-
-        _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
-        _y += _delta*self.y_df + _base
-        if len(variables) >= 5:
-            _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
-        plt.plot(self.x_tf, self.y_tf, label='target')
-        plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base,
-                 label='constant')
-        plt.plot(self.x_tf, _delta*self.y_df, label='delta_conv')
-        plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
-                 self.x_tf), label='lore_conv')
-        plt.plot(self.x_tf, _y, label='ML')
-        if len(variables) >= 5:
-            plt.plot(self.x_tf, self.convlore(_alpha2*self.y_df, _gamma2,
+        if figname:
+            _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
+            _y += _delta*self.y_df + _base
+            if len(variables) >= 5:
+                _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
+            plt.plot(self.x_tf, self.y_tf, label='target')
+            plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base,
+                     label='constant')
+            plt.plot(self.x_tf, _delta*self.y_df, label='delta_conv')
+            plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
                      self.x_tf), label='lore_conv')
+            plt.plot(self.x_tf, _y, label='ML')
+            if len(variables) >= 5:
+                plt.plot(self.x_tf, self.convlore(_alpha2*self.y_df, _gamma2,
+                         self.x_tf), label='lore_conv')
 
-        plt.xlabel('energy (meV)')
-        plt.tick_params(top=True, right=True, direction='in', which='both',
-                        labelbottom=True, width=1.5)
-        plt.yscale('log')
-        plt.legend()
-        plt.savefig(figname)
-        if self.showplot:
-            plt.show()
-        plt.close()
+            plt.xlabel('energy (meV)')
+            plt.tick_params(top=True, right=True, direction='in', which='both',
+                            labelbottom=True, width=1.5)
+            plt.yscale('log')
+            plt.legend()
+            plt.savefig(figname)
+            if self.showplot:
+                plt.show()
+            plt.close()
 
     def get_icorrdata(self, icorrfile):
         x = []

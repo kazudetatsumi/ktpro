@@ -1,4 +1,5 @@
 !fortran 90 test program for a kernel density estimation with localy optimized bandwidths.
+!Winfun is only Boxcar (hard-coded)
 !Kazuyoshi TATSUMI 2022/02/24
 
 module ssvkernel
@@ -49,6 +50,8 @@ contains
     ! Wins contains all widths to be considered for kernels as well as window functions, 
     ! playing a dual role to put kernel band-widths as well as window-widths.
     Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
+    print *, "check ssvkernel param", winparam, M
+    print *, "check Ws", Wins(1:10)
     !integrand of cost func, for fixed kernel band-widths
     cfxw=0.
     do kbwidx=1, M  ! This loop can be parallelized by using mpi library.

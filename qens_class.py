@@ -182,7 +182,8 @@ class qens:
             print("de=", self.de, "selected_energy[0]=",
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = np.linspace(self.selected_energy[0],
-                                        self.selected_energy[-1], num=800)
+                                        #self.selected_energy[-1], num=800)
+                                        self.selected_energy[-1], num=8000)
             print(self.tin_real[0:10])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,

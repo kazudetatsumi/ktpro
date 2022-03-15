@@ -17,7 +17,6 @@ def calc_ssvkernel_f90(x, tin, M0, winparam):
                         np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
                         np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)
                         ]
-    M0 = 80
     xsize = x.shape[0]
     tinsize = tin.shape[0]
     yopt = np.zeros((tinsize))
