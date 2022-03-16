@@ -19,10 +19,10 @@ import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## if you use fotran library of ssvk or ssk, uncomment the corresponding lines
 ## and comment out the import lines of the  python library.
-import ssvkernel_fort as ssvkernel
-import sskernel_fort as sskernel 
-#import ssvkernel
-#import sskernel
+#import ssvkernel_fort as ssvkernel
+#import sskernel_fort as sskernel 
+import ssvkernel
+import sskernel
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
@@ -183,7 +183,8 @@ class qens:
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = np.linspace(self.selected_energy[0],
                                         #self.selected_energy[-1], num=800)
-                                        self.selected_energy[-1], num=8000)
+                                        #self.selected_energy[-1], num=8000)
+                                        self.selected_energy[-1], num=66700)
             print(self.tin_real[0:10])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,

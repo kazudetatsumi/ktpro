@@ -7,11 +7,12 @@ module ssvkernel
   implicit none
   include 'fftw3.f'
   integer :: xsize, tinsize, M
+  character(6) :: WinFunc
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
-  subroutine ssvk(M0, winparam, xsize0, tinsize0, xdat, tin, optw, yopt) bind(C, name="ssvk")
-    integer, intent(in) :: M0, xsize0, tinsize0
+  subroutine ssvk(M0, winparam, xsize0, tinsize0, WinFuncNo, xdat, tin, optw, yopt) bind(C, name="ssvk")
+    integer, intent(in) :: M0, xsize0, tinsize0, WinFuncNo
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
@@ -21,6 +22,14 @@ contains
     integer :: minkbwidx(tinsize0)
     !integer nbin, tinsize2
     integer i, kbwidx, winidx, xchidx
+	if (WinFuncNo==1) then
+		WinFunc='Boxcar'
+	elseif (WinFuncNo==2) then
+		WinFunc='Gauss '
+	elseif (WinFuncNo==3) then
+		WinFunc='Cauchy'
+	endif
+	print *, WinFunc
     tinsize=tinsize0
     xsize=xsize0
     M=M0
@@ -172,7 +181,9 @@ contains
     optwp=0.
 	! Nadaraya-Watson kernel regression to smooth optw.
     do xchidx=1, tinsize
-      Z=Boxcar(tin(xchidx)-tin, optwv/g)
+	  if (WinFunc == 'Boxcar') Z=Boxcar(tin(xchidx)-tin, optwv/g)
+	  if (WinFunc == 'Gauss') Z=vGauss(tin(xchidx)-tin, optwv/g)
+	  if (WinFunc == 'Cauchy') Z=Cauchy(tin(xchidx)-tin, optwv/g)
       optwp(xchidx)=sum(optwv*Z)/sum(Z)
     enddo
 	! Balloon estimator only on non-zero bins.
@@ -239,11 +250,16 @@ contains
     !expa=-0.5*(w*2*pi*f)**2
     !K = 0.
     !where (expa > -708) K=exp(expa)
-	!Boxcar
-	t=2*pi*f
-	a=12**0.5*w
-	K(2:)=2*sin(a*t(2:)/2)/(a*t(2:))
-	K(1)=1.
+	if (WinFunc == 'Boxcar') then
+	   t=2*pi*f
+	   a=12**0.5*w
+	   K(2:)=2*sin(a*t(2:)/2)/(a*t(2:))
+	   K(1)=1.
+	elseif (WinFunc == 'Gauss') then
+	   K = exp(-0.5*(w*t)**2)
+	elseif (WinFunc == 'Cauchy') then
+	   K = exp(-w*abs(t))
+	endif
     call dfftw_destroy_plan(plan)
     call dfftw_plan_dft_1d(plan, N, input, output, FFTW_BACKWARD, FFTW_ESTIMATE)
     call dfftw_execute_dft(plan, Xoutput*K, Youtput)
@@ -303,6 +319,19 @@ contains
     where(abs(x) > a/2) Boxcar=0.
   end function Boxcar
 
+  function vGauss(x, w)
+    double precision, intent(in) :: x(tinsize), w(tinsize)
+    double precision :: vGauss(size(x))
+    vGauss =  1. / (2 * pi)**2 / w * exp(-x**2 / 2. / w**2)
+  end function vGauss
+
+  function Cauchy(x,w)
+    double precision, intent(in) :: x(tinsize), w(tinsize)
+	double precision :: Cauchy(tinsize)
+	Cauchy= 1. / (pi * w * (1. + (x/w)**2))
+  end function Cauchy
+
+! quicksort.f -*-f90-*-
 ! quicksort.f -*-f90-*-
 ! Author: t-nissie
 ! License: GPLv3

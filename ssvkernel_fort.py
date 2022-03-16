@@ -5,11 +5,12 @@ import os, sys
 #import matplotlib.pyplot as plt
 lib = CDLL(os.environ["HOME"]+"/ktpro/ssvkernel_f90.so")
 
-def calc_ssvkernel_f90(x, tin, M0, winparam):
+def calc_ssvkernel_f90(x, tin, M0, winparam, WinFuncNo):
     lib.ssvk.restype = c_void_p
     lib.ssvk.argtypes = [
                         POINTER(c_int),
                         POINTER(c_double),
+                        POINTER(c_int),
                         POINTER(c_int),
                         POINTER(c_int),
                         np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
@@ -26,6 +27,7 @@ def calc_ssvkernel_f90(x, tin, M0, winparam):
             c_double(winparam),
             c_int(xsize),
             c_int(tinsize),
+            c_int(WinFuncNo),
             x,
             tin,
             optw,
@@ -84,11 +86,11 @@ def testrun():
     #yopt, optw = calc_ssvkernel_f90_tst(xdat, tinsize)
     #plt.plot(yopt)
     #plt.show()
-    ssvkernel_fort(xdat)
+    ssvkernel(xdat)
 
 
 #def ssvkernel_fort(x, tin=None, M=80, winparam=5, WinFunc='Gauss'):
-def ssvkernel(x, tin=None, M=80, winparam=5, WinFunc='Gauss'):
+def ssvkernel(x, tin=None, M=80, winparam=5, WinFunc='Boxcar'):
     if tin is None:
         T = np.max(x) - np.min(x)
         dx = np.sort(np.diff(np.sort(x)))
@@ -106,6 +108,13 @@ def ssvkernel(x, tin=None, M=80, winparam=5, WinFunc='Gauss'):
             sys.exit("t is NOT tin, which is not implemented yet in the fortran code!")
         else:
             t = tin
-    return calc_ssvkernel_f90(x, t, M, winparam)
+    if WinFunc=='Boxcar':
+        WinFuncNo=1
+    if WinFunc=='Gauss':
+        WinFuncNo=2
+    if WinFunc=='Cauchy':
+        WinFuncNo=3
 
-#testrun()
+    return calc_ssvkernel_f90(x, t, M, winparam, WinFuncNo)
+
+testrun()

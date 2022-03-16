@@ -80,12 +80,22 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                     for ic, chn in enumerate(self.channels):
                         self.f.write("%s Lorentzian %s, %s, %s, %s \n"
                                      % (lore, pf, chn, bn, frc))
-                        self.f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
+                        #self.f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
+                        line = "M"
+                        for _pw in self.pws:
+                            line += ", %s"%(str(_pw ))
+                        line += "\n"
+                        self.f.write(line)
                         for im, M in enumerate(self.Ms):
                             h = self.hwhms[im, :, ipf, ic, ib, ifr, 1+addidx]
-                            self.f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
-                                         % (M, h[0], h[1], h[2], h[3], h[4],
-                                            h[5], h[6]))
+                            line = "%d"%(M)
+                            for _h in h:
+                                line += ", %e"%(_h)
+                            line += "\n"
+                            #self.f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
+                            #            % (M, h[0], h[1], h[2], h[3], h[4],
+                            #               h[5], h[6]))
+                            self.f.write(line)
 
 
 

@@ -58,8 +58,8 @@ def sqrun_kde_hist_2lore():
     proj.preprocess(doicorr=True)
     #proj.optimize(figname="qens_kde_fit.png")
     #proj.optimize(variables=[1.67780642e-04, 3.08144561e-02, 1.16049540e-04, 7.85885231e-03, 2.04665269e-01, 4.17453525e+00], figname="qens_kde_fit2.png")
-    #proj.optimize(variables=[2.18704786e-04, 1.67980295e-02, 4.92405238e-05, 1.88866588e-03, 1.21127501e-01, 5.02759930e-02], figname="qens_kde_fit2.png")
-    proj.optimize(variables=[2.18704786e-04, 1.67980295e-02, 4.92405238e-05, 1.88866588e-03, 1.21127501e-01, 5.02759930e-02])
+    proj.optimize(variables=[2.18704786e-04, 1.67980295e-02, 4.92405238e-05, 1.88866588e-03, 1.21127501e-01, 5.02759930e-02], figname="qens_kde_fit2.png")
+    #proj.optimize(variables=[2.18704786e-04, 1.67980295e-02, 4.92405238e-05, 1.88866588e-03, 1.21127501e-01, 5.02759930e-02])
 
     head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     devf = head + "qens_hist_o_divided_by_i_"+runnod+".pkl"
@@ -70,10 +70,10 @@ def sqrun_kde_hist_2lore():
     proj.preprocessh(doicorr=True)
     #proj.optimize(variables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01],
     #        figname="qens_hist_fit.png")
-    #proj.optimize(variables=[1.35639516e-05, 2.61566022e-02, 2.16304425e-06, 4.97615634e-03, 7.62240950e-02], figname="qens_hist_fit2_basefixed.png")
-    #proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05, 5.06836899e-03, 1.45026317e-01, 3.12477175e-02], figname="qens_hist_fit2.png")
-    proj.optimize(variables=[1.35639516e-05, 2.61566022e-02, 2.16304425e-06, 4.97615634e-03, 7.62240950e-02])
-    proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05, 5.06836899e-03, 1.45026317e-01, 3.12477175e-02])
+    proj.optimize(variables=[1.35639516e-05, 2.61566022e-02, 2.16304425e-06, 4.97615634e-03, 7.62240950e-02], figname="qens_hist_fit2_basefixed.png")
+    proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05, 5.06836899e-03, 1.45026317e-01, 3.12477175e-02], figname="qens_hist_fit2.png")
+    #proj.optimize(variables=[1.35639516e-05, 2.61566022e-02, 2.16304425e-06, 4.97615634e-03, 7.62240950e-02])
+    #proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05, 5.06836899e-03, 1.45026317e-01, 3.12477175e-02])
 
 
 sqrun_kde_hist_2lore()
