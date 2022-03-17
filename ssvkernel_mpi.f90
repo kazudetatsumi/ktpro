@@ -21,16 +21,16 @@ contains
     double precision :: thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0), yhist(tinsize0)
     double precision T, dt_samp, dt, cost, Wins(M0), dw, wi, Win, nsmpl
     double precision, dimension(M0, tinsize0) :: cfxw, optws, C_local
-	!double precision, dimension(M0*tinsize0) :: cfxw1d
-	!double precision, allocatable :: rcfxw1d(:)
+	double precision, dimension(M0*tinsize0) :: cfxw1d, C_local1d
+	double precision, allocatable :: rcfxw1d(:), rC_local1d(:)
     integer :: minkbwidx(tinsize0)
     !integer nbin, tinsize2
     integer i, kbwidx, winidx, xchidx
 	comm = comm0
 	call MPI_Comm_size(comm, psize, ierr)
 	call MPI_Comm_rank(comm, rank, ierr)
-	print *, "FUCK! comm, rank, psize", comm, rank, psize
-	call clock('start')
+	!print *, "comm, rank, psize", comm, rank, psize
+	!call clock('start')
 	if (WinFuncNo==1) then
 		WinFunc='Boxcar'
 	elseif (WinFuncNo==2) then
@@ -38,7 +38,7 @@ contains
 	elseif (WinFuncNo==3) then
 		WinFunc='Cauchy'
 	endif
-	print *, WinFunc
+	!print *, WinFunc
     tinsize=tinsize0
     xsize=xsize0
     M=M0
@@ -68,46 +68,56 @@ contains
     ! Wins contains all widths to be considered for kernels as well as window functions, 
     ! playing a dual role to put kernel band-widths as well as window-widths.
     Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
-    print *, "check ssvkernel param", winparam, M
-    print *, "check Ws", Wins(1:10)
-	call clock('Wins ')
+    !print *, "check ssvkernel param", winparam, M
+    !print *, "check Ws", Wins(1:10)
+	!call clock('Wins ')
     !integrand of cost func, for fixed kernel band-widths
 	!!mpi
     cfxw=0.
 	!cfxw1d=0.
 	!print *, 'CHK', M*tinsize/psize
 	!print *, 'CHK', M/psize
-	!allocate(rcfxw1d(M*tinsize/psize))
-    do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
-	!do kbwidx=1+rank*M/psize, (rank+1)*M/psize
+	allocate(rcfxw1d(M*tinsize/psize))
+    !do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
+	do kbwidx=1+rank*M/psize, (rank+1)*M/psize
       wi=Wins(kbwidx)
       yh=fftkernel(y_hist, wi/dt)
 	  !print *, 'CHKyh', size(yh)
 	  !print *, 'CHKrcfxw1d', size(rcfxw1d((kbwidx-1)*tinsize+1:kbwidx*tinsize))
-	  cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
-	  !rcfxw1d((kbwidx-1)*tinsize+1:kbwidx*tinsize)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
+	  !cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
+	  rcfxw1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
+&                                                  yh**2 - 2*yh*y_hist + &
+&                                                  2./(2*pi)**0.5/wi*y_hist
     enddo
-	!call mpi_allgather(rcfxw1d, M/psize, mpi_double_precision,&
-!&   !                   cfxw1d, M/psize, mpi_double_precision, mpi_comm_world, ierr)
-    !cfxw = reshape((cfxw1d), (/M, tinsize/))
-	call clock('cfxw ')
+	call mpi_allgather(rcfxw1d, M*tinsize/psize, mpi_double_precision,&
+&                      cfxw1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+    cfxw = transpose(reshape((cfxw1d), (/tinsize, M/)))
+	!call clock('cfxw ')
     !optws is a conversion maxtrix containing an optimum kernel band width for a pair of
     ! a window width and a x channel.
     optws=0.
+    allocate(rC_local1d(M*tinsize/psize))
     do winidx=1, M     ! do loop wrt window-widths This loop can be parallelized
       Win=Wins(winidx) ! by using mpi library.
       C_local=0.
-      do kbwidx=1, M   ! do loop wrt kernel band-widths
-         C_local(kbwidx, :)=fftkernelWin(cfxw(kbwidx,:), Win/dt)
+	  !mpi
+      !do kbwidx=1, M   ! do loop wrt kernel band-widths
+	  do kbwidx=1+rank*M/psize, (rank+1)*M/psize
+         !C_local(kbwidx, :)=fftkernelWin(cfxw(kbwidx,:), Win/dt)
+		 rC_local1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
+&                               fftkernelWin(cfxw(kbwidx,:), Win/dt)
       enddo
+	  call mpi_allgather(rC_local1d, M*tinsize/psize, mpi_double_precision,&
+&                        C_local1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+      C_local=transpose(reshape((C_local1d), (/tinsize, M/)))
       minkbwidx=minloc(C_local, 1)  
       do xchidx=1, tinsize ! do loop wrt x channels
          optws(winidx, xchidx) = Wins(minkbwidx(xchidx))
       enddo
     enddo
-	call clock('optss')
+	!call clock('optss')
     call opt(optw, yopt, y_hist, xdat, nsmpl, tin, dt, Wins, optws)
-	call clock('optff')
+	!call clock('optff')
   end subroutine ssvk
 
   function hist(x, th)
@@ -152,9 +162,9 @@ contains
     c1=(phi - 1)*a + (2 - phi)*b
     c2=(2 - phi)*a + (phi - 1)*b
     call costfunction(f1, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c1)
-	print *, "CHK", f1, c1, rank
+	!print *, "CHK", f1, c1, rank
     call costfunction(f2, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
-	print *, "CHK", f2, c2, rank
+	!print *, "CHK", f2, c2, rank
     do while ( (abs(a-b) > tol*(abs(c1)+abs(c2))) .and. (kiter <= maxiter) )
       if (f1 < f2) then
          b=c2
@@ -190,7 +200,7 @@ contains
     double precision :: gammas(M)
     integer :: xchidx, maxidx, wchidx
 	!integer comm, psize, rank, ierr
-	call clock('cost0')
+	!call clock('cost0')
     optwv=0.
     do xchidx=1, tinsize  
       gammas = optws(:, xchidx)/Wins
@@ -207,11 +217,10 @@ contains
     enddo
     optwp=0.
 	! Nadaraya-Watson kernel regression to smooth optw.
-	call clock('cost1')
+	!call clock('cost1')
 	!!mpi
     !!do xchidx=1, tinsize
 	allocate(roptwp(tinsize/psize), ryv(tinsize/psize))
-	print *, "FUCK", tinsize
 	do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
 	  if (WinFunc == 'Boxcar') Z=Boxcar(tin(xchidx)-tin, optwv/g)
 	  if (WinFunc == 'Gauss') Z=vGauss(tin(xchidx)-tin, optwv/g)
@@ -221,7 +230,7 @@ contains
     enddo
 	call mpi_allgather(roptwp, tinsize/psize, mpi_double_precision,&
 &                     optwp, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
-	call clock('cost2')
+	!call clock('cost2')
 	! Balloon estimator only on non-zero bins.
     y_hist_nz=pack(y_hist, y_hist > 0.) 
     tin_nz=pack(tin, y_hist>0)
@@ -236,7 +245,7 @@ contains
     yv=yv*nsmpl/sum(yv*dt)
     cintegrand = yv**2 - 2.*yv*y_hist + 2./(2.*pi)**0.5/optwp*y_hist
     Cg=sum(cintegrand*dt)
-	call clock('cost3')
+	!call clock('cost3')
   end subroutine costfunction
 
   function fftkernel(x, w)

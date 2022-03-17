@@ -26,7 +26,7 @@ def samplerun():
     pfs = ["Boxcar", "Gauss", "Cauchy"]
     channels = [""]
     #bins = ["000010io"]
-    bins = ["0000003io"]
+    bins = ["0000001io"]
     #bins = ["0000025io"]
     #bins = ["000010io", "0000025io", "0000003io"]
     fracs = [""]
