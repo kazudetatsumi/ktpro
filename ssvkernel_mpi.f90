@@ -4,24 +4,32 @@
 
 module ssvkernel
   use ISO_C_BINDING
+  use mpi
   implicit none
   include 'fftw3.f'
   integer :: xsize, tinsize, M
+  integer comm, psize, rank, ierr
   character(6) :: WinFunc
   double precision, parameter :: pi  = 4 * atan (1.0_8)
 contains
 
-  subroutine ssvk(M0, winparam, xsize0, tinsize0, WinFuncNo, xdat, tin, optw, yopt) bind(C, name="ssvk")
-    integer, intent(in) :: M0, xsize0, tinsize0, WinFuncNo
+  subroutine ssvk(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, xdat, tin, optw, yopt) bind(C, name="ssvk")
+    integer, intent(in) :: comm0, M0, xsize0, tinsize0, WinFuncNo
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
     double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
     double precision :: thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0), yhist(tinsize0)
     double precision T, dt_samp, dt, cost, Wins(M0), dw, wi, Win, nsmpl
     double precision, dimension(M0, tinsize0) :: cfxw, optws, C_local
+	!double precision, dimension(M0*tinsize0) :: cfxw1d
+	!double precision, allocatable :: rcfxw1d(:)
     integer :: minkbwidx(tinsize0)
     !integer nbin, tinsize2
     integer i, kbwidx, winidx, xchidx
+	comm = comm0
+	call MPI_Comm_size(comm, psize, ierr)
+	call MPI_Comm_rank(comm, rank, ierr)
+	print *, "FUCK! comm, rank, psize", comm, rank, psize
 	call clock('start')
 	if (WinFuncNo==1) then
 		WinFunc='Boxcar'
@@ -62,14 +70,26 @@ contains
     Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
     print *, "check ssvkernel param", winparam, M
     print *, "check Ws", Wins(1:10)
-    !integrand of cost func, for fixed kernel band-widths
-    cfxw=0.
 	call clock('Wins ')
+    !integrand of cost func, for fixed kernel band-widths
+	!!mpi
+    cfxw=0.
+	!cfxw1d=0.
+	!print *, 'CHK', M*tinsize/psize
+	!print *, 'CHK', M/psize
+	!allocate(rcfxw1d(M*tinsize/psize))
     do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
+	!do kbwidx=1+rank*M/psize, (rank+1)*M/psize
       wi=Wins(kbwidx)
       yh=fftkernel(y_hist, wi/dt)
-      cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
+	  !print *, 'CHKyh', size(yh)
+	  !print *, 'CHKrcfxw1d', size(rcfxw1d((kbwidx-1)*tinsize+1:kbwidx*tinsize))
+	  cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
+	  !rcfxw1d((kbwidx-1)*tinsize+1:kbwidx*tinsize)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
     enddo
+	!call mpi_allgather(rcfxw1d, M/psize, mpi_double_precision,&
+!&   !                   cfxw1d, M/psize, mpi_double_precision, mpi_comm_world, ierr)
+    !cfxw = reshape((cfxw1d), (/M, tinsize/))
 	call clock('cfxw ')
     !optws is a conversion maxtrix containing an optimum kernel band width for a pair of
     ! a window width and a x channel.
@@ -132,9 +152,9 @@ contains
     c1=(phi - 1)*a + (2 - phi)*b
     c2=(2 - phi)*a + (phi - 1)*b
     call costfunction(f1, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c1)
-	print *, "CHK", f1, c1
+	print *, "CHK", f1, c1, rank
     call costfunction(f2, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
-	print *, "CHK", f2, c2
+	print *, "CHK", f2, c2, rank
     do while ( (abs(a-b) > tol*(abs(c1)+abs(c2))) .and. (kiter <= maxiter) )
       if (f1 < f2) then
          b=c2
@@ -166,9 +186,10 @@ contains
     double precision, intent(in) :: optws(M, tinsize), Wins(M), dt, g, nsmpl
     double precision, intent(out) :: Cg, yv(tinsize), optwp(tinsize)
     double precision, dimension(tinsize) :: optwv, cintegrand, Z
-    double precision, allocatable :: y_hist_nz(:), tin_nz(:)
+    double precision, allocatable :: y_hist_nz(:), tin_nz(:), roptwp(:), ryv(:)
     double precision :: gammas(M)
     integer :: xchidx, maxidx, wchidx
+	!integer comm, psize, rank, ierr
 	call clock('cost0')
     optwv=0.
     do xchidx=1, tinsize  
@@ -187,20 +208,31 @@ contains
     optwp=0.
 	! Nadaraya-Watson kernel regression to smooth optw.
 	call clock('cost1')
-    do xchidx=1, tinsize
+	!!mpi
+    !!do xchidx=1, tinsize
+	allocate(roptwp(tinsize/psize), ryv(tinsize/psize))
+	print *, "FUCK", tinsize
+	do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
 	  if (WinFunc == 'Boxcar') Z=Boxcar(tin(xchidx)-tin, optwv/g)
 	  if (WinFunc == 'Gauss') Z=vGauss(tin(xchidx)-tin, optwv/g)
 	  if (WinFunc == 'Cauchy') Z=Cauchy(tin(xchidx)-tin, optwv/g)
-      optwp(xchidx)=sum(optwv*Z)/sum(Z)
+      !!optwp(xchidx)=sum(optwv*Z)/sum(Z)
+      roptwp(xchidx-rank*tinsize/psize)=sum(optwv*Z)/sum(Z)
     enddo
+	call mpi_allgather(roptwp, tinsize/psize, mpi_double_precision,&
+&                     optwp, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
 	call clock('cost2')
 	! Balloon estimator only on non-zero bins.
     y_hist_nz=pack(y_hist, y_hist > 0.) 
     tin_nz=pack(tin, y_hist>0)
     yv = 0.
-    do xchidx=1, tinsize
-      yv(xchidx)=sum(y_hist_nz*dt*Gauss(tin(xchidx)-tin_nz, optwp(xchidx)))
+	!! mpi
+    !!do xchidx=1, tinsize
+	do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
+      ryv(xchidx-rank*tinsize/psize)=sum(y_hist_nz*dt*Gauss(tin(xchidx)-tin_nz, optwp(xchidx)))
     enddo
+	call mpi_allgather(ryv, tinsize/psize, mpi_double_precision,&
+&                      yv, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
     yv=yv*nsmpl/sum(yv*dt)
     cintegrand = yv**2 - 2.*yv*y_hist + 2./(2.*pi)**0.5/optwp*y_hist
     Cg=sum(cintegrand*dt)

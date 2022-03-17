@@ -19,10 +19,10 @@ import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## if you use fotran library of ssvk or ssk, uncomment the corresponding lines
 ## and comment out the import lines of the  python library.
-#import ssvkernel_fort as ssvkernel
-#import sskernel_fort as sskernel 
-import ssvkernel
-import sskernel
+import ssvkernel_fort as ssvkernel
+import sskernel_fort as sskernel 
+#import ssvkernel
+#import sskernel
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
@@ -182,19 +182,17 @@ class qens:
             print("de=", self.de, "selected_energy[0]=",
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = np.linspace(self.selected_energy[0],
-                                        #self.selected_energy[-1], num=800)
+                                        self.selected_energy[-1], num=800)
                                         #self.selected_energy[-1], num=8000)
                                         #self.selected_energy[-1], num=66700)
-                                        self.selected_energy[-1], num=200000)
+                                        #self.selected_energy[-1], num=200000)
             print(self.tin_real[0:10])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)
         self.y_ = sskernel.sskernel(self.xvec_real, self.tin_real)
 
-        #scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\
-        #      (np.min(self.xvec) - np.max(self.xvec))
-
+    def plotter(self):
         if self.optsm:
             self.optsmear()
             snorms = self.sspectra/np.sum(self.sspectra)/self.sde
@@ -204,20 +202,15 @@ class qens:
         ax = fig.add_subplot(3, 1, 1)
         #ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
         if self.optsm:
-            #ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
             ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
             ax.plot(self.tin_real, self.y[0]/self.de, c='k', label='ssvkernel')
         else:
-            #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
-            #ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
             ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
             ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=False, width=1.5)
         ax.set_ylabel('density')
         ax.set_xlabel('energy ($\mu eV$)')
-        #ax.set_yticks([0, 35, 70])
-        #ax.set_ylim([0, 70])
         ax.set_ylim(0., np.max(self.y_[0])*1.2)
         plt.legend()
         ax = fig.add_subplot(3, 1, 2)
@@ -230,8 +223,6 @@ class qens:
         else:
             #ax.bar(self.selected_energy, norms, width=self.de,
             #       label='expt data', bottom=0.0001)
-            #ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
-            #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
             ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
             ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
         ax.set_yscale('log')
@@ -242,8 +233,6 @@ class qens:
         tmprange = ax.get_xlim()
         plt.legend()
         ax = fig.add_subplot(3, 1, 3)
-        #ax.plot(self.tin_real, self.y[2]*scf, c='r', label='ssvkernel')
-        #ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2]*scf,
         ax.plot(self.tin_real, self.y[2], c='r', label='ssvkernel')
         ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2],
                 c='k', label='sskernel')
@@ -252,9 +241,6 @@ class qens:
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=True, width=1.5)
         ax.set_xlim(tmprange)
-        #ax.set_ylim(0, np.max(self.y[2]*scf))
-        #ax.set_ylim(0, 5)
-        #ax.set_yticks([0, 0.003, 0.006])
         plt.subplots_adjust(hspace=0.0)
         plt.legend()
         plt.savefig(self.figname)

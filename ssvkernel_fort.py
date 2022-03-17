@@ -35,6 +35,7 @@ def calc_ssvkernel_f90(x, tin, M0, winparam, WinFuncNo):
             )
     #print('yopt=', yopt)
     #print('optw=',optw)
+    print('ssvk fortran ended')
     return yopt, tin, optw
 
 def calc_ssvkernel_f90_tst(x, tinsize):
