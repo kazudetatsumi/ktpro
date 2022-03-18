@@ -149,7 +149,7 @@ class qens:
         # To keep the accuracy, kde is executed on the channel numbers in the
         # histogram data.
         # The actual energies were retrieved by "_real" variables.
-        print("CHK", self.selected_spectra.shape[0])
+        #print("CHK", self.selected_spectra.shape[0])
         self.xvec = np.array([idx for idx in
                              range(0, self.selected_spectra.shape[0]) for
                              num_repeat in
@@ -162,6 +162,7 @@ class qens:
                                    ], dtype=float)
 
     def add_shift(self):
+        np.random.seed(314)
         self.xvecorg = np.array(self.xvec)
         self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
         self.xvec += self.shift
@@ -172,21 +173,21 @@ class qens:
         if self.optsm:
             tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
             self.tin = np.linspace(0.0, tinmax, int(tinmax)*2+1)
-            print("Check parameters of horizontal axis")
-            print("de=", self.de, "selected_energy[0]=",
-                  self.selected_energy[0], "num channels=", self.tin.shape[0])
+            #print("Check parameters of horizontal axis")
+            #print("de=", self.de, "selected_energy[0]=",
+            #      self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = self.tin*self.de + self.selected_energy[0]
         else:
             self.tin = np.arange(self.selected_energy.shape[0])
-            print("Check parameters of horizontal axis")
-            print("de=", self.de, "selected_energy[0]=",
-                  self.selected_energy[0], "num channels=", self.tin.shape[0])
+            #print("Check parameters of horizontal axis")
+            #print("de=", self.de, "selected_energy[0]=",
+            #      self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = np.linspace(self.selected_energy[0],
-                                        self.selected_energy[-1], num=800)
-                                        #self.selected_energy[-1], num=8000)
+                                        #self.selected_energy[-1], num=800)
+                                        self.selected_energy[-1], num=8000)
                                         #self.selected_energy[-1], num=66700)
                                         #self.selected_energy[-1], num=200000)
-            print(self.tin_real[0:10])
+            #print(self.tin_real[0:10])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)

@@ -162,6 +162,7 @@ class qens:
                                    ], dtype=float)
 
     def add_shift(self):
+        np.random.seed(314)
         self.xvecorg = np.array(self.xvec)
         self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
         self.xvec += self.shift
@@ -184,14 +185,15 @@ class qens:
             self.tin_real = np.linspace(self.selected_energy[0],
                                         #self.selected_energy[-1], num=800)
                                         #self.selected_energy[-1], num=8000)
-                                        #self.selected_energy[-1], num=66700)
-                                        self.selected_energy[-1], num=200000)
+                                        self.selected_energy[-1], num=66700)
+                                        #self.selected_energy[-1], num=200000)
             print(self.tin_real[0:10])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)
         self.y_ = sskernel.sskernel(self.xvec_real, self.tin_real)
 
+    def plotter(self):
         #scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\
         #      (np.min(self.xvec) - np.max(self.xvec))
 

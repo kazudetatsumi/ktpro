@@ -74,7 +74,7 @@ contains
     !integrand of cost func, for fixed kernel band-widths
 	!!mpi
     cfxw=0.
-	!cfxw1d=0.
+	cfxw1d=0.
 	!print *, 'CHK', M*tinsize/psize
 	!print *, 'CHK', M/psize
 	allocate(rcfxw1d(M*tinsize/psize))
@@ -89,7 +89,6 @@ contains
 &                                                  yh**2 - 2*yh*y_hist + &
 &                                                  2./(2*pi)**0.5/wi*y_hist
     enddo
-	call mpi_barrier(comm, ierr)
 	call mpi_allgather(rcfxw1d, M*tinsize/psize, mpi_double_precision,&
 &                      cfxw1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
     cfxw = transpose(reshape((cfxw1d), (/tinsize, M/)))
@@ -101,6 +100,7 @@ contains
     do winidx=1, M     ! do loop wrt window-widths This loop can be parallelized
       Win=Wins(winidx) ! by using mpi library.
       C_local=0.
+	  rC_local1d=0.
 	  !mpi
       !do kbwidx=1, M   ! do loop wrt kernel band-widths
 	  do kbwidx=1+rank*M/psize, (rank+1)*M/psize
@@ -108,7 +108,6 @@ contains
 		 rC_local1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
 &                               fftkernelWin(cfxw(kbwidx,:), Win/dt)
       enddo
-	  call mpi_barrier(comm, ierr)
 	  call mpi_allgather(rC_local1d, M*tinsize/psize, mpi_double_precision,&
 &                        C_local1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
       C_local=transpose(reshape((C_local1d), (/tinsize, M/)))
@@ -230,7 +229,6 @@ contains
       !!optwp(xchidx)=sum(optwv*Z)/sum(Z)
       roptwp(xchidx-rank*tinsize/psize)=sum(optwv*Z)/sum(Z)
     enddo
-	call mpi_barrier(comm, ierr)
 	call mpi_allgather(roptwp, tinsize/psize, mpi_double_precision,&
 &                     optwp, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
 	!if (rank==0) call clock('cost2')
@@ -243,7 +241,6 @@ contains
 	do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
       ryv(xchidx-rank*tinsize/psize)=sum(y_hist_nz*dt*Gauss(tin(xchidx)-tin_nz, optwp(xchidx)))
     enddo
-	call mpi_barrier(comm, ierr)
 	call mpi_allgather(ryv, tinsize/psize, mpi_double_precision,&
 &                      yv, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
     yv=yv*nsmpl/sum(yv*dt)

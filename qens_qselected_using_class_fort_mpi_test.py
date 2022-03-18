@@ -2,11 +2,11 @@
 # example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar 0875
 import sys
 sys.path.append("/home/kazu/ktpro")
-import qens_class_fort as qc
+import qens_class_fort_mpi_test as qc
 
 
 def run():
-    print(sys.argv)
+    #print(sys.argv)
     if len(sys.argv) >= 2:
         runno = sys.argv[1]
         #print("runno =", runno)
@@ -55,8 +55,7 @@ def run():
     proj.select_spectra()
     proj.add_shift()
     proj.run_ssvkernel()
-    #print('ssvkernel ended')
-    proj.plotter()
+    #proj.plotter()
     proj.save_output(output_file)
 
 

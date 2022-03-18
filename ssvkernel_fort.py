@@ -118,4 +118,4 @@ def ssvkernel(x, tin=None, M=80, winparam=5, WinFunc='Boxcar'):
 
     return calc_ssvkernel_f90(x, t, M, winparam, WinFuncNo)
 
-testrun()
+#testrun()

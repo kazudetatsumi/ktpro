@@ -22,7 +22,7 @@ contains
     integer :: minkbwidx(tinsize0)
     !integer nbin, tinsize2
     integer i, kbwidx, winidx, xchidx
-	call clock('start')
+	!call clock('start')
 	if (WinFuncNo==1) then
 		WinFunc='Boxcar'
 	elseif (WinFuncNo==2) then
@@ -30,7 +30,7 @@ contains
 	elseif (WinFuncNo==3) then
 		WinFunc='Cauchy'
 	endif
-	print *, WinFunc
+	!print *, WinFunc
     tinsize=tinsize0
     xsize=xsize0
     M=M0
@@ -60,17 +60,17 @@ contains
     ! Wins contains all widths to be considered for kernels as well as window functions, 
     ! playing a dual role to put kernel band-widths as well as window-widths.
     Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
-    print *, "check ssvkernel param", winparam, M
-    print *, "check Ws", Wins(1:10)
+    !print *, "check ssvkernel param", winparam, M
+    !print *, "check Ws", Wins(1:10)
     !integrand of cost func, for fixed kernel band-widths
     cfxw=0.
-	call clock('Wins ')
+	!call clock('Wins ')
     do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
       wi=Wins(kbwidx)
       yh=fftkernel(y_hist, wi/dt)
       cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
     enddo
-	call clock('cfxw ')
+	!call clock('cfxw ')
     !optws is a conversion maxtrix containing an optimum kernel band width for a pair of
     ! a window width and a x channel.
     optws=0.
@@ -85,9 +85,9 @@ contains
          optws(winidx, xchidx) = Wins(minkbwidx(xchidx))
       enddo
     enddo
-	call clock('optss')
+	!call clock('optss')
     call opt(optw, yopt, y_hist, xdat, nsmpl, tin, dt, Wins, optws)
-	call clock('optff')
+	!call clock('optff')
   end subroutine ssvk
 
   function hist(x, th)
@@ -132,9 +132,9 @@ contains
     c1=(phi - 1)*a + (2 - phi)*b
     c2=(2 - phi)*a + (phi - 1)*b
     call costfunction(f1, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c1)
-	print *, "CHK", f1, c1
+	!print *, "CHK", f1, c1
     call costfunction(f2, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
-	print *, "CHK", f2, c2
+	!print *, "CHK", f2, c2
     do while ( (abs(a-b) > tol*(abs(c1)+abs(c2))) .and. (kiter <= maxiter) )
       if (f1 < f2) then
          b=c2
@@ -155,7 +155,7 @@ contains
       endif
       gs(kiter)=c1
       cost(kiter)=f1
-	  !print *, kiter, cost(kiter), gs(kiter)
+	  print *, kiter, cost(kiter), gs(kiter)
       kiter=kiter+1
     enddo
   end subroutine opt
@@ -169,7 +169,7 @@ contains
     double precision, allocatable :: y_hist_nz(:), tin_nz(:)
     double precision :: gammas(M)
     integer :: xchidx, maxidx, wchidx
-	call clock('cost0')
+	!call clock('cost0')
     optwv=0.
     do xchidx=1, tinsize  
       gammas = optws(:, xchidx)/Wins
@@ -186,14 +186,14 @@ contains
     enddo
     optwp=0.
 	! Nadaraya-Watson kernel regression to smooth optw.
-	call clock('cost1')
+	!call clock('cost1')
     do xchidx=1, tinsize
 	  if (WinFunc == 'Boxcar') Z=Boxcar(tin(xchidx)-tin, optwv/g)
 	  if (WinFunc == 'Gauss') Z=vGauss(tin(xchidx)-tin, optwv/g)
 	  if (WinFunc == 'Cauchy') Z=Cauchy(tin(xchidx)-tin, optwv/g)
       optwp(xchidx)=sum(optwv*Z)/sum(Z)
     enddo
-	call clock('cost2')
+	!call clock('cost2')
 	! Balloon estimator only on non-zero bins.
     y_hist_nz=pack(y_hist, y_hist > 0.) 
     tin_nz=pack(tin, y_hist>0)
@@ -204,7 +204,7 @@ contains
     yv=yv*nsmpl/sum(yv*dt)
     cintegrand = yv**2 - 2.*yv*y_hist + 2./(2.*pi)**0.5/optwp*y_hist
     Cg=sum(cintegrand*dt)
-	call clock('cost3')
+	!call clock('cost3')
   end subroutine costfunction
 
   function fftkernel(x, w)

@@ -55,6 +55,7 @@ def run():
     proj.select_spectra()
     proj.add_shift()
     proj.run_ssvkernel()
+    proj.plotter()
     proj.save_output(output_file)
 
 

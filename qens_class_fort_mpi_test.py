@@ -24,6 +24,7 @@ sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## ssvkernel compatibility between python and fortran versions is now destroyed.
 ## This class has an alternative method using mpi.
 lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi.so")
+#lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi_test.so")
 ## Either of sskernel_fort (fortran ver.) or sskernel (python ver.) can be set by
 ## uncommenting the corresponding line below.
 import sskernel_fort as sskernel 
@@ -90,6 +91,7 @@ class qens:
                                    ], dtype=float)
 
     def add_shift(self):
+        np.random.seed(314)
         self.xvecorg = np.array(self.xvec)
         self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
         self.xvec += self.shift
@@ -103,9 +105,9 @@ class qens:
         #      self.selected_energy[0], "num channels=", self.tin.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
                                     #self.selected_energy[-1], num=800)
-                                    #self.selected_energy[-1], num=8000)
+                                    self.selected_energy[-1], num=8000)
                                     #self.selected_energy[-1], num=66700)
-                                    self.selected_energy[-1], num=200000)
+                                    #self.selected_energy[-1], num=200000)
         #print(self.tin_real[0:10])
 
         if self.WinFunc=='Boxcar':
@@ -196,14 +198,17 @@ class qens:
                 plt.show()
 
     def save_output(self,  output_file):
-        dataset = {}
-        dataset['y_ssvk'] = self.y
-        dataset['y_ssk'] = self.y_
-        dataset['tin_real'] = self.tin_real
-        dataset['xlim'] = np.array([np.min(self.xvec_real),
-                                   np.max(self.xvec_real)])
-        with open(output_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
+        if rank == 0:
+            dataset = {}
+            dataset['y_ssvk'] = self.y
+            dataset['y_ssk'] = self.y_
+            dataset['tin_real'] = self.tin_real
+            dataset['xlim'] = np.array([np.min(self.xvec_real),
+                                       np.max(self.xvec_real)])
+            with open(output_file, 'wb') as f:
+                pickle.dump(dataset, f, -1)
 
     def save_outputs(self,  output_file):
         dataset = {}
