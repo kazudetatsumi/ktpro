@@ -11,12 +11,14 @@
 # The adaptive kenel density estimation was developed by Dr. Shimazaki.
 # Kazuyoshi TATSUMI 2021/04/03
 # MPI parallelized costfunction, which is very messy, but works.
-# Kazuyoshi TATSUMi 2022/03/17
+# Kazuyoshi TATSUMI 2022/03/17
 import numpy as np
 import os
 import re
 from ctypes import *
 import pickle
+#import matplotlib
+#matplotlib.use('agg')
 import matplotlib.pylab as plt
 from mpi4py import MPI
 import sys
