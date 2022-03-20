@@ -27,9 +27,9 @@ def samplerun():
     pfs = ["Boxcar"]
     channels = [""]
     #bins = ["000010io"]
-    bins = ["0000001io"]
+    #bins = ["0000001io"]
     #bins = ["0000025io"]
-    #bins = ["000010io", "0000025io", "0000003io"]
+    bins = ["000025io", "0000025io", "0000001io"]
     fracs = [""]
     #fracs = ["", "0875", "075", "0625",  "05", "0375"]
     prj = rhc.read_hwhm(Ms, pws, pfs, channels, bins, fracs,

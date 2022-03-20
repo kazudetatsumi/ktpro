@@ -101,14 +101,21 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
 
     def outhwhm(self):
         with open('results_hwhms.txt', 'w') as self.f:
-            self.subouthwhm(prop="HWHM", lore="1st", addidx=0)
-            self.subouthwhm(prop="HWHM", lore="2nd", addidx=2)
-            self.subouthwhm(prop="STD", lore="1st", addidx=1)
-            self.subouthwhm(prop="STD", lore="2nd", addidx=3)
-            self.subouthwhm(prop="HWHMhist", lore="1st", addidx=4)
-            self.subouthwhm(prop="HWHMhist", lore="2nd", addidx=6)
-            self.subouthwhm(prop="STDhist", lore="1st", addidx=5)
-            self.subouthwhm(prop="STDhist", lore="2nd", addidx=7)
+            if self.numlore == 1:
+                self.subouthwhm(prop="HWHM", lore="1st", addidx=0)
+                self.subouthwhm(prop="STD", lore="1st", addidx=1)
+                self.subouthwhm(prop="HWHMhist", lore="1st", addidx=2)
+                self.subouthwhm(prop="STDhist", lore="1st", addidx=3)
+            if self.numlore == 2:
+                self.subouthwhm(prop="HWHM", lore="1st", addidx=0)
+                self.subouthwhm(prop="HWHM", lore="2nd", addidx=2)
+                self.subouthwhm(prop="STD", lore="1st", addidx=1)
+                self.subouthwhm(prop="STD", lore="2nd", addidx=3)
+                self.subouthwhm(prop="HWHMhist", lore="1st", addidx=4)
+                self.subouthwhm(prop="HWHMhist", lore="2nd", addidx=6)
+                self.subouthwhm(prop="STDhist", lore="1st", addidx=5)
+                self.subouthwhm(prop="STDhist", lore="2nd", addidx=7)
+
 
         #    f.write("HWHM  \n")
         #    for ifr, frc in enumerate(self.fracs):
