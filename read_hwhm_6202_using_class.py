@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+import os
 import sys
-sys.path.append("/home/kazu/ktpro")
+home=os.path.expanduser("~")
+sys.path.append(home+"/ktpro")
 import read_hwhm_class as rhc
 import numpy as np
 
@@ -21,11 +23,14 @@ def samplerun():
         bins = ["0000025io"]
         fracs = ["", "0875", "075", "0625",  "05", "0375", "025", "0125"]
         #fracs = ["", "0875", "075", "0625",  "05", "0375"]
-        prj = rhc.read_hwhm(Ms, pws, pfs, channels, bins, fracs, prefix="/home/kazu/desktop/210108/Tatsumi/winparam_exam")
+        prj = rhc.read_hwhm(Ms, pws, pfs, channels, bins, fracs,
+                            prefix=home +
+                            "/desktop/210108/Tatsumi/winparam_exam/")
         prj.create_array()
         prj.data = prj.hwhms.squeeze()
-        prj.data = prj.data[1:,:]
-        tcount = np.array([18970., 16098., 13380., 10621., 7794., 5318., 2826. ])
+        prj.data = prj.data[1:, :]
+        tcount = np.array([18970., 16098., 13380., 10621., 7794., 5318.,
+                           2826.])
         prj.data[:, 0] = tcount[:]/tcount[0]
         prj.plotter()
         #print(prj.hwhms.squeeze())

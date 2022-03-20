@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+import os
 import sys
-sys.path.append("/home/kazu/ktpro")
+home=os.path.expanduser("~")
+sys.path.append(home+"/ktpro")
 import read_each_hwhm_class as rehc
 
 
@@ -12,7 +14,7 @@ def samplerun():
         bins = ["0000003io"]
         fracs = ["", "0875", "075", "0625",  "05", "0375", "025", "0125"]
         prj = rehc.read_each_hwhm(Ms, pws, pfs, channels, bins, fracs,
-                                  prefix="/home/kazu/desktop/210108/" +
+                                  prefix=home+"/desktop/210108/" +
                                          "Tatsumi/winparam_exam_6207",
                                   resultid=0)
         prj.create_array()

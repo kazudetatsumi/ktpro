@@ -2,7 +2,7 @@
 import numpy as np
 import os
 import sys
-sys.path.append("/home/kazu/ktpro")
+sys.path.append("~/ktpro")
 import qens_fit_kde_hist_class as qfkhc
 
 
@@ -227,7 +227,7 @@ def samplerun():
         channels = [""]
         bins = ["0000025io"]
         fracs = ["", "0875", "075", "0625",  "05", "0375"]
-        prj = read_hwhm(Ms, pws, pfs, channels, bins, fracs, prefix="/home/kazu/desktop/210108/Tatsumi/winparam_exam")
+        prj = read_hwhm(Ms, pws, pfs, channels, bins, fracs, prefix="~/desktop/210108/Tatsumi/winparam_exam")
         prj.create_array()
         prj.data = prj.hwhms.squeeze()
         prj.plotter()
