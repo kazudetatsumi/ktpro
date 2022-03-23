@@ -71,6 +71,9 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                                         self.gethwhm(logfile)
                                     self.hwhms[im, ipw, ipf, ic, ib, ifr, 0] =\
                                         self.getfrac(frc)
+                                #else:
+                                    #print(logfile,"is NOT found")
+
 
     def subouthwhm(self, prop="HWHM", lore="1st", addidx=0):
         self.f.write("%s \n" % (prop))

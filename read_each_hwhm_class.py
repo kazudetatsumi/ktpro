@@ -26,6 +26,7 @@ class read_each_hwhm(qfkhc.sqrun_kde_hist):
         return(frac)
 
     def create_array(self):
+        print(self.fracs)
         self.hwhms = np.zeros((len(self.Ms), len(self.pws), len(self.pfs),
                                len(self.channels), len(self.bins),
                                len(self.fracs), 3))
@@ -60,11 +61,13 @@ class read_each_hwhm(qfkhc.sqrun_kde_hist):
                                             str(M)+"-"+str(pw)+"-"+pf +\
                                             "-"+frc+".log"
                                 if os.path.exists(logfile):
-                                    #print(logfile,"is found")
+                                    print(logfile,"is found")
                                     self.hwhms[im, ipw, ipf, ic, ib, ifr, 1:] =\
                                         self.getonehwhm(logfile)
                                     self.hwhms[im, ipw, ipf, ic, ib, ifr, 0] =\
                                         self.getfrac(frc)
+                                else:
+                                    print(logfile,"is NOT found")
 
     def getonehwhm(self, filename):
         hwhms = []

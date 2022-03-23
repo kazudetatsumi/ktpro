@@ -20,9 +20,11 @@ sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## if you use fotran library of ssvk or ssk, uncomment the corresponding lines
 ## and comment out the import lines of the  python library.
 #import ssvkernel_fort as ssvkernel
-#import sskernel_fort as sskernel 
+#import sskernel_fort as sskernel
 import ssvkernel
 import sskernel
+import ssvkernel_ktpro as svk
+import sskernel_ktpro as sk
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
@@ -185,15 +187,21 @@ class qens:
             self.tin_real = np.linspace(self.selected_energy[0],
                                         self.selected_energy[-1],
                                         #num=self.selected_spectra.shape[0])
-                                        self.selected_energy[-1], num=800)
-                                        #self.selected_energy[-1], num=8000)
-                                        #self.selected_energy[-1], num=66670)
-                                        #self.selected_energy[-1], num=200000)
+                                        num=800)
+                                        #num=8000)
+                                        #num=66670)
+                                        #num=200000)
             print(self.tin_real[0:10])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)
         self.y_ = sskernel.sskernel(self.xvec_real, self.tin_real)
+
+    def run_ssvkernel_direct(self):
+        self.y = svk.ssvkernel(self.selected_spectra, self.selected_energy, M=self.M,
+                               winparam=self.winparam, WinFunc=self.WinFunc)
+        self.y_ = sk.sskernel(self.selected_spectra, self.selected_energy)
+        self.tin_real = self.selected_energy
 
     def plotter(self):
         #scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\

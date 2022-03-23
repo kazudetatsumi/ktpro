@@ -23,7 +23,7 @@ def run():
         frac = ""
     head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     ofile = head + "run"+runno+"united_"+frac+"spectra.pkl"
-    ifile = head + "run"+runno+"united_"+frac+"monispectra.pkl"
+    ifile = head + "run"+runno+"united_"+frac+"_monispectra.pkl"
     rfile = head + "qens_hist_o_divided_by_i_"+runno+frac+".pkl"
     proj = qkrodic.odata_divided_by_idata(ofile, ifile, iskde=False)
     proj.get_data()

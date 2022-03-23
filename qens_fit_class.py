@@ -191,6 +191,7 @@ class qens_fit:
         self.gamma = out[0][1]
         if not self.quiet:
             print("cov**0.5")
+            #print(out[1])
             print(np.absolute(out[1]*s_sq)**0.5)
         self.gammaerror = np.absolute(out[1][1][1]*s_sq)**0.5
         if len(variables) == 4:
