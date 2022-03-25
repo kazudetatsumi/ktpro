@@ -91,7 +91,8 @@ def ssvkernel(spectra, energy, M=80, winparam=5, nbs=1e2, WinFunc='Gauss'):
     #    else:
     #        t = tin
     t = energy
-    T = np.max(energy[spectra > 0]) - np.min(energy[spectra > 0])
+    #T = np.max(energy[spectra > 0]) - np.min(energy[spectra > 0])
+    T = np.max(t) - np.min(t)
 
 
 
