@@ -34,17 +34,17 @@ def samplerun():
     #bins = ["000025io", "000010io", "0000025io", "0000003io"]
     #fracs = ["", "0875", "075", "05", "0375"]
     Ms = [160]
-    pws = [0.25]
+    pws = [1]
     pfs = ["Boxcar"]
     channels = [""]
     #bins = ["000010io"]
     #bins = ["0000003io"]
-    bins = ["000025io"]
+    bins = ["0000025io"]
     fracs = ["", "0875", "075", "0625",  "05", "0375", "025", "0125"]
     tcount = np.array([18970., 16098., 13380., 10621., 7794., 5318., 2826. ])
     #fracs = ["", "0875", "075", "0625",  "05", "0375"]
     prj1 = rhc.read_hwhm(Ms, pws, pfs, channels, bins, fracs,
-                         prefix=home+"/desktop/210108/Tatsumi/winparam_exam/direct_de_idata2",
+                         prefix=home+"/desktop/210108/Tatsumi/winparam_exam/test_python_de8",
                          numlore=2, fixbg=False)
     prj1.create_array()
     prj1.data = prj1.hwhms.squeeze()

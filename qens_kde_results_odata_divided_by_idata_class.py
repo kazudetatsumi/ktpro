@@ -1,14 +1,18 @@
 #!/usr/bin/env python
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+sys.path.append("/home/kazu/ktpro")
+import qens_class as qc
 
 
-class odata_divided_by_idata:
-    def __init__(self, ofile, ifile, iskde=True):
+class odata_divided_by_idata(qc.qens):
+    def __init__(self, ofile, ifile, iskde=True, denew=None):
         self.ofile = ofile
         self.ifile = ifile
         self.iskde = iskde
+        self.denew = denew
 
     def read_pkl(self, pklfile):
         print(pklfile)
@@ -70,13 +74,28 @@ class odata_divided_by_idata:
                 mask = np.where((self.xi >= xlim[0]) & (self.xi <= xlim[1]))[0]
                 self.selected_spectra = self.yi[mask]
                 self.selected_energy = self.xi[mask]
-                self.yi = self.selected_spectra/np.sum(self.selected_spectra)/(self.selected_energy[1] - self.selected_energy[0])
+                self.yi = self.selected_spectra /\
+                    np.sum(self.selected_spectra) /\
+                    (self.selected_energy[1] - self.selected_energy[0])
                 self.xi = self.selected_energy
             #self.yi_ip = self.interpolate(self.yo, self.yi)
+            if self.denew:
+                self.reconstruct_hist()
             self.yi_ip = np.interp(self.xo, self.xi, self.yi)
             self.y = self.yo / self.yi_ip
 
-
+    def reconstruct_hist(self):
+        self.odata = True
+        self.qsel = True
+        self.dataset = self.odataset
+        self.select_spectra()
+        self.xo = np.linspace(self.selected_energy[0],
+                              self.selected_energy[-1],
+                              int(self.de/self.denew *
+                              self.selected_energy.shape[0]))
+        thist = np.concatenate((self.xo, (self.xo[-1]+self.denew)[np.newaxis]))
+        self.yo = np.histogram(self.xvec_real, thist-self.denew/2)[0]
+        
     def plot_data(self):
         fig = plt.figure(figsize=(12, 12))
         if self.iskde:
