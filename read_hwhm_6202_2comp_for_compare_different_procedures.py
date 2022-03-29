@@ -34,7 +34,7 @@ def samplerun():
     #bins = ["000025io", "000010io", "0000025io", "0000003io"]
     #fracs = ["", "0875", "075", "05", "0375"]
     Ms = [160]
-    pws = [1]
+    pws = [0.25]
     pfs = ["Boxcar"]
     channels = [""]
     #bins = ["000010io"]
@@ -44,16 +44,20 @@ def samplerun():
     tcount = np.array([18970., 16098., 13380., 10621., 7794., 5318., 2826. ])
     #fracs = ["", "0875", "075", "0625",  "05", "0375"]
     prj1 = rhc.read_hwhm(Ms, pws, pfs, channels, bins, fracs,
-                         prefix=home+"/desktop/210108/Tatsumi/winparam_exam/test_python_de8",
+                         #prefix=home+"/desktop/210108/Tatsumi/winparam_exam/test_python_de8",
+                         prefix=home+"/desktop/210108/Tatsumi/winparam_exam/",
                          numlore=2, fixbg=False)
     prj1.create_array()
     prj1.data = prj1.hwhms.squeeze()
     prj1.data = prj1.data[1:,:]
     prj1.data[:, 0] = tcount[:]/tcount[0]
 
-    bins = ["000025io"]
+    #bins = ["000025io"]
+    bins = ["0000025io"]
+    pws = [0.25]
     prj2 = rhc.read_hwhm(Ms, pws, pfs, channels, bins, fracs,
-                         prefix=home+"/desktop/210108/Tatsumi/winparam_exam/direct_de/",
+                         prefix=home+"/desktop/210108/Tatsumi/winparam_exam/direct_de_idata/",
+                         #prefix=home+"/desktop/210108/Tatsumi/winparam_exam/test_python_de10",
                          numlore=2, fixbg=False)
     prj2.create_array()
     prj2.data = prj2.hwhms.squeeze()
@@ -62,12 +66,14 @@ def samplerun():
 
     fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(2, 2, 1)
-    plotter(ax, prj1.data, ymin=-0.002, ymax=0.11, text=prj1.prefix)
+    text = "~/"+prj1.prefix.split('Tatsumi')[1]+"@"+prj1.bins[0]+"_"+str(prj1.pws[0])
+    plotter(ax, prj1.data, ymin=-0.002, ymax=0.11, text=text)
     ax = fig.add_subplot(2, 2, 3)
     plotter(ax, prj1.data, isbottom=True, ymin=-0.001, ymax=0.0125)
 
     ax = fig.add_subplot(2, 2, 2)
-    plotter(ax, prj2.data, ymin=-0.002, ymax=0.11, text=prj2.prefix)
+    text = "~/"+prj2.prefix.split('Tatsumi')[1]+"@"+prj2.bins[0]+"_"+str(prj2.pws[0])
+    plotter(ax, prj2.data, ymin=-0.002, ymax=0.11, text=text)
     ax = fig.add_subplot(2, 2, 4)
     plotter(ax, prj2.data, isbottom=True, ymin=-0.001, ymax=0.0125)
 

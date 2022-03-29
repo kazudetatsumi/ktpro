@@ -68,7 +68,8 @@ class qens_fit:
             self.y_df = self.y_df / (self.k[0] + self.k[1]*x
                                      + self.k[2]*x**2
                                      + self.k[3]*x**3)
-        self.bg = self.optbgpeakratio*np.sum(self.y_tf)*(x_tf[1]-x_tf[0])
+        if 'optbgpeakratio' in dir(self):
+            self.bg = self.optbgpeakratio*np.sum(self.y_tf)*(x_tf[1]-x_tf[0])
             #np.sum(self.y_tf[np.argmax(self.y_tf)-100:np.argmax(self.y_tf)+100])
 
     def get_data(self, infile):
