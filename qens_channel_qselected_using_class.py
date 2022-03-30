@@ -2,7 +2,7 @@
 # example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar
 import sys
 sys.path.append("/home/kazu/ktpro")
-import qens_channel_class as qc
+import qens_channel_class_cleaned as qccc
 
 
 def run():
@@ -44,12 +44,12 @@ def run():
     #output_file = outdir + "qens_run"+runno+"united_kde_results_on_data_qsel.pkl"
     output_file = "./qens_run"+runno+"united_kde_results_on_data_qsel.pkl"
     figname = "qens_out_"+runno+"_"+dirname+"_"+str(M)+"_"+str(winparam)+"_"+WinFunc+".png"
-    proj = qc.qens(datadir, save_file, qsel=True, winparam=winparam, M=M,
-                   WinFunc=WinFunc, figname=figname, showplot=False)
+    proj = qccc.qens_channel(datadir, save_file, qsel=True, winparam=winparam, M=M,
+                   WinFunc=WinFunc, figname=figname, showplot=True)
     proj.select_spectra()
     proj.add_shift()
     proj.run_ssvkernel()
-    proj.save_output(output_file)
+    #proj.save_output(output_file)
 
 
 run()
