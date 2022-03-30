@@ -5,11 +5,15 @@
 # BL02 staffs and stored in a directory.
 # This script can apply the adaptive kernel density estimation on the prepared
 # data and show the plots of the results, i.e., the estimated density and the
-# estimated destribution of the kernel widths.
-# This script uses the python methods of the adaptive kenerl denssity
+# estimated distribution of the kernel widths.
+# This script uses the python methods of the adaptive kernerl density
 # estimation distributed at the site linked by Dr. Shimazaki's  HP.
-# The adaptive kenel density estimation was developped by Dr. Shimazaki.
+# The adaptive kernel density estimation was developed by Dr. Shimazaki.
 # Kazuyoshi TATSUMI 2021/04/03
+# This is a child of qens_class.qens.
+# Only the part which should be altered to perform ssvkernel by channelwise
+# is presented here.
+# Kazuyoshi TATSUMI 2022/03/30
 import numpy as np
 import os
 import re
@@ -67,6 +71,7 @@ class qens_channel(qcorg.qens):
                                      WinFunc=self.WinFunc)
         self.y_ = sskernel.sskernel(self.xvec, self.tin)
 
+    def plotter(self):
         scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\
               (np.min(self.xvec) - np.max(self.xvec))
 
@@ -135,6 +140,7 @@ def samplerun():
     proj.select_spectra()
     proj.add_shift()
     proj.run_ssvkernel()
+    proj.plotter()
 
 
 #samplerun()
