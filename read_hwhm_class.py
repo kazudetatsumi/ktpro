@@ -90,6 +90,18 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
             #else:
                 #print("No ", logfile)
 
+    def create_array_shist(self):
+        self.hwhms = np.zeros((len(self.fracs), 1+4*(self.numlore-1)))
+        for ifr, frc in enumerate(self.fracs):
+            dirname = self.prefix+"/shist_"+frc
+            logfile = dirname+"/stdout-"+frc+".log"
+            if os.path.exists(logfile):
+               # print("Found ", logfile)
+                self.hwhms[ifr, 1:] = self.gethwhm(logfile)
+                self.hwhms[ifr, 0] = self.getfrac(frc)
+            #else:
+                #print("No ", logfile)
+
     def subouthwhm(self, prop="HWHM", lore="1st", addidx=0):
         self.f.write("%s \n" % (prop))
         for ifr, frc in enumerate(self.fracs):

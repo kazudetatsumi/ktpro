@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 # This script do a fitting analysis using 2 Lorentzian components
-# ONLY on uncorrected and reconstructed histogram data.
-# The data can be prepared by
-# qens_hist_results_odata_divided_by_idata_reconst_using_class.py
-# Usage: qens_fit_hist_2lore_using_class.py 6202 6204 0.000025 0125
-# Example data are found at
-# /home/kazu/desktop/210108/Tatsumi/winparm_exaam/test_reconstruct_python
-# although the job shell file has such a line
-# qens_fit_hist_2lore_using_class.py 6202 6204 0000025io 0.000025 0125
-# where 0000025io is deleted at the present version.
+# ONLY on corrected histogram data.
+# Usage: qens_fit_shist_2lore_using_class.py 6202 6204 0125
 # Kazuyoshi TATSUMI 2022/03/30
 import numpy as np
 import sys
@@ -18,7 +11,6 @@ import qens_fit_class as qfc
 
 def sqrun_kde_hist_2lore():
     np.set_printoptions(linewidth=120)
-
     if len(sys.argv) >= 2:
         runno = sys.argv[1]
     else:
@@ -30,16 +22,13 @@ def sqrun_kde_hist_2lore():
         print("using default runnod 6204")
         runnod = "6204"
     if len(sys.argv) >= 4:
-        denew = sys.argv[3]
-    if len(sys.argv) >= 5:
-        frac = sys.argv[4]
+        frac = "_"+sys.argv[3]
     else:
-        print("using default frac """)
+        print("using default frac \"\"")
         frac = ""
-
-    head = "./"
-    devf = head + "qens_hist_o_divided_by_i_"+runnod+denew+".pkl"
-    tf = head + "qens_hist_o_divided_by_i_"+runno+frac+denew+".pkl"
+    head = "/home/kazu/desktop/210108/Tatsumi/srlz/0000025/"
+    devf = head+"run"+runnod+"united"+"sspectra.pkl"
+    tf = head+"run"+runno+"united"+frac+"sspectra.pkl"
     elim = [-0.03, 0.07]
     proj = qfc.qens_fit(devf, tf, elim, showplot=False)
     proj.icorr()
