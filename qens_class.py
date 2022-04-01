@@ -171,12 +171,15 @@ class qens:
         self.xvec_real += self.shift*self.de
         #print(self.xvec[0:30])
 
+    # Since get_qlist_nova_class.get_alldata() takes the bin bottom energy as the neutron energy,
+    # the random shift enegy in the following method is modified to be [0, 1]*de.
+    # However, the  q values are still inaccurate.
     def add_shift_de(self):
         #np.random.seed(314)
         self.xvecorg = np.array(self.xvec)
         self.shift = np.random.uniform(0., 1.0, size=self.xvec.shape[0])
-        #self.xvec += self.shift
-        #self.xvec_real += self.shift*self.de
+        self.xvec += self.shift
+        self.xvec_real += self.shift*self.de
         #print(self.xvec[0:30])
 
     def run_ssvkernel(self):
@@ -206,32 +209,6 @@ class qens:
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)
         self.y_ = sskernel.sskernel(self.xvec_real, self.tin_real)
-
-    def run_ssvkernel_de(self):
-        if self.optsm:
-            tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
-            self.tin = np.linspace(0.0, tinmax, int(tinmax)*2+1)
-            print("Check parameters of horizontal axis")
-            print("de=", self.de, "selected_energy[0]=",
-                  self.selected_energy[0], "num channels=", self.tin.shape[0])
-            self.tin_real = self.tin*self.de + self.selected_energy[0]
-        else:
-            self.tin = np.arange(self.selected_energy.shape[0])
-            print("Check parameters of horizontal axis")
-            print("de=", self.de, "selected_energy[0]=",
-                  self.selected_energy[0], "num channels=", self.tin.shape[0])
-            self.tin_real = np.linspace(self.selected_energy[0],
-                                        self.selected_energy[-1],
-                                        #num=self.selected_spectra.shape[0])
-                                        num=800)
-                                        #num=8000)
-                                        #num=66670)
-                                        #num=200000)
-            print(self.tin_real[0:10])
-        self.y = ssvkernel.ssvkernel(self.xvec_real+self.de*0.5, self.tin_real, M=self.M,
-                                     winparam=self.winparam,
-                                     WinFunc=self.WinFunc)
-        self.y_ = sskernel.sskernel(self.xvec_real+self.de*0.5, self.tin_real)
 
     def run_ssvkernel_direct(self):
         self.y = svk.ssvkernel(self.selected_spectra, self.selected_energy+self.de*0.5, M=self.M,
