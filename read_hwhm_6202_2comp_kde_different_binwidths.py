@@ -19,10 +19,11 @@ def samplerun():
     pws = [1]
     pfs = ["Boxcar"]
     channels = [""]
-    bins = ["0000025io"]
+    bins = ["0000001io"]
     fracs = ["", "0875", "075", "0625",  "05", "0375", "025", "0125"]
     tcount = np.array([18970., 16098., 13380., 10621., 7794., 5318., 2826.])
-    ndes = ["0.001", "0.00025", "0.000025"]
+    #ndes = ["0.001", "0.00025", "0.000025"]
+    ndes = ["0.00025",  "0.000025", "0.0000005"]
     ylims = [[0., 0.11], [0., 0.012]]
     eachnde(Ms, pws, pfs, channels, bins, fracs, tcount, ndes, ylims)
 
@@ -32,7 +33,8 @@ def eachnde(Ms, pws, pfs, channels, bins, fracs, tcount, ndes, ylims):
     for inde, nde in enumerate(ndes):
         prj = rhc.read_hwhm(Ms, pws, pfs, channels, bins, fracs,
                             prefix=home+"/desktop/210108/Tatsumi/" +
-                            "winparam_exam/test_python_de_"+nde,
+                            #"winparam_exam/test_python_de_"+nde,
+                            "winparam_exam/test_mpi_fort_de_"+nde,
                             numlore=2)
         prj.create_array()
         prj.data = prj.hwhms.squeeze()

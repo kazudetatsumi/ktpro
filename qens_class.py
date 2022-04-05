@@ -202,6 +202,7 @@ class qens:
                                         #num=8000)
                                         #num=66670)
                                         #num=200000)
+            print("num of tin_real element=",self.tin_real.shape)
             print(self.tin_real[0:10])
             print(self.selected_energy[0:20])
             print(self.selected_spectra[0:20])

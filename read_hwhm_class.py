@@ -196,8 +196,15 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                            stdhwhms[1], hwhms[4], stdhwhms[4], hwhms[5],
                            stdhwhms[5]]))
         else:
-            #print("number of hwhms is smaller than 2 check logfile")
-            return(np.zeros((self.numlore*4)))
+            if self.numlore == 2:
+                #print("number of hwhms is smaller than 2")
+                #print("still send the hwhms, the dificient elements is assigned as 0.")
+                for idx in range(len(hwhms), 6):
+                    hwhms.append(0.)
+                    stdhwhms.append(0.)
+                return(np.array([hwhms[0], stdhwhms[0], hwhms[1],
+                       stdhwhms[1], hwhms[4], stdhwhms[4], hwhms[5],
+                       stdhwhms[5]]))
 
 
 def samplerun():
