@@ -92,12 +92,14 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
 
     def create_array_shist(self):
         self.hwhms = np.zeros((len(self.fracs), 1+4*(self.numlore-1)))
+        self.negs = np.zeros((len(self.fracs)), dtype=bool)
+        #print(self.hwhms.shape)
         for ifr, frc in enumerate(self.fracs):
             dirname = self.prefix+"/shist_"+frc
             logfile = dirname+"/stdout-"+frc+".log"
             if os.path.exists(logfile):
-               # print("Found ", logfile)
-                self.hwhms[ifr, 1:] = self.gethwhm(logfile)
+                #print("Found ", logfile)
+                self.hwhms[ifr, 1:], self.negs[ifr] = self.gethwhm(logfile)
                 self.hwhms[ifr, 0] = self.getfrac(frc)
             #else:
                 #print("No ", logfile)
@@ -161,6 +163,18 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                         else:
                             hwhms.append(float(lines[il+1].split()[1]))
                             hwhms.append(float(lines[il+1].split()[3]))
+                        ## Check unphysical parameters
+                        neg = False
+                        for ele in lines[il+1].split():
+                            if len(ele) > 1:
+                                if "[" in ele:
+                                    test = float(ele[1:])
+                                elif "]" in ele:
+                                    test = float(ele[:-1])
+                                else:
+                                    test = float(ele)
+                                if test < 0.:
+                                    neg = True
                         if len(lines) >= il+7:
                             stdhwhms.append(float(lines[il+4].split()[1]))
                             stdhwhms.append(float(lines[il+6].split()[3]))
@@ -173,7 +187,7 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                         stdhwhms.append(float(lines[il+4].split(" ")[2]))
         #print("chk", hwhms, filename)
         if self.onlyhist:
-            return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]]))
+            return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]]), neg)
         elif len(hwhms) >= 3:
             if self.numlore == 1:
                 if self.fixbg:
