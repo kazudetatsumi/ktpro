@@ -29,13 +29,23 @@ class qens_fit:
         print(x_df[0:10])
         print(self.x_tf[0:10])
         if doicorr:
-            x = self.x_tf + 2.085
-            self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-                                     + self.k[2]*x**2
-                                     + self.k[3]*x**3)
-            self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-                                     + self.k[2]*x**2
-                                     + self.k[3]*x**3)
+            self.correction()
+            #x = self.x_tf + 2.085
+            #self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+            #                         + self.k[2]*x**2
+            #                         + self.k[3]*x**3)
+            #self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+            #                         + self.k[2]*x**2
+            #                         + self.k[3]*x**3)
+    
+    def correction(self):
+        x = self.x_tf + 2.085
+        self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+                                 + self.k[2]*x**2
+                                 + self.k[3]*x**3)
+        self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+                                 + self.k[2]*x**2
+                                 + self.k[3]*x**3)
 
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
@@ -46,13 +56,14 @@ class qens_fit:
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf[0], mergin=0.00)
         #print("y_tf[-1]", self.y_tf[-1])
         if doicorr:
-            x = self.x_tf + 2.085
-            self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-                                     + self.k[2]*x**2
-                                     + self.k[3]*x**3)
-            self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-                                     + self.k[2]*x**2
-                                     + self.k[3]*x**3)
+            self.correction()
+            #x = self.x_tf + 2.085
+            #self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+            #                         + self.k[2]*x**2
+            #                         + self.k[3]*x**3)
+            #self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+            #                         + self.k[2]*x**2
+            #                         + self.k[3]*x**3)
 
     def preprocessh(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_hdata(self.devf)
@@ -61,13 +72,14 @@ class qens_fit:
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf, mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf, mergin=0.00)
         if doicorr:
-            x = self.x_tf + 2.085
-            self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-                                     + self.k[2]*x**2
-                                     + self.k[3]*x**3)
-            self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-                                     + self.k[2]*x**2
-                                     + self.k[3]*x**3)
+            self.correction()
+            #x = self.x_tf + 2.085
+            #self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
+            #                         + self.k[2]*x**2
+            #                         + self.k[3]*x**3)
+            #self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+            #                         + self.k[2]*x**2
+            #                         + self.k[3]*x**3)
         if 'optbgpeakratio' in dir(self):
             self.bg = self.optbgpeakratio*np.sum(self.y_tf)*(x_tf[1]-x_tf[0])
             #np.sum(self.y_tf[np.argmax(self.y_tf)-100:np.argmax(self.y_tf)+100])
@@ -173,7 +185,7 @@ class qens_fit:
         #variables = [1.38746043e-04, 8.27288080e-03, 4.47976536e-01, 1.75691683e-02]
         #variables = [1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]
         #variables = [1.38876225e-04, 8.09183272e-03, 4.42217308e-01]
-        print(self.x_tf.shape)
+        #print(self.x_tf.shape)
         out = so.leastsq(self.res, variables,
                          args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
                          epsfcn=0.0001)
@@ -189,12 +201,13 @@ class qens_fit:
             if len(variables) == 6:
                 print("estimated constants alpha1, gamma1, alpha2, gamma2, delta, base")
             print(out[0])
+        self.out = out[0]
         self.gamma = out[0][1]
         if not self.quiet:
             print("cov**0.5")
             #print(out[1])
             print(np.absolute(out[1]*s_sq)**0.5)
-        self.gammaerror = np.absolute(out[1][1][1]*s_sq)**0.5
+        #self.gammaerror = np.absolute(out[1][1][1]*s_sq)**0.5
         if len(variables) == 4:
             _alpha, _gamma, _delta, _base = out[0]
         elif len(variables) == 3:

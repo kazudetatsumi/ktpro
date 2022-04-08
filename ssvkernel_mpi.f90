@@ -10,22 +10,25 @@ module ssvkernel
   integer :: xsize, tinsize, M
   integer comm, psize, rank, ierr
   character(6) :: WinFunc
+  integer, parameter  :: nb = 100
   double precision, parameter :: pi  = 4 * atan (1.0_8)
+  double precision :: dt, nsmpl
 contains
 
   subroutine ssvk(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, xdat, tin, optw, yopt) bind(C, name="ssvk")
     integer, intent(in) :: comm0, M0, xsize0, tinsize0, WinFuncNo
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
-    double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
-    double precision :: thist(tinsize0+1), y_hist(tinsize0), yh(tinsize0), yhist(tinsize0)
-    double precision T, dt_samp, dt, cost, Wins(M0), dw, wi, Win, nsmpl
-    double precision, dimension(M0, tinsize0) :: cfxw, optws, C_local
-    double precision, dimension(M0*tinsize0) :: cfxw1d, C_local1d
-    double precision, allocatable :: rcfxw1d(:), rC_local1d(:)
-    integer :: minkbwidx(tinsize0)
+!    double precision :: xdatstd(xsize0), xdatstddiff(xsize0-1), xdatstddiffstd(xsize0-1)
+    double precision :: y_hist(tinsize0)
+!    double precision T, cost, Wins(M0), dw, wi, Win
+    double precision Wins(M0)
+    double precision, dimension(M0, tinsize0) :: cfxw, optws!, C_local
+!    double precision, dimension(M0*tinsize0) :: cfxw1d, C_local1d
+!    double precision, allocatable :: rcfxw1d(:), rC_local1d(:)
+!    integer :: minkbwidx(tinsize0)
     !integer nbin, tinsize2
-    integer i, kbwidx, winidx, xchidx
+!    integer i, kbwidx, winidx, xchidx
     comm = comm0
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
@@ -42,7 +45,6 @@ contains
     tinsize=tinsize0
     xsize=xsize0
     M=M0
-    T=maxval(xdat)-minval(xdat)
     !xdatstd=xdat
     !call quicksort(xdatstd, 1, xsize)
     !xdatstddiff=xdatstd(2:xsize)-xdatstd(1:xsize-1)
@@ -57,27 +59,118 @@ contains
     !print *, 'tinsize2=',tinsize2
     !dt=T/(tinsize-1)
     !tin = (/(((xchidx-1)*dt+minval(xdat)), xchidx=1,tinsize)/)
-    dt=minval(tin(2:)-tin(1:tinsize-1))
-    thist(1:tinsize)=tin(:)
-    thist(tinsize+1)=tin(tinsize)+dt
-    thist = thist - dt/2
-    yhist=hist(xdat, thist)
-    nsmpl=sum(yhist)
-    y_hist=yhist/dt
-    dw=(ilogexp(T)-ilogexp(winparam*dt))/(M-1)
-    ! Wins contains all widths to be considered for kernels as well as window functions, 
-    ! playing a dual role to put kernel band-widths as well as window-widths.
-    Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
+!the following procedure is pushed into a function y_histf
+!    dt=minval(tin(2:)-tin(1:tinsize-1))
+!    thist(1:tinsize)=tin(:)
+!    thist(tinsize+1)=tin(tinsize)+dt
+!    thist = thist - dt/2
+!    y_hist=hist(xdat, thist)
+!    nsmpl=sum(y_hist)
+!    y_hist=y_hist/dt
+    y_hist=y_histf(xdat, tin)
+!the following procedure is pushed into a function Winsf
+!    T=maxval(xdat)-minval(xdat)
+!    dw=(ilogexp(T)-ilogexp(winparam*dt))/(M-1)
+!    ! Wins contains all widths to be considered for kernels as well as window functions, 
+!    ! playing a dual role to put kernel band-widths as well as window-widths.
+!    Wins=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
+    Wins=Winsf(winparam, xdat)
     !print *, "check ssvkernel param", winparam, M
     !print *, "check Ws", Wins(1:10)
     !if (rank==0) call clock('Wins ')
     !integrand of cost func, for fixed kernel band-widths
     !!mpi
-    cfxw=0.
+!the follwoing procedure is pushed into a function cfxw.
+!    cfxw=0.
+!    !cfxw1d=0.
+!    !print *, 'CHK', M*tinsize/psize
+!    !print *, 'CHK', M/psize
+!    allocate(rcfxw1d(M*tinsize/psize))
+!    !do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
+!    do kbwidx=1+rank*M/psize, (rank+1)*M/psize
+!      wi=Wins(kbwidx)
+!      yh=fftkernel(y_hist, wi/dt)
+!      !print *, 'CHKyh', size(yh)
+!      !print *, 'CHKrcfxw1d', size(rcfxw1d((kbwidx-1)*tinsize+1:kbwidx*tinsize))
+!      !cfxw(kbwidx,:)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
+!      rcfxw1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
+!&                                                  yh**2 - 2*yh*y_hist + &
+!&                                                  2./(2*pi)**0.5/wi*y_hist
+!    enddo
+!    !call mpi_barrier(comm, ierr)
+!    call mpi_allgather(rcfxw1d, M*tinsize/psize, mpi_double_precision,&
+!&                      cfxw1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+!    deallocate(rcfxw1d)
+!    cfxw = transpose(reshape((cfxw1d), (/tinsize, M/)))
+!    !if (rank==0) call clock('cfxw ')
+!    !optws is a conversion maxtrix containing an optimum kernel band width for a pair of
+!    ! a window width and a x channel.
+    cfxw=cfxwf(Wins, y_hist)
+    optws=optwsf(Wins, cfxw)
+!the follwoing procedure is pushed into a function optwsf.
+!    optws=0.
+!    allocate(rC_local1d(M*tinsize/psize))
+!    do winidx=1, M     ! do loop wrt window-widths This loop can be parallelized
+!      Win=Wins(winidx) ! by using mpi library.
+!      C_local=0.
+!      !mpi
+!      !do kbwidx=1, M   ! do loop wrt kernel band-widths
+!      do kbwidx=1+rank*M/psize, (rank+1)*M/psize
+!         !C_local(kbwidx, :)=fftkernelWin(cfxw(kbwidx,:), Win/dt)
+!         rC_local1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
+!&                               fftkernelWin(cfxw(kbwidx,:), Win/dt)
+!      enddo
+!      !call mpi_barrier(comm, ierr)
+!      call mpi_allgather(rC_local1d, M*tinsize/psize, mpi_double_precision,&
+!&                        C_local1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+!      C_local=transpose(reshape((C_local1d), (/tinsize, M/)))
+!      minkbwidx=minloc(C_local, 1)  
+!      do xchidx=1, tinsize ! do loop wrt x channels
+!         optws(winidx, xchidx) = Wins(minkbwidx(xchidx))
+!      enddo
+!    enddo
+!    deallocate(rC_local1d)
+    !if (rank==0) call clock('optss')
+    call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
+    !if (rank==0) call clock('optff')
+    !call  bootstrap(nb, tin, xdat, optw, yb) 
+  end subroutine ssvk
+
+  function Winsf(winparam, xdat)
+    double precision, intent(in) :: winparam, xdat(xsize)
+    double precision T, Winsf(M), dw
+    integer i
+    T=maxval(xdat)-minval(xdat)
+    dw=(ilogexp(T)-ilogexp(winparam*dt))/(M-1)
+    ! Wins contains all widths to be considered for kernels as well as window functions, 
+    ! playing a dual role to put kernel band-widths as well as window-widths.
+    Winsf=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
+  end function Winsf
+
+  function y_histf(xdat, tin)
+    double precision, intent(in) :: xdat(xsize), tin(tinsize)
+    double precision :: thist(tinsize+1), y_histf(tinsize)
+    dt=minval(tin(2:)-tin(1:tinsize-1))
+    thist(1:tinsize)=tin(:)
+    thist(tinsize+1)=tin(tinsize)+dt
+    thist = thist - dt/2
+    y_histf=hist(xdat, thist)
+    nsmpl=sum(y_histf)
+    y_histf=y_histf/dt
+  end function y_histf
+
+  function cfxwf(Wins, y_hist)
+    double precision, intent(in) :: Wins(M)
+    double precision, intent(in) :: y_hist(tinsize)
+    double precision :: cfxwf(M,tinsize)
+    double precision :: cfxw1d(M*tinsize)
+    double precision :: rcfxw1d(M*tinsize/psize), wi
+    double precision :: yh(tinsize)
+    integer kbwidx
+    cfxwf=0.
     !cfxw1d=0.
     !print *, 'CHK', M*tinsize/psize
     !print *, 'CHK', M/psize
-    allocate(rcfxw1d(M*tinsize/psize))
     !do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
     do kbwidx=1+rank*M/psize, (rank+1)*M/psize
       wi=Wins(kbwidx)
@@ -92,12 +185,17 @@ contains
     !call mpi_barrier(comm, ierr)
     call mpi_allgather(rcfxw1d, M*tinsize/psize, mpi_double_precision,&
 &                      cfxw1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
-    cfxw = transpose(reshape((cfxw1d), (/tinsize, M/)))
-    !if (rank==0) call clock('cfxw ')
-    !optws is a conversion maxtrix containing an optimum kernel band width for a pair of
-    ! a window width and a x channel.
-    optws=0.
-    allocate(rC_local1d(M*tinsize/psize))
+    cfxwf = transpose(reshape((cfxw1d), (/tinsize, M/)))
+  end function cfxwf
+
+  function optwsf(Wins, cfxw)
+    double precision, intent(in) :: Wins(M), cfxw(M, tinsize)
+    double precision, dimension(M, tinsize) :: optwsf, C_local
+    double precision ::  rC_local1d(M*tinsize/psize), Win
+    double precision :: C_local1d(M*tinsize)
+    integer :: minkbwidx(tinsize)
+    integer kbwidx, winidx, xchidx
+    optwsf=0.
     do winidx=1, M     ! do loop wrt window-widths This loop can be parallelized
       Win=Wins(winidx) ! by using mpi library.
       C_local=0.
@@ -114,13 +212,10 @@ contains
       C_local=transpose(reshape((C_local1d), (/tinsize, M/)))
       minkbwidx=minloc(C_local, 1)  
       do xchidx=1, tinsize ! do loop wrt x channels
-         optws(winidx, xchidx) = Wins(minkbwidx(xchidx))
+         optwsf(winidx, xchidx) = Wins(minkbwidx(xchidx))
       enddo
     enddo
-    !if (rank==0) call clock('optss')
-    call opt(optw, yopt, y_hist, xdat, nsmpl, tin, dt, Wins, optws)
-    !if (rank==0) call clock('optff')
-  end subroutine ssvk
+  end function optwsf
 
   function hist(x, th)
     double precision, intent(in) :: x(xsize), th(tinsize+1)
@@ -144,9 +239,9 @@ contains
   !  end do
   !end subroutine plothist
 
-  subroutine opt(optw, yopt, y_hist, xdat, nsmpl, tin, dt, Wins, optws)
-    double precision, intent(in) :: y_hist(tinsize), dt, xdat(xsize), tin(tinsize)
-    double precision, intent(in) :: Wins(M), optws(M, tinsize), nsmpl
+  subroutine opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
+    double precision, intent(in) :: y_hist(tinsize), xdat(xsize), tin(tinsize)
+    double precision, intent(in) :: Wins(M), optws(M, tinsize)
     !integer, intent(in) :: nsmpl
     integer, parameter :: maxiter = 30
     double precision, parameter :: tol = 10e-5
@@ -163,9 +258,9 @@ contains
     b=1
     c1=(phi - 1)*a + (2 - phi)*b
     c2=(2 - phi)*a + (phi - 1)*b
-    call costfunction(f1, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c1)
+    call costfunction(f1, dummy, dummy2, y_hist, tin, optws, Wins, c1)
     !print *, "CHK", f1, c1, rank
-    call costfunction(f2, dummy, dummy2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
+    call costfunction(f2, dummy, dummy2, y_hist, tin, optws, Wins, c2)
     !print *, "CHK", f2, c2, rank
     do while ( (abs(a-b) > tol*(abs(c1)+abs(c2))) .and. (kiter <= maxiter) )
       if (f1 < f2) then
@@ -173,7 +268,7 @@ contains
          c2=c1
          c1=(phi-1)*a + (2-phi)*b
          f2=f1
-         call costfunction(f1, yv1, optwp1, y_hist, nsmpl, tin, dt, optws, Wins, c1)
+         call costfunction(f1, yv1, optwp1, y_hist, tin, optws, Wins, c1)
          yopt=yv1/sum(yv1*dt)
          optw=optwp1
       else
@@ -181,7 +276,7 @@ contains
          c1=c2
          c2=(2-phi)*a + (phi-1)*b
          f1=f2
-         call costfunction(f2, yv2, optwp2, y_hist, nsmpl, tin, dt, optws, Wins, c2)
+         call costfunction(f2, yv2, optwp2, y_hist, tin, optws, Wins, c2)
          yopt=yv2/sum(yv2*dt)
          optw=optwp2
       endif
@@ -192,10 +287,10 @@ contains
     enddo
   end subroutine opt
 
-  subroutine costfunction(Cg, yv, optwp, y_hist, nsmpl, tin, dt, optws, Wins, g)
+  subroutine costfunction(Cg, yv, optwp, y_hist, tin, optws, Wins, g)
     !integer, intent(in) :: nsmpl
     double precision, dimension(tinsize), intent(in) ::  y_hist, tin
-    double precision, intent(in) :: optws(M, tinsize), Wins(M), dt, g, nsmpl
+    double precision, intent(in) :: optws(M, tinsize), Wins(M), g
     double precision, intent(out) :: Cg, yv(tinsize), optwp(tinsize)
     double precision, dimension(tinsize) :: optwv, cintegrand, Z
     double precision, allocatable :: y_hist_nz(:), tin_nz(:), roptwp(:), ryv(:)
@@ -233,6 +328,7 @@ contains
     !call mpi_barrier(comm, ierr)
     call mpi_allgather(roptwp, tinsize/psize, mpi_double_precision,&
 &                     optwp, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+    deallocate(roptwp)
     !if (rank==0) call clock('cost2')
     ! Balloon estimator only on non-zero bins.
     y_hist_nz=pack(y_hist, y_hist > 0.) 
@@ -246,6 +342,7 @@ contains
     !call mpi_barrier(comm, ierr)
     call mpi_allgather(ryv, tinsize/psize, mpi_double_precision,&
 &                      yv, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+    deallocate(ryv, tin_nz, y_hist_nz)
     yv=yv*nsmpl/sum(yv*dt)
     cintegrand = yv**2 - 2.*yv*y_hist + 2./(2.*pi)**0.5/optwp*y_hist
     Cg=sum(cintegrand*dt)
@@ -431,38 +528,36 @@ contains
     print *, time, flag
   end subroutine clock
 
-  subroutine bootstrap(nb, tin, xdat, optw, yb) 
-    integer, intent(in) :: nb
+  function bootstrap(tin, xdat, optw) 
     double precision, intent(in) :: tin(tinsize), xdat(xsize), optw(tinsize)
     double precision :: u(xsize), xb(xsize), thist(tinsize+1), yhistb(tinsize), yvb(tinsize)
     double precision :: ryvb(tinsize/psize)
-    double precision, intent(out) :: yb(nb, xsize)
+    double precision, intent(out) :: bootstrap(nb, xsize)
     double precision, allocatable :: y_histb_nz(:), tinb_nz(:)
     integer :: idx(xsize), sidx, xchidx
     thist(1:tinsize)=tin(:)
     thist(tinsize+1)=tin(tinsize)+dt
     thist = thist - dt/2
-    dt=minval(tin(2:)-tin(1:tinsize-1))
     do sidx=1,nb
       call random_number(u)
       idx=1+floor(u*xsize)
       xb=xdat(idx)
       yhistb=hist(xb, thist)
       y_histb_nz=pack(yhistb, yhistb > 0.) 
-      tinb_nz=pack(tin, y_histb>0)
+      tinb_nz=pack(tin, yhistb>0)
       yvb = 0.
     !! mpi
     !!do xchidx=1, tinsize
       do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
-        ryvb(xchidx-rank*tinsize/psize)=sum(y_histb_nz*dt*Gauss(tin(xchidx)-tinb_nz, optwp(xchidx)))
+        ryvb(xchidx-rank*tinsize/psize)=sum(y_histb_nz*dt*Gauss(tin(xchidx)-tinb_nz, optw(xchidx)))
       enddo
       !call mpi_barrier(comm, ierr)
       call mpi_allgather(ryvb, tinsize/psize, mpi_double_precision,&
 &                        yvb, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
       yvb=yvb/sum(yvb*dt)
-      yb(sidx,:)=yvb
+      bootstrap(sidx,:)=yvb
     enddo
-  end subroutine bootstrap
+  end function bootstrap
 
 
 end module ssvkernel
