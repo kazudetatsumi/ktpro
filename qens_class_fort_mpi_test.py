@@ -92,17 +92,25 @@ class qens:
                                    ], dtype=float)
 
     def add_shift(self):
-        self.xvecorg = np.array(self.xvec)
-        self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
-        self.xvec += self.shift
-        self.xvec_real += self.shift*self.de
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
+        if rank == 0:
+        #self.xvecorg = np.array(self.xvec)
+           self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
+           self.xvec += self.shift
+           self.xvec_real += self.shift*self.de
+        self.xvec_real = MPI.COMM_WORLD.bcast(self.xvec_real)
         #print(self.xvec[0:30])
 
     def add_shift_de(self):
-        self.xvecorg = np.array(self.xvec)
-        self.shift = np.random.uniform(0., 1., size=self.xvec.shape[0])
-        self.xvec += self.shift
-        self.xvec_real += self.shift*self.de
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
+        if rank == 0:
+        #self.xvecorg = np.array(self.xvec)
+           self.shift = np.random.uniform(0., 1., size=self.xvec.shape[0])
+           #self.xvec += self.shift
+           self.xvec_real += self.shift*self.de
+        self.xvec_real = MPI.COMM_WORLD.bcast(self.xvec_real)
         #print(self.xvec[0:30])
 
     def run_ssvkernel(self):
@@ -113,11 +121,11 @@ class qens:
         self.tin_real = np.linspace(self.selected_energy[0],
                                     #self.selected_energy[-1],
                                     #num=self.selected_spectra.shape[0])
-                                    #self.selected_energy[-1], num=8000)
+                                    self.selected_energy[-1], num=800)
                                     #self.selected_energy[-1], num=80000)
                                     #self.selected_energy[-1], num=66700)
                                     #self.selected_energy[-1], num=200000)
-                                    self.selected_energy[-1], num=2000000)
+                                    #self.selected_energy[-1], num=2000000)
         #print(self.tin_real[0:10])
         print('number of tin_real elements=', self.tin_real.shape[0])
 

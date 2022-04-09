@@ -1,17 +1,18 @@
-program test
-implicit none
-integer::elem,i
-real,dimension(:,:),allocatable::A
-elem = 10
-allocate(A(elem,2))
-FORALL(I = 1:elem) A(I, 1) = i 
-FORALL(I = 1:elem) A(I, 2) = 0
-print*,A, "<-before"
-where (A(:,1)>=3 .and. A(:,1)<=6) A(:,1) = 1 
-print*,A
-deallocate(A)
-print*,mod(-1.1, 1.0)
-print*,mod(-0.9, 1.0)
-print*,mod(1.6, 1.0)
-print*,mod(1.4, 1.0)
-end program test 
+!fortran 90 program for a kernel density estimation with localy optimized bandwidths.
+!openmpi version: M and tinsize must be multiples of psize. 
+!Kazuyoshi TATSUMI 2022/04/08
+
+program testmpi
+  !include 'mpif.h'
+  !double precision, dimension(16, 4) :: A
+  !double precision, allocatable :: eacha
+  integer :: rank, psize, ierr
+  !call MPI_Init(ierr)
+  !call MPI_Comm_size(MPI_COMM_WORLD, psize, ierr)
+  !call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
+  !print *, rank
+  stop
+  end
+
+
+
