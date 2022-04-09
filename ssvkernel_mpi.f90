@@ -10,7 +10,7 @@ module ssvkernel
   integer :: xsize, tinsize, M
   integer comm, psize, rank, ierr
   character(6) :: WinFunc
-  integer, parameter  :: nb = 1000
+  integer, parameter  :: nb = 160
   double precision, parameter :: pi  = 4 * atan (1.0_8)
   double precision :: dt, nsmpl
 contains
@@ -19,9 +19,10 @@ contains
     integer, intent(in) :: comm0, M0, xsize0, tinsize0, WinFuncNo
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
-    double precision :: y_hist(tinsize0), yb(nb, tinsize0)
+    double precision :: y_hist(tinsize0)!, yb(nb, tinsize0)
     double precision Wins(M0)
-    double precision, dimension(M0, tinsize0) :: cfxw, optws!, C_local
+    double precision, dimension(M0, tinsize0) :: optws!, C_local
+    double precision :: cfxw(tinsize0, M0)
     comm = comm0
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
@@ -50,7 +51,6 @@ contains
     if (rank==0) then
         print *, 'optws'
     endif
-    !optws=optwsf(Wins, cfxw)
     optws=optwsf(Wins, cfxw)
     if (rank==0) then
         print *, 'opt'
@@ -85,34 +85,55 @@ contains
   function cfxwf(Wins, y_hist)
     double precision, intent(in) :: Wins(M)
     double precision, intent(in) :: y_hist(tinsize)
-    double precision :: cfxwf(M,tinsize), wi
-    double precision, allocatable :: cfxw1d(:)
-    double precision, allocatable :: rcfxw1d(:)
+    double precision :: cfxwf(tinsize,M), wi
+    double precision, allocatable :: rcfxw(:,:)
     double precision, allocatable :: yh(:)
     integer kbwidx
     cfxwf=0.
     !do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
-    allocate(rcfxw1d(M*tinsize/psize))
+    allocate(rcfxw(tinsize, M/psize))
     allocate(yh(tinsize))
     do kbwidx=1+rank*M/psize, (rank+1)*M/psize
       wi=Wins(kbwidx)
       yh=fftkernel(y_hist, wi/dt)
-      rcfxw1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
-&                                                  yh**2 - 2*yh*y_hist + &
-&                                                  2./(2*pi)**0.5/wi*y_hist
+      rcfxw(:,kbwidx-rank*M/psize)=yh**2 - 2*yh*y_hist + 2./(2*pi)**0.5/wi*y_hist
     enddo
     !call mpi_barrier(comm, ierr)
-    allocate(cfxw1d(M*tinsize))
-    call mpi_allgather(rcfxw1d, M*tinsize/psize, mpi_double_precision,&
-&                      cfxw1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
-    cfxwf = transpose(reshape((cfxw1d), (/tinsize, M/)))
+    call mpi_allgather(rcfxw, M*tinsize/psize, mpi_double_precision,&
+                       cfxwf, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
   end function cfxwf
 
+!  function cfxwf(Wins, y_hist)
+!    double precision, intent(in) :: Wins(M)
+!    double precision, intent(in) :: y_hist(tinsize)
+!    double precision :: cfxwf(M,tinsize), wi
+!    double precision, allocatable :: cfxw1d(:)
+!    double precision, allocatable :: rcfxw1d(:)
+!    double precision, allocatable :: yh(:)
+!    integer kbwidx
+!    cfxwf=0.
+!    !do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
+!    allocate(rcfxw1d(M*tinsize/psize))
+!    allocate(yh(tinsize))
+!    do kbwidx=1+rank*M/psize, (rank+1)*M/psize
+!      wi=Wins(kbwidx)
+!      yh=fftkernel(y_hist, wi/dt)
+!      rcfxw1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
+!&                                                  yh**2 - 2*yh*y_hist + &
+!&                                                  2./(2*pi)**0.5/wi*y_hist
+!    enddo
+!    !call mpi_barrier(comm, ierr)
+!    allocate(cfxw1d(M*tinsize))
+!    call mpi_allgather(rcfxw1d, M*tinsize/psize, mpi_double_precision,&
+!&                      cfxw1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+!    cfxwf = transpose(reshape((cfxw1d), (/tinsize, M/)))
+!  end function cfxwf
+
   function optwsf(Wins, cfxw)
-    double precision, intent(in) :: Wins(M), cfxw(M, tinsize)
-    double precision, dimension(M, tinsize) :: optwsf, C_local
-    double precision ::  rC_local1d(M*tinsize/psize), Win
-    double precision :: C_local1d(M*tinsize)
+    double precision, intent(in) :: Wins(M), cfxw(tinsize,M)
+    double precision, dimension(M, tinsize) :: optwsf
+    double precision ::  rC_local(tinsize,M/psize), Win
+    double precision :: C_local(tinsize,M)
     integer :: minkbwidx(tinsize)
     integer kbwidx, winidx, xchidx
     optwsf=0.
@@ -122,14 +143,12 @@ contains
       !do kbwidx=1, M   ! do loop wrt kernel band-widths
       do kbwidx=1+rank*M/psize, (rank+1)*M/psize
          !C_local(kbwidx, :)=fftkernelWin(cfxw(kbwidx,:), Win/dt)
-         rC_local1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
-&                               fftkernelWin(cfxw(kbwidx,:), Win/dt)
+         rC_local(:,kbwidx-rank*M/psize)=fftkernelWin(cfxw(:,kbwidx), Win/dt)
       enddo
       !call mpi_barrier(comm, ierr)
-      call mpi_allgather(rC_local1d, M*tinsize/psize, mpi_double_precision,&
-&                        C_local1d, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
-      C_local=transpose(reshape((C_local1d), (/tinsize, M/)))
-      minkbwidx=minloc(C_local, 1)  
+      call mpi_allgather(rC_local, M*tinsize/psize, mpi_double_precision,&
+&                        C_local, M*tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+      minkbwidx=minloc(C_local, 2)  
       do xchidx=1, tinsize ! do loop wrt x channels
          optwsf(winidx, xchidx) = Wins(minkbwidx(xchidx))
       enddo
@@ -137,7 +156,7 @@ contains
   end function optwsf
 
   function optwsf_alloc(Wins, cfxw)
-    double precision, intent(in) :: Wins(M), cfxw(M, tinsize)
+    double precision, intent(in) :: Wins(M), cfxw(tinsize,M)
     !double precision, dimension(M, tinsize) :: optwsf, C_local
     double precision ::  optwsf_alloc(M, tinsize) 
     double precision, allocatable :: C_local(:,:)
@@ -157,7 +176,7 @@ contains
       do kbwidx=1+rank*M/psize, (rank+1)*M/psize
          !C_local(kbwidx, :)=fftkernelWin(cfxw(kbwidx,:), Win/dt)
          rC_local1d((kbwidx-1-rank*M/psize)*tinsize+1:(kbwidx-rank*M/psize)*tinsize)=&
-&                               fftkernelWin(cfxw(kbwidx,:), Win/dt)
+&                               fftkernelWin(cfxw(:,kbwidx), Win/dt)
       enddo
       !call mpi_barrier(comm, ierr)
       allocate(C_local1d(M*tinsize))
@@ -478,13 +497,49 @@ contains
     print *, time, flag
   end subroutine clock
 
+!  function ybf(tin, xdat, optw) 
+!    double precision, intent(in) :: tin(tinsize), xdat(xsize), optw(tinsize)
+!    double precision :: u(xsize), xb(xsize), thist(tinsize+1), yhistb(tinsize)
+!    double precision :: ryb(tinsize, nb/psize)
+!    double precision :: ybf(tinsize, nb)
+!    double precision, allocatable :: y_histb_nz(:), tinb_nz(:)
+!    integer :: idx(xsize), sidx, tidx, xchidx, seed(33)
+!    thist(1:tinsize)=tin(:)
+!    thist(tinsize+1)=tin(tinsize)+dt
+!    thist = thist - dt/2
+!    seed=1
+!    seed=seed*1000*(rank+1)
+!    call random_seed(put=seed)
+!    do sidx=1+rank*nb/psize,(rank+1)*nb/psize
+!      call random_number(u)
+!      idx=1+floor(u*xsize)
+!      xb=xdat(idx)
+!      yhistb=hist(xb, thist)
+!      y_histb_nz=pack(yhistb, yhistb > 0.) 
+!      tinb_nz=pack(tin, yhistb > 0.)
+!      do xchidx=1, tinsize
+!        ryb(xchidx,sidx-rank*nb/psize)=sum(y_histb_nz*dt*Gauss(tin(xchidx)-tinb_nz, optw(xchidx)))
+!      enddo
+!    enddo
+!    call mpi_allgather(ryb, tinsize*nb/psize, mpi_double_precision,&
+!                       ybf, tinsize*nb/psize, mpi_double_precision, mpi_comm_world, ierr)
+!    do tidx=1,tinsize
+!       ybf(tidx,:)=ybf(tidx,:)/sum(ybf(tidx,:)*dt)
+!    enddo
+!    if (rank==0) then
+!    do tidx=1,tinsize
+!       print *, ybf(tidx, 1)
+!    enddo
+!    endif
+!  end function ybf
+
   function ybf(tin, xdat, optw) 
     double precision, intent(in) :: tin(tinsize), xdat(xsize), optw(tinsize)
     double precision :: u(xsize), xb(xsize), thist(tinsize+1), yhistb(tinsize), yvb(tinsize)
     double precision :: ryvb(tinsize/psize)
     double precision :: ybf(nb, tinsize)
     double precision, allocatable :: y_histb_nz(:), tinb_nz(:)
-    integer :: idx(xsize), sidx, xchidx
+    integer :: idx(xsize), sidx, tidx, xchidx
     thist(1:tinsize)=tin(:)
     thist(tinsize+1)=tin(tinsize)+dt
     thist = thist - dt/2
@@ -507,6 +562,12 @@ contains
       yvb=yvb/sum(yvb*dt)
       ybf(sidx,:)=yvb
     enddo
+
+    if (rank==0) then
+    do tidx=1,tinsize
+       print *, ybf(1, tidx)
+    enddo
+    endif
   end function ybf
 
 
