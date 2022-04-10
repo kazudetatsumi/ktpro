@@ -256,53 +256,51 @@ contains
     enddo
   end subroutine opt
 
+
   subroutine costfunction(Cg, yv, optwp, y_hist, tin, optws, Wins, g)
+    !integer, intent(in) :: nsmpl
     double precision, dimension(tinsize), intent(in) ::  y_hist, tin
     double precision, intent(in) :: optws(M, tinsize), Wins(M), g
     double precision, intent(out) :: Cg, yv(tinsize), optwp(tinsize)
-    double precision, dimension(tinsize) ::  cintegrand, Z
+    double precision, dimension(tinsize) :: optwv, cintegrand, Z
     double precision, allocatable :: y_hist_nz(:), tin_nz(:), roptwp(:), ryv(:)
-    double precision :: roptwv(tinsize/psize)
     double precision :: gammas(M)
     integer :: xchidx, maxidx, wchidx
     y_hist_nz=pack(y_hist, y_hist > 0.) 
     tin_nz=pack(tin, y_hist>0)
-    !do xchidx=1, tinsize  
-    do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
+    do xchidx=1, tinsize  
       gammas = optws(:, xchidx)/Wins
       if (g > maxval(gammas)) then
-        roptwv(xchidx-rank*tinsize/psize)=minval(Wins)
+        optwv(xchidx)=minval(Wins)
       else
         if (g < minval(gammas)) then
-          roptwv(xchidx-rank*tinsize/psize)=maxval(Wins)
+          optwv(xchidx)=maxval(Wins)
         else
           maxidx=maxval(pack([(wchidx, wchidx=1, M)], gammas >= g))
-          roptwv(xchidx-rank*tinsize/psize)=g*Wins(maxidx)
+          optwv(xchidx)=g*Wins(maxidx)
         endif
       endif
-    !enddo
-    !optwp=0.
-      allocate(roptwp(tinsize/psize), ryv(tinsize/psize))
-    !do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
+    enddo
+    ! mpi
+    !do xchidx=1, tinsize
+    do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
       if (WinFunc == 'Boxcar') Z=Boxcar(tin(xchidx)-tin, optwv/g)
       if (WinFunc == 'Gauss') Z=vGauss(tin(xchidx)-tin, optwv/g)
       if (WinFunc == 'Cauchy') Z=Cauchy(tin(xchidx)-tin, optwv/g)
       roptwp(xchidx-rank*tinsize/psize)=sum(optwv*Z)/sum(Z)
-    !enddo
-    !call mpi_allgather(roptwp, tinsize/psize, mpi_double_precision,&
-    !                   optwp, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
-    !deallocate(roptwp)
-    !do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
-      ryv(xchidx-rank*tinsize/psize)=sum(y_hist_nz*dt*Gauss(tin(xchidx)-tin_nz, optwp(xchidx)))
-    !enddo
-    !call mpi_allgather(ryv, tinsize/psize, mpi_double_precision,&
-    !                   yv, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
-    !deallocate(ryv, tin_nz, y_hist_nz)
-    !yv=yv*nsmpl/sum(yv*dt)
-    !cintegrand = yv**2 - 2.*yv*y_hist + 2./(2.*pi)**0.5/optwp*y_hist
-    !Cg=sum(cintegrand*dt)
+      ryv(xchidx-rank*tinsize/psize)=sum(y_hist_nz*dt*&
+                                         Gauss(tin(xchidx)-tin_nz,&
+                                         roptwp(xchidx-rank*tinsize/psize)&
+                                              )&
+                                         )
+    enddo
+    call mpi_allgather(ryv, tinsize/psize, mpi_double_precision,&
+                       yv, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+    yv=yv*nsmpl/sum(yv*dt)
+    cintegrand = yv**2 - 2.*yv*y_hist + 2./(2.*pi)**0.5/optwp*y_hist
+    Cg=sum(cintegrand*dt)
   end subroutine costfunction
-
+  
   subroutine costfunctionorg(Cg, yv, optwp, y_hist, tin, optws, Wins, g)
     !integer, intent(in) :: nsmpl
     double precision, dimension(tinsize), intent(in) ::  y_hist, tin
