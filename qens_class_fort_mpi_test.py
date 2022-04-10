@@ -121,10 +121,10 @@ class qens:
         self.tin_real = np.linspace(self.selected_energy[0],
                                     #self.selected_energy[-1],
                                     #num=self.selected_spectra.shape[0])
-                                    #self.selected_energy[-1], num=800)
+                                    self.selected_energy[-1], num=800)
                                     #self.selected_energy[-1], num=80000)
                                     #self.selected_energy[-1], num=66700)
-                                    self.selected_energy[-1], num=200000)
+                                    #self.selected_energy[-1], num=200000)
                                     #self.selected_energy[-1], num=2000000)
         #print(self.tin_real[0:10])
         print('number of tin_real elements=', self.tin_real.shape[0])
@@ -148,15 +148,19 @@ class qens:
                             POINTER(c_int),
                             POINTER(c_int),
                             POINTER(c_int),
+                            POINTER(c_int),
                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)
+                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
+                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)
                             ]
         xsize = self.xvec_real.shape[0]
         tinsize = self.tin_real.shape[0]
         yopt = np.zeros((tinsize))
         optw = np.zeros((tinsize))
+        nb = 100
+        yb = np.zeros((nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
 
@@ -167,12 +171,14 @@ class qens:
                 c_int(xsize),
                 c_int(tinsize),
                 c_int(WinFuncNo),
+                c_int(nb),
                 self.xvec_real,
                 self.tin_real,
                 optw,
-                yopt
+                yopt,
+                yb
                 )
-        return yopt, self.tin_real, optw
+        return yopt, self.tin_real, optw, yb
 
     def plotter(self):
         #norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de

@@ -1,4 +1,4 @@
-!fortran 90 program for a kernel density estimation with localy optimized bandwidths.
+!fortran 89 program for a kernel density estimation with localy optimized bandwidths.
 !openmpi version: M and tinsize must be multiples of psize. 
 !Kazuyoshi TATSUMI 2022/04/08
 
@@ -10,19 +10,20 @@ module ssvkernel
   integer :: xsize, tinsize, M
   integer comm, psize, rank, ierr
   character(6) :: WinFunc
-  integer, parameter  :: nb = 160
+  integer  :: nb 
   double precision, parameter :: pi  = 4 * atan (1.0_8)
   double precision :: dt, nsmpl
 contains
 
-  subroutine ssvk(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, xdat, tin, optw, yopt) bind(C, name="ssvk")
-    integer, intent(in) :: comm0, M0, xsize0, tinsize0, WinFuncNo
+  subroutine ssvk(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, nb0, xdat, tin, optw, yopt, yb) bind(C, name="ssvk")
+    integer, intent(in) :: comm0, M0, xsize0, tinsize0, WinFuncNo, nb0
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
-    double precision :: y_hist(tinsize0)!, yb(nb, tinsize0)
+    double precision, intent(out) :: yb(tinsize0,nb0)
     double precision Wins(M0)
     double precision, dimension(M0, tinsize0) :: optws!, C_local
-    double precision :: cfxw(tinsize0, M0)
+    double precision, allocatable :: cfxw(:,:), y_hist(:)
+    integer tidx
     comm = comm0
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
@@ -36,6 +37,7 @@ contains
     tinsize=tinsize0
     xsize=xsize0
     M=M0
+    nb=nb0
     if (rank==0) then
         print *, 'y_hist'
     endif
@@ -56,7 +58,12 @@ contains
         print *, 'opt'
     endif
     call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
-    !yb = ybf(tin, xdat, optw) 
+    yb = ybf(tin, xdat, optw) 
+    !if (rank==0) then
+    !do tidx=1,tinsize
+    !   print *, yb(tidx, 1)
+    !enddo
+    !endif
   end subroutine ssvk
 
   function Winsf(winparam, xdat)
@@ -72,7 +79,8 @@ contains
 
   function y_histf(xdat, tin)
     double precision, intent(in) :: xdat(xsize), tin(tinsize)
-    double precision :: thist(tinsize+1), y_histf(tinsize)
+    double precision :: thist(tinsize+1)
+    double precision, allocatable ::  y_histf(:)
     dt=minval(tin(2:)-tin(1:tinsize-1))
     thist(1:tinsize)=tin(:)
     thist(tinsize+1)=tin(tinsize)+dt
@@ -84,13 +92,14 @@ contains
 
   function cfxwf(Wins, y_hist)
     double precision, intent(in) :: Wins(M)
-    double precision, intent(in) :: y_hist(tinsize)
-    double precision :: cfxwf(tinsize,M), wi
+    double precision, allocatable, intent(in) :: y_hist(:)
+    double precision, allocatable :: cfxwf(:,:)
+    double precision :: wi
     double precision, allocatable :: rcfxw(:,:)
     double precision, allocatable :: yh(:)
     integer kbwidx
     cfxwf=0.
-    !do kbwidx=1, M  ! This loop can be parallelized by using mpi library.
+    allocate(cfxwf(tinsize, M))
     allocate(rcfxw(tinsize, M/psize))
     allocate(yh(tinsize))
     do kbwidx=1+rank*M/psize, (rank+1)*M/psize
@@ -105,7 +114,7 @@ contains
 
 !  function cfxwf(Wins, y_hist)
 !    double precision, intent(in) :: Wins(M)
-!    double precision, intent(in) :: y_hist(tinsize)
+!    double precision, allocatable, intent(in) :: y_hist(:)
 !    double precision :: cfxwf(M,tinsize), wi
 !    double precision, allocatable :: cfxw1d(:)
 !    double precision, allocatable :: rcfxw1d(:)
@@ -130,7 +139,8 @@ contains
 !  end function cfxwf
 
   function optwsf(Wins, cfxw)
-    double precision, intent(in) :: Wins(M), cfxw(tinsize,M)
+    double precision, intent(in) :: Wins(M)
+    double precision, allocatable, intent(in) :: cfxw(:,:)
     double precision, dimension(M, tinsize) :: optwsf
     double precision ::  rC_local(tinsize,M/psize), Win
     double precision :: C_local(tinsize,M)
@@ -156,7 +166,8 @@ contains
   end function optwsf
 
   function optwsf_alloc(Wins, cfxw)
-    double precision, intent(in) :: Wins(M), cfxw(tinsize,M)
+    double precision, intent(in) :: Wins(M)
+    double precision, allocatable, intent(in) :: cfxw(:,:)
     !double precision, dimension(M, tinsize) :: optwsf, C_local
     double precision ::  optwsf_alloc(M, tinsize) 
     double precision, allocatable :: C_local(:,:)
@@ -196,8 +207,9 @@ contains
 
   function hist(x, th)
     double precision, intent(in) :: x(xsize), th(tinsize+1)
-    double precision :: hist(tinsize)
+    double precision, allocatable :: hist(:)
     integer ix, it
+    allocate(hist(tinsize))
     hist(:) = 0.
     do ix = 1, xsize
        do it = 1, tinsize
@@ -209,8 +221,9 @@ contains
   end function hist
     
   subroutine opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
-    double precision, intent(in) :: y_hist(tinsize), xdat(xsize), tin(tinsize)
+    double precision, intent(in) :: xdat(xsize), tin(tinsize)
     double precision, intent(in) :: Wins(M), optws(M, tinsize)
+    double precision, allocatable, intent(in) :: y_hist(:)
     integer, parameter :: maxiter = 30
     double precision, parameter :: tol = 10e-5
     double precision, parameter :: phi = (5**0.5 + 1) / 2
@@ -254,7 +267,8 @@ contains
   end subroutine opt
 
   subroutine costfunction(Cg, yv, optwp, y_hist, tin, optws, Wins, g)
-    double precision, dimension(tinsize), intent(in) ::  y_hist, tin
+    double precision, dimension(tinsize), intent(in) :: tin
+    double precision, allocatable, intent(in) :: y_hist(:)
     double precision, intent(in) :: optws(M, tinsize), Wins(M), g
     double precision, intent(out) :: Cg, yv(tinsize), optwp(tinsize)
     double precision, dimension(tinsize) :: optwv, cintegrand, Z
@@ -303,7 +317,8 @@ contains
   
   subroutine costfunctionorg(Cg, yv, optwp, y_hist, tin, optws, Wins, g)
     !integer, intent(in) :: nsmpl
-    double precision, dimension(tinsize), intent(in) ::  y_hist, tin
+    double precision, dimension(tinsize), intent(in) :: tin
+    double precision, allocatable, intent(in) :: y_hist(:)
     double precision, intent(in) :: optws(M, tinsize), Wins(M), g
     double precision, intent(out) :: Cg, yv(tinsize), optwp(tinsize)
     double precision, dimension(tinsize) :: optwv, cintegrand, Z
@@ -542,47 +557,42 @@ contains
     print *, time, flag
   end subroutine clock
 
-!  function ybf(tin, xdat, optw) 
-!    double precision, intent(in) :: tin(tinsize), xdat(xsize), optw(tinsize)
-!    double precision :: u(xsize), xb(xsize), thist(tinsize+1), yhistb(tinsize)
-!    double precision :: ryb(tinsize, nb/psize)
-!    double precision :: ybf(tinsize, nb)
-!    double precision, allocatable :: y_histb_nz(:), tinb_nz(:)
-!    integer :: idx(xsize), sidx, tidx, xchidx, seed(33)
-!    thist(1:tinsize)=tin(:)
-!    thist(tinsize+1)=tin(tinsize)+dt
-!    thist = thist - dt/2
-!    seed=1
-!    seed=seed*1000*(rank+1)
-!    call random_seed(put=seed)
-!    do sidx=1+rank*nb/psize,(rank+1)*nb/psize
-!      call random_number(u)
-!      idx=1+floor(u*xsize)
-!      xb=xdat(idx)
-!      yhistb=hist(xb, thist)
-!      y_histb_nz=pack(yhistb, yhistb > 0.) 
-!      tinb_nz=pack(tin, yhistb > 0.)
-!      do xchidx=1, tinsize
-!        ryb(xchidx,sidx-rank*nb/psize)=sum(y_histb_nz*dt*Gauss(tin(xchidx)-tinb_nz, optw(xchidx)))
-!      enddo
-!    enddo
-!    call mpi_allgather(ryb, tinsize*nb/psize, mpi_double_precision,&
-!                       ybf, tinsize*nb/psize, mpi_double_precision, mpi_comm_world, ierr)
-!    do tidx=1,tinsize
-!       ybf(tidx,:)=ybf(tidx,:)/sum(ybf(tidx,:)*dt)
-!    enddo
-!    if (rank==0) then
-!    do tidx=1,tinsize
-!       print *, ybf(tidx, 1)
-!    enddo
-!    endif
-!  end function ybf
-
   function ybf(tin, xdat, optw) 
     double precision, intent(in) :: tin(tinsize), xdat(xsize), optw(tinsize)
-    double precision :: u(xsize), xb(xsize), thist(tinsize+1), yhistb(tinsize), yvb(tinsize)
+    double precision :: u(xsize), xb(xsize), thist(tinsize+1)
+    double precision, allocatable :: yhistb(:)
+    double precision :: ryb(tinsize, nb/psize)
+    double precision :: ybf(tinsize, nb)
+    double precision, allocatable :: y_histb_nz(:), tinb_nz(:)
+    integer :: idx(xsize), sidx, tidx, xchidx, seed(33)
+    thist(1:tinsize)=tin(:)
+    thist(tinsize+1)=tin(tinsize)+dt
+    thist = thist - dt/2
+    seed=1000*(rank+1)
+    call random_seed(put=seed)
+    do sidx=1+rank*nb/psize,(rank+1)*nb/psize
+      print *, sidx
+      call random_number(u)
+      idx=1+floor(u*xsize)
+      xb=xdat(idx)
+      yhistb=hist(xb, thist)
+      y_histb_nz=pack(yhistb, yhistb > 0.) 
+      tinb_nz=pack(tin, yhistb > 0.)
+      do xchidx=1, tinsize
+        ryb(xchidx,sidx-rank*nb/psize)=sum(y_histb_nz*dt*Gauss(tin(xchidx)-tinb_nz, optw(xchidx)))
+      enddo
+      ryb(:,sidx-rank*nb/psize)=ryb(:,sidx-rank*nb/psize)/sum(ryb(:,sidx-rank*nb/psize)*dt)
+    enddo
+    call mpi_allgather(ryb, tinsize*nb/psize, mpi_double_precision,&
+                       ybf, tinsize*nb/psize, mpi_double_precision, mpi_comm_world, ierr)
+  end function ybf
+
+  function ybforg(tin, xdat, optw) 
+    double precision, intent(in) :: tin(tinsize), xdat(xsize), optw(tinsize)
+    double precision :: u(xsize), xb(xsize), thist(tinsize+1), yvb(tinsize)
+    double precision, allocatable :: yhistb(:)
     double precision :: ryvb(tinsize/psize)
-    double precision :: ybf(nb, tinsize)
+    double precision :: ybforg(nb, tinsize)
     double precision, allocatable :: y_histb_nz(:), tinb_nz(:)
     integer :: idx(xsize), sidx, tidx, xchidx
     thist(1:tinsize)=tin(:)
@@ -605,15 +615,15 @@ contains
       call mpi_allgather(ryvb, tinsize/psize, mpi_double_precision,&
                          yvb, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
       yvb=yvb/sum(yvb*dt)
-      ybf(sidx,:)=yvb
+      ybforg(sidx,:)=yvb
     enddo
 
     if (rank==0) then
     do tidx=1,tinsize
-       print *, ybf(1, tidx)
+       print *, ybforg(1, tidx)
     enddo
     endif
-  end function ybf
+  end function ybforg
 
 
 end module ssvkernel
