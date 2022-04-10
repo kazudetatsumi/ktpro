@@ -5,11 +5,15 @@
 # BL02 staffs and stored in a directory.
 # This script can apply the adaptive kernel density estimation on the prepared
 # data and show the plots of the results, i.e., the estimated density and the
-# estimated destribution of the kernel widths.
-# This script uses the python methods of the adaptive kenerl denssity
+# estimated distribution of the kernel widths.
+# This script uses the python methods of the adaptive kernerl density
 # estimation distributed at the site linked by Dr. Shimazaki's  HP.
-# The adaptive kenel density estimation was developped by Dr. Shimazaki.
+# The adaptive kernel density estimation was developed by Dr. Shimazaki.
 # Kazuyoshi TATSUMI 2021/04/03
+# This is a child of qens_class.qens.
+# Only the part which should be altered to perform ssvkernel by channelwise
+# is presented here.
+# Kazuyoshi TATSUMI 2022/03/30
 import numpy as np
 import os
 import re
@@ -19,152 +23,20 @@ import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 import ssvkernel
 import sskernel
+sys.path.append("/home/kazu/ktpro")
+import qens_class as qcorg
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
 
 
-class qens:
+class qens_channel(qcorg.qens):
     def __init__(self, datadir, save_file, odata=True, sfile=None, qsel=False,
                  optsm=False, winparam=1, M=80, WinFunc='Boxcar',
                  figname='qens_out.png', showplot=True):
-        self.datadir = datadir
-        self.save_file = save_file
-        self.odata = odata
-        self.qsel = qsel               # in def self.select_energy()
-        self.optsm = optsm             # in def run_ssvkernel()
-        self.winparam = winparam
-        self.M = M
-        self.WinFunc = WinFunc
-        self.figname = figname
-        self.showplot = showplot
-        if not os.path.exists(self.save_file):
-            print(self.save_file, "is not found. Entering init_qens()")
-            self.init_qens()
-        with open(self.save_file, 'rb') as f:
-            self.dataset = pickle.load(f, encoding='latin1')
-        if sfile:
-            with open(sfile, 'rb') as f:
-                dataset = pickle.load(f, encoding='latin1')
-                self.senergy = dataset['energy']
-                self.sspectra = dataset['spectra']
-                self.sde = self.senergy[1] - self.senergy[0]
-
-    def get_filenames(self):
-        self.filenames = os.popen('/bin/ls ' + self.datadir + self.string)\
-                         .read().split()
-
-    def get_data_from_container_txt(self):
-        self.string = '*.txt'
-        self.get_filenames()
-        for fidx, fn in enumerate(self.filenames):
-            _psd = fn[len(self.datadir)+11:len(self.datadir)+14]
-            _pix = fn[len(self.datadir)+18:len(self.datadir)+21]
-            _tof = []
-            _intensity = []
-            _error = []
-            f = open(fn)
-            for line in f:
-                if not re.compile(r'[A-z]').search(line):
-                    values = line.split(',')
-                    _tof.append(float(values[0]))
-                    _intensity.append(float(values[1]))
-                    _error.append(float(values[2]))
-            if fidx == 0:
-                self.spectra = np.zeros((len(self.filenames), 3, len(_tof)))
-                if self.odata:
-                    self.detector_position = np.zeros((len(self.filenames), 2))
-            self.spectra[fidx, 0, :] = _tof
-            self.spectra[fidx, 1, :] = _intensity
-            self.spectra[fidx, 2, :] = _error
-            if self.odata:
-                self.detector_position[fidx, 0] = int(_psd)
-                self.detector_position[fidx, 1] = int(_pix)
-            f.close()
-
-    def init_qens(self):
-        self.get_data_from_container_txt()
-        dataset = {}
-        dataset['spectra'] = self.spectra
-        if self.odata:
-            dataset['detector_position'] = self.detector_position
-        with open(self.save_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
-        print("Done!")
-
-    def check_qens(self):
-        total_intensity = np.sum(self.dataset['spectra'][:, 1, :], axis=0)
-        hw = self.dataset['spectra'][1010, 0, :]
-        print(hw.shape)
-
-        plt.plot(hw, np.log10(total_intensity))
-        plt.xlabel('energy(micro eV)')
-        plt.ylabel('log10(total count)')
-        plt.show()
-
-    def select_spectra(self):
-        spectra = self.dataset['spectra']
-        if self.odata:  # case outgoing beam
-            if self.qsel:   # case spectra are already integrated over a
-                            # specific q range.
-                self.selected_spectra = self.dataset['spectra']
-                self.selected_energy = self.dataset['energy']
-            else:       # case dataset are distributed over 2-D PSD elements.
-                dp = self.dataset['detector_position']
-                mask = np.where((dp[:, 0] >= 10) & (dp[:, 1] <= 65))[0]
-                self.selected_spectra = np.sum(spectra[mask, 1, :], axis=0)
-                self.selected_energy = spectra[0, 0, :]
-        else:
-            spectra[0, 0, :] = spectra[0, 0, :] - 2.085
-            mergin = 0.001
-            xlim = np.array([-0.10025 - mergin, 0.14975 + mergin])
-            mask = np.where((spectra[0, 0, :] >= xlim[0]) &
-                            (spectra[0, 0, :] <= xlim[1]))[0]
-            self.selected_spectra = spectra[0, 1, mask]
-            self.selected_energy = spectra[0, 0, mask]
-        #print(self.selected_energy[np.argmax(self.selected_spectra)])
-        self.de = self.selected_energy[1] - self.selected_energy[0]
-        self.get_xvec()
-
-    #def get_xvec(self):
-        # To keep the accuracy, kde is executed on the channel numbers in the
-        # histogram data.
-        # The actual energies were retrieved by "_real" variables.
-        #self.xvec = np.array([idx for idx in
-        #                     range(0, self.selected_spectra.shape[0]) for
-        #                     num_repeat in
-        #                     range(0, int(self.selected_spectra[idx]))
-        #                      ], dtype=float)
-        #self.xvec_real = np.array([self.selected_energy[idx] for idx in
-        #                          range(0, self.selected_spectra.shape[0]) for
-        #                          num_repeat in
-        #                          range(0, int(self.selected_spectra[idx]))
-        #                           ], dtype=float)
-
-    def get_xvec(self):
-        # To keep the accuracy, kde is executed on the channel numbers in the
-        # histogram data.
-        # The actual energies were retrieved by "_real" variables.
-        print("CHK", self.selected_spectra.shape[0])
-        self.xvec = np.array([idx for idx in
-                             range(0, self.selected_spectra.shape[0]) for
-                             num_repeat in
-                             range(0, int(self.selected_spectra[idx]))
-                              ], dtype=float)
-        self.xvec_real = np.array([self.selected_energy[idx] for idx in
-                                  range(0, self.selected_spectra.shape[0]) for
-                                  num_repeat in
-                                  range(0, int(self.selected_spectra[idx]))
-                                   ], dtype=float)
-
-    def add_shift(self):
-        self.xvecorg = np.array(self.xvec)
-        self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
-        self.xvec += self.shift
-        self.xvec_real += self.shift*self.de
-
-        #print(self.xvec[0:30])
-
+        super().__init__(datadir, save_file, odata=odata, sfile=sfile, qsel=qsel,
+                       optsm=optsm, winparam=winparam, M=M, WinFunc=WinFunc,
+                       figname=figname, showplot=showplot)
 
     def run_ssvkernel(self):
         if self.optsm:
@@ -199,6 +71,7 @@ class qens:
                                      WinFunc=self.WinFunc)
         self.y_ = sskernel.sskernel(self.xvec, self.tin)
 
+    def plotter(self):
         scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\
               (np.min(self.xvec) - np.max(self.xvec))
 
@@ -258,59 +131,16 @@ class qens:
         if self.showplot:
             plt.show()
 
-    def optsmear(self):
-        #yinp = np.interp(self.tin_real, self.selected_energy,
-        #                 self.selected_spectra)
-        yinp = np.interp(self.tin_real, self.senergy, self.sspectra)
-        dt = min(np.diff(self.tin))
-        #thist = np.concatenate((self.tin, (self.tin[-1]+dt)[np.newaxis]))
-        #y_hist = np.histogram(self.xvecorg, thist-dt/2)[0] / dt
-        #idx = y_hist.nonzero()
-        #t_nz = self.tin[idx]
-        #y_hist_nz = y_hist[idx]
-        yck = np.zeros_like(self.tin)
-        for k in range(yck.shape[0]):
-            #yck[k] = np.sum(y_hist_nz *
-            #                self.Gauss(self.tin[k] - t_nz, self.y[2][k]))
-            yck[k] = np.sum(yinp *
-                            self.Gauss(self.tin[k] - self.tin, self.y[2][k]))
-        self.yck = yck / np.sum(yck*dt)
-        print(np.sum(yck))
-        print(np.sum(self.y[0]))
-        self.ys = (self.yck, self.y[1], self.y[2])
-
-    def Gauss(self, x, w):
-        return 1.0/((2.0*np.pi)**0.5*w)*np.exp(-(x/w)**2/2.0)
-
-    def save_output(self,  output_file):
-        dataset = {}
-        dataset['y_ssvk'] = self.y
-        dataset['y_ssk'] = self.y_
-        dataset['tin_real'] = self.tin_real
-        #dataset['xlim'] = np.array([np.min(self.xvec_real),
-        #                           np.max(self.xvec_real)])
-        with open(output_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
-
-    def save_outputs(self,  output_file):
-        dataset = {}
-        dataset['ys_ssvk'] = self.ys
-        dataset['tin_real'] = self.tin_real
-        #dataset['xlim'] = np.array([np.min(self.xvec_real),
-        #                           np.max(self.xvec_real)])
-        with open(output_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
-
-
 def samplerun():
     datadir = "/home/kazu/desktop/210108/Tatsumi/run6202_containers/"
     #dataset_dir = os.path.dirname(os.path.abspath(__file__))
     dataset_dir = datadir + "../"
     save_file = dataset_dir + "/qens.pkl"
-    proj = qens(datadir, save_file)
+    proj = qens_channel(datadir, save_file)
     proj.select_spectra()
     proj.add_shift()
     proj.run_ssvkernel()
+    proj.plotter()
 
 
 #samplerun()

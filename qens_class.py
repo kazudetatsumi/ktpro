@@ -20,9 +20,11 @@ sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## if you use fotran library of ssvk or ssk, uncomment the corresponding lines
 ## and comment out the import lines of the  python library.
 #import ssvkernel_fort as ssvkernel
-#import sskernel_fort as sskernel 
+#import sskernel_fort as sskernel
 import ssvkernel
 import sskernel
+import ssvkernel_ktpro as svk
+import sskernel_ktpro as sk
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
@@ -162,9 +164,20 @@ class qens:
                                    ], dtype=float)
 
     def add_shift(self):
-        np.random.seed(314)
+        #np.random.seed(314)
         self.xvecorg = np.array(self.xvec)
         self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
+        self.xvec += self.shift
+        self.xvec_real += self.shift*self.de
+        #print(self.xvec[0:30])
+
+    # Since get_qlist_nova_class.get_alldata() takes the bin bottom energy as the neutron energy,
+    # the random shift enegy in the following method is modified to be [0, 1]*de.
+    # However, the  q values are still inaccurate.
+    def add_shift_de(self):
+        #np.random.seed(314)
+        self.xvecorg = np.array(self.xvec)
+        self.shift = np.random.uniform(0., 1.0, size=self.xvec.shape[0])
         self.xvec += self.shift
         self.xvec_real += self.shift*self.de
         #print(self.xvec[0:30])
@@ -185,15 +198,24 @@ class qens:
             self.tin_real = np.linspace(self.selected_energy[0],
                                         self.selected_energy[-1],
                                         #num=self.selected_spectra.shape[0])
-                                        self.selected_energy[-1], num=800)
-                                        #self.selected_energy[-1], num=8000)
-                                        #self.selected_energy[-1], num=66670)
-                                        #self.selected_energy[-1], num=200000)
+                                        num=800)
+                                        #num=8000)
+                                        #num=66670)
+                                        #num=200000)
+            print("num of tin_real element=",self.tin_real.shape)
             print(self.tin_real[0:10])
+            print(self.selected_energy[0:20])
+            print(self.selected_spectra[0:20])
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)
         self.y_ = sskernel.sskernel(self.xvec_real, self.tin_real)
+
+    def run_ssvkernel_direct(self):
+        self.y = svk.ssvkernel(self.selected_spectra, self.selected_energy+self.de*0.5, M=self.M,
+                               winparam=self.winparam, WinFunc=self.WinFunc)
+        self.y_ = sk.sskernel(self.selected_spectra, self.selected_energy+self.de*0.5)
+        self.tin_real = self.selected_energy+self.de*0.5
 
     def plotter(self):
         #scf = (np.min(self.xvec_real) - np.max(self.xvec_real)) /\

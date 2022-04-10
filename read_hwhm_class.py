@@ -7,7 +7,8 @@ import qens_fit_kde_hist_class as qfkhc
 
 
 class read_hwhm(qfkhc.sqrun_kde_hist):
-    def __init__(self, Ms, pws, pfs, channels, bins, fracs, prefix="./", numlore=1, fixbg=True):
+    def __init__(self, Ms, pws, pfs, channels, bins, fracs, prefix="./",
+                 numlore=1, fixbg=True, onlyhist=False, nde=None):
         self.Ms = Ms
         self.pws = pws
         self.pfs = pfs
@@ -17,6 +18,8 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
         self.prefix = prefix
         self.numlore = numlore
         self.fixbg = fixbg
+        self.onlyhist = onlyhist
+        self.nde = nde
 
     def getfrac(self, frc):
         if frc == "":
@@ -71,6 +74,35 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                                         self.gethwhm(logfile)
                                     self.hwhms[im, ipw, ipf, ic, ib, ifr, 0] =\
                                         self.getfrac(frc)
+                                #else:
+                                    #print(logfile,"is NOT found")
+
+    def create_array_hist(self):
+        self.hwhms = np.zeros((len(self.fracs), 1+4*(self.numlore-1)))
+        #for ib, bn in enumerate(self.bins):
+        for ifr, frc in enumerate(self.fracs):
+            dirname = self.prefix+"/"+self.bins+"_"+frc+"_"+self.nde
+            logfile = dirname+"/std-"+self.bins+"-"+frc+"-"+self.nde+"-2lore.log"
+            if os.path.exists(logfile):
+                #print("Found ", logfile)
+                self.hwhms[ifr, 1:] = self.gethwhm(logfile)
+                self.hwhms[ifr, 0] = self.getfrac(frc)
+            #else:
+                #print("No ", logfile)
+
+    def create_array_shist(self):
+        self.hwhms = np.zeros((len(self.fracs), 1+4*(self.numlore-1)))
+        self.negs = np.zeros((len(self.fracs)), dtype=bool)
+        #print(self.hwhms.shape)
+        for ifr, frc in enumerate(self.fracs):
+            dirname = self.prefix+"/shist_"+frc
+            logfile = dirname+"/stdout-"+frc+".log"
+            if os.path.exists(logfile):
+                #print("Found ", logfile)
+                self.hwhms[ifr, 1:], self.negs[ifr] = self.gethwhm(logfile)
+                self.hwhms[ifr, 0] = self.getfrac(frc)
+            #else:
+                #print("No ", logfile)
 
     def subouthwhm(self, prop="HWHM", lore="1st", addidx=0):
         self.f.write("%s \n" % (prop))
@@ -116,56 +148,6 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                 self.subouthwhm(prop="STDhist", lore="1st", addidx=5)
                 self.subouthwhm(prop="STDhist", lore="2nd", addidx=7)
 
-
-        #    f.write("HWHM  \n")
-        #    for ifr, frc in enumerate(self.fracs):
-        #        for ib, bn in enumerate(self.bins):
-        #            for ipf, pf in enumerate(self.pfs):
-        #                for ic, chn in enumerate(self.channels):
-        #                    f.write("1st Lorentzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
-        #                    f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
-        #                    for im, M in enumerate(self.Ms):
-        #                        h = self.hwhms[im, :, ipf, ic, ib, ifr, 1]
-        #                        f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
-        #                                % (M, h[0], h[1], h[2], h[3], h[4],
-        #                                    h[5], h[6]))
-        #    if self.numlore == 2:
-        #        for ifr, frc in enumerate(self.fracs):
-        #            for ib, bn in enumerate(self.bins):
-        #                for ipf, pf in enumerate(self.pfs):
-        #                    for ic, chn in enumerate(self.channels):
-        #                        f.write("2nd Lorentzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
-        #                        f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
-        #                        for im, M in enumerate(self.Ms):
-        #                            h = self.hwhms[im, :, ipf, ic, ib, ifr, 3]
-        #                            f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
-        #                                    % (M, h[0], h[1], h[2], h[3], h[4],
-        #                                        h[5], h[6]))
-        #    f.write("STD of HWHM  \n")
-        #    for ib, bn in enumerate(self.bins):
-        #        for ipf, pf in enumerate(self.pfs):
-        #            for ic, chn in enumerate(self.channels):
-        #                f.write("1st Lorenzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
-        #                f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
-        #                for im, M in enumerate(self.Ms):
-        #                    h = self.hwhms[im, :, ipf, ic, ib, ifr, 3]
-        #                    f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
-        #                            % (M, h[0], h[1], h[2], h[3], h[4],
-        #                                h[5], h[6]))
-        #    if self.numlore == 2:
-        #        for ib, bn in enumerate(self.bins):
-        #            for ipf, pf in enumerate(self.pfs):
-        #                for ic, chn in enumerate(self.channels):
-        #                    f.write("2nd Lorentzian %s, %s, %s, %s \n" % (pf, chn, bn, frc))
-        #                    f.write("M, 0.0625, 0.125, 0.25, 0.5, 1, 2, 5 \n")
-        #                    for im, M in enumerate(self.Ms):
-        #                        h = self.hwhms[im, :, ipf, ic, ib, ifr, 4]
-        #                        f.write("%d, %e, %e, %e, %e, %e, %e, %e \n"
-        #                                % (M, h[0], h[1], h[2], h[3], h[4],
-        #                                    h[5], h[6]))
-
-
-
     def gethwhm(self, filename):
         #print(filename)
         hwhms = []
@@ -181,14 +163,32 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                         else:
                             hwhms.append(float(lines[il+1].split()[1]))
                             hwhms.append(float(lines[il+1].split()[3]))
-                        stdhwhms.append(float(lines[il+4].split()[1]))
-                        stdhwhms.append(float(lines[il+6].split()[3]))
+                        ## Check unphysical parameters
+                        neg = False
+                        for ele in lines[il+1].split():
+                            if len(ele) > 1:
+                                if "[" in ele:
+                                    test = float(ele[1:])
+                                elif "]" in ele:
+                                    test = float(ele[:-1])
+                                else:
+                                    test = float(ele)
+                                if test < 0.:
+                                    neg = True
+                        if len(lines) >= il+7:
+                            stdhwhms.append(float(lines[il+4].split()[1]))
+                            stdhwhms.append(float(lines[il+6].split()[3]))
+                        else:
+                            stdhwhms.append(0.)
+                            stdhwhms.append(0.)
                     else:
                         #hwhms.append(float(lines[il+1].split(" ")[1]))
                         hwhms.append(float(lines[il+1].split()[1]))
                         stdhwhms.append(float(lines[il+4].split(" ")[2]))
         #print("chk", hwhms, filename)
-        if len(hwhms) >= 3:
+        if self.onlyhist:
+            return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]]), neg)
+        elif len(hwhms) >= 3:
             if self.numlore == 1:
                 if self.fixbg:
                     return(np.array([hwhms[0], stdhwhms[0], hwhms[1], stdhwhms[1]])
@@ -210,8 +210,15 @@ class read_hwhm(qfkhc.sqrun_kde_hist):
                            stdhwhms[1], hwhms[4], stdhwhms[4], hwhms[5],
                            stdhwhms[5]]))
         else:
-            #print("number of hwhms is smaller than 2 check logfile")
-            return(np.zeros((self.numlore*4)))
+            if self.numlore == 2:
+                #print("number of hwhms is smaller than 2")
+                #print("still send the hwhms, the dificient elements is assigned as 0.")
+                for idx in range(len(hwhms), 6):
+                    hwhms.append(0.)
+                    stdhwhms.append(0.)
+                return(np.array([hwhms[0], stdhwhms[0], hwhms[1],
+                       stdhwhms[1], hwhms[4], stdhwhms[4], hwhms[5],
+                       stdhwhms[5]]))
 
 
 def samplerun():

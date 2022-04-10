@@ -24,7 +24,7 @@ def samplerun():
     prj.bins = ["000010io"]
     prj.pws = [0.5]
     prj.resultid = 1
-    prj.prefix = home+"/desktop/210108/Tatsumi/winparam_exam_6207/"
+    prj.prefix = home+"/desktop/210108/Tatsumi/winparam_exam_6207"
     prj.create_array()
     prj.data = prj.hwhms.squeeze()
     prj.plotter(dataname='hist', isend=True)

@@ -25,7 +25,7 @@ import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## ssvkernel compatibility between python and fortran versions is now destroyed.
 ## This class has an alternative method using mpi.
-lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi.so")
+lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi_test.so")
 ## Either of sskernel_fort (fortran ver.) or sskernel (python ver.) can be set by
 ## uncommenting the corresponding line below.
 import sskernel_fort as sskernel 
@@ -92,17 +92,25 @@ class qens:
                                    ], dtype=float)
 
     def add_shift(self):
-        self.xvecorg = np.array(self.xvec)
-        self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
-        self.xvec += self.shift
-        self.xvec_real += self.shift*self.de
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
+        if rank == 0:
+        #self.xvecorg = np.array(self.xvec)
+           self.shift = np.random.uniform(-0.5, 0.5, size=self.xvec.shape[0])
+           self.xvec += self.shift
+           self.xvec_real += self.shift*self.de
+        self.xvec_real = MPI.COMM_WORLD.bcast(self.xvec_real)
         #print(self.xvec[0:30])
 
     def add_shift_de(self):
-        self.xvecorg = np.array(self.xvec)
-        self.shift = np.random.uniform(0., 1., size=self.xvec.shape[0])
-        self.xvec += self.shift
-        self.xvec_real += self.shift*self.de
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
+        if rank == 0:
+        #self.xvecorg = np.array(self.xvec)
+           self.shift = np.random.uniform(0., 1., size=self.xvec.shape[0])
+           #self.xvec += self.shift
+           self.xvec_real += self.shift*self.de
+        self.xvec_real = MPI.COMM_WORLD.bcast(self.xvec_real)
         #print(self.xvec[0:30])
 
     def run_ssvkernel(self):

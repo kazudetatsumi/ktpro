@@ -3,7 +3,7 @@ import sys
 sys.path.append("/home/kazu/ktpro")
 import qens_kde_results_odata_divided_by_idata_class as qkrodic
 
-# example command:  qens_hist_results_odata_divided_by_idata_using_class.py 6204 000025io 0875 
+# example command:  qens_kde_results_odata_divided_by_idata_using_class.py 6204 000025io 0875
 
 def run():
     if len(sys.argv) >= 2:
@@ -19,16 +19,17 @@ def run():
     if len(sys.argv) >= 4:
         frac = sys.argv[3]
     else:
-        print("using default dirname """)
+        print("using default frac """)
         frac = ""
-    head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
-    ofile = head + "run"+runno+"united_"+frac+"spectra.pkl"
-    ifile = head + "run"+runno+"united_"+frac+"monispectra.pkl"
-    rfile = head + "qens_hist_o_divided_by_i_"+runno+frac+".pkl"
-    proj = qkrodic.odata_divided_by_idata(ofile, ifile, iskde=False)
+    headorg = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
+    head = "./"
+    ofile = head + "qens_run"+runno+frac+"united_kde_results_on_data_qsel.pkl"
+    ifile = headorg + "qens_kde_results_on_idata_"+runno+frac+".pkl"
+    rfile = head + "qens_kde_o_divided_by_i_"+runno+frac+".pkl"
+    proj = qkrodic.odata_divided_by_idata(ofile, ifile, bootstrap=True)
     proj.get_data()
     #proj.plot_data()
-    proj.save_data(rfile)
+    #proj.save_data(rfile)
 
 
 run()

@@ -1,17 +1,21 @@
 #!/usr/bin/env python
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+sys.path.append("/home/kazu/ktpro")
+import qens_class as qc
 
 
-class odata_divided_by_idata:
-    def __init__(self, ofile, ifile, iskde=True):
+class odata_divided_by_idata(qc.qens):
+    def __init__(self, ofile, ifile, iskde=True, denew=None, bootstrap=False):
         self.ofile = ofile
         self.ifile = ifile
         self.iskde = iskde
+        self.denew = denew
+        self.bootstrap = bootstrap
 
     def read_pkl(self, pklfile):
-        print(pklfile)
         with open(pklfile, 'rb') as f:
             if self.iskde:
                 dataset = pickle.load(f)
@@ -31,16 +35,8 @@ class odata_divided_by_idata:
         with open(rfile, 'wb') as f:
             pickle.dump(dataset, f, -1)
 
-    #def interpolate(self, yi):
-        #if self.iskde:
-            #self.xo = np.linspace(self.oxlim[0], self.oxlim[1], _yo[1].shape[0])
-            #self.xi = np.linspace(self.ixlim[0], self.ixlim[1], _yi[1].shape[0])
-        #    yi = _yi[0]
-        #else:
-        #    yi = _yi
-        #return(np.interp(self.xo, self.xi, yi))
-
     def get_data(self, norm=False):
+        #print(self.ofile, self.ifile)
         self.odataset = self.read_pkl(self.ofile)
         self.idataset = self.read_pkl(self.ifile)
         if self.iskde:
@@ -50,14 +46,18 @@ class odata_divided_by_idata:
             self.yi_ssk = self.idataset['y_ssk']
             self.xo = self.odataset['tin_real']
             self.xi = self.idataset['tin_real']
-            #self.oxlim = self.odataset['xlim']
-            #self.ixlim = self.idataset['xlim']
-            #self.yi_ssvk_ip = self.interpolate(self.yo_ssvk, self.yi_ssvk)
-            #self.yi_ssk_ip = self.interpolate(self.yo_ssk, self.yi_ssk)
-            self.yi_ssvk_ip = np.interp(self.xo, self.xi, self.yi_ssvk[0])
-            self.yi_ssk_ip = np.interp(self.xo, self.xi, self.yi_ssk[0])
-            self.y_ssvk = self.yo_ssvk[0] / self.yi_ssvk_ip
-            self.y_ssk = self.yo_ssk[0] / self.yi_ssk_ip
+            if self.bootstrap:
+                self.yi_ssvk_ip = np.zeros((self.yi_ssvk[6].shape[0],
+                                            self.xo.shape[0]))
+                for sidx, yi_ssvk_samp in enumerate(self.yi_ssvk[6]):
+                    self.yi_ssvk_ip[sidx, :] = np.interp(self.xo, self.xi,
+                                                         yi_ssvk_samp)
+                self.y_ssvk = self.yo_ssvk[6] / self.yi_ssvk_ip
+            else:
+                self.yi_ssvk_ip = np.interp(self.xo, self.xi, self.yi_ssvk[0])
+                self.yi_ssk_ip = np.interp(self.xo, self.xi, self.yi_ssk[0])
+                self.y_ssvk = self.yo_ssvk[0] / self.yi_ssvk_ip
+                self.y_ssk = self.yo_ssk[0] / self.yi_ssk_ip
         else:
             self.yo = self.odataset['spectra']
             self.xo = self.odataset['energy']
@@ -70,13 +70,27 @@ class odata_divided_by_idata:
                 mask = np.where((self.xi >= xlim[0]) & (self.xi <= xlim[1]))[0]
                 self.selected_spectra = self.yi[mask]
                 self.selected_energy = self.xi[mask]
-                self.yi = self.selected_spectra/np.sum(self.selected_spectra)/(self.selected_energy[1] - self.selected_energy[0])
+                self.yi = self.selected_spectra /\
+                    np.sum(self.selected_spectra) /\
+                    (self.selected_energy[1] - self.selected_energy[0])
                 self.xi = self.selected_energy
-            #self.yi_ip = self.interpolate(self.yo, self.yi)
+            if self.denew:
+                self.reconstruct_hist()
             self.yi_ip = np.interp(self.xo, self.xi, self.yi)
             self.y = self.yo / self.yi_ip
 
-
+    def reconstruct_hist(self):
+        self.odata = True
+        self.qsel = True
+        self.dataset = self.odataset
+        self.select_spectra()
+        self.xo = np.linspace(self.selected_energy[0],
+                              self.selected_energy[-1],
+                              int(self.de/self.denew *
+                              self.selected_energy.shape[0]))
+        thist = np.concatenate((self.xo, (self.xo[-1]+self.denew)[np.newaxis]))
+        self.yo = np.histogram(self.xvec_real, thist-self.denew/2)[0]
+        
     def plot_data(self):
         fig = plt.figure(figsize=(12, 12))
         if self.iskde:

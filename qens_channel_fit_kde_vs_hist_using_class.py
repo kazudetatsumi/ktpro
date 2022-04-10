@@ -22,7 +22,7 @@ def sqrun_kde_hist():
     devf = head + "qens_kde_o_divided_by_i_6204.pkl"
     tf = head + "qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.08]
-    proj = qfc.qens_fit(devf, tf, elim, plot=False)
+    proj = qfc.qens_fit(devf, tf, elim, showplot=False)
     proj.icorr()
     proj.preprocess(doicorr=True)
     proj.optimize()

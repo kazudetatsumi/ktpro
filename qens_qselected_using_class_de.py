@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar
+# example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar 0875
 import sys
 sys.path.append("/home/kazu/ktpro")
-import qens_channel_class as qcc
+import qens_class as qc
 
 
 def run():
@@ -15,7 +15,7 @@ def run():
         runno = "6204"
     if len(sys.argv) >= 3:
         dirname = sys.argv[2]
-        print("dirname =", dirname)
+        print("dirname =",dirname)
     else:
         print("using default dirname 000025io")
         dirname = "000025io"
@@ -37,20 +37,26 @@ def run():
     else:
         print("using default WinFunc Boxcar")
         WinFunc = "Boxcar"
+    if len(sys.argv) >= 7:
+        frac = sys.argv[6]
+        print("frac =", frac)
+    else:
+        print("using default flrac """)
+        frac = ""
 
     datadir = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     outdir = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
-    save_file = datadir + "/run"+runno+"united_spectra.pkl"
+    save_file = datadir + "/run"+runno+"united_"+frac+"spectra.pkl"
     #output_file = outdir + "qens_run"+runno+"united_kde_results_on_data_qsel.pkl"
-    output_file = "./qens_run"+runno+"united_kde_results_on_data_qsel.pkl"
-    figname = "qens_out_"+runno+"_"+dirname+"_"+str(M)+"_"+str(winparam)+"_"+WinFunc+".png"
-    proj = qcc.qens_channel(datadir, save_file, qsel=True, winparam=winparam, M=M,
-                   WinFunc=WinFunc, figname=figname, showplot=True)
+    output_file = "./qens_run"+runno+frac+"united_kde_results_on_data_qsel.pkl"
+    figname = "qens_out_"+runno+frac+"_"+dirname+"_"+str(M)+"_"+str(winparam)+"_"+WinFunc+".png"
+    proj = qc.qens(datadir, save_file, qsel=True, winparam=winparam, M=M,
+                   WinFunc=WinFunc, figname=figname, showplot=False)
     proj.select_spectra()
-    proj.add_shift()
+    proj.add_shift_de()
     proj.run_ssvkernel()
     proj.plotter()
-    #proj.save_output(output_file)
+    proj.save_output(output_file)
 
 
 run()
