@@ -211,12 +211,11 @@ contains
   subroutine opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
     double precision, intent(in) :: y_hist(tinsize), xdat(xsize), tin(tinsize)
     double precision, intent(in) :: Wins(M), optws(M, tinsize)
-    !integer, intent(in) :: nsmpl
     integer, parameter :: maxiter = 30
     double precision, parameter :: tol = 10e-5
     double precision, parameter :: phi = (5**0.5 + 1) / 2
     double precision :: cost(maxiter), gs(maxiter)
-    double precision, dimension(tinsize) :: dummy, dummy2, yh1, yh2, optwp1, optwp2, yv1, yv2
+    double precision, dimension(tinsize) :: dummy, dummy2, optwp1, optwp2, yv1, yv2
     double precision, dimension(tinsize), intent(out) :: yopt, optw
     double precision :: a, b, c1, c2, f1, f2
     integer :: kiter
@@ -228,9 +227,7 @@ contains
     c1=(phi - 1)*a + (2 - phi)*b
     c2=(2 - phi)*a + (phi - 1)*b
     call costfunction(f1, dummy, dummy2, y_hist, tin, optws, Wins, c1)
-    !print *, "CHK", f1, c1, rank
     call costfunction(f2, dummy, dummy2, y_hist, tin, optws, Wins, c2)
-    !print *, "CHK", f2, c2, rank
     do while ( (abs(a-b) > tol*(abs(c1)+abs(c2))) .and. (kiter <= maxiter) )
       if (f1 < f2) then
          b=c2
@@ -256,9 +253,7 @@ contains
     enddo
   end subroutine opt
 
-
   subroutine costfunction(Cg, yv, optwp, y_hist, tin, optws, Wins, g)
-    !integer, intent(in) :: nsmpl
     double precision, dimension(tinsize), intent(in) ::  y_hist, tin
     double precision, intent(in) :: optws(M, tinsize), Wins(M), g
     double precision, intent(out) :: Cg, yv(tinsize), optwp(tinsize)
@@ -281,8 +276,10 @@ contains
         endif
       endif
     enddo
-    ! mpi
+    ! mpi for Nadaraya-Watson kernel regression to smooth optw
+    !         and balloon estimation.
     !do xchidx=1, tinsize
+    allocate(roptwp(tinsize/psize), ryv(tinsize/psize))
     do xchidx=1+rank*tinsize/psize, (rank+1)*tinsize/psize
       if (WinFunc == 'Boxcar') Z=Boxcar(tin(xchidx)-tin, optwv/g)
       if (WinFunc == 'Gauss') Z=vGauss(tin(xchidx)-tin, optwv/g)
@@ -296,6 +293,9 @@ contains
     enddo
     call mpi_allgather(ryv, tinsize/psize, mpi_double_precision,&
                        yv, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+    call mpi_allgather(roptwp, tinsize/psize, mpi_double_precision,&
+                       optwp, tinsize/psize, mpi_double_precision, mpi_comm_world, ierr)
+    deallocate(ryv,roptwp)
     yv=yv*nsmpl/sum(yv*dt)
     cintegrand = yv**2 - 2.*yv*y_hist + 2./(2.*pi)**0.5/optwp*y_hist
     Cg=sum(cintegrand*dt)

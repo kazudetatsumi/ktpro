@@ -124,8 +124,8 @@ class qens:
                                     #self.selected_energy[-1], num=800)
                                     #self.selected_energy[-1], num=80000)
                                     #self.selected_energy[-1], num=66700)
-                                    #self.selected_energy[-1], num=200000)
-                                    self.selected_energy[-1], num=2000000)
+                                    self.selected_energy[-1], num=200000)
+                                    #self.selected_energy[-1], num=2000000)
         #print(self.tin_real[0:10])
         print('number of tin_real elements=', self.tin_real.shape[0])
 
