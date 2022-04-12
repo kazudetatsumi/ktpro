@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# hwhms calculated with boot-strap sampled kde profiles
+# Kazuyoshi Tatsumi 2022/04/07
 import os
 import pickle
 import numpy as np
