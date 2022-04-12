@@ -8,75 +8,11 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append("/home/kazu/ktpro")
 home=os.path.expanduser("~")
-from qens_kde_results_odata_divided_by_idata_class \
- import odata_divided_by_idata as div
-from qens_fit_class import qens_fit as fit
+from qens_kde_hwhm_bootstrap_class import bootstrap as boot
 
 
-class bootstrap(div, fit):
-    def __init__(self, odfile, idfile, ofile, ifile, elim):
-        self.bootodfile = odfile
-        self.bootidfile = idfile
-        self.bootofile = ofile
-        self.bootifile = ifile
-        self.elim = elim
-
-    def divide(self):
-        div.__init__(self, self.bootodfile, self.bootidfile, bootstrap=True)
-        div.get_data(self)
-        self.y_df = self.y_ssvk
-        self.x_df = self.xo
-        div.__init__(self, self.bootofile, self.bootifile, bootstrap=True)
-        div.get_data(self)
-        #for i in range(0,10):
-        #   plt.plot(self.y_ssvk[i], lw=0.4)
-        #   plt.yscale('log')
-        #plt.show()
-        self.y_tf = self.y_ssvk
-        self.x_tf = self.xo
-
-    # override the method in fit class.
-    def preprocess(self, doiocorr=True):
-        self.x_df, self.y_df = self.limit(self.x_df, np.transpose(self.y_df))
-        self.y_df = np.transpose(self.y_df)
-        self.x_tf, self.y_tf = self.limit(self.x_tf, np.transpose(self.y_tf))
-        self.y_tf = np.transpose(self.y_tf)
-        if doiocorr:
-            fit.icorr(self)
-            fit.correction(self)
-
-    def allfit(self):
-        self.y_dfs = self.y_df
-        self.y_tfs = self.y_tf
-        self.allout = np.zeros((self.y_dfs.shape[0], 7, 6))
-        allout = []
-        for sidx, (self.y_df, self.y_tf) in enumerate(zip(self.y_dfs, self.y_tfs)):
-            fit.optimize(self, variables=[1.62856562e-05, 3.05453407e-02,
-                                          1.11413842e-05, 7.41258597e-03,
-                                          2.07570182e-01, 2.27120576e-02])
-            if np.all(self.out > 0.):
-                if self.out[1] < self.out[3]:
-                    tmp = self.out[1]
-                    self.out[1] = self.out[3]
-                    self.out[3] = tmp
-                allout.append(self.out)
-        allout = np.array(allout)
-        print(allout.shape)
-        print(np.average(allout[:, 1]), np.std(allout[:, 1]))
-        print(np.average(allout[:, 3]), np.std(allout[:, 3]))
-        fig = plt.figure(figsize=(12, 6))
-        ax = fig.add_subplot(1, 2, 1)
-        ax.hist(allout[:, 1], bins='auto')
-        ax = fig.add_subplot(1, 2, 2)
-        ax.hist(allout[:, 3], bins='auto')
-        plt.show()
-        return np.array([np.average(allout[:, 1]), np.average(allout[:, 3])]),\
-            np.array([np.std(allout[:, 1]), np.std(allout[:, 3])])
-
-
-def samplerun():
+def run():
     fracs = ["", "075", "0625", "05", "0375", "025", "0125"]
-    fracs = [""]
     elim = [-0.03, 0.07]
     hwhms = np.zeros((2, len(fracs)))
     shwhms = np.zeros((2, len(fracs)))
@@ -97,7 +33,7 @@ def samplerun():
                 "qens_run6202"+frac+"united_kde_results_on_data_qsel.pkl"
             ifile = home+"/desktop/210108/Tatsumi/pickles/" +\
                 "0000025io/qens_kde_results_on_idata_6202"+frac+".pkl"
-            prj = bootstrap(odfile, idfile, ofile, ifile, elim)
+            prj = boot(odfile, idfile, ofile, ifile, elim)
             prj.quiet = True
             prj.divide()
             prj.preprocess()
@@ -137,4 +73,4 @@ def samplerun():
     plt.show()
 
 
-#samplerun()
+run()

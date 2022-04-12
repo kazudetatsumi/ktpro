@@ -14,16 +14,13 @@ module ssvkernel
   double precision :: dt, nsmpl
 contains
 
-  subroutine ssvkboot(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, nb0,&
-          xdat, tin, optw, yopt, yb, confb95)&
-    bind(C, name="ssvkboot")
+  subroutine ssvkboot(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, nb0, xdat, tin, optwb, yb)  bind(C, name="ssvkboot")
     integer, intent(in) :: comm0, M0, xsize0, tinsize0, WinFuncNo, nb0
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
-    double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
-    double precision, intent(out) :: yb(tinsize0,nb0), confb95(tinsize0,2)
+    double precision, intent(out) :: yb(tinsize0,nb0), optwb(tinsize0,nb0)
     double precision Wins(M0), u(xsize0)
-    double precision, dimension(M0, tinsize0) :: optws!, C_local
-    double precision, allocatable :: cfxw(:,:), y_hist(:), xb(:), ybsort(:,:)
+    double precision, dimension(M0, tinsize0) :: optws
+    double precision, allocatable :: cfxw(:,:), y_hist(:), xb(:)
     integer sidx, tidx, idx(xsize0)
     comm = comm0
     call MPI_Comm_size(comm, psize, ierr)
@@ -40,8 +37,8 @@ contains
     M=M0
     ! do loop for bootstrap sampling 
     ! Due to the limited memory, I do not parallelize this loop.
+    allocate(xb(xsize))
     do sidx=1, nb0
-      allocate(xb(xsize))
       if (rank==0) then
          print *, 'sidx=',sidx
          call random_number(u)
@@ -53,7 +50,6 @@ contains
          endif
       endif
       call MPI_Bcast(xb, xsize, mpi_double_precision, 0, mpi_comm_world, ierr)
-      print *, 'chk'
       if (rank==0) then
           print *, 'y_hist'
       endif
@@ -61,7 +57,7 @@ contains
       if (rank==0) then
           print *, 'Wins'
       endif
-      Wins=Winsf(winparam, xdat)
+      Wins=Winsf(winparam, xb)
       if (rank==0) then
           print *, 'cfxw'
       endif
@@ -73,27 +69,9 @@ contains
       if (rank==0) then
           print *, 'opt'
       endif
-      call opt(optw, yb(:, sidx), y_hist, xb, tin, Wins, optws)
-      deallocate(xb)
+      call opt(optwb(:, sidx), yb(:, sidx), y_hist, xb, tin, Wins, optws)
     enddo
-    ybsort=yb
-    do tidx=1,tinsize
-      call quicksort(ybsort(tidx,:), 1, nb0)
-    enddo
-    confb95(:,1)=ybsort(:,ceiling(0.05*nb0))
-    confb95(:,2)=ybsort(:,floor(0.95*nb0))
   end subroutine ssvkboot
-
-  function Winsf(winparam, xdat)
-    double precision, intent(in) :: winparam, xdat(xsize)
-    double precision T, Winsf(M), dw
-    integer i
-    T=maxval(xdat)-minval(xdat)
-    dw=(ilogexp(T)-ilogexp(winparam*dt))/(M-1)
-    ! Wins contains all widths to be considered for kernels as well as window functions, 
-    ! playing a dual role to put kernel band-widths as well as window-widths.
-    Winsf=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
-  end function Winsf
 
   function y_histf(xdat, tin)
     double precision, intent(in) :: xdat(xsize), tin(tinsize)
@@ -108,6 +86,17 @@ contains
     y_histf=y_histf/dt
   end function y_histf
 
+  function Winsf(winparam, xdat)
+    double precision, intent(in) :: winparam, xdat(xsize)
+    double precision T, Winsf(M), dw
+    integer i
+    T=maxval(xdat)-minval(xdat)
+    dw=(ilogexp(T)-ilogexp(winparam*dt))/(M-1)
+    ! Wins contains all widths to be considered for kernels as well as window functions, 
+    ! playing a dual role to put kernel band-widths as well as window-widths.
+    Winsf=logexparr( (/( (i-1)*dw + ilogexp(winparam*dt), i=1,M)/) )
+  end function Winsf
+
   function cfxwf(Wins, y_hist)
     double precision, intent(in) :: Wins(M)
     double precision, allocatable, intent(in) :: y_hist(:)
@@ -116,7 +105,6 @@ contains
     double precision, allocatable :: rcfxw(:,:)
     double precision, allocatable :: yh(:)
     integer kbwidx
-    cfxwf=0.
     allocate(cfxwf(tinsize, M))
     allocate(rcfxw(tinsize, M/psize))
     allocate(yh(tinsize))

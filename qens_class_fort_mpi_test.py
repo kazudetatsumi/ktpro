@@ -121,8 +121,8 @@ class qens:
         self.tin_real = np.linspace(self.selected_energy[0],
                                     #self.selected_energy[-1],
                                     #num=self.selected_spectra.shape[0])
-                                    self.selected_energy[-1], num=800)
-                                    #self.selected_energy[-1], num=80000)
+                                    #self.selected_energy[-1], num=800)
+                                    self.selected_energy[-1], num=8000)
                                     #self.selected_energy[-1], num=66700)
                                     #self.selected_energy[-1], num=200000)
                                     #self.selected_energy[-1], num=2000000)

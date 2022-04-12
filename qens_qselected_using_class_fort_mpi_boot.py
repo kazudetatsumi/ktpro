@@ -38,11 +38,18 @@ def run():
         #print("using default WinFunc Boxcar")
         WinFunc = "Boxcar"
     if len(sys.argv) >= 7:
-        frac = sys.argv[6]
+        nb = int(sys.argv[6])
+        #print("frac =", frac)
+    else:
+        #print("using default flrac """)
+        nb = 5
+    if len(sys.argv) >= 8:
+        frac = sys.argv[7]
         #print("frac =", frac)
     else:
         #print("using default flrac """)
         frac = ""
+
 
     datadir = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     outdir = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
@@ -51,7 +58,7 @@ def run():
     output_file = "./qens_run"+runno+frac+"united_kde_results_on_data_qsel.pkl"
     figname = "qens_out_"+runno+frac+"_"+dirname+"_"+str(M)+"_"+str(winparam)+"_"+WinFunc+".png"
     proj = qc.qens(datadir, save_file, qsel=True, winparam=winparam, M=M,
-                   WinFunc=WinFunc, figname=figname, showplot=False)
+                   WinFunc=WinFunc, nb=nb, figname=figname, showplot=True)
     proj.select_spectra()
     proj.add_shift_de()
     proj.run_ssvkernel()

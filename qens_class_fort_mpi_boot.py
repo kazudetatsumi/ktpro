@@ -17,8 +17,8 @@ import os
 import re
 from ctypes import *
 import pickle
-import matplotlib
-matplotlib.use('agg')
+#import matplotlib
+#matplotlib.use('agg')
 import matplotlib.pylab as plt
 from mpi4py import MPI
 import sys
@@ -37,7 +37,7 @@ plt.rcParams.update(params)
 
 class qens:
     def __init__(self, datadir, save_file, odata=True, qsel=False,
-                 winparam=1, M=80, WinFunc='Boxcar',
+                 winparam=1, M=80, WinFunc='Boxcar', nb=5,
                  figname='qens_out.png', showplot=True):
         self.datadir = datadir
         self.save_file = save_file
@@ -46,6 +46,7 @@ class qens:
         self.winparam = winparam
         self.M = M
         self.WinFunc = WinFunc
+        self.nb = nb
         self.figname = figname
         self.showplot = showplot
         with open(self.save_file, 'rb') as f:
@@ -122,6 +123,7 @@ class qens:
                                     #self.selected_energy[-1],
                                     #num=self.selected_spectra.shape[0])
                                     self.selected_energy[-1], num=800)
+                                    #self.selected_energy[-1], num=8000)
                                     #self.selected_energy[-1], num=80000)
                                     #self.selected_energy[-1], num=66700)
                                     #self.selected_energy[-1], num=200000)
@@ -151,18 +153,13 @@ class qens:
                             POINTER(c_int),
                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)
                             ]
         xsize = self.xvec_real.shape[0]
         tinsize = self.tin_real.shape[0]
-        yopt = np.zeros((tinsize))
-        optw = np.zeros((tinsize))
-        nb = 100
-        yb = np.zeros((nb, tinsize))
-        confb95 = np.zeros((2, tinsize))
+        yb = np.zeros((self.nb, tinsize))
+        optwb = np.zeros((self.nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
 
@@ -173,15 +170,13 @@ class qens:
                 c_int(xsize),
                 c_int(tinsize),
                 c_int(WinFuncNo),
-                c_int(nb),
+                c_int(self.nb),
                 self.xvec_real,
                 self.tin_real,
-                optw,
-                yopt,
+                optwb,
                 yb,
-                confb95
                 )
-        return yopt, self.tin_real, optw, confb95, yb
+        return  self.tin_real, optwb, yb
 
     def plotter(self):
         #norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de
@@ -189,31 +184,26 @@ class qens:
         size = MPI.COMM_WORLD.Get_size()
         if rank == 0:
             fig = plt.figure(figsize=(6, 8))
-            ax = fig.add_subplot(3, 1, 1)
-            #ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
-            ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
-            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
-            ax.tick_params(top=True, right=True, direction='in', which='both',
-                           labelbottom=False, width=1.5)
+            ax = fig.add_subplot(2, 1, 1)
             ax.set_ylabel('density')
-            ax.set_xlabel('energy ($\mu eV$)')
-            ax.set_ylim(0., np.max(self.y_[0])*1.2)
-            plt.legend()
-            ax = fig.add_subplot(3, 1, 2)
-            ax.set_ylabel('density')
-            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
-            ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
+            #ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
+            #ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
+            for i in range(0, self.nb):
+               ax.plot(self.tin_real, self.y[2][i], lw=0.4, label='booty'+str(i))
             ax.set_yscale('log')
-            ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)
-            ax.set_ylim(0.0001, np.max(self.y_[0]))
+            ax.set_ylim(np.min(self.y[2][-1]), np.max(self.y[2][-1]))
+            #ax.set_ylim(np.min(self.y[4][-1]), np.max(self.y[4][-1]))
+            #ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)
+            #ax.set_ylim(0.0001, np.max(self.y_[0]))
             ax.tick_params(top=True, right=True, direction='in', which='both',
                            labelbottom=False, width=1.5)
             tmprange = ax.get_xlim()
             plt.legend()
-            ax = fig.add_subplot(3, 1, 3)
-            ax.plot(self.tin_real, self.y[2], c='r', label='ssvkernel')
-            ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2],
-                    c='k', label='sskernel')
+            ax = fig.add_subplot(2, 1, 2)
+            for i in range(0,self.nb):
+              ax.plot(self.tin_real, self.y[1][i], lw=0.4,  label='bootwidth'+str(i))
+            #ax.plot(self.tin_real, np.zeros_like(self.tin_real)+self.y_[2],
+            #        c='k', label='sskernel')
             ax.set_ylabel('band-width')
             ax.set_xlabel('energy (meV)')
             ax.tick_params(top=True, right=True, direction='in', which='both',
