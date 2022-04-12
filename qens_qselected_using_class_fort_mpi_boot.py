@@ -55,8 +55,8 @@ def run():
     outdir = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
     save_file = datadir + "/run"+runno+"united_"+frac+"spectra.pkl"
     #output_file = outdir + "qens_run"+runno+"united_kde_results_on_data_qsel.pkl"
-    output_file = "./qens_run"+runno+frac+"united_kde_results_on_data_qsel.pkl"
-    figname = "qens_out_"+runno+frac+"_"+dirname+"_"+str(M)+"_"+str(winparam)+"_"+WinFunc+".png"
+    output_file = "./qens_run"+runno+frac+"united_kde_boot_on_data_qsel.pkl"
+    figname = "qens_boot_"+runno+frac+"_"+dirname+"_"+str(M)+"_"+str(winparam)+"_"+WinFunc+".png"
     proj = qc.qens(datadir, save_file, qsel=True, winparam=winparam, M=M,
                    WinFunc=WinFunc, nb=nb, figname=figname, showplot=True)
     proj.select_spectra()

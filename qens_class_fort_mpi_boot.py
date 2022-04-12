@@ -115,6 +115,8 @@ class qens:
         #print(self.xvec[0:30])
 
     def run_ssvkernel(self):
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
         self.tin = np.arange(self.selected_energy.shape[0])
         #print("Check parameters of horizontal axis")
         #print("de=", self.de, "selected_energy[0]=",
@@ -122,14 +124,15 @@ class qens:
         self.tin_real = np.linspace(self.selected_energy[0],
                                     #self.selected_energy[-1],
                                     #num=self.selected_spectra.shape[0])
-                                    self.selected_energy[-1], num=800)
-                                    #self.selected_energy[-1], num=8000)
+                                    #self.selected_energy[-1], num=800)
+                                    self.selected_energy[-1], num=8000)
                                     #self.selected_energy[-1], num=80000)
                                     #self.selected_energy[-1], num=66700)
                                     #self.selected_energy[-1], num=200000)
                                     #self.selected_energy[-1], num=2000000)
         #print(self.tin_real[0:10])
-        print('number of tin_real elements=', self.tin_real.shape[0])
+        if rank == 0:
+            print('number of tin_real elements=', self.tin_real.shape[0])
 
         if self.WinFunc=='Boxcar':
             WinFuncNo=1

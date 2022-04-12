@@ -52,7 +52,7 @@ contains
 	nsmpl=sum(yhist)
 	y_hist=yhist/nsmpl/dt
 	call opt(optw, yh, y_hist, xdat, nsmpl, dt)
-	write(*, '(f12.5)') optw
+	!write(*, '(f12.5)') optw
   end subroutine ssk
 
   function hist(x, th)

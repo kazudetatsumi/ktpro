@@ -40,7 +40,7 @@ contains
     allocate(xb(xsize))
     do sidx=1, nb0
       if (rank==0) then
-         print *, 'sidx=',sidx
+         !print *, 'sidx=',sidx
          call random_number(u)
          idx=1+floor(u*xsize)
          if (sidx==nb0) then
@@ -51,23 +51,23 @@ contains
       endif
       call MPI_Bcast(xb, xsize, mpi_double_precision, 0, mpi_comm_world, ierr)
       if (rank==0) then
-          print *, 'y_hist'
+          !print *, 'y_hist'
       endif
       y_hist=y_histf(xb, tin)
       if (rank==0) then
-          print *, 'Wins'
+          !print *, 'Wins'
       endif
       Wins=Winsf(winparam, xb)
       if (rank==0) then
-          print *, 'cfxw'
+          !print *, 'cfxw'
       endif
       cfxw=cfxwf(Wins, y_hist)
       if (rank==0) then
-          print *, 'optws'
+          !print *, 'optws'
       endif
       optws=optwsf(Wins, cfxw)
       if (rank==0) then
-          print *, 'opt'
+          !print *, 'opt'
       endif
       call opt(optwb(:, sidx), yb(:, sidx), y_hist, xb, tin, Wins, optws)
     enddo
@@ -201,7 +201,7 @@ contains
       endif
       gs(kiter)=c1
       cost(kiter)=f1
-      print *, rank, kiter, cost(kiter), gs(kiter)
+      !print *, rank, kiter, cost(kiter), gs(kiter)
       kiter=kiter+1
     enddo
   end subroutine opt

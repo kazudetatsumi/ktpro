@@ -12,31 +12,25 @@ from qens_kde_results_odata_divided_by_idata_class \
 
 
 def run():
-    fracs = ["", "075", "0625", "05", "0375", "025", "0125"]
-    fracs = [""]
     elim = [-0.03, 0.07]
-    savefile = "./results_bootstrap.pkl"
-    if not os.path.exists(savefile):
-        for fidx, frac in enumerate(fracs):
-            print(frac)
-            odfile = home+"/desktop/210108/Tatsumi/winparam_exam/" +\
-                "test_python_de_0.000025/160_1_0000025io_Boxcar_/" +\
-                "qens_run6204united_kde_results_on_data_qsel.pkl"
-            idfile = home+"/desktop/210108/Tatsumi/pickles/" +\
-                "0000025io/qens_kde_results_on_idata_6204.pkl"
-            ofile = home+"/desktop/210108/Tatsumi/winparam_exam/" +\
-                "test_python_de_0.000025/160_1_0000025io_Boxcar_"+frac+"/" +\
-                "qens_run6202"+frac+"united_kde_results_on_data_qsel.pkl"
-            ifile = home+"/desktop/210108/Tatsumi/pickles/" +\
-                "0000025io/qens_kde_results_on_idata_6202"+frac+".pkl"
-            fig = plt.figure(figsize=(12, 12))
-            prj = div(odfile, idfile, bootstrap=True)
-            prj.get_data()
-            plotter(prj, fig, elim, 0)
-            prj = div(ofile, ifile, bootstrap=True)
-            prj.get_data()
-            plotter(prj, fig, elim, 1)
-            plt.show()
+    odfile = home+"/desktop/210108/Tatsumi/winparam_exam/" +\
+        "test_python_de_0.000025/160_1_0000025io_Boxcar_/" +\
+        "qens_run6204united_kde_results_on_data_qsel.pkl"
+    idfile = home+"/desktop/210108/Tatsumi/pickles/" +\
+        "0000025io/qens_kde_results_on_idata_6204.pkl"
+    ofile = home+"/desktop/210108/Tatsumi/winparam_exam/" +\
+        "test_python_de_0.000025/160_1_0000025io_Boxcar_/" +\
+        "qens_run6202united_kde_results_on_data_qsel.pkl"
+    ifile = home+"/desktop/210108/Tatsumi/pickles/" +\
+        "0000025io/qens_kde_results_on_idata_6202.pkl"
+    fig = plt.figure(figsize=(12, 12))
+    prj = div(odfile, idfile, bootstrap=True)
+    prj.get_data()
+    plotter(prj, fig, elim, 0)
+    prj = div(ofile, ifile, bootstrap=True)
+    prj.get_data()
+    plotter(prj, fig, elim, 1)
+    plt.show()
 
 
 def plotter(prj, fig,elim, icol):
@@ -45,7 +39,7 @@ def plotter(prj, fig,elim, icol):
             ax = fig.add_subplot(3, 2, 1+icol)
             for i in range(0, 100):
                 ax.plot(prj.xo[mask], prj.yo_ssvk[6][i][mask], lw=0.2)
-            ax.set_title(text,fontsize=6.5)
+            ax.set_title(text,fontsize=7.5)
             ax.set_yscale('log')
             ax = fig.add_subplot(3, 2, 3+icol)
             for i in range(0, 100):
