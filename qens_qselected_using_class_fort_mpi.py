@@ -2,7 +2,7 @@
 # example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar 0875
 import sys
 sys.path.append("/home/kazu/ktpro")
-import qens_class_fort_mpi as qc
+import qens_class_fort_mpi_test as qc
 
 
 def run():
@@ -53,7 +53,7 @@ def run():
     proj = qc.qens(datadir, save_file, qsel=True, winparam=winparam, M=M,
                    WinFunc=WinFunc, figname=figname, showplot=False)
     proj.select_spectra()
-    proj.add_shift()
+    proj.add_shift_de()
     proj.run_ssvkernel()
     proj.plotter()
     proj.save_output(output_file)

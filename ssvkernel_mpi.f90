@@ -58,7 +58,7 @@ contains
         print *, 'opt'
     endif
     call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
-    yb = ybf(tin, xdat, optw) 
+    !yb = ybf(tin, xdat, optw) 
     !if (rank==0) then
     !do tidx=1,tinsize
     !   print *, yb(tidx, 1)
