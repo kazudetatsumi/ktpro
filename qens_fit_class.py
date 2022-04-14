@@ -26,8 +26,9 @@ class qens_fit:
         self.x_tf, self.y_tf = self.limit(x_tf, y_ssvk_tf, mergin=0.00)
         #self.x_df, self.y_df = self.get_data(self.devf)
         #self.x_tf, self.y_tf = self.get_data(self.tf)
-        print(x_df[0:10])
-        print(self.x_tf[0:10])
+        print("check x_df and x_tf")
+        print(x_df[0:5], x_df[-5:])
+        print(self.x_tf[0:5], self.x_tf[-5:])
         if doicorr:
             self.correction()
             #x = self.x_tf + 2.085
@@ -44,6 +45,12 @@ class qens_fit:
                                  + self.k[2]*x**2
                                  + self.k[3]*x**3)
         self.y_df = self.y_df / (self.k[0] + self.k[1]*x
+                                 + self.k[2]*x**2
+                                 + self.k[3]*x**3)
+
+    def decorrection(self):
+        x = self.x_tf + 2.085
+        self.ml_dec = self.ml * (self.k[0] + self.k[1]*x
                                  + self.k[2]*x**2
                                  + self.k[3]*x**3)
 
@@ -257,6 +264,26 @@ class qens_fit:
                 plt.show()
             plt.close()
 
+    def reconstruct(self):
+        x_devf, y_ssvk_devf = self.get_data(self.devf)
+        x_tf, y_ssvk_tf = self.get_data(self.tf)
+        self.elim = [-0.06, 0.10]
+        x_df, self.y_df = self.limit(x_devf, y_ssvk_devf, mergin=0.00)
+        self.x_tf, self.y_tf = self.limit(x_tf, y_ssvk_tf, mergin=0.00)
+        self.correction()
+        _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = self.out
+        _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
+        _y += _delta*self.y_df + _base
+        _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
+        #plt.plot(self.x_tf, _y)
+        plt.plot(self.x_tf, self.y_df)
+        #plt.plot(x_devf, y_ssvk_devf)
+        #plt.yscale('log')
+        #plt.plot(self.x_tf, self.y_tf)
+        plt.xlim(-0.01,0.01)
+        #plt.ylim(0,20)
+        plt.show()
+
     def get_icorrdata(self, icorrfile):
         x = []
         y = []
@@ -289,6 +316,11 @@ class qens_fit:
         #plt.plot(_x, _y)
         #plt.show()
         self.k = out[0]
+
+    def save_result(self):
+        dataset = {}
+        dataset['fitparam'] = self.out
+        dataset['x'] = self.x_tf
 
     def check_spectra(self):
         plt.plot(self.x_tf, self.y_tf, label=self.tf)

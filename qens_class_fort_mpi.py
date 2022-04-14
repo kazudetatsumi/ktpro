@@ -25,7 +25,7 @@ import sys
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## ssvkernel compatibility between python and fortran versions is now destroyed.
 ## This class has an alternative method using mpi.
-lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi_test.so")
+lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi.so")
 ## Either of sskernel_fort (fortran ver.) or sskernel (python ver.) can be set by
 ## uncommenting the corresponding line below.
 import sskernel_fort as sskernel 
@@ -122,8 +122,10 @@ class qens:
                                     #self.selected_energy[-1],
                                     #num=self.selected_spectra.shape[0])
                                     #self.selected_energy[-1], num=800)
+                                    #self.selected_energy[-1], num=2000)
                                     #self.selected_energy[-1], num=8000)
                                     #self.selected_energy[-1], num=66700)
+                                    #self.selected_energy[-1], num=40000)
                                     self.selected_energy[-1], num=200000)
         #print(self.tin_real[0:10])
         print('number of tin_real elements=', self.tin_real.shape[0])
@@ -158,7 +160,7 @@ class qens:
         tinsize = self.tin_real.shape[0]
         yopt = np.zeros((tinsize))
         optw = np.zeros((tinsize))
-        nb = 100
+        nb = 10
         yb = np.zeros((nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
@@ -188,16 +190,17 @@ class qens:
             ax = fig.add_subplot(3, 1, 1)
             #ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
             ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
-            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
+            #ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
             ax.tick_params(top=True, right=True, direction='in', which='both',
                            labelbottom=False, width=1.5)
+            ax.set_xlim(-0.01, 0.01)
             ax.set_ylabel('density')
             ax.set_xlabel('energy ($\mu eV$)')
             ax.set_ylim(0., np.max(self.y_[0])*1.2)
             plt.legend()
             ax = fig.add_subplot(3, 1, 2)
             ax.set_ylabel('density')
-            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
+            #ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
             ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
             ax.set_yscale('log')
             ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)
@@ -215,6 +218,7 @@ class qens:
             ax.tick_params(top=True, right=True, direction='in', which='both',
                            labelbottom=True, width=1.5)
             ax.set_xlim(tmprange)
+            ax.set_xlim(-0.01, 0.01)
             plt.subplots_adjust(hspace=0.0)
             plt.legend()
             plt.savefig(self.figname)

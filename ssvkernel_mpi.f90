@@ -58,6 +58,8 @@ contains
         print *, 'opt'
     endif
     call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
+    !Bootstrap sampling is not done currently,
+    !because qens data have a long tail and are not suitable for bootstrap sampling.
     !yb = ybf(tin, xdat, optw) 
     !if (rank==0) then
     !do tidx=1,tinsize
