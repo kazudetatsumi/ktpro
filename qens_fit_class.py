@@ -280,46 +280,188 @@ class qens_fit:
         _y += _delta*self.y_df + _base
         _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
         self.ml = _y
+        plt.plot(self.x_tf, self.ml)
+        plt.plot(self.x_tf, self.y_tf)
+        plt.yscale('log')
+        plt.show()
         self.decorrection()
-        #plt.plot(self.x_tf, self.ml)
-        #plt.plot(self.x_tf, self.y_df)
-        #plt.yscale('log')
-        #plt.show()
 
     def multii(self, idevf, itf):
         xid, yid = self.get_idata(idevf)
         xit, yit = self.get_idata(itf)
-        print(xid[0], xid[-1], xid[1]-xid[0])
-        print(xit[0], xit[-1], xit[1]-xit[0])
         xid, yid = self.limit(xid, yid, mergin=0.00)
         xit, yit = self.limit(xit, yit, mergin=0.00)
         yid_ip = np.interp(self.x_tf, xid, yid)
         yit_ip = np.interp(self.x_tf, xit, yit)
         self.y_df *= yid_ip
         self.ml *= yit_ip
-        #plt.plot(self.x_tf, self.ml)
-        #plt.plot(self.x_tf, self.y_df)
-        #plt.yscale('log')
-        #plt.show()
+
+    def generate_data(self, idevf, itf, check=True):
+        self.y_df = self.y_df/np.sum(self.y_df)*40000
+        self.ml = self.ml/np.sum(self.ml)*20000
+        ddata = np.random.poisson(self.y_df)
+        tdata = np.random.poisson(self.ml)
         xid, yid = self.get_idata(idevf)
         xit, yit = self.get_idata(itf)
         yid = yid/np.sum(yid)*103203
         yit = yit/np.sum(yit)*54678
-        ids = np.random.poisson(yid)
-        xvec_real = np.array([xid[idx] for idx in range(0, ids.shape[0]) for
-                              num_repeat in range(0, int(ids[idx]))],
+        iddata = np.random.poisson(yid)
+        itdata = np.random.poisson(yit)
+        if check:
+            self.check_generated_samples(self.x_tf, ddata)
+            self.check_generated_samples(self.x_tf, tdata)
+            self.check_generated_samples(xid, iddata)
+            self.check_generated_samples(xit, itdata)
+        self.save_generated_data(self.x_tf, ddata, 'qens_sim_6204.pkl')
+        self.save_generated_data(self.x_tf, tdata, 'qens_sim_6202.pkl')
+        self.save_generated_data(xid, iddata, 'qens_sim_moni_6204.pkl')
+        self.save_generated_data(xit, itdata, 'qens_sim_moni_6202.pkl')
+
+    def save_generated_data(self, x, data, savefile):
+        dataset = {}
+        dataset['energy'] = x
+        dataset['spectra'] = data
+        with open(savefile, 'wb') as f:
+            pickle.dump(dataset, f, -1)
+
+    def check_generated_samples(self, x, data):
+        dx = x[1]-x[0]
+        xvec_real = np.array([x[idx] for idx in range(0, data.shape[0]) for
+                              num_repeat in range(0, int(data[idx]))],
                              dtype=float)
-        xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*(xid[1]-xid[0])
-        print(xvec_real.shape)
-        dt = 0.002
-        x = np.arange(xid[0], np.ceil(xid[-1]/dt)*dt, dt)
-        thist = np.concatenate((x, (x[-1]+dt)[np.newaxis]))
-        y_hist = np.histogram(xvec_real, thist-dt/2)[0] / dt
-        plt.bar(x, y_hist, width=dt)
-        #plt.plot(xid, ids)
+        xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*dx
+        tin_real = np.linspace(x[0], x[-1], num=800)
+        dt = tin_real[1] - tin_real[0]
+        thist = np.concatenate((tin_real, (tin_real[-1]+dt)[np.newaxis]))
+        y_hist = np.histogram(xvec_real, thist-dt/2)[0]
+        plt.bar(tin_real, y_hist, width=dt)
+        plt.yscale('log')
         plt.show()
+
+    def get_icorrdata(self, icorrfile):
+        x = []
+        y = []
+        for line in open(icorrfile):
+            if not re.compile('[A-z[]').search(line):
+                x.append(float(line.split()[0]))
+                y.append(float(line.split()[1]))
+        x = np.array(x)
+        y = np.array(y)
+        return x, y
+
+    def icorr(self):
+        x, y = self.get_icorrdata("/home/kazu/desktop/210108/Tatsumi/" +
+                                  "Ilambda_correction.txt")
+        variables = [10, 10, 10, 10]
+        out = so.leastsq(self.res_icorr, variables,
+                         args=(x, y), full_output=1,
+                         epsfcn=0.0001)
         
-        
+        #s_sq = (self.res_icorr(out[0], x, y)**2).sum()/(len(y)-len(out[0]))
+        #print(s_sq)
+        #print(out[0])
+        #print(out[1])
+        #print("cov**0.5")
+        #print(np.absolute(out[1]*s_sq)**0.5)
+        [_k0, _k1, _k2, _k3] = out[0]
+        #_x = np.linspace(np.min(x), np.max(x), 200)
+        #_y = _k0 + _k1*_x + _k2*_x**2 + _k3*_x**3
+        #plt.plot(x, y, marker='o', lw=0)
+        #plt.plot(_x, _y)
+        #plt.show()
+        self.k = out[0]
+
+    def save_result(self):
+        dataset = {}
+        dataset['fitparam'] = self.out
+        dataset['x'] = self.x_tf
+
+    def check_spectra(self):
+        plt.plot(self.x_tf, self.y_tf, label=self.tf)
+        plt.plot(self.x_tf, self.y_df, label=self.devf)
+        plt.yscale('log')
+        plt.legend()
+        plt.show()
+
+    def kde_hist_sub(self, tf, devf, kde=True, variables=None):
+        self.devf = devf
+        self.tf = tf
+        if not self.quiet:
+            print(self.devf)
+            print(self.tf)
+        if kde:
+            self.preprocesss(doicorr=True)
+        else:
+            self.preprocessh(doicorr=True)
+        if variables:
+            self.optimize(variables=variables)
+        else:
+            self.optimize()
+
+    def kde_hist(self, kvariables=None,
+                 hvariables=[1.46103037e-04, 1.23754329e-02, 5.20429443e-01]):
+        self.icorr()
+        if not self.quiet:
+            print("entering kde part")
+        self.kde_hist_sub(self.ktf, self.kdevf, kde=True, variables=kvariables)
+        kgamma = self.gamma
+        kgammaerror = self.gammaerror
+        if not self.quiet:
+            print("entering histogram part")
+        self.kde_hist_sub(self.htf, self.hdevf, kde=False, variables=hvariables)
+        hgamma = self.gamma
+        hgammaerror = self.gammaerror
+        return(kgamma, kgammaerror, hgamma, hgammaerror)
+
+
+def samplerun():
+    head = "/home/kazu/desktop/210108/Tatsumi/pickles/"
+# old pkls of spectra which were gathered over many detectors
+    # devf = head + "qens_kde_o_divided_by_i_6204.pkl"
+    # tf = head + "qens_kde_o_divided_by_i_6202.pkl"
+# pkls of spectra over a specific q range, intensities were divided by incident
+# neutron spectral profiles
+    devf = head + "qens_kde_o_divided_by_i_6204_qsel.pkl"
+    tf = head + "qens_kde_o_divided_by_i_6202_qsel.pkl"
+    elim = np.array([-0.03, 0.10])
+    proj = qens_fit(devf, tf, elim)
+    proj.preprocess()
+    proj.optimize()
+
+
+def ssamplerun():
+    head = "/home/kazu/desktop/210108/Tatsumi/pickles/"
+# pkls of spectra over a specific q range, intensities were corrected by a
+# standard method.
+    devf = head + "qens_run6204_kde_results_on_sdata_qsel.pkl"
+    tf = head + "qens_run6202_kde_results_on_sdata_qsel.pkl"
+    elim = np.array([-0.03, 0.10])
+    proj = qens_fit(devf, tf, elim)
+    proj.preprocesss()
+    proj.optimize()
+
+#samplerun()
+
+    def save_generated_data(self, x, data, savefile):
+        dataset = {}
+        dataset['energy'] = x
+        dataset['spectra'] = data
+        with open(savefile, 'wb') as f:
+            pickle.dump(dataset, f, -1)
+
+    def check_generated_samples(self, x, data):
+        dx = x[1]-x[0]
+        xvec_real = np.array([x[idx] for idx in range(0, data.shape[0]) for
+                              num_repeat in range(0, int(data[idx]))],
+                             dtype=float)
+        xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*dx
+        tin_real = np.linspace(x[0], x[-1], num=800)
+        dt = tin_real[1] - tin_real[0]
+        thist = np.concatenate((tin_real, (tin_real[-1]+dt)[np.newaxis]))
+        y_hist = np.histogram(xvec_real, thist-dt/2)[0]
+        plt.bar(tin_real, y_hist, width=dt)
+        plt.yscale('log')
+        plt.show()
 
     def get_icorrdata(self, icorrfile):
         x = []
