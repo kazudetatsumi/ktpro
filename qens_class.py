@@ -130,6 +130,7 @@ class qens:
             self.selected_energy = spectra[0, 0, mask]
         #print(self.selected_energy[np.argmax(self.selected_spectra)])
         self.de = self.selected_energy[1] - self.selected_energy[0]
+        print("check!!!", self.selected_energy[0], self.selected_energy[-1],self.de)
         self.get_xvec()
 
     #def get_xvec(self):
@@ -206,6 +207,7 @@ class qens:
             print(self.tin_real[0:10])
             print(self.selected_energy[0:20])
             print(self.selected_spectra[0:20])
+        print('Total count number:', self.xvec_real.shape)
         self.y = ssvkernel.ssvkernel(self.xvec_real, self.tin_real, M=self.M,
                                      winparam=self.winparam,
                                      WinFunc=self.WinFunc)
@@ -233,11 +235,11 @@ class qens:
             #ax.bar(self.senergy, snorms, width=self.sde, label='expt sdata')
             ax.plot(self.tin_real, self.yck/self.de, c='r', label='yck')
             ax.plot(self.tin_real, self.y[0]/self.de, c='k', label='ssvkernel')
-        else:
+        #else:
             #ax.plot(self.tin_real, self.y[0]/self.de, c='r', label='ssvkernel')
             #ax.plot(self.tin_real, self.y_[0]/self.de, c='k', label='sskernel')
-            ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
-            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
+            #ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
+            #ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=False, width=1.5)
         ax.set_ylabel('density')

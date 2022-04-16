@@ -26,10 +26,11 @@ sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## ssvkernel compatibility between python and fortran versions is now destroyed.
 ## This class has an alternative method using mpi.
 lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi.so")
+libssk = CDLL("/home/kazu/ktpro/sskernel_f90.so")
 ## Either of sskernel_fort (fortran ver.) or sskernel (python ver.) can be set by
 ## uncommenting the corresponding line below.
-import sskernel_fort as sskernel 
-#import sskernel
+##import sskernel_fort as sskernel 
+##import sskernel
 
 params = {'mathtext.default': 'regular', 'axes.linewidth': 1.5}
 plt.rcParams.update(params)
@@ -138,7 +139,7 @@ class qens:
             WinFuncNo=3
 
         self.y = self.calc_ssvkernel_f90(WinFuncNo)
-        self.y_ = sskernel.sskernel(self.xvec_real, self.tin_real)
+        self.y_ = self.calc_sskernel_f90()#sskernel.sskernel(self.xvec_real, self.tin_real)
 
     def calc_ssvkernel_f90(self, WinFuncNo):
         lib.ssvk.restype = c_void_p
@@ -160,7 +161,7 @@ class qens:
         tinsize = self.tin_real.shape[0]
         yopt = np.zeros((tinsize))
         optw = np.zeros((tinsize))
-        nb = 10
+        nb = 1
         yb = np.zeros((nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
@@ -180,6 +181,30 @@ class qens:
                 yb
                 )
         return yopt, self.tin_real, optw, yb
+
+    def calc_sskernel_f90(self):
+        libssk.ssk.restype = c_void_p
+        libssk.ssk.argtypes = [ 
+                            POINTER(c_double),
+                            POINTER(c_int),
+                            POINTER(c_int),
+                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
+                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
+                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)
+                            ]
+        xsize = self.xvec_real.shape[0]
+        tinsize = self.tin_real.shape[0]
+        yopt = np.zeros((tinsize))
+        optw = c_double()
+        libssk.ssk(
+                   byref(optw),
+                   c_int(xsize),
+                   c_int(tinsize),
+                   self.xvec_real,
+                   self.tin_real,
+                   yopt
+                   )
+        return yopt, self.tin_real, optw
 
     def plotter(self):
         #norms = self.selected_spectra/np.sum(self.selected_spectra)/self.de

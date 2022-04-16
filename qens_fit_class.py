@@ -41,18 +41,16 @@ class qens_fit:
     
     def correction(self):
         x = self.x_tf + 2.085
-        self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-                                 + self.k[2]*x**2
-                                 + self.k[3]*x**3)
-        self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-                                 + self.k[2]*x**2
-                                 + self.k[3]*x**3)
+        self.y_tf /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3
+                      )
+        self.y_df /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3
+                      )
 
     def decorrection(self):
         x = self.x_tf + 2.085
-        self.ml_dec = self.ml * (self.k[0] + self.k[1]*x
-                                 + self.k[2]*x**2
-                                 + self.k[3]*x**3)
+        self.ml *= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
+        self.y_df *= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3
+                      )
 
     def preprocesss(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
@@ -90,6 +88,11 @@ class qens_fit:
         if 'optbgpeakratio' in dir(self):
             self.bg = self.optbgpeakratio*np.sum(self.y_tf)*(x_tf[1]-x_tf[0])
             #np.sum(self.y_tf[np.argmax(self.y_tf)-100:np.argmax(self.y_tf)+100])
+
+    def get_idata(self, infile):
+        with open(infile, 'rb') as f:
+            data = pickle.load(f, encoding='latin1')
+        return data['tin_real'], data['y_ssvk'][0]
 
     def get_data(self, infile):
         with open(infile, 'rb') as f:
@@ -264,10 +267,11 @@ class qens_fit:
                 plt.show()
             plt.close()
 
-    def reconstruct(self):
+    def reconstruct(self, elim=None):
+        if elim:
+            self.elim = elim
         x_devf, y_ssvk_devf = self.get_data(self.devf)
         x_tf, y_ssvk_tf = self.get_data(self.tf)
-        self.elim = [-0.06, 0.10]
         x_df, self.y_df = self.limit(x_devf, y_ssvk_devf, mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, y_ssvk_tf, mergin=0.00)
         self.correction()
@@ -275,14 +279,47 @@ class qens_fit:
         _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
         _y += _delta*self.y_df + _base
         _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
-        #plt.plot(self.x_tf, _y)
-        plt.plot(self.x_tf, self.y_df)
-        #plt.plot(x_devf, y_ssvk_devf)
+        self.ml = _y
+        self.decorrection()
+        #plt.plot(self.x_tf, self.ml)
+        #plt.plot(self.x_tf, self.y_df)
         #plt.yscale('log')
-        #plt.plot(self.x_tf, self.y_tf)
-        plt.xlim(-0.01,0.01)
-        #plt.ylim(0,20)
+        #plt.show()
+
+    def multii(self, idevf, itf):
+        xid, yid = self.get_idata(idevf)
+        xit, yit = self.get_idata(itf)
+        print(xid[0], xid[-1], xid[1]-xid[0])
+        print(xit[0], xit[-1], xit[1]-xit[0])
+        xid, yid = self.limit(xid, yid, mergin=0.00)
+        xit, yit = self.limit(xit, yit, mergin=0.00)
+        yid_ip = np.interp(self.x_tf, xid, yid)
+        yit_ip = np.interp(self.x_tf, xit, yit)
+        self.y_df *= yid_ip
+        self.ml *= yit_ip
+        #plt.plot(self.x_tf, self.ml)
+        #plt.plot(self.x_tf, self.y_df)
+        #plt.yscale('log')
+        #plt.show()
+        xid, yid = self.get_idata(idevf)
+        xit, yit = self.get_idata(itf)
+        yid = yid/np.sum(yid)*103203
+        yit = yit/np.sum(yit)*54678
+        ids = np.random.poisson(yid)
+        xvec_real = np.array([xid[idx] for idx in range(0, ids.shape[0]) for
+                              num_repeat in range(0, int(ids[idx]))],
+                             dtype=float)
+        xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*(xid[1]-xid[0])
+        print(xvec_real.shape)
+        dt = 0.002
+        x = np.arange(xid[0], np.ceil(xid[-1]/dt)*dt, dt)
+        thist = np.concatenate((x, (x[-1]+dt)[np.newaxis]))
+        y_hist = np.histogram(xvec_real, thist-dt/2)[0] / dt
+        plt.bar(x, y_hist, width=dt)
+        #plt.plot(xid, ids)
         plt.show()
+        
+        
 
     def get_icorrdata(self, icorrfile):
         x = []
