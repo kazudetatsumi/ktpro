@@ -17,8 +17,8 @@ import os
 import re
 from ctypes import *
 import pickle
-import matplotlib
-matplotlib.use('agg')
+#import matplotlib
+#matplotlib.use('agg')
 import matplotlib.pylab as plt
 from mpi4py import MPI
 import sys
@@ -122,9 +122,9 @@ class qens:
         self.tin_real = np.linspace(self.selected_energy[0],
                                     #self.selected_energy[-1],
                                     #num=self.selected_spectra.shape[0])
-                                    self.selected_energy[-1], num=800)
+                                    #self.selected_energy[-1], num=800)
                                     #self.selected_energy[-1], num=2000)
-                                    #self.selected_energy[-1], num=8000)
+                                    self.selected_energy[-1], num=8000)
                                     #self.selected_energy[-1], num=66700)
                                     #self.selected_energy[-1], num=40000)
                                     #self.selected_energy[-1], num=200000)
@@ -215,7 +215,7 @@ class qens:
             ax = fig.add_subplot(3, 1, 1)
             #ax.bar(self.selected_energy, norms, width=self.de, label='expt data')
             ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
-            #ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
+            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
             ax.tick_params(top=True, right=True, direction='in', which='both',
                            labelbottom=False, width=1.5)
             ax.set_xlim(-0.01, 0.01)
@@ -225,7 +225,7 @@ class qens:
             plt.legend()
             ax = fig.add_subplot(3, 1, 2)
             ax.set_ylabel('density')
-            #ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
+            ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
             ax.plot(self.tin_real, self.y[0], c='r', label='ssvkernel')
             ax.set_yscale('log')
             ax.set_ylim(0.0001, np.max(self.y_[0])/self.de)

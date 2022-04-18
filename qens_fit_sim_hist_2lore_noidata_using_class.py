@@ -10,7 +10,7 @@ sys.path.append("/home/kazu/ktpro")
 import qens_fit_class as qfc
 
 
-def sqrun_kde_hist_2lore():
+def sqrun_hist_2lore():
     np.set_printoptions(linewidth=120)
     if len(sys.argv) >= 2:
         runno = sys.argv[1]
@@ -30,17 +30,14 @@ def sqrun_kde_hist_2lore():
     frac = ""
 
     head = "./"
-    devf = head + "qens_kde_sim_o_divided_by_i_"+runnod+".pkl"
-    tf = head + "qens_kde_sim_o_divided_by_i_"+runno+frac+".pkl"
-    #devf = head + "qens_sim_kde_"+runnod+".pkl"
-    #tf = head + "qens_sim_kde_"+runno+frac+".pkl"
+    devf = head + "qens_sim_"+runnod+".pkl"
+    tf = head + "qens_sim_"+runno+frac+".pkl"
     elim = [-0.03, 0.07]
     proj = qfc.qens_fit(devf, tf, elim, showplot=False)
-    proj.icorr()
-    proj.preprocess(doicorr=True)
-    proj.optimize(variables=[1.58704786e-04, 2.67980295e-02, 6.02405238e-05,
-                             6.88866588e-03, 2.21127501e-01, 5.02759930e-02],
-                  figname="qens_kde_fit2.png")
+    proj.preprocessh(doicorr=False)
+    proj.optimize(variables=[6.11704786e-05, 1.71980295e-02, 2.05405238e-05,
+                             5.98866588e-03, 6.57127501e-02, 5.02759930e-02],
+                  figname="qens_hist_fit2.png")
 
 
-sqrun_kde_hist_2lore()
+sqrun_hist_2lore()

@@ -38,25 +38,25 @@ contains
     xsize=xsize0
     M=M0
     nb=nb0
-    if (rank==0) then
-        print *, 'y_hist'
-    endif
+    !if (rank==0) then
+    !    print *, 'y_hist'
+    !endif
     y_hist=y_histf(xdat, tin)
-    if (rank==0) then
-        print *, 'Wins'
-    endif
+    !if (rank==0) then
+    !    print *, 'Wins'
+    !endif
     Wins=Winsf(winparam, xdat)
-    if (rank==0) then
-        print *, 'cfxw'
-    endif
+    !if (rank==0) then
+    !    print *, 'cfxw'
+    !endif
     cfxw=cfxwf(Wins, y_hist)
-    if (rank==0) then
-        print *, 'optws'
-    endif
+    !if (rank==0) then
+    !    print *, 'optws'
+    !endif
     optws=optwsf(Wins, cfxw)
-    if (rank==0) then
-        print *, 'opt'
-    endif
+    !if (rank==0) then
+    !    print *, 'opt'
+    !endif
     call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
     !Bootstrap sampling is not done currently,
     !because qens data have a long tail and are not suitable for bootstrap sampling.
@@ -263,7 +263,7 @@ contains
       endif
       gs(kiter)=c1
       cost(kiter)=f1
-      print *, rank, kiter, cost(kiter), gs(kiter)
+      !print *, rank, kiter, cost(kiter), gs(kiter)
       kiter=kiter+1
     enddo
   end subroutine opt

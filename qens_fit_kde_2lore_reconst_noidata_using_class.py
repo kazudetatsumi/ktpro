@@ -31,8 +31,6 @@ def sqrun_kde_hist_2lore():
     head = "./"
     devf = head + "qens_kde_o_divided_by_i_"+runnod+".pkl"
     tf = head + "qens_kde_o_divided_by_i_"+runno+frac+".pkl"
-    idevf = "/home/kazu/desktop/210108/Tatsumi/pickles/0000001io/qens_kde_results_on_idata_6204.pkl"
-    itf = "/home/kazu/desktop/210108/Tatsumi/pickles/0000001io/qens_kde_results_on_idata_6202.pkl"
     elim = [-0.03, 0.07]
     proj = qfc.qens_fit(devf, tf, elim, showplot=False)
     proj.icorr()
@@ -41,8 +39,8 @@ def sqrun_kde_hist_2lore():
                              1.88866588e-03, 1.21127501e-01, 5.02759930e-02],
                   figname="qens_kde_fit2.png")
     elim = [-0.06, 0.10]
-    proj.reconstruct(elim=elim, check=False, idevf=idevf, itf=itf)
-    proj.generate_data(idevf,itf, check=False)
+    proj.reconstruct(elim=elim, check=False)
+    proj.generate_data(None, None, check=False)
 
 
 sqrun_kde_hist_2lore()

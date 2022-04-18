@@ -53,7 +53,7 @@ def run():
     proj = qc.qens(datadir, save_file, qsel=True, winparam=winparam, M=M,
                    WinFunc=WinFunc, figname=figname, showplot=False)
     proj.select_spectra()
-    #proj.add_shift_de()
+    proj.add_shift_de()
     proj.run_ssvkernel()
     proj.plotter()
     proj.save_output(output_file)

@@ -18,6 +18,12 @@ class qens_fit:
         self.showplot = showplot
         self.quiet = False
 
+    def preprocessnoi(self, doicorr=False):
+        x_devf, y_ssvk_devf = self.get_idata(self.devf)
+        x_tf, y_ssvk_tf = self.get_idata(self.tf)
+        x_df, self.y_df = self.limit(x_devf, y_ssvk_devf, mergin=0.00)
+        self.x_tf, self.y_tf = self.limit(x_tf, y_ssvk_tf, mergin=0.00)
+
     def preprocess(self, doicorr=False):
         x_devf, y_ssvk_devf = self.get_data(self.devf)
         x_tf, y_ssvk_tf = self.get_data(self.tf)
@@ -26,9 +32,9 @@ class qens_fit:
         self.x_tf, self.y_tf = self.limit(x_tf, y_ssvk_tf, mergin=0.00)
         #self.x_df, self.y_df = self.get_data(self.devf)
         #self.x_tf, self.y_tf = self.get_data(self.tf)
-        print("check x_df and x_tf")
-        print(x_df[0:5], x_df[-5:])
-        print(self.x_tf[0:5], self.x_tf[-5:])
+ #temp       print("check x_df and x_tf")
+ #temp       print(x_df[0:5], x_df[-5:])
+ #temp       print(self.x_tf[0:5], self.x_tf[-5:])
         if doicorr:
             self.correction()
             #x = self.x_tf + 2.085
@@ -161,8 +167,11 @@ class qens_fit:
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
             [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
-            y = self.convlore(alpha1*d, gamma1, x)
-            y += self.convlore(alpha2*d, gamma2, x)
+            #y = self.convlore(alpha1*d, gamma1, x)
+            #y += self.convlore(alpha2*d, gamma2, x)
+            #y += delta*d + base
+            y = alpha1*self.convlore(d, gamma1, x)
+            y += alpha2*self.convlore(d, gamma2, x)
             y += delta*d + base
         if len(coeffs) == 5:
             [alpha1, gamma1, alpha2, gamma2,  delta] = coeffs
@@ -208,15 +217,15 @@ class qens_fit:
                 print("estimated constants alpha, gamma, delta")
             if len(variables) == 5:
                 print("estimated constants alpha1, gamma1, alpha2, gamma2, delta")
-            if len(variables) == 6:
-                print("estimated constants alpha1, gamma1, alpha2, gamma2, delta, base")
+            #if len(variables) == 6:
+                #print("estimated constants alpha1, gamma1, alpha2, gamma2, delta, base")
             print(out[0])
         self.out = out[0]
         self.gamma = out[0][1]
-        if not self.quiet:
-            print("cov**0.5")
-            #print(out[1])
-            print(np.absolute(out[1]*s_sq)**0.5)
+   #temp     if not self.quiet:
+   #temp         print("cov**0.5")
+   #temp         #print(out[1])
+   #temp         print(np.absolute(out[1]*s_sq)**0.5)
         #self.gammaerror = np.absolute(out[1][1][1]*s_sq)**0.5
         if len(variables) == 4:
             _alpha, _gamma, _delta, _base = out[0]
@@ -239,24 +248,29 @@ class qens_fit:
         #                                   .argmax(self.y_tf)+100])
         self.optbgpeakratio = _base/np.sum(self.y_tf)\
             / (self.x_tf[1]-self.x_tf[0])
-        if not self.quiet:
-            print("optbg/peak:", self.optbgpeakratio)
+        #if not self.quiet:
+        #    print("optbg/peak:", self.optbgpeakratio)
         if figname:
-            _y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
+            #_y = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)
+            _y = _alpha*self.convlore(self.y_df, _gamma, self.x_tf)
             _y += _delta*self.y_df + _base
             if len(variables) >= 5:
-                _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
+                #_y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
+                _y += _alpha2*self.convlore(self.y_df, _gamma2, self.x_tf)
             plt.plot(self.x_tf, self.y_tf, label='target')
             plt.plot(self.x_tf, np.zeros_like(self.x_tf) + _base,
                      label='constant')
             plt.plot(self.x_tf, _delta*self.y_df, label='delta_conv')
-            plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
+            #plt.plot(self.x_tf, self.convlore(_alpha*self.y_df, _gamma,
+            #         self.x_tf), label='lore_conv')
+            plt.plot(self.x_tf, _alpha*self.convlore(self.y_df, _gamma,
                      self.x_tf), label='lore_conv')
             plt.plot(self.x_tf, _y, label='ML')
             if len(variables) >= 5:
-                plt.plot(self.x_tf, self.convlore(_alpha2*self.y_df, _gamma2,
+                #plt.plot(self.x_tf, self.convlore(_alpha2*self.y_df, _gamma2,
+                #         self.x_tf), label='lore_conv')
+                plt.plot(self.x_tf, _alpha2*self.convlore(self.y_df, _gamma2,
                          self.x_tf), label='lore_conv')
-
             plt.xlabel('energy (meV)')
             plt.tick_params(top=True, right=True, direction='in', which='both',
                             labelbottom=True, width=1.5)
@@ -267,7 +281,7 @@ class qens_fit:
                 plt.show()
             plt.close()
 
-    def reconstruct(self, elim=None):
+    def reconstruct(self, elim=None, check=True, idevf=None, itf=None):
         if elim:
             self.elim = elim
         x_devf, y_ssvk_devf = self.get_data(self.devf)
@@ -280,11 +294,14 @@ class qens_fit:
         _y += _delta*self.y_df + _base
         _y += self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)
         self.ml = _y
-        plt.plot(self.x_tf, self.ml)
-        plt.plot(self.x_tf, self.y_tf)
-        plt.yscale('log')
-        plt.show()
-        self.decorrection()
+        if check:
+            plt.plot(self.x_tf, self.ml)
+            plt.plot(self.x_tf, self.y_tf)
+            plt.yscale('log')
+            plt.show()
+        if idevf and itf:
+            self.decorrection()
+            self.multii(idevf, itf)
 
     def multii(self, idevf, itf):
         xid, yid = self.get_idata(idevf)
@@ -296,26 +313,31 @@ class qens_fit:
         self.y_df *= yid_ip
         self.ml *= yit_ip
 
-    def generate_data(self, idevf, itf, check=True):
-        self.y_df = self.y_df/np.sum(self.y_df)*40000
-        self.ml = self.ml/np.sum(self.ml)*20000
-        ddata = np.random.poisson(self.y_df)
-        tdata = np.random.poisson(self.ml)
-        xid, yid = self.get_idata(idevf)
-        xit, yit = self.get_idata(itf)
-        yid = yid/np.sum(yid)*103203
-        yit = yit/np.sum(yit)*54678
-        iddata = np.random.poisson(yid)
-        itdata = np.random.poisson(yit)
+    def generate_data(self, idevf, itf, check=True, rebin=False):
+        self.y_df = self.y_df/np.sum(self.y_df)*59146.*10
+        self.ml = self.ml/np.sum(self.ml)*18944.*10
+        ddata = np.random.poisson(self.y_df)*1.
+        tdata = np.random.poisson(self.ml)*1.
+        #xid, yid = self.get_idata(idevf)
+        #xit, yit = self.get_idata(itf)
+        #yid = yid/np.sum(yid)*103203
+        #yit = yit/np.sum(yit)*54678
+        #iddata = np.random.poisson(yid)
+        #itdata = np.random.poisson(yit)
+        if rebin:
+            tin_real, ddata = self.rebin_generated_samples(self.x_tf, ddata)
+            tin_real, tdata = self.rebin_generated_samples(self.x_tf, tdata)
+        else:
+            tin_real = self.x_tf
         if check:
             self.check_generated_samples(self.x_tf, ddata)
             self.check_generated_samples(self.x_tf, tdata)
-            self.check_generated_samples(xid, iddata)
-            self.check_generated_samples(xit, itdata)
-        self.save_generated_data(self.x_tf, ddata, 'qens_sim_6204.pkl')
-        self.save_generated_data(self.x_tf, tdata, 'qens_sim_6202.pkl')
-        self.save_generated_data(xid, iddata, 'qens_sim_moni_6204.pkl')
-        self.save_generated_data(xit, itdata, 'qens_sim_moni_6202.pkl')
+            #self.check_generated_samples(xid, iddata)
+            #self.check_generated_samples(xit, itdata)
+        self.save_generated_data(tin_real, ddata, 'qens_sim_6204.pkl')
+        self.save_generated_data(tin_real, tdata, 'qens_sim_6202.pkl')
+        #self.save_generated_data(xid, iddata, 'qens_sim_moni_6204.pkl')
+        #self.save_generated_data(xit, itdata, 'qens_sim_moni_6202.pkl')
 
     def save_generated_data(self, x, data, savefile):
         dataset = {}
@@ -324,13 +346,26 @@ class qens_fit:
         with open(savefile, 'wb') as f:
             pickle.dump(dataset, f, -1)
 
+    def rebin_generated_samples(self, x, data,  num=600, shift=False):
+        dx = x[1]-x[0]
+        xvec_real = np.array([x[idx] for idx in range(0, data.shape[0]) for
+                              num_repeat in range(0, int(data[idx]))],
+                             dtype=float)
+        if shift:
+            xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*dx
+        tin_real = np.linspace(x[0], x[-1], num=num)
+        dt = tin_real[1] - tin_real[0]
+        print(dt)
+        thist = np.concatenate((tin_real, (tin_real[-1]+dt)[np.newaxis]))
+        return tin_real, np.histogram(xvec_real, thist-dt/2)[0]*1.
+
     def check_generated_samples(self, x, data):
         dx = x[1]-x[0]
         xvec_real = np.array([x[idx] for idx in range(0, data.shape[0]) for
                               num_repeat in range(0, int(data[idx]))],
                              dtype=float)
         xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*dx
-        tin_real = np.linspace(x[0], x[-1], num=800)
+        tin_real = np.linspace(x[0], x[-1], num=600)
         dt = tin_real[1] - tin_real[0]
         thist = np.concatenate((tin_real, (tin_real[-1]+dt)[np.newaxis]))
         y_hist = np.histogram(xvec_real, thist-dt/2)[0]
@@ -450,11 +485,11 @@ def ssamplerun():
             pickle.dump(dataset, f, -1)
 
     def check_generated_samples(self, x, data):
-        dx = x[1]-x[0]
+        #dx = x[1]-x[0]
         xvec_real = np.array([x[idx] for idx in range(0, data.shape[0]) for
                               num_repeat in range(0, int(data[idx]))],
                              dtype=float)
-        xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*dx
+        #xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*dx
         tin_real = np.linspace(x[0], x[-1], num=800)
         dt = tin_real[1] - tin_real[0]
         thist = np.concatenate((tin_real, (tin_real[-1]+dt)[np.newaxis]))
