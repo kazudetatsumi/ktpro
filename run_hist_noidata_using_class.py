@@ -7,34 +7,30 @@
 import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
-from qens_fit_class import qens_fit as qf
-#from qens_calss_fort_mpi import qens as qens
+from qens_fit_class_hist_noidata import qens_fit as qf
 
 
 class runhist(qf):
-    def __init__(self, devf, tf, elim, elimr, numcycle=100):
-        self.elimo = elim
-        self.elimr = elimr
-        self.devfo = devf
-        self.tfo = tf
+    def __init__(self, devf, tf, elim, elimw, showplot=False, numcycle=100):
+        self.elim = elim
+        self.elimw = elimw
+        self.devf = devf
+        self.tf = tf
+        self.showplot = showplot
         self.numcycle = numcycle
-        qf.__init__(self, devf, tf, self.elimo, showplot=False)
-        self.icorr()
-        self.preprocess(doicorr=True)
-        self.optimize(variables=[2.18704786e-04, 1.67980295e-02,
-                                 4.92405238e-05, 1.88866588e-03,
-                                 1.21127501e-01, 5.02759930e-02],
-                      figname="qens_kde_fit2.png")
-        self.outo = self.out
+
+    def get_ml(self):
+        x, yd, yt = self.preprocess_hist_noidata()
+        out = self.optimize_hist_noidata(x, yd, yt, variables=[2.18704786e-04,
+                                         1.67980295e-02, 4.92405238e-05, 1.88866588e-03,
+                                         1.21127501e-01, 5.02759930e-02],
+                                         figname="qens_kde_fit2.png")
+        self.reconstruct_hist_noidata(x, yd, yt, out)
 
     def cycle(self):
         self.outall = np.zeros((self.numcycle, 6))
         for cyidx in range(0, self.numcycle):
-            self.devf = self.devfo
-            self.tf = self.tfo
-            self.elim = self.elimr
-            self.out = self.outo
-            self.reconstruct(elim=self.elimr, check=False)
+            self.reconstruct_hist_noidata(self.elimr)
             self.generate_data(None, None, check=False)
             self.devf = "./qens_sim_6204.pkl"
             self.tf = "./qens_sim_6202.pkl"

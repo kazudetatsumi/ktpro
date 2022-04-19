@@ -45,19 +45,6 @@ class qens_fit:
             #                         + self.k[2]*x**2
             #                         + self.k[3]*x**3)
 
-    def preprocessnoi2(self, elim, doicorr=False):
-        self.xd, self.yd = self.get_data(self.devf)
-        self.xt, self.yt = self.get_data(self.tf)
-        self.xdl, self.ydl = self.limit2(self.xd, self.yd, elim)
-        self.xtl, self.ytl = self.limit2(self.xt, self.yt, elim)
-        if doicorr:
-            self.correctionnoi()
-
-    def correctionnoi(self):
-        x = self.xtl + 2.085
-        self.ytl /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
-        self.ydl /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
-
     def correction(self):
         x = self.x_tf + 2.085
         self.y_tf /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3
@@ -166,41 +153,28 @@ class qens_fit:
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
             [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
-            #y = self.convlore(alpha1*d, gamma1, x)
-            #y += self.convlore(alpha2*d, gamma2, x)
-            #y += delta*d + base
-            y = alpha1*self.convlore(d, gamma1, x)
-            y += alpha2*self.convlore(d, gamma2, x)
-            y += delta*d + base
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + base
         if len(coeffs) == 5:
             [alpha1, gamma1, alpha2, gamma2,  delta] = coeffs
-            y = self.convlore(alpha1*d, gamma1, x)
-            y += self.convlore(alpha2*d, gamma2, x)
-            y += delta*d + self.bg
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + self.bg
         if len(coeffs) == 4:
             [alpha, gamma, delta, base] = coeffs
-            y = self.convlore(alpha*d, gamma, x)
-            y += delta*d + base
+            y = alpha*self.convlore(d, gamma, x)\
+                + delta*d + base
         if len(coeffs) == 3:
-            #print(self.y_tf[-1])
-            #print(self.bg)
             [alpha, gamma, delta] = coeffs
-            y = self.convlore(alpha*d, gamma, x)
-            #y += delta*d + self.y_tf[-1]
-            y += delta*d + self.bg
+            y = alpha*self.convlore(d, gamma, x)\
+                + delta*d + self.bg
         return t - y
 
     def res_icorr(self, coeffs, x, t):
         [k0, k1, k2, k3] = coeffs
         y = k0 + k1*x + k2*x**2 + k3*x**3
         return t - y
-
-    def optimizenoi(self, variables=[1.46103037e-04, 1.23754329e-02,
-                    5.20429443e-01, 9.30889687e-06], figname=None):
-        out = so.leastsq(self.res, variables,
-                         args=(self.xtl, self.ydl, self.ytl), full_output=1,
-                         epsfcn=0.0001)
-        self.out = out[0]
 
     def optimize(self, variables=[1.46103037e-04, 1.23754329e-02,
                  5.20429443e-01, 9.30889687e-06], figname=None):
@@ -279,15 +253,6 @@ class qens_fit:
             if self.showplot:
                 plt.show()
             plt.close()
-
-    def reconstructnoi(self):
-        self.elim = self.elimr
-        x_df, self.y_df = self.limit(self.xd, self.yd, mergin=0.00)
-        self.x_tf, self.y_tf = self.limit(self.xt, self.yt, mergin=0.00)
-        _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = self.out
-        self.ml = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)\
-            + self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)\
-            + _delta*self.y_df + _base
 
     def reconstruct(self, elim=None, check=True, idevf=None, itf=None):
         if elim:
