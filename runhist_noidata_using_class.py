@@ -20,7 +20,7 @@ class runhist(qf):
         self.numcycle = numcycle
         qf.__init__(self, devf, tf, self.elimo, showplot=False)
         self.icorr()
-        self.preprocess()
+        self.preprocess(doicorr=True)
         self.optimize(variables=[2.18704786e-04, 1.67980295e-02,
                                  4.92405238e-05, 1.88866588e-03,
                                  1.21127501e-01, 5.02759930e-02],
@@ -63,7 +63,7 @@ def testrun():
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimr = [-0.06, 0.10]
-    proj = runhist(devf, tf, elim, elimr, numcycle=320)
+    proj = runhist(devf, tf, elim, elimr, numcycle=640)
     proj.cycle()
 
 

@@ -44,7 +44,20 @@ class qens_fit:
             #self.y_df = self.y_df / (self.k[0] + self.k[1]*x
             #                         + self.k[2]*x**2
             #                         + self.k[3]*x**3)
-    
+
+    def preprocessnoi2(self, elim, doicorr=False):
+        self.xd, self.yd = self.get_data(self.devf)
+        self.xt, self.yt = self.get_data(self.tf)
+        self.xdl, self.ydl = self.limit2(self.xd, self.yd, elim)
+        self.xtl, self.ytl = self.limit2(self.xt, self.yt, elim)
+        if doicorr:
+            self.correctionnoi()
+
+    def correctionnoi(self):
+        x = self.xtl + 2.085
+        self.ytl /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
+        self.ydl /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
+
     def correction(self):
         x = self.x_tf + 2.085
         self.y_tf /= (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3
@@ -62,38 +75,20 @@ class qens_fit:
         x_devf, ys_ssvk_devf = self.get_sdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_sdata(self.tf)
         self.bg = 0.000000
-        #print(np.sum(np.abs(x_tf - x_devf)))
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf[0], mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf[0], mergin=0.00)
-        #print("y_tf[-1]", self.y_tf[-1])
         if doicorr:
             self.correction()
-            #x = self.x_tf + 2.085
-            #self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-            #                         + self.k[2]*x**2
-            #                         + self.k[3]*x**3)
-            #self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-            #                         + self.k[2]*x**2
-            #                         + self.k[3]*x**3)
 
     def preprocessh(self, doicorr=False):
         x_devf, ys_ssvk_devf = self.get_hdata(self.devf)
         x_tf, ys_ssvk_tf = self.get_hdata(self.tf)
-        #print(np.sum(np.abs(x_tf - x_devf)))
         x_df, self.y_df = self.limit(x_devf, ys_ssvk_devf, mergin=0.00)
         self.x_tf, self.y_tf = self.limit(x_tf, ys_ssvk_tf, mergin=0.00)
         if doicorr:
             self.correction()
-            #x = self.x_tf + 2.085
-            #self.y_tf = self.y_tf / (self.k[0] + self.k[1]*x
-            #                         + self.k[2]*x**2
-            #                         + self.k[3]*x**3)
-            #self.y_df = self.y_df / (self.k[0] + self.k[1]*x
-            #                         + self.k[2]*x**2
-            #                         + self.k[3]*x**3)
         if 'optbgpeakratio' in dir(self):
             self.bg = self.optbgpeakratio*np.sum(self.y_tf)*(x_tf[1]-x_tf[0])
-            #np.sum(self.y_tf[np.argmax(self.y_tf)-100:np.argmax(self.y_tf)+100])
 
     def get_idata(self, infile):
         with open(infile, 'rb') as f:
@@ -118,6 +113,10 @@ class qens_fit:
     def limit(self, x, y, mergin=0.0):
         mask = np.where((x > self.elim[0] - mergin) &
                         (x < self.elim[1] + mergin))
+        return x[mask], y[mask]
+
+    def limit2(self, x, y, elim):
+        mask = np.where((x > elim[0]) & (x < elim[1]))
         return x[mask], y[mask]
 
     def interpolate(self):
@@ -196,15 +195,15 @@ class qens_fit:
         y = k0 + k1*x + k2*x**2 + k3*x**3
         return t - y
 
+    def optimizenoi(self, variables=[1.46103037e-04, 1.23754329e-02,
+                    5.20429443e-01, 9.30889687e-06], figname=None):
+        out = so.leastsq(self.res, variables,
+                         args=(self.xtl, self.ydl, self.ytl), full_output=1,
+                         epsfcn=0.0001)
+        self.out = out[0]
+
     def optimize(self, variables=[1.46103037e-04, 1.23754329e-02,
                  5.20429443e-01, 9.30889687e-06], figname=None):
-        # initial guess on the parameters are hard-coded here.
-        #variables = [0.00001, 0.0015, 0.01]
-        #variables = [1.58837344e-04, 1.00454636e-02, 4.57573203e-01, 0.009]
-        #variables = [1.38746043e-04, 8.27288080e-03, 4.47976536e-01, 1.75691683e-02]
-        #variables = [1.46103037e-04, 1.23754329e-02, 5.20429443e-01, 9.30889687e-03]
-        #variables = [1.38876225e-04, 8.09183272e-03, 4.42217308e-01]
-        #print(self.x_tf.shape)
         out = so.leastsq(self.res, variables,
                          args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
                          epsfcn=0.0001)
@@ -280,6 +279,15 @@ class qens_fit:
             if self.showplot:
                 plt.show()
             plt.close()
+
+    def reconstructnoi(self):
+        self.elim = self.elimr
+        x_df, self.y_df = self.limit(self.xd, self.yd, mergin=0.00)
+        self.x_tf, self.y_tf = self.limit(self.xt, self.yt, mergin=0.00)
+        _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = self.out
+        self.ml = self.convlore(_alpha*self.y_df, _gamma, self.x_tf)\
+            + self.convlore(_alpha2*self.y_df, _gamma2, self.x_tf)\
+            + _delta*self.y_df + _base
 
     def reconstruct(self, elim=None, check=True, idevf=None, itf=None):
         if elim:
