@@ -314,8 +314,8 @@ class qens_fit:
         self.ml *= yit_ip
 
     def generate_data(self, idevf, itf, check=True, rebin=False):
-        self.y_df = self.y_df/np.sum(self.y_df)*59146.*10
-        self.ml = self.ml/np.sum(self.ml)*18944.*10
+        self.y_df = self.y_df/np.sum(self.y_df)*59146.
+        self.ml = self.ml/np.sum(self.ml)*18944.
         ddata = np.random.poisson(self.y_df)*1.
         tdata = np.random.poisson(self.ml)*1.
         #xid, yid = self.get_idata(idevf)

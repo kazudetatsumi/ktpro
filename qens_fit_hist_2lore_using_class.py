@@ -2,7 +2,7 @@
 # This script do a fitting analysis using 2 Lorentzian components
 # ONLY on uncorrected and reconstructed histogram data.
 # The data can be prepared by
-# qens_hist_results_odata_divided_by_idata_reconst_using_class.py
+# qens_hist_odata_divided_by_idata_reconst_using_class.py
 # Usage: qens_fit_hist_2lore_using_class.py 6202 6204 0.000025 0125
 # Example data are found at
 # /home/kazu/desktop/210108/Tatsumi/winparm_exaam/test_reconstruct_python
