@@ -38,10 +38,31 @@ class runhistnoidata(qf):
         self.outall = np.zeros((self.numcycle, 6))
         for cyidx in range(0, self.numcycle):
             simd, simt = self.generate_data()
+            # rebinning
+            # tin_real, simdr = self.rebin_generated_samples(self.x, simd)
+            # tin_real, simtr = self.rebin_generated_samples(self.x, simt)
+            # out = self.optimize(tin_real, simdr, simtr,
             out = self.optimize(self.x, simd, simt,
-                                variables=[6.11704786e-06, 2.51980295e-02,
-                                           1.55405238e-06, 4.28866588e-03,
-                                           7.97127501e-03, 3.52759930e-01])
+                                variables=[1.73704786e-05, 2.66580295e-02,
+                                           9.96405238e-06, 7.00766588e-03,
+                                           2.00077501e-01, 1.78759930e-01])
+            if out[0] < 0 and out[1] < 0:
+                print("negative-negative")
+                out[0] = out[0]*(-1.)
+                out[1] = out[1]*(-1.)
+            if out[2] < 0 and out[3] < 0:
+                print("negative-negative")
+                out[2] = out[2]*(-1.)
+                out[3] = out[3]*(-1.)
+            if out[1] < out[3]:
+                print("exchange")
+                tmpout = out[1]
+                tmpout2 = out[0]
+                out[1] = out[3]
+                out[3] = tmpout
+                out[0] = out[2]
+                out[2] = tmpout2
+            print(cyidx, out)
             self.outall[cyidx, :] = out
         print(np.average(self.outall[:, 1]), np.std(self.outall[:, 1]))
         print(np.average(self.outall[:, 3]), np.std(self.outall[:, 3]))
@@ -80,8 +101,8 @@ class runhistnoidata(qf):
 
     def reconstruct(self, x, yd, out):
         _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = out
-        return self.convlore(_alpha*yd, _gamma, x)\
-            + self.convlore(_alpha2*yd, _gamma2, x)\
+        return _alpha*self.convlore(yd, _gamma, x)\
+            + _alpha2*self.convlore(yd, _gamma2, x)\
             + _delta*yd + _base
 
     def limit(self, x, y, elim):
@@ -98,8 +119,8 @@ def testrun():
     devf = "./qens_kde_o_divided_by_i_6204.pkl"
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
-    elimw = [-0.06, 0.10]
-    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=999)
+    elimw = [-0.04, 0.08]
+    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=4000)
     proj.get_xmlyd()
     proj.cycle()
 

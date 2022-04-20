@@ -5,14 +5,17 @@ import scipy.signal as ss
 import sys
 import re
 import pickle
+import matplotlib.pyplot as plt
 from ctypes import *
 from mpi4py import MPI
 sys.path.append("/home/kazu/ktpro")
+from qens_class_fort_mpi import qens as qc
+from qens_fit_class_hist import runhist as rh
 lib = CDLL("/home/kazu/ktpro/ssvkernel_f90_mpi.so")
 libssk = CDLL("/home/kazu/ktpro/sskernel_f90.so")
 
 
-class runkdenoidata():
+class runkdenoidata(rh, qc):
     def __init__(self, devf, tf, elim, elimw, numcycle=100):
         self.elim = elim
         self.elimw = elimw
@@ -20,6 +23,7 @@ class runkdenoidata():
         self.tf = tf
         self.elim = elim
         self.numcycle = numcycle
+        self.rank = MPI.COMM_WORLD.Get_rank()
 
     def get_xmlyd(self):
         x, yd, yt = self.preprocess()
@@ -27,7 +31,13 @@ class runkdenoidata():
                             variables=[2.18704786e-04, 1.67980295e-02,
                                        4.92405238e-05, 1.88866588e-03,
                                        1.21127501e-01, 5.02759930e-02])
-        self.ml = self.reconstruct(self.x, self.yd, out)
+        if self.rank == 0:
+            print(out)
+        #self.ml = self.reconstruct(self.x, self.yd, out)
+        self.ml = self.reconstruct(x, yd, out)
+        self.yd = yd
+        self.x = x
+        #print(self.x[0], self.x[-1])
 
     def preprocess(self):
         self.icorr()
@@ -42,8 +52,8 @@ class runkdenoidata():
         self.WinFunc = 'Boxcar'
         self.M = 160
         self.winparam = 1
-        self.selected_spectra = x
-        self.selected_energy = y
+        self.selected_spectra = y
+        self.selected_energy = x
         self.de = self.selected_energy[1] - self.selected_energy[0]
         self.get_xvec()
         self.add_shift_de()
@@ -52,27 +62,56 @@ class runkdenoidata():
     def cycle(self):
         self.outall = np.zeros((self.numcycle, 6))
         for cyidx in range(0, self.numcycle):
-            simd, simt = self.generate_data()
+            simt = np.zeros(self.ml.shape)
+            simd = np.zeros(self.yd.shape)
+            if self.rank == 0:
+                simd, simt = self.generate_data()
+            simt = MPI.COMM_WORLD.bcast(simt)
+            simd = MPI.COMM_WORLD.bcast(simd)
             self.kde(self.x, simd)
             simyd = self.y[0]
+            #plt.plot(self.y[1], self.y[0])
             self.kde(self.x, simt)
             simyt = self.y[0]
-            out = self.optimize(self.x, simyd, simyt,
-                                variables=[6.11704786e-06, 2.51980295e-02,
-                                           1.55405238e-06, 4.28866588e-03,
-                                           7.97127501e-03, 3.52759930e-01])
+            #plt.plot(self.y[1], self.y[0])
+            #plt.yscale('log')
+            #plt.show()
+            out = self.optimize(self.y[1], simyd, simyt,
+                                variables=[1.73704786e-05, 2.66580295e-02,
+                                           9.96405238e-06, 7.00766588e-03,
+                                           2.00077501e-01, 1.78759930e-01])
+            if out[0] < 0 and out[1] < 0:
+                print("negative-negative")
+                out[0] = out[0]*(-1.)
+                out[1] = out[1]*(-1.)
+            if out[2] < 0 and out[3] < 0:
+                print("negative-negative")
+                out[2] = out[2]*(-1.)
+                out[3] = out[3]*(-1.)
+            if out[1] < out[3]:
+                print("exchange")
+                tmpout = out[1]
+                tmpout2 = out[0]
+                out[1] = out[3]
+                out[3] = tmpout
+                out[0] = out[2]
+                out[2] = tmpout2
+            if self.rank == 0:
+                print(cyidx, out)
             self.outall[cyidx, :] = out
-        print(np.average(self.outall[:, 1]), np.std(self.outall[:, 1]))
-        print(np.average(self.outall[:, 3]), np.std(self.outall[:, 3]))
+        if self.rank == 0:
+            print(np.average(self.outall[:, 1]), np.std(self.outall[:, 1]))
+            print(np.average(self.outall[:, 3]), np.std(self.outall[:, 3]))
         mask = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
                         & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
                         & (self.outall[:, 4] > 0) & (self.outall[:, 5] > 0))
         self.outnonneg = self.outall[mask]
-        print(np.average(self.outnonneg[:, 1]), "+/-",
-              np.std(self.outnonneg[:, 1]))
-        print(np.average(self.outnonneg[:, 3]), "+/-",
-              np.std(self.outnonneg[:, 3]))
-        print(self.outnonneg.shape[0], "/", self.numcycle)
+        if self.rank == 0:
+            print(np.average(self.outnonneg[:, 1]), "+/-",
+                  np.std(self.outnonneg[:, 1]))
+            print(np.average(self.outnonneg[:, 3]), "+/-",
+                  np.std(self.outnonneg[:, 3]))
+            print(self.outnonneg.shape[0], "/", self.numcycle)
 
     def correction(self, x, yd, yt):
         x = x + 2.085
@@ -88,8 +127,8 @@ class runkdenoidata():
 
     def res(self, coeffs, x, d, t):
         [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
-        y = alpha1*self.convlore(d, gamma1, x)\
-            + alpha2*self.convlore(d, gamma2, x)\
+        y = alpha1*self.convloreorg(d, gamma1, x)\
+            + alpha2*self.convloreorg(d, gamma2, x)\
             + delta*d + base
         # A smaller energy range is set for the squre differences,
         # because y involves convolution and this setting is preferable
@@ -99,8 +138,8 @@ class runkdenoidata():
 
     def reconstruct(self, x, yd, out):
         _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = out
-        return self.convlore(_alpha*yd, _gamma, x)\
-            + self.convlore(_alpha2*yd, _gamma2, x)\
+        return _alpha*self.convloreorg(yd, _gamma, x)\
+            + _alpha2*self.convloreorg(yd, _gamma2, x)\
             + _delta*yd + _base
 
     def limit(self, x, y, elim):
@@ -114,8 +153,8 @@ class runkdenoidata():
     def run_ssvkernel(self):
         self.tin = np.arange(self.selected_energy.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
-                                    self.selected_energy[-1], num=8000)
-        print('number of tin_real elements=', self.tin_real.shape[0])
+                                    self.selected_energy[-1], num=4800)
+        #print('number of tin_real elements=', self.tin_real.shape[0])
 
         if self.WinFunc=='Boxcar':
             WinFuncNo=1
@@ -151,7 +190,7 @@ class runkdenoidata():
         yb = np.zeros((nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
-
+        MPI.COMM_WORLD.barrier()
         lib.ssvk(
                 c_int32(comm),
                 c_int(self.M),
@@ -166,6 +205,7 @@ class runkdenoidata():
                 yopt,
                 yb
                 )
+        MPI.COMM_WORLD.barrier()
         return yopt, self.tin_real, optw, yb
 
     def calc_sskernel_f90(self):
@@ -182,6 +222,7 @@ class runkdenoidata():
         tinsize = self.tin_real.shape[0]
         yopt = np.zeros((tinsize))
         optw = c_double()
+        MPI.COMM_WORLD.barrier()
         libssk.ssk(
                    byref(optw),
                    c_int(xsize),
@@ -190,67 +231,8 @@ class runkdenoidata():
                    self.tin_real,
                    yopt
                    )
+        MPI.COMM_WORLD.barrier()
         return yopt, self.tin_real, optw
-
-    def get_xvec(self):
-        self.xvec = np.array([idx for idx in
-                             range(0, self.selected_spectra.shape[0]) for
-                             num_repeat in
-                             range(0, int(self.selected_spectra[idx]))
-                              ], dtype=float)
-        self.xvec_real = np.array([self.selected_energy[idx] for idx in
-                                  range(0, self.selected_spectra.shape[0]) for
-                                  num_repeat in
-                                  range(0, int(self.selected_spectra[idx]))
-                                   ], dtype=float)
-
-    def add_shift_de(self):
-        rank = MPI.COMM_WORLD.Get_rank()
-        if rank == 0:
-            self.shift = np.random.uniform(0., 1., size=self.xvec.shape[0])
-            self.xvec_real += self.shift*self.de
-        self.xvec_real = MPI.COMM_WORLD.bcast(self.xvec_real)
-
-    def res_icorr(self, coeffs, x, t):
-        [k0, k1, k2, k3] = coeffs
-        y = k0 + k1*x + k2*x**2 + k3*x**3
-        return t - y
-
-    def get_icorrdata(self, icorrfile):
-        x = []
-        y = []
-        for line in open(icorrfile):
-            if not re.compile('[A-z[]').search(line):
-                x.append(float(line.split()[0]))
-                y.append(float(line.split()[1]))
-        x = np.array(x)
-        y = np.array(y)
-        return x, y
-
-    def icorr(self):
-        x, y = self.get_icorrdata("/home/kazu/desktop/210108/Tatsumi/" +
-                                  "Ilambda_correction.txt")
-        variables = [10, 10, 10, 10]
-        out = so.leastsq(self.res_icorr, variables,
-                         args=(x, y), full_output=1,
-                         epsfcn=0.0001)
-        [_k0, _k1, _k2, _k3] = out[0]
-        self.k = out[0]
-
-    def get_data(self, infile):
-        with open(infile, 'rb') as f:
-            data = pickle.load(f, encoding='latin1')
-        return data['xo'], data['yr_ssvk']
-
-    def fun_lore(self, x, gamma):
-        return 1/np.pi*gamma/(x**2 + gamma**2)
-
-    def convlore(self, f, gamma, x):
-        ex = np.linspace(np.min(x)-(np.max(x)-np.min(x))*0.5,
-                         np.max(x)+(np.max(x)-np.min(x))*0.5, x.shape[0]*2+1)
-        win = self.fun_lore(ex - ex[int(x.shape[0])], gamma)
-        _convd = ss.convolve(f, win, mode='same', method='fft')
-        return _convd
 
 
 
@@ -259,8 +241,8 @@ def testrun():
     devf = "./qens_kde_o_divided_by_i_6204.pkl"
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
-    elimw = [-0.06, 0.10]
-    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=3)
+    elimw = [-0.04, 0.08]
+    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=30)
     proj.get_xmlyd()
     proj.cycle()
 

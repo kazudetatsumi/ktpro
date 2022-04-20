@@ -138,7 +138,7 @@ class qens:
         if self.WinFunc=='Cauchy':
             WinFuncNo=3
 
-        self.y = self.calc_ssvkernel_f90(WinFuncNo)
+        #self.y = self.calc_ssvkernel_f90(WinFuncNo)
         self.y_ = self.calc_sskernel_f90()#sskernel.sskernel(self.xvec_real, self.tin_real)
 
     def calc_ssvkernel_f90(self, WinFuncNo):

@@ -319,7 +319,7 @@ class qens_fit:
         with open(savefile, 'wb') as f:
             pickle.dump(dataset, f, -1)
 
-    def rebin_generated_samples(self, x, data,  num=600, shift=False):
+    def rebin_generated_samples(self, x, data,  num=200, shift=False):
         dx = x[1]-x[0]
         xvec_real = np.array([x[idx] for idx in range(0, data.shape[0]) for
                               num_repeat in range(0, int(data[idx]))],
@@ -328,7 +328,7 @@ class qens_fit:
             xvec_real += np.random.uniform(0., 1.0, size=xvec_real.shape[0])*dx
         tin_real = np.linspace(x[0], x[-1], num=num)
         dt = tin_real[1] - tin_real[0]
-        print(dt)
+        #print(dt)
         thist = np.concatenate((tin_real, (tin_real[-1]+dt)[np.newaxis]))
         return tin_real, np.histogram(xvec_real, thist-dt/2)[0]*1.
 
