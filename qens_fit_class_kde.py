@@ -28,9 +28,12 @@ class runkdenoidata(rh, qc):
     def get_xmlyd(self):
         x, yd, yt = self.preprocess()
         out = self.optimize(x, yd, yt,
-                            variables=[2.18704786e-04, 1.67980295e-02,
-                                       4.92405238e-05, 1.88866588e-03,
-                                       1.21127501e-01, 5.02759930e-02])
+                            #variables=[2.18704786e-04, 1.67980295e-02,
+                            #           4.92405238e-05, 1.88866588e-03,
+                            #           1.21127501e-01, 5.02759930e-02])
+                            variables=[0.59704786e-00, 2.67980295e-02,
+                                       3.82405238e-01, 7.88866588e-03,
+                                       0.21127501e+00, 1.82759930e-02])
         if self.rank == 0:
             print(out)
         #self.ml = self.reconstruct(self.x, self.yd, out)
@@ -70,16 +73,21 @@ class runkdenoidata(rh, qc):
             simd = MPI.COMM_WORLD.bcast(simd)
             self.kde(self.x, simd)
             simyd = self.y[0]
-            #plt.plot(self.y[1], self.y[0])
             self.kde(self.x, simt)
             simyt = self.y[0]
-            #plt.plot(self.y[1], self.y[0])
-            #plt.yscale('log')
-            #plt.show()
+            dx = self.y[1][1] - self.y[1][0]
+            simyd = simyd/np.sum(simyd)/dx
+            simyt = simyt/np.sum(simyt)/dx*100.
             out = self.optimize(self.y[1], simyd, simyt,
-                                variables=[1.73704786e-05, 2.66580295e-02,
-                                           9.96405238e-06, 7.00766588e-03,
-                                           2.00077501e-01, 1.78759930e-01])
+                                #variables=[1.73704786e-05, 2.66580295e-02,
+                                #           9.96405238e-06, 7.00766588e-03,
+                                #           2.00077501e-01, 1.78759930e-01])
+                                #variables=[0.59704786e-00, 2.67980295e-02,
+                                #           3.82405238e-01, 7.88866588e-03,
+                                #           0.21127501e+00, 1.82759930e-02])
+                                variables=[5.8e+01, 2.5e-02,
+                                           3.2e+01, 7.2e-03,
+                                           1.8e+01, 2.5e+01])
             if out[0] < 0 and out[1] < 0:
                 print("negative-negative")
                 out[0] = out[0]*(-1.)
@@ -106,12 +114,21 @@ class runkdenoidata(rh, qc):
                         & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
                         & (self.outall[:, 4] > 0) & (self.outall[:, 5] > 0))
         self.outnonneg = self.outall[mask]
+        maskwobg = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
+                        & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
+                        & (self.outall[:, 4] > 0))
+        self.outnonnegwobg = self.outall[maskwobg]
         if self.rank == 0:
             print(np.average(self.outnonneg[:, 1]), "+/-",
                   np.std(self.outnonneg[:, 1]))
             print(np.average(self.outnonneg[:, 3]), "+/-",
                   np.std(self.outnonneg[:, 3]))
             print(self.outnonneg.shape[0], "/", self.numcycle)
+            print(np.average(self.outnonnegwobg[:, 1]), "+/-",
+                  np.std(self.outnonnegwobg[:, 1]))
+            print(np.average(self.outnonnegwobg[:, 3]), "+/-",
+                  np.std(self.outnonnegwobg[:, 3]))
+            print(self.outnonnegwobg.shape[0], "/", self.numcycle)
 
     def correction(self, x, yd, yt):
         x = x + 2.085
@@ -127,8 +144,8 @@ class runkdenoidata(rh, qc):
 
     def res(self, coeffs, x, d, t):
         [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
-        y = alpha1*self.convloreorg(d, gamma1, x)\
-            + alpha2*self.convloreorg(d, gamma2, x)\
+        y = alpha1*self.convlore(d, gamma1, x)\
+            + alpha2*self.convlore(d, gamma2, x)\
             + delta*d + base
         # A smaller energy range is set for the squre differences,
         # because y involves convolution and this setting is preferable
@@ -138,8 +155,9 @@ class runkdenoidata(rh, qc):
 
     def reconstruct(self, x, yd, out):
         _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = out
-        return _alpha*self.convloreorg(yd, _gamma, x)\
-            + _alpha2*self.convloreorg(yd, _gamma2, x)\
+        #_base = _base*9.
+        return _alpha*self.convlore(yd, _gamma, x)\
+            + _alpha2*self.convlore(yd, _gamma2, x)\
             + _delta*yd + _base
 
     def limit(self, x, y, elim):
@@ -147,13 +165,13 @@ class runkdenoidata(rh, qc):
         return x[mask], y[mask]
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*1.)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)*18944.*1.)*1.
 
     def run_ssvkernel(self):
         self.tin = np.arange(self.selected_energy.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
-                                    self.selected_energy[-1], num=4800)
+                                    self.selected_energy[-1], num=480)
         #print('number of tin_real elements=', self.tin_real.shape[0])
 
         if self.WinFunc=='Boxcar':
@@ -190,7 +208,7 @@ class runkdenoidata(rh, qc):
         yb = np.zeros((nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
-        MPI.COMM_WORLD.barrier()
+        #MPI.COMM_WORLD.barrier()
         lib.ssvk(
                 c_int32(comm),
                 c_int(self.M),
@@ -205,7 +223,7 @@ class runkdenoidata(rh, qc):
                 yopt,
                 yb
                 )
-        MPI.COMM_WORLD.barrier()
+        #MPI.COMM_WORLD.barrier()
         return yopt, self.tin_real, optw, yb
 
     def calc_sskernel_f90(self):
@@ -222,7 +240,7 @@ class runkdenoidata(rh, qc):
         tinsize = self.tin_real.shape[0]
         yopt = np.zeros((tinsize))
         optw = c_double()
-        MPI.COMM_WORLD.barrier()
+        #MPI.COMM_WORLD.barrier()
         libssk.ssk(
                    byref(optw),
                    c_int(xsize),
@@ -231,18 +249,18 @@ class runkdenoidata(rh, qc):
                    self.tin_real,
                    yopt
                    )
-        MPI.COMM_WORLD.barrier()
+        #MPI.COMM_WORLD.barrier()
         return yopt, self.tin_real, optw
 
 
-
 def testrun():
+    np.random.seed(314)
     np.set_printoptions(linewidth=120)
     devf = "./qens_kde_o_divided_by_i_6204.pkl"
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=30)
+    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=300)
     proj.get_xmlyd()
     proj.cycle()
 

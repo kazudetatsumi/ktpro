@@ -129,7 +129,11 @@ class qens_fit:
         plt.show()
 
     def fun_lore(self, x, gamma):
-        return 1/np.pi*gamma/(x**2 + gamma**2)
+        #return 1/np.pi*gamma/(x**2 + gamma**2)
+        f = 1/np.pi*gamma/(x**2 + gamma**2)
+        #print(np.sum(f))
+        f = f / np.sum(f)
+        return f
 
     def convloreorg(self, f, gamma, x):
         _convd = np.zeros_like(x)
@@ -141,7 +145,7 @@ class qens_fit:
         ex = np.linspace(np.min(x)-(np.max(x)-np.min(x))*0.5,
                          np.max(x)+(np.max(x)-np.min(x))*0.5, x.shape[0]*2+1)
         win = self.fun_lore(ex - ex[int(x.shape[0])], gamma)
-        _convd = ss.convolve(f, win, mode='same', method='fft')
+        _convd = ss.convolve(f, win, mode='same', method='auto')
         return _convd
 
     def testconv(self):

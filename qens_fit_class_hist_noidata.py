@@ -17,10 +17,21 @@ class runhistnoidata(qf):
 
     def get_xmlyd(self):
         x, yd, yt = self.preprocess()
+        # normalization
+        dx = x[1] - x[0]
+        yd = yd / np.sum(yd) / dx
+        yt = yt / np.sum(yt) / dx
         out = self.optimize(x, yd, yt,
-                            variables=[2.18704786e-04, 1.67980295e-02,
-                                       4.92405238e-05, 1.88866588e-03,
-                                       1.21127501e-01, 5.02759930e-02])
+#                            variables=[2.18704786e-04, 1.67980295e-02,
+#                                       4.92405238e-05, 1.88866588e-03,
+#                                       1.21127501e-01, 5.02759930e-02])
+                            #variables=[0.59704786e-00, 2.67980295e-02,
+                            #           3.82405238e-01, 7.88866588e-03,
+                            #           0.21127501e+00, 1.82759930e-02])
+                            variables=[0.54e-00, 2.7e-02,
+                                       3.5e-01, 7.0e-03,
+                                       0.18e+00, 1.9e-02])
+        print(out)
         self.ml = self.reconstruct(x, yd, out)
         self.yd = yd
         self.x = x
@@ -38,14 +49,30 @@ class runhistnoidata(qf):
         self.outall = np.zeros((self.numcycle, 6))
         for cyidx in range(0, self.numcycle):
             simd, simt = self.generate_data()
+            # normalization
+            # dx = self.x[1] - self.x[0]
+            # simd = simd / np.sum(simd) / dx
+            # simt = simt / np.sum(simt) / dx * 100.
             # rebinning
-            # tin_real, simdr = self.rebin_generated_samples(self.x, simd)
-            # tin_real, simtr = self.rebin_generated_samples(self.x, simt)
-            # out = self.optimize(tin_real, simdr, simtr,
-            out = self.optimize(self.x, simd, simt,
-                                variables=[1.73704786e-05, 2.66580295e-02,
-                                           9.96405238e-06, 7.00766588e-03,
-                                           2.00077501e-01, 1.78759930e-01])
+            tin_real, simdr = self.rebin_generated_samples(self.x, simd, num=480)
+            tin_real, simtr = self.rebin_generated_samples(self.x, simt, num=480)
+            dx = tin_real[1] - tin_real[0]
+            simdr = simdr / np.sum(simdr) / dx
+            simtr = simtr / np.sum(simtr) / dx * 100.
+            out = self.optimize(tin_real, simdr, simtr,
+            # out = self.optimize(self.x, simd, simt,
+#                                variables=[1.73704786e-05, 2.66580295e-02,
+#                                           9.96405238e-06, 7.00766588e-03,
+#                                           2.00077501e-01, 1.78759930e-01])
+                                #variables=[0.18704786e-00, 2.67980295e-02,
+                                #           1.02405238e-01, 6.48866588e-03,
+                                #           0.06127501e+00, 0.13759930e-00])
+                                #variables=[0.7e-00, 2.6e-02,
+                                #           2.3e-01, 7.0e-03,
+                                #           0.17e+00, 0.38e-00])
+                                variables=[6.2e+01, 2.7e-02,
+                                           2.5e+01, 7.0e-03,
+                                           2.0e+01, 4.0e+01])
             if out[0] < 0 and out[1] < 0:
                 print("negative-negative")
                 out[0] = out[0]*(-1.)
@@ -70,11 +97,21 @@ class runhistnoidata(qf):
                         & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
                         & (self.outall[:, 4] > 0) & (self.outall[:, 5] > 0))
         self.outnonneg = self.outall[mask]
+        maskwobg = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
+                        & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
+                        & (self.outall[:, 4] > 0))
+        self.outnonnegwobg = self.outall[maskwobg]
         print(np.average(self.outnonneg[:, 1]), "+/-",
               np.std(self.outnonneg[:, 1]))
         print(np.average(self.outnonneg[:, 3]), "+/-",
               np.std(self.outnonneg[:, 3]))
         print(self.outnonneg.shape[0], "/", self.numcycle)
+        print(np.average(self.outnonnegwobg[:, 1]), "+/-",
+              np.std(self.outnonnegwobg[:, 1]))
+        print(np.average(self.outnonnegwobg[:, 3]), "+/-",
+              np.std(self.outnonnegwobg[:, 3]))
+        print(self.outnonnegwobg.shape[0], "/", self.numcycle)
+
 
     def correction(self, x, yd, yt):
         x = x + 2.085
@@ -84,9 +121,15 @@ class runhistnoidata(qf):
 
     def optimize(self, x, yd, yt,
                  variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
-        out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
-                         epsfcn=0.0001)
-        return out[0]
+        # leastsq
+        # out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
+        #                  epsfcn=0.0001)
+        # return out[0]
+        # least_squares
+        bounds = (0, np.inf)
+        out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
+        print("status:", out.status)
+        return out.x
 
     def res(self, coeffs, x, d, t):
         [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
@@ -101,6 +144,7 @@ class runhistnoidata(qf):
 
     def reconstruct(self, x, yd, out):
         _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = out
+        #_base = _base * 9.
         return _alpha*self.convlore(yd, _gamma, x)\
             + _alpha2*self.convlore(yd, _gamma2, x)\
             + _delta*yd + _base
@@ -110,19 +154,20 @@ class runhistnoidata(qf):
         return x[mask], y[mask]
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*1.0)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)*18944.*1.0)*1.
 
 
 def testrun():
+    np.random.seed(314)
     np.set_printoptions(linewidth=120)
     devf = "./qens_kde_o_divided_by_i_6204.pkl"
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=4000)
+    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=300)
     proj.get_xmlyd()
     proj.cycle()
 
 
-#testrun()
+testrun()
