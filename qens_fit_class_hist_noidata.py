@@ -74,44 +74,56 @@ class runhistnoidata(qf):
                                            2.5e+01, 7.0e-03,
                                            2.0e+01, 4.0e+01])
             if out[0] < 0 and out[1] < 0:
-                print("negative-negative")
+                #print("negative-negative")
                 out[0] = out[0]*(-1.)
                 out[1] = out[1]*(-1.)
             if out[2] < 0 and out[3] < 0:
-                print("negative-negative")
+                #print("negative-negative")
                 out[2] = out[2]*(-1.)
                 out[3] = out[3]*(-1.)
             if out[1] < out[3]:
-                print("exchange")
+                #print("exchange")
                 tmpout = out[1]
                 tmpout2 = out[0]
                 out[1] = out[3]
                 out[3] = tmpout
                 out[0] = out[2]
                 out[2] = tmpout2
-            print(cyidx, out)
+            #print(cyidx, out)
             self.outall[cyidx, :] = out
-        print(np.average(self.outall[:, 1]), np.std(self.outall[:, 1]))
-        print(np.average(self.outall[:, 3]), np.std(self.outall[:, 3]))
+
+    def output(self):
+        ave1 = np.average(self.outall[:, 1])
+        std1 = np.std(self.outall[:, 1])
+        ave2 = np.average(self.outall[:, 3])
+        std2 = np.std(self.outall[:, 3])
         mask = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
                         & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
                         & (self.outall[:, 4] > 0) & (self.outall[:, 5] > 0))
-        self.outnonneg = self.outall[mask]
+        outnonneg = self.outall[mask]
+        avenonneg1 = np.average(outnonneg[:, 1])
+        stdnonneg1 = np.std(outnonneg[:, 1])
+        avenonneg2 = np.average(outnonneg[:, 3])
+        stdnonneg2 = np.std(outnonneg[:, 3])
         maskwobg = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
-                        & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
-                        & (self.outall[:, 4] > 0))
-        self.outnonnegwobg = self.outall[maskwobg]
-        print(np.average(self.outnonneg[:, 1]), "+/-",
-              np.std(self.outnonneg[:, 1]))
-        print(np.average(self.outnonneg[:, 3]), "+/-",
-              np.std(self.outnonneg[:, 3]))
-        print(self.outnonneg.shape[0], "/", self.numcycle)
-        print(np.average(self.outnonnegwobg[:, 1]), "+/-",
-              np.std(self.outnonnegwobg[:, 1]))
-        print(np.average(self.outnonnegwobg[:, 3]), "+/-",
-              np.std(self.outnonnegwobg[:, 3]))
-        print(self.outnonnegwobg.shape[0], "/", self.numcycle)
-
+                            & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
+                            & (self.outall[:, 4] > 0))
+        outnonnegwobg = self.outall[maskwobg]
+        avenonnegwobg1 = np.average(outnonnegwobg[:, 1])
+        stdnonnegwobg1 = np.std(outnonnegwobg[:, 1])
+        avenonnegwobg2 = np.average(outnonnegwobg[:, 3])
+        stdnonnegwobg2 = np.std(outnonnegwobg[:, 3])
+        print('ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # ')
+        print('{0:.8e} {1:.8e} {2:.8e} {3:.8e} {4} '
+              '{5:.8e} {6:.8e} {7:.8e} {8:.8e} {9} '
+              '{10:.8e} {11:.8e} {12:.8e} {13:.8e} {14}'
+              .format(avenonneg1, stdnonneg1, avenonneg2, stdnonneg2,
+                      outnonneg.shape[0],
+                      avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
+                      stdnonnegwobg2, outnonnegwobg.shape[0],
+                      ave1, std1, ave2, std2, self.outall.shape[0]))
 
     def correction(self, x, yd, yt):
         x = x + 2.085
@@ -129,7 +141,7 @@ class runhistnoidata(qf):
         bounds = (0, np.inf)
         #out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
         out = so.least_squares(self.res, variables,  args=(x, yd, yt))
-        print("status:", out.status)
+        #print("status:", out.status)
         return out.x
 
     def res(self, coeffs, x, d, t):
@@ -166,9 +178,10 @@ def testrun():
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=300)
+    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=30000)
     proj.get_xmlyd()
     proj.cycle()
+    proj.output()
 
 
 #testrun()

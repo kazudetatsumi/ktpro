@@ -62,6 +62,15 @@ class runkdenoidata(rh, qc):
         self.add_shift_de()
         self.run_ssvkernel()
 
+    def kde_baloon(self, x, y):
+        self.selected_energy = x
+        self.selected_spectra = y
+        self.de = self.selected_energy[1] - self.selected_energy[0]
+        self.get_xvec()
+        self.add_shift_de()
+        self.hist()
+        return self.baloon_estimator()
+
     def cycle(self):
         self.outall = np.zeros((self.numcycle, 6))
         for cyidx in range(0, self.numcycle):
@@ -71,13 +80,17 @@ class runkdenoidata(rh, qc):
                 simd, simt = self.generate_data()
             simt = MPI.COMM_WORLD.bcast(simt)
             simd = MPI.COMM_WORLD.bcast(simd)
+            ## kde for dev func.
             self.kde(self.x, simd)
+            self.dt = self.y[1][1]-self.y[1][0]
             simyd = self.y[0]
             self.kde(self.x, simt)
             simyt = self.y[0]
-            dx = self.y[1][1] - self.y[1][0]
-            simyd = simyd/np.sum(simyd)/dx
-            simyt = simyt/np.sum(simyt)/dx*100.
+            ## baloon for dev func, with the same bandwidths as those of target
+            #self.dt = self.y[1][1] - self.y[1][0]
+            #simyd = self.kde_baloon(self.x, simd)
+            simyd = simyd/np.sum(simyd)/self.dt
+            simyt = simyt/np.sum(simyt)/self.dt*100.
             out = self.optimize(self.y[1], simyd, simyt,
                                 #variables=[1.73704786e-05, 2.66580295e-02,
                                 #           9.96405238e-06, 7.00766588e-03,
@@ -89,86 +102,24 @@ class runkdenoidata(rh, qc):
                                            3.2e+01, 7.2e-03,
                                            1.8e+01, 2.5e+01])
             if out[0] < 0 and out[1] < 0:
-                print("negative-negative")
+                #print("negative-negative")
                 out[0] = out[0]*(-1.)
                 out[1] = out[1]*(-1.)
             if out[2] < 0 and out[3] < 0:
-                print("negative-negative")
+                #print("negative-negative")
                 out[2] = out[2]*(-1.)
                 out[3] = out[3]*(-1.)
             if out[1] < out[3]:
-                print("exchange")
+                #print("exchange")
                 tmpout = out[1]
                 tmpout2 = out[0]
                 out[1] = out[3]
                 out[3] = tmpout
                 out[0] = out[2]
                 out[2] = tmpout2
-            if self.rank == 0:
-                print(cyidx, out)
+            #if self.rank == 0:
+                #print(cyidx, out)
             self.outall[cyidx, :] = out
-        if self.rank == 0:
-            print(np.average(self.outall[:, 1]), np.std(self.outall[:, 1]))
-            print(np.average(self.outall[:, 3]), np.std(self.outall[:, 3]))
-        mask = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
-                        & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
-                        & (self.outall[:, 4] > 0) & (self.outall[:, 5] > 0))
-        self.outnonneg = self.outall[mask]
-        maskwobg = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
-                        & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
-                        & (self.outall[:, 4] > 0))
-        self.outnonnegwobg = self.outall[maskwobg]
-        if self.rank == 0:
-            print(np.average(self.outnonneg[:, 1]), "+/-",
-                  np.std(self.outnonneg[:, 1]))
-            print(np.average(self.outnonneg[:, 3]), "+/-",
-                  np.std(self.outnonneg[:, 3]))
-            print(self.outnonneg.shape[0], "/", self.numcycle)
-            print(np.average(self.outnonnegwobg[:, 1]), "+/-",
-                  np.std(self.outnonnegwobg[:, 1]))
-            print(np.average(self.outnonnegwobg[:, 3]), "+/-",
-                  np.std(self.outnonnegwobg[:, 3]))
-            print(self.outnonnegwobg.shape[0], "/", self.numcycle)
-
-    def correction(self, x, yd, yt):
-        x = x + 2.085
-        yd = yd / (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
-        yt = yt / (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
-        return yd, yt
-
-    def optimize(self, x, yd, yt,
-                 variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
-        # out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
-        #                  epsfcn=0.0001)
-        # return out[0]
-        # least squares
-        bounds = (0, np.inf)
-        # #out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
-        out = so.least_squares(self.res, variables, args=(x, yd, yt))
-        # #print("status:", out.status)
-        return out.x
-
-    def res(self, coeffs, x, d, t):
-        [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
-        y = alpha1*self.convlore(d, gamma1, x)\
-            + alpha2*self.convlore(d, gamma2, x)\
-            + delta*d + base
-        # A smaller energy range is set for the squre differences,
-        # because y involves convolution and this setting is preferable
-        # to decrease the edge effect.
-        xl, dif = self.limit(x, t-y, self.elim)
-        return dif
-
-    def reconstruct(self, x, yd, out):
-        _alpha, _gamma, _alpha2, _gamma2,  _delta, _base = out
-        #_base = _base*9.
-        return _alpha*self.convlore(yd, _gamma, x)\
-            + _alpha2*self.convlore(yd, _gamma2, x)\
-            + _delta*yd + _base
-
-    def limit(self, x, y, elim):
-        mask = np.where((x > elim[0]) & (x < elim[1]))
-        return x[mask], y[mask]
 
     def generate_data(self):
         return np.random.poisson(self.yd/np.sum(self.yd)*59146.*0.5)*1.,\
@@ -258,6 +209,22 @@ class runkdenoidata(rh, qc):
         #MPI.COMM_WORLD.barrier()
         return yopt, self.tin_real, optw
 
+    def baloon_estimator(self):
+        y_hist_nz = self.y_hist[self.y_hist > 0]
+        tin_nz = self.y[1][self.y_hist > 0]
+        yv = np.zeros((self.y[1].shape[0]))
+        for xchidx in range(self.y[1].shape[0]):
+            yv[xchidx] = np.sum(y_hist_nz * self.dt * self.Gauss(self.y[1][xchidx]-tin_nz,
+                                                            self.y[2][xchidx]))
+        return yv * np.sum(self.y_hist) / np.sum(yv * self.dt)
+
+    def Gauss(self, x, w):
+        return 1. / (2. * np.pi)**2 / w * np.exp(-x**2 / 2. / w**2)
+
+    def hist(self):
+        thist = np.concatenate((self.y[1], (self.y[1][-1]+self.dt)[np.newaxis]))
+        self.y_hist = np.histogram(self.xvec_real, thist-self.dt/2.)[0] / self.dt
+
 
 def testrun():
     np.random.seed(314)
@@ -266,9 +233,11 @@ def testrun():
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=300)
+    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=3000)
     proj.get_xmlyd()
     proj.cycle()
+    if proj.rank == 0:
+        proj.output()
 
 
 testrun()
