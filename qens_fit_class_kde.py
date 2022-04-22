@@ -98,9 +98,9 @@ class runkdenoidata(rh, qc):
                                 #variables=[0.59704786e-00, 2.67980295e-02,
                                 #           3.82405238e-01, 7.88866588e-03,
                                 #           0.21127501e+00, 1.82759930e-02])
-                                variables=[5.8e+01, 2.5e-02,
-                                           3.2e+01, 7.2e-03,
-                                           1.8e+01, 2.5e+01])
+                                variables=[5.4e+01, 2.65e-02,
+                                           3.7e+01, 7.0e-03,
+                                           1.8e+01, 1.4e+01])
             if out[0] < 0 and out[1] < 0:
                 #print("negative-negative")
                 out[0] = out[0]*(-1.)

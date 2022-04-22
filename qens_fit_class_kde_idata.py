@@ -132,8 +132,8 @@ class runkdeidata(rh, qc):
             self.outall[cyidx, :] = out
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*1.)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.*1.)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*8.)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)*18944.*8.)*1.
 
     def run_ssvkernel(self):
         self.tin = np.arange(self.selected_energy.shape[0])
