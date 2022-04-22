@@ -21,7 +21,7 @@ class runhistnoidata(qf):
         dx = x[1] - x[0]
         yd = yd / np.sum(yd) / dx
         yt = yt / np.sum(yt) / dx
-        out = self.optimize(x, yd, yt,
+        _out = self.optimize(x, yd, yt,
 #                            variables=[2.18704786e-04, 1.67980295e-02,
 #                                       4.92405238e-05, 1.88866588e-03,
 #                                       1.21127501e-01, 5.02759930e-02])
@@ -31,8 +31,8 @@ class runhistnoidata(qf):
                             variables=[0.54e-00, 2.7e-02,
                                        3.5e-01, 7.0e-03,
                                        0.18e+00, 1.9e-02])
-        print(out)
-        self.ml = self.reconstruct(x, yd, out)
+        print(_out[0])
+        self.ml = self.reconstruct(x, yd, _out[0])
         self.yd = yd
         self.x = x
 
@@ -46,7 +46,8 @@ class runhistnoidata(qf):
         return xtl, ydlc, ytlc
 
     def cycle(self):
-        self.outall = np.zeros((self.numcycle, 6))
+        #self.outall = np.zeros((self.numcycle, 6))
+        self.outall = []
         for cyidx in range(0, self.numcycle):
             simd, simt = self.generate_data()
             # normalization
@@ -59,7 +60,7 @@ class runhistnoidata(qf):
             dx = tin_real[1] - tin_real[0]
             simdr = simdr / np.sum(simdr) / dx
             simtr = simtr / np.sum(simtr) / dx * 100.
-            out = self.optimize(tin_real, simdr, simtr,
+            _out   = self.optimize(tin_real, simdr, simtr,
             # out = self.optimize(self.x, simd, simt,
 #                                variables=[1.73704786e-05, 2.66580295e-02,
 #                                           9.96405238e-06, 7.00766588e-03,
@@ -73,26 +74,37 @@ class runhistnoidata(qf):
                                 variables=[6.2e+01, 2.7e-02,
                                            2.5e+01, 7.0e-03,
                                            2.0e+01, 4.0e+01])
-            if out[0] < 0 and out[1] < 0:
-                #print("negative-negative")
-                out[0] = out[0]*(-1.)
-                out[1] = out[1]*(-1.)
-            if out[2] < 0 and out[3] < 0:
-                #print("negative-negative")
-                out[2] = out[2]*(-1.)
-                out[3] = out[3]*(-1.)
-            if out[1] < out[3]:
-                #print("exchange")
-                tmpout = out[1]
-                tmpout2 = out[0]
-                out[1] = out[3]
-                out[3] = tmpout
-                out[0] = out[2]
-                out[2] = tmpout2
-            #print(cyidx, out)
-            self.outall[cyidx, :] = out
+            if _out[1] is None:
+                print(cyidx, 'curveture is flat. omitting..')
+            else:
+                out = _out[0]
+                if out[0] < 0 and out[1] < 0:
+                    #print("negative-negative")
+                    out[0] = out[0]*(-1.)
+                    out[1] = out[1]*(-1.)
+                if out[2] < 0 and out[3] < 0:
+                    #print("negative-negative")
+                    out[2] = out[2]*(-1.)
+                    out[3] = out[3]*(-1.)
+                if out[1] < out[3]:
+                    #print("exchange")
+                    tmpout = out[1]
+                    tmpout2 = out[0]
+                    out[1] = out[3]
+                    out[3] = tmpout
+                    out[0] = out[2]
+                    out[2] = tmpout2
+                #print(cyidx, out)
+                self.outall.append(out)
 
     def output(self):
+        self.outall = np.array(self.outall)
+        orderidx1 = np.argsort(self.outall[:,1])
+        print(self.outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1])
+        print(self.outall[orderidx1[int(np.floor(orderidx1.shape[0]*.84))], 1])
+        orderidx2 = np.argsort(self.outall[:,3])
+        print(self.outall[orderidx2[int(np.ceil(orderidx2.shape[0]*.16))], 3])
+        print(self.outall[orderidx2[int(np.floor(orderidx2.shape[0]*.84))], 3])
         ave1 = np.average(self.outall[:, 1])
         std1 = np.std(self.outall[:, 1])
         ave2 = np.average(self.outall[:, 3])
@@ -134,15 +146,15 @@ class runhistnoidata(qf):
     def optimize(self, x, yd, yt,
                  variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
         # leastsq
-        # out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
-        #                  epsfcn=0.0001)
-        # return out[0]
+        out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
+                         epsfcn=0.0001)
+        return out
         # least_squares
-        bounds = (0, np.inf)
+        # bounds = (0, np.inf)
         #out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
-        out = so.least_squares(self.res, variables,  args=(x, yd, yt))
+        # out = so.least_squares(self.res, variables,  args=(x, yd, yt))
         #print("status:", out.status)
-        return out.x
+        # return out.x
 
     def res(self, coeffs, x, d, t):
         [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
@@ -178,7 +190,7 @@ def testrun():
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=3000)
+    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=300)
     proj.get_xmlyd()
     proj.cycle()
     proj.output()

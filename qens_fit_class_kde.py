@@ -27,7 +27,7 @@ class runkdenoidata(rh, qc):
 
     def get_xmlyd(self):
         x, yd, yt = self.preprocess()
-        out = self.optimize(x, yd, yt,
+        _out = self.optimize(x, yd, yt,
                             #variables=[2.18704786e-04, 1.67980295e-02,
                             #           4.92405238e-05, 1.88866588e-03,
                             #           1.21127501e-01, 5.02759930e-02])
@@ -35,9 +35,9 @@ class runkdenoidata(rh, qc):
                                        3.82405238e-01, 7.88866588e-03,
                                        0.21127501e+00, 1.82759930e-02])
         if self.rank == 0:
-            print(out)
+            print(_out[0])
         #self.ml = self.reconstruct(self.x, self.yd, out)
-        self.ml = self.reconstruct(x, yd, out)
+        self.ml = self.reconstruct(x, yd, _out[0])
         self.yd = yd
         self.x = x
         #print(self.x[0], self.x[-1])
@@ -72,7 +72,7 @@ class runkdenoidata(rh, qc):
         return self.baloon_estimator()
 
     def cycle(self):
-        self.outall = np.zeros((self.numcycle, 6))
+        self.outall = []
         for cyidx in range(0, self.numcycle):
             simt = np.zeros(self.ml.shape)
             simd = np.zeros(self.yd.shape)
@@ -91,7 +91,7 @@ class runkdenoidata(rh, qc):
             #simyd = self.kde_baloon(self.x, simd)
             simyd = simyd/np.sum(simyd)/self.dt
             simyt = simyt/np.sum(simyt)/self.dt*100.
-            out = self.optimize(self.y[1], simyd, simyt,
+            _out = self.optimize(self.y[1], simyd, simyt,
                                 #variables=[1.73704786e-05, 2.66580295e-02,
                                 #           9.96405238e-06, 7.00766588e-03,
                                 #           2.00077501e-01, 1.78759930e-01])
@@ -101,29 +101,34 @@ class runkdenoidata(rh, qc):
                                 variables=[5.4e+01, 2.65e-02,
                                            3.7e+01, 7.0e-03,
                                            1.8e+01, 1.4e+01])
-            if out[0] < 0 and out[1] < 0:
-                #print("negative-negative")
-                out[0] = out[0]*(-1.)
-                out[1] = out[1]*(-1.)
-            if out[2] < 0 and out[3] < 0:
-                #print("negative-negative")
-                out[2] = out[2]*(-1.)
-                out[3] = out[3]*(-1.)
-            if out[1] < out[3]:
-                #print("exchange")
-                tmpout = out[1]
-                tmpout2 = out[0]
-                out[1] = out[3]
-                out[3] = tmpout
-                out[0] = out[2]
-                out[2] = tmpout2
-            #if self.rank == 0:
-                #print(cyidx, out)
-            self.outall[cyidx, :] = out
+            if _out[1] is None:
+                if self.rank == 0:
+                    print(cyidx, 'curveture is flat. omitting..')
+            else:
+                out = _out[0]
+                if out[0] < 0 and out[1] < 0:
+                    #print("negative-negative")
+                    out[0] = out[0]*(-1.)
+                    out[1] = out[1]*(-1.)
+                if out[2] < 0 and out[3] < 0:
+                    #print("negative-negative")
+                    out[2] = out[2]*(-1.)
+                    out[3] = out[3]*(-1.)
+                if out[1] < out[3]:
+                    #print("exchange")
+                    tmpout = out[1]
+                    tmpout2 = out[0]
+                    out[1] = out[3]
+                    out[3] = tmpout
+                    out[0] = out[2]
+                    out[2] = tmpout2
+                #if self.rank == 0:
+                    #print(cyidx, out)
+                self.outall.append(out)
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*1.0)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.*1.0)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*0.5)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)*18944.*0.5)*1.
 
     def run_ssvkernel(self):
         self.tin = np.arange(self.selected_energy.shape[0])
@@ -233,7 +238,7 @@ def testrun():
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=3000)
+    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=300)
     proj.get_xmlyd()
     proj.cycle()
     if proj.rank == 0:
