@@ -138,9 +138,15 @@ class runkdenoidata(rh, qc):
 
     def optimize(self, x, yd, yt,
                  variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
-        out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
-                         epsfcn=0.0001)
-        return out[0]
+        # out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
+        #                  epsfcn=0.0001)
+        # return out[0]
+        # least squares
+        bounds = (0, np.inf)
+        # #out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
+        out = so.least_squares(self.res, variables, args=(x, yd, yt))
+        # #print("status:", out.status)
+        return out.x
 
     def res(self, coeffs, x, d, t):
         [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
@@ -165,8 +171,8 @@ class runkdenoidata(rh, qc):
         return x[mask], y[mask]
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*1.)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.*1.)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*0.5)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)*18944.*0.5)*1.
 
     def run_ssvkernel(self):
         self.tin = np.arange(self.selected_energy.shape[0])

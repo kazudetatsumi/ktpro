@@ -127,7 +127,8 @@ class runhistnoidata(qf):
         # return out[0]
         # least_squares
         bounds = (0, np.inf)
-        out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
+        #out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
+        out = so.least_squares(self.res, variables,  args=(x, yd, yt))
         print("status:", out.status)
         return out.x
 
@@ -154,8 +155,8 @@ class runhistnoidata(qf):
         return x[mask], y[mask]
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*1.0)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.*1.0)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*0.5)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)*18944.*0.5)*1.
 
 
 def testrun():
@@ -170,4 +171,4 @@ def testrun():
     proj.cycle()
 
 
-testrun()
+#testrun()
