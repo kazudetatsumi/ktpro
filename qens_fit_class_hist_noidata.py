@@ -178,7 +178,7 @@ def testrun():
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=30000)
+    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=3000)
     proj.get_xmlyd()
     proj.cycle()
     proj.output()

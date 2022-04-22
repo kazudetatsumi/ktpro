@@ -132,8 +132,8 @@ class runkdeidata(rh, qc):
             self.outall[cyidx, :] = out
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*8.)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.*8.)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*1.)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)*18944.*1.)*1.
 
     def run_ssvkernel(self):
         self.tin = np.arange(self.selected_energy.shape[0])
@@ -149,75 +149,7 @@ class runkdeidata(rh, qc):
             WinFuncNo = 3
 
         self.y = self.calc_ssvkernel_f90(WinFuncNo)
-        self.y_ = self.calc_sskernel_f90()
-
-    def calc_ssvkernel_f90(self, WinFuncNo):
-        lib.ssvk.restype = c_void_p
-        lib.ssvk.argtypes = [
-                            POINTER(c_int32),
-                            POINTER(c_int),
-                            POINTER(c_double),
-                            POINTER(c_int),
-                            POINTER(c_int),
-                            POINTER(c_int),
-                            POINTER(c_int),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=2)
-                            ]
-        xsize = self.xvec_real.shape[0]
-        tinsize = self.tin_real.shape[0]
-        yopt = np.zeros((tinsize))
-        optw = np.zeros((tinsize))
-        nb = 1
-        yb = np.zeros((nb, tinsize))
-        comm = MPI.COMM_WORLD
-        comm = comm.py2f()
-        # MPI.COMM_WORLD.barrier()
-        lib.ssvk(
-                c_int32(comm),
-                c_int(self.M),
-                c_double(self.winparam),
-                c_int(xsize),
-                c_int(tinsize),
-                c_int(WinFuncNo),
-                c_int(nb),
-                self.xvec_real,
-                self.tin_real,
-                optw,
-                yopt,
-                yb
-                )
-        # MPI.COMM_WORLD.barrier()
-        return yopt, self.tin_real, optw, yb
-
-    def calc_sskernel_f90(self):
-        libssk.ssk.restype = c_void_p
-        libssk.ssk.argtypes = [
-                            POINTER(c_double),
-                            POINTER(c_int),
-                            POINTER(c_int),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),
-                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)
-                            ]
-        xsize = self.xvec_real.shape[0]
-        tinsize = self.tin_real.shape[0]
-        yopt = np.zeros((tinsize))
-        optw = c_double()
-        # MPI.COMM_WORLD.barrier()
-        libssk.ssk(
-                   byref(optw),
-                   c_int(xsize),
-                   c_int(tinsize),
-                   self.xvec_real,
-                   self.tin_real,
-                   yopt
-                   )
-        # MPI.COMM_WORLD.barrier()
-        return yopt, self.tin_real, optw
+        # self.y_ = self.calc_sskernel_f90()
 
     def baloon_estimator(self):
         y_hist_nz = self.y_hist[self.y_hist > 0]
@@ -249,7 +181,7 @@ def testrun():
     itf = prefix + "qens_kde_results_on_idata_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runkdeidata(devf, tf, idevf, itf, elim, elimw, numcycle=20)
+    proj = runkdeidata(devf, tf, idevf, itf, elim, elimw, numcycle=300)
     proj.get_xmlyd()
     proj.cycle()
     if proj.rank == 0:
