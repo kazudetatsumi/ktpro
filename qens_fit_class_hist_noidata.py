@@ -199,6 +199,12 @@ class runhistnoidata(qf):
         yt = yt / (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
         return yd, yt
 
+    def decorrection(self, x, yd, yt):
+        x = x + 2.085
+        yd = yd * (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
+        yt = yt * (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
+        return yd, yt
+
     def optimize(self, x, yd, yt,
                  variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
         # leastsq
