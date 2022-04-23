@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
-import scipy.optimize as so
-import scipy.signal as ss
+import os
 import sys
-import re
 import pickle
 import matplotlib.pyplot as plt
 from ctypes import *
@@ -16,13 +14,17 @@ libssk = CDLL("/home/kazu/ktpro/sskernel_f90.so")
 
 
 class runkdenoidata(rh, qc):
-    def __init__(self, devf, tf, elim, elimw, numcycle=100):
+    def __init__(self, devf, tf, outfile, alpha, elim, elimw, numcycle=100,
+                 leastsq=True):
         self.elim = elim
         self.elimw = elimw
         self.devf = devf
         self.tf = tf
+        self.outfile = outfile
+        self.alpha = alpha
         self.elim = elim
         self.numcycle = numcycle
+        self.leastsq = leastsq
         self.rank = MPI.COMM_WORLD.Get_rank()
 
     def get_xmlyd(self):
@@ -126,10 +128,6 @@ class runkdenoidata(rh, qc):
                     #print(cyidx, out)
                 self.outall.append(out)
 
-    def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*0.5)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.*0.5)*1.
-
     def run_ssvkernel(self):
         self.tin = np.arange(self.selected_energy.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
@@ -219,30 +217,52 @@ class runkdenoidata(rh, qc):
         tin_nz = self.y[1][self.y_hist > 0]
         yv = np.zeros((self.y[1].shape[0]))
         for xchidx in range(self.y[1].shape[0]):
-            yv[xchidx] = np.sum(y_hist_nz * self.dt * self.Gauss(self.y[1][xchidx]-tin_nz,
-                                                            self.y[2][xchidx]))
+            yv[xchidx] = np.sum(y_hist_nz * self.dt *
+                                self.Gauss(self.y[1][xchidx]-tin_nz,
+                                           self.y[2][xchidx]))
         return yv * np.sum(self.y_hist) / np.sum(yv * self.dt)
 
     def Gauss(self, x, w):
         return 1. / (2. * np.pi)**2 / w * np.exp(-x**2 / 2. / w**2)
 
     def hist(self):
-        thist = np.concatenate((self.y[1], (self.y[1][-1]+self.dt)[np.newaxis]))
-        self.y_hist = np.histogram(self.xvec_real, thist-self.dt/2.)[0] / self.dt
+        thist = np.concatenate((self.y[1], (self.y[1][-1]+self.dt)[np.newaxis])
+                               )
+        self.y_hist = np.histogram(self.xvec_real,
+                                   thist-self.dt/2.)[0] / self.dt
 
 
 def testrun():
-    np.random.seed(314)
-    np.set_printoptions(linewidth=120)
-    devf = "./qens_kde_o_divided_by_i_6204.pkl"
-    tf = "./qens_kde_o_divided_by_i_6202.pkl"
-    elim = [-0.03, 0.07]
-    elimw = [-0.04, 0.08]
-    proj = runkdenoidata(devf, tf, elim, elimw, numcycle=300)
-    proj.get_xmlyd()
-    proj.cycle()
-    if proj.rank == 0:
-        proj.output()
+    outfile = './outkde.pkl'
+    alpha = 0.5
+    if os.path.isfile(outfile):
+        with open(outfile, 'rb') as f:
+            dataset = pickle.load(f, encoding='latin1')
+        outall = dataset['out']
+        numsumple = outall[:, 1].shape[0]
+        heights1, bins1 = np.histogram(outall[:, 1], bins=2000)
+        binwidth1 = bins1[1]-bins1[0]
+        heights2, bins2 = np.histogram(outall[:, 3], bins=125)
+        binwidth2 = bins2[1]-bins2[0]
+        plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
+                width=binwidth1)
+        plt.bar(bins2[:-1]+binwidth2/2., heights2/binwidth2/numsumple,
+                width=binwidth2)
+        plt.xlim(0, 0.1)
+        plt.show()
+    else:
+        np.random.seed(314)
+        np.set_printoptions(linewidth=120)
+        devf = "./qens_kde_o_divided_by_i_6204.pkl"
+        tf = "./qens_kde_o_divided_by_i_6202.pkl"
+        elim = [-0.03, 0.07]
+        elimw = [-0.04, 0.08]
+        proj = runkdenoidata(devf, tf, outfile, alpha, elim, elimw,
+                             numcycle=3000, leastsq=True)
+        proj.get_xmlyd()
+        proj.cycle()
+        if proj.rank == 0:
+            proj.output()
 
 
-testrun()
+#testrun()

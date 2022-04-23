@@ -1,5 +1,8 @@
 #!/usr/bin/env python
+import os
+import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 import scipy.optimize as so
 import sys
 sys.path.append("/home/kazu/ktpro")
@@ -7,13 +10,17 @@ from qens_fit_class import qens_fit as qf
 
 
 class runhistnoidata(qf):
-    def __init__(self, devf, tf, elim, elimw, numcycle=100):
+    def __init__(self, devf, tf, outfile, alpha, elim, elimw, numcycle=100,
+                 leastsq=True):
         self.elim = elim
         self.elimw = elimw
         self.devf = devf
         self.tf = tf
+        self.outfile = outfile
+        self.alpha = alpha
         self.elim = elim
         self.numcycle = numcycle
+        self.leastsq = leastsq
 
     def get_xmlyd(self):
         x, yd, yt = self.preprocess()
@@ -46,7 +53,6 @@ class runhistnoidata(qf):
         return xtl, ydlc, ytlc
 
     def cycle(self):
-        #self.outall = np.zeros((self.numcycle, 6))
         self.outall = []
         for cyidx in range(0, self.numcycle):
             simd, simt = self.generate_data()
@@ -60,9 +66,9 @@ class runhistnoidata(qf):
             dx = tin_real[1] - tin_real[0]
             simdr = simdr / np.sum(simdr) / dx
             simtr = simtr / np.sum(simtr) / dx * 100.
-            _out   = self.optimize(tin_real, simdr, simtr,
+            _out = self.optimize(tin_real, simdr, simtr,
             # out = self.optimize(self.x, simd, simt,
-#                                variables=[1.73704786e-05, 2.66580295e-02,
+#                                 variables=[1.73704786e-05, 2.66580295e-02,
 #                                           9.96405238e-06, 7.00766588e-03,
 #                                           2.00077501e-01, 1.78759930e-01])
                                 #variables=[0.18704786e-00, 2.67980295e-02,
@@ -74,35 +80,56 @@ class runhistnoidata(qf):
                                 variables=[6.2e+01, 2.7e-02,
                                            2.5e+01, 7.0e-03,
                                            2.0e+01, 4.0e+01])
+            self.check_out(cyidx, _out)
+
+    def check_out(self, cyidx, _out):
+        if self.leastsq:
             if _out[1] is None:
                 print(cyidx, 'curveture is flat. omitting..')
             else:
-                out = _out[0]
-                if out[0] < 0 and out[1] < 0:
-                    #print("negative-negative")
-                    out[0] = out[0]*(-1.)
-                    out[1] = out[1]*(-1.)
-                if out[2] < 0 and out[3] < 0:
-                    #print("negative-negative")
-                    out[2] = out[2]*(-1.)
-                    out[3] = out[3]*(-1.)
-                if out[1] < out[3]:
-                    #print("exchange")
-                    tmpout = out[1]
-                    tmpout2 = out[0]
-                    out[1] = out[3]
-                    out[3] = tmpout
-                    out[0] = out[2]
-                    out[2] = tmpout2
-                #print(cyidx, out)
-                self.outall.append(out)
+                self.modify_out(cyidx, _out[0])
+        else:
+            if _out[1]:
+                self.modify_out(cyidx, _out[0])
+            else:
+                print(cyidx, 'optimization is not converged..')
+
+    def modify_out(self, cyidx, out):
+        if out[0] < 0 and out[1] < 0:
+            #print("negative-negative")
+            out[0] = out[0]*(-1.)
+            out[1] = out[1]*(-1.)
+        if out[2] < 0 and out[3] < 0:
+            #print("negative-negative")
+            out[2] = out[2]*(-1.)
+            out[3] = out[3]*(-1.)
+        if out[1] < out[3]:
+            #print("exchange")
+            tmpout = out[1]
+            tmpout2 = out[0]
+            out[1] = out[3]
+            out[3] = tmpout
+            out[0] = out[2]
+            out[2] = tmpout2
+        # if self.rank:
+        #     if self.rank == 0:
+        #         print(cyidx, out)
+        # else:
+        #     print(cyidx, out)
+        self.outall.append(out)
 
     def output(self):
         self.outall = np.array(self.outall)
-        orderidx1 = np.argsort(self.outall[:,1])
+        orderidx1 = np.argsort(self.outall[:, 1])
+        print("median of gamma1:", np.median(self.outall[:, 1]))
+        print("average of gamma1:", np.average(self.outall[:, 1]))
+        print("68% CI of gamma1")
         print(self.outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1])
         print(self.outall[orderidx1[int(np.floor(orderidx1.shape[0]*.84))], 1])
-        orderidx2 = np.argsort(self.outall[:,3])
+        orderidx2 = np.argsort(self.outall[:, 3])
+        print("median of gamma2:", np.median(self.outall[:, 3]))
+        print("average of gamma2:", np.average(self.outall[:, 3]))
+        print("68% CI of gamma2")
         print(self.outall[orderidx2[int(np.ceil(orderidx2.shape[0]*.16))], 3])
         print(self.outall[orderidx2[int(np.floor(orderidx2.shape[0]*.84))], 3])
         ave1 = np.average(self.outall[:, 1])
@@ -125,17 +152,46 @@ class runhistnoidata(qf):
         stdnonnegwobg1 = np.std(outnonnegwobg[:, 1])
         avenonnegwobg2 = np.average(outnonnegwobg[:, 3])
         stdnonnegwobg2 = np.std(outnonnegwobg[:, 3])
-        print('ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
-              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
-              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # ')
-        print('{0:.8e} {1:.8e} {2:.8e} {3:.8e} {4} '
-              '{5:.8e} {6:.8e} {7:.8e} {8:.8e} {9} '
-              '{10:.8e} {11:.8e} {12:.8e} {13:.8e} {14}'
-              .format(avenonneg1, stdnonneg1, avenonneg2, stdnonneg2,
-                      outnonneg.shape[0],
-                      avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
-                      stdnonnegwobg2, outnonnegwobg.shape[0],
-                      ave1, std1, ave2, std2, self.outall.shape[0]))
+        # print('ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+        #       'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+        #       'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # ')
+        # print('{0:.8e} {1:.8e} {2:.8e} {3:.8e} {4} '
+        #       '{5:.8e} {6:.8e} {7:.8e} {8:.8e} {9} '
+        #       '{10:.8e} {11:.8e} {12:.8e} {13:.8e} {14}'
+        #       .format(avenonneg1, stdnonneg1, avenonneg2, stdnonneg2,
+        #               outnonneg.shape[0],
+        #               avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
+        #               stdnonnegwobg2, outnonnegwobg.shape[0],
+        #               ave1, std1, ave2, std2, self.outall.shape[0]))
+
+    def savefile(self):
+        dataset = {}
+        dataset['out'] = self.outall
+        with open(self.outfile, 'wb') as f:
+            pickle.dump(dataset, f, -1)
+
+    def loadfile(self):
+        with open(self.outfile, 'rb') as f:
+            dataset = pickle.load(f, encoding='latin1')
+        self.outall = dataset['out']
+
+    def plot_distribution(self, binwidth1, binwidth2):
+        numsumple = self.outall[:, 1].shape[0]
+        numbins1 = int(np.ceil((np.max(self.outall[:, 1]) -
+                               np.min(self.outall[:, 1]))/binwidth1))
+        numbins2 = int(np.ceil((np.max(self.outall[:, 3]) -
+                               np.min(self.outall[:, 3]))/binwidth2))
+        heights1, bins1 = np.histogram(self.outall[:, 1], bins=numbins1)
+        heights2, bins2 = np.histogram(self.outall[:, 3], bins=numbins2)
+        plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
+                width=binwidth1, label='$\Gamma_1$')
+        plt.bar(bins2[:-1]+binwidth2/2., heights2/binwidth2/numsumple,
+                width=binwidth2, label='$\Gamma_2$')
+        plt.xlabel('HWHM (meV)')
+        plt.ylabel('Distribution (1/meV)')
+        plt.xlim(0, 0.08)
+        plt.legend()
+        plt.show()
 
     def correction(self, x, yd, yt):
         x = x + 2.085
@@ -146,15 +202,17 @@ class runhistnoidata(qf):
     def optimize(self, x, yd, yt,
                  variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
         # leastsq
-        out = so.leastsq(self.res, variables, args=(x, yd, yt), full_output=1,
-                         epsfcn=0.0001)
-        return out
+        if self.leastsq:
+            out = so.leastsq(self.res, variables, args=(x, yd, yt),
+                             full_output=1, epsfcn=0.0001)
+            return out
         # least_squares
-        # bounds = (0, np.inf)
-        #out = so.least_squares(self.res, variables, bounds=bounds, args=(x, yd, yt))
-        # out = so.least_squares(self.res, variables,  args=(x, yd, yt))
-        #print("status:", out.status)
-        # return out.x
+        else:
+            # bounds = (0, np.inf)
+            # out = so.least_squares(self.res, variables, bounds=bounds,
+            #                        args=(x, yd, yt))
+            out = so.least_squares(self.res, variables, args=(x, yd, yt))
+            return [out.x, out.success]
 
     def res(self, coeffs, x, d, t):
         [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
@@ -179,21 +237,38 @@ class runhistnoidata(qf):
         return x[mask], y[mask]
 
     def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)*59146.*0.5)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)*18944.*0.5)*1.
+        return np.random.poisson(self.yd/np.sum(self.yd)
+                                 * 59146.*self.alpha)*1.,\
+               np.random.poisson(self.ml/np.sum(self.ml)
+                                 * 18944.*self.alpha)*1.
 
 
 def testrun():
-    np.random.seed(314)
-    np.set_printoptions(linewidth=120)
+    outfile = "./outhistnoidata.pkl"
+    alpha = 0.5
     devf = "./qens_kde_o_divided_by_i_6204.pkl"
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    proj = runhistnoidata(devf, tf, elim, elimw, numcycle=300)
-    proj.get_xmlyd()
-    proj.cycle()
-    proj.output()
+    numcycle = 3000
+    binwidth1=0.0016
+    binwdith2=0.00074
+    binwdith2=0.0016
+    np.set_printoptions(linewidth=120)
+    if os.path.isfile(outfile):
+        proj = runhistnoidata(devf, tf, outfile, alpha, elim, elimw,
+                              leastsq=True, numcycle=numcycle)
+        proj.loadfile()
+        proj.output()
+        proj.plot_distribution(binwidth1, binwdith2)
+    else:
+        np.random.seed(314)
+        proj = runhistnoidata(devf, tf, outfile, alpha, elim, elimw,
+                              leastsq=True, numcycle=numcycle)
+        proj.get_xmlyd()
+        proj.cycle()
+        proj.output()
+        proj.savefile()
 
 
 #testrun()
