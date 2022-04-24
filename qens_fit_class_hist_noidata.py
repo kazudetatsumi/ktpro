@@ -242,11 +242,17 @@ class runhistnoidata(qf):
         mask = np.where((x > elim[0]) & (x < elim[1]))
         return x[mask], y[mask]
 
-    def generate_data(self):
-        return np.random.poisson(self.yd/np.sum(self.yd)
-                                 * 59146.*self.alpha)*1.,\
-               np.random.poisson(self.ml/np.sum(self.ml)
-                                 * 18944.*self.alpha)*1.
+    def generate_data(self, idata=False):
+        if idata:
+            return np.random.poisson(self.iyd/np.sum(self.iyd)
+                                     * 94612.*self.alpha)*1.,\
+                   np.random.poisson(self.iyt/np.sum(self.iyt)
+                                     * 50299.*self.alpha)*1.
+        else:
+            return np.random.poisson(self.yd/np.sum(self.yd)
+                                     * 59146.*self.alpha)*1.,\
+                   np.random.poisson(self.ml/np.sum(self.ml)
+                                     * 18944.*self.alpha)*1.
 
 
 def testrun():
