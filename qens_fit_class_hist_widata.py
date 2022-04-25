@@ -56,7 +56,10 @@ class runhistwithidata(rki):
 #
     def get_ixrw(self, ifile):
         ixrw, iyrw = self.get_irwdata(ifile)
-        self.ixrw, iyrw = self.limit(ixrw, iyrw, self.elimw)
+        mergin = 0.001
+        xlim = [-0.10025 - mergin, 0.14975 + mergin]
+        # self.ixrw, iyrw = self.limit(ixrw, iyrw, self.elimw)
+        self.ixrw, iyrw = self.limit(ixrw, iyrw, xlim)
 
     def get_irwdata(self, ifile):
         dataset = self.read_pkl(ifile)

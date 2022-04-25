@@ -152,17 +152,17 @@ class runhistnoidata(qf):
         stdnonnegwobg1 = np.std(outnonnegwobg[:, 1])
         avenonnegwobg2 = np.average(outnonnegwobg[:, 3])
         stdnonnegwobg2 = np.std(outnonnegwobg[:, 3])
-        # print('ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
-        #       'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
-        #       'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # ')
-        # print('{0:.8e} {1:.8e} {2:.8e} {3:.8e} {4} '
-        #       '{5:.8e} {6:.8e} {7:.8e} {8:.8e} {9} '
-        #       '{10:.8e} {11:.8e} {12:.8e} {13:.8e} {14}'
-        #       .format(avenonneg1, stdnonneg1, avenonneg2, stdnonneg2,
-        #               outnonneg.shape[0],
-        #               avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
-        #               stdnonnegwobg2, outnonnegwobg.shape[0],
-        #               ave1, std1, ave2, std2, self.outall.shape[0]))
+        print('ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # ')
+        print('{0:.8e} {1:.8e} {2:.8e} {3:.8e} {4} '
+              '{5:.8e} {6:.8e} {7:.8e} {8:.8e} {9} '
+              '{10:.8e} {11:.8e} {12:.8e} {13:.8e} {14}'
+              .format(avenonneg1, stdnonneg1, avenonneg2, stdnonneg2,
+                      outnonneg.shape[0],
+                      avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
+                      stdnonnegwobg2, outnonnegwobg.shape[0],
+                      ave1, std1, ave2, std2, self.outall.shape[0]))
 
     def savefile(self):
         dataset = {}
@@ -214,10 +214,12 @@ class runhistnoidata(qf):
             return out
         # least_squares
         else:
-            # bounds = (0, np.inf)
-            # out = so.least_squares(self.res, variables, bounds=bounds,
-            #                        args=(x, yd, yt))
-            out = so.least_squares(self.res, variables, args=(x, yd, yt))
+            bounds = (0, np.inf)
+            out = so.least_squares(self.res, variables, bounds=bounds,
+                                   args=(x, yd, yt))
+            if self.rank == 0:
+                print(out.active_mask, out.success, out.x)
+            #out = so.least_squares(self.res, variables, args=(x, yd, yt))
             return [out.x, out.success]
 
     def res(self, coeffs, x, d, t):

@@ -1,17 +1,18 @@
 #!/usr/bin/env python
-import os
 import numpy as np
+import os
 import sys
+from mpi4py import MPI
 sys.path.append("/home/kazu/ktpro")
-from qens_fit_class_hist_widata import runhistwithidata as rhwid
+from qens_class_fort_mpi import qens as qc
+from qens_fit_class_kde_widata import runkdewithidata as rkw
 
 
 def testrun():
     np.set_printoptions(linewidth=120)
     prefix = "/home/kazu/desktop/210108/Tatsumi/winparam_exam/" +\
-             "test_mpi_fort_de_0.000025/" +\
-             "160_1_0000001io_Boxcar_simu/runtst/tmp/"
-    outfile = prefix + "./outhistwidatanonneg.pkl"
+             "test_mpi_fort_de_0.000025/160_1_0000001io_Boxcar_simu/runtst/tmp/"
+    outfile = prefix + "./outkdewidata_least_squares.pkl"
     alpha = 0.5
     devf = prefix + "./qens_kde_o_divided_by_i_6204.pkl"
     tf = prefix + "./qens_kde_o_divided_by_i_6202.pkl"
@@ -25,19 +26,21 @@ def testrun():
     binwidth1 = 0.0010
     binwidth2 = 0.0004
     if os.path.isfile(outfile):
-        proj = rhwid(devf, tf, idevf, itf, outfile, idfrw, alpha, elim,
-                     elimw, leastsq=False, numcycle=numcycle)
-        proj.loadfile()
-        proj.output()
-        proj.plot_distribution(binwidth1, binwidth2)
+        proj = rkw(devf, tf, idevf, itf, outfile, idfrw, alpha, elim, elimw,
+                   leastsq=False, numcycle=numcycle)
+        if proj.rank == 0:
+            proj.loadfile()
+            proj.output()
+            proj.plot_distribution(binwidth1, binwidth2)
     else:
         np.random.seed(314)
-        proj = rhwid(devf, tf, idevf, itf, outfile, idfrw, alpha, elim,
-                     elimw, leastsq=False, numcycle=numcycle)
+        proj = rkw(devf, tf, idevf, itf, outfile, idfrw, alpha, elim, elimw,
+                   leastsq=False, numcycle=numcycle)
         proj.get_xmlyd()
         proj.cycle()
-        proj.output()
-        proj.savefile()
+        if proj.rank == 0:
+            proj.output()
+            proj.savefile()
 
 
 testrun()
