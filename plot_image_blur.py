@@ -23,60 +23,78 @@ import matplotlib.pyplot as plt
 img = plt.imread('sphx_glr_plot_image_blur_001.png')
 #plt.figure()
 #plt.imshow(img)
-x = np.linspace(-1., 1., 65) 
-y = np.linspace(-1., 1., 65) 
-z = np.zeros((65, 65))
+nsize = 100
+x = np.linspace(-1., 1., nsize)
+y = np.linspace(-1., 1., nsize)
+z = np.zeros((nsize, nsize))
 for ix, _x in enumerate(x):
     for iy, _y in enumerate(y):
-        if _x >= 0. and _y >= 0. and _x + _y < 1.: 
+        if _x >= 0. and _y >= 0. and _x + _y < 1.:
             z[ix, iy] = 1. - _x - _y
-        elif _x >= 0. and _y < 0. and _x - _y < 1.: 
+        elif _x >= 0. and _y < 0. and _x - _y < 1.:
             z[ix, iy] = 1. - _x + _y
-        elif _x < 0. and _y >= 0. and _y - _x < 1.: 
+        elif _x < 0. and _y >= 0. and _y - _x < 1.:
             z[ix, iy] = 1. + _x - _y
         elif _x < 0. and _y < 0. and _x + _y > -1.:
             z[ix, iy] = 1. + _x + _y
         else:
-            z[ix, iy] = 0.0 
+            z[ix, iy] = 0.0
 
-img = z
-plt.imshow(img)
-plt.show()
+#img = z
+#plt.imshow(img)
+#plt.show()
 #####################################################################
 # Prepare an Gaussian convolution kernel
 #####################################################################
 
 # First a 1-D  Gaussian
-t = np.linspace(-10, 10, 65)
-bump = np.exp(-40.1*t**2)
+t = np.linspace(-1., 1., nsize)
+bump = np.exp(-25.*t**2)
 bump /= np.trapz(bump) # normalize the integral to 1
 
 # make a 2-D kernel out of it
 kernel = bump[:, np.newaxis] * bump[np.newaxis, :]
 
+plt.imshow(kernel)
+plt.show()
 #####################################################################
 # Implement convolution via FFT
 #####################################################################
 
 # Padded fourier transform, with the same shape as the image
 # We use :func:`scipy.signal.fftpack.fft2` to have a 2D FFT
-kernel_ft = fftpack.fft2(kernel, axes=(0, 1))
+#kernel_ft = fftpack.fft2(kernel, shape=img.shape[:-1], axes=(0, 1))
+kernel_ft = np.fft.fft2(kernel)
+
+n = nsize
+f = np.linspace(0, n-1, n) / n
+f = np.concatenate((-f[0: int(n / 2 + 1)],
+                    f[1: int(n / 2 - 1 + 1)][::-1]))
+
+test_kft = np.zeros((nsize,nsize))
+for ix, _fx in enumerate(f):
+    for iy, _fy in enumerate(f):
+        test_kft[ix, iy] = np.exp(-0.01*(_fx**2 + _fy**2))
 
 # convolve
 img_ft = fftpack.fft2(img, axes=(0, 1))
+#plt.imshow(np.log(np.abs(img_ft)))
+#plt.show()
 # the 'newaxis' is to match to color direction
-img2_ft = kernel_ft * img_ft
-img2 = fftpack.ifft2(img2_ft, axes=(0, 1))
-img2 = np.fft.ifftshift(np.real(img2))
+#img2_ft = kernel_ft[:, :, np.newaxis] * img_ft
+img2_ft = kernel_ft
+#img2_ft = test_kft * img_ft
+#img2 = np.real(fftpack.ifft2(img2_ft, axes=(0, 1)))
+img2 = np.real(np.fft.ifft2(img2_ft))
+#img2 = np.fft.ifftshift(np.real(img2))
 
 # clip values to range
 img2 = np.clip(img2, 0, 1)
-print(np.argmax(img))
-print(np.argmax(img2))
 
 # plot output
-plt.figure()
-plt.imshow(img2)
+#plt.figure()
+plt.imshow(img2[0:nsize,0:nsize])
+plt.show()
 
 #####################################################################
 # Further exercise (only if you are familiar with this stuff):
@@ -108,5 +126,5 @@ plt.imshow(img2)
 # artifact
 
 
-plt.show()
+#plt.show()
 

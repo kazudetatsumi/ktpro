@@ -12,8 +12,8 @@ def testrun():
     np.set_printoptions(linewidth=120)
     prefix = "/home/kazu/desktop/210108/Tatsumi/winparam_exam/" +\
              "test_mpi_fort_de_0.000025/160_1_0000001io_Boxcar_simu/runtst/tmp/"
-    outfile = prefix + "./outkdewidata_least_squares.pkl"
-    alpha = 0.5
+    outfile = prefix + "./outkdewidata_least_squares_alpha1.pkl"
+    alpha = 1.0
     devf = prefix + "./qens_kde_o_divided_by_i_6204.pkl"
     tf = prefix + "./qens_kde_o_divided_by_i_6202.pkl"
     prefix = "/home/kazu/desktop/210108/Tatsumi/pickles/0000001io/"
@@ -24,7 +24,7 @@ def testrun():
     elimw = [-0.04, 0.08]
     numcycle = 30000
     binwidth1 = 0.0010
-    binwidth2 = 0.0004
+    binwidth2 = 0.0005
     if os.path.isfile(outfile):
         proj = rkw(devf, tf, idevf, itf, outfile, idfrw, alpha, elim, elimw,
                    leastsq=False, numcycle=numcycle)

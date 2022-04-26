@@ -10,7 +10,7 @@ def testrun():
     prefix = "/home/kazu/desktop/210108/Tatsumi/winparam_exam/" +\
              "test_mpi_fort_de_0.000025/160_1_0000001io_Boxcar_simu/runtst/tmp"
     outfile = prefix + "/outhistnoidata.pkl"
-    outfile = "./outhistnoidata.pkl"
+    #outfile = "./outhistnoidata.pkl"
     alpha = 0.5
     devf = prefix + "/qens_kde_o_divided_by_i_6204.pkl"
     tf = prefix + "/qens_kde_o_divided_by_i_6202.pkl"
