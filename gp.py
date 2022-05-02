@@ -40,14 +40,17 @@ class GaussianProcessRegression:
 
 def run():
     x = np.linspace(-5., 5., 80)
-    x_train = np.array([-2.3, 1.0, 3.5, -1.0, -4.0])
-    y_train = np.array([1.11, 3.00,  -2.00, 4.0, 1.0])
+    #x_train = np.array([-2.3, 1.0, 3.5, -1.0, -4.0])
+    #y_train = np.array([1.11, 3.00,  -2.00, 4.0, 1.0])
+    x_train = np.array([-2.3])
+    y_train = np.array([1.11])
     noiselevel = 0.000000000001
     prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
     plt.fill_between(x, prj.f_bar + 2.*prj.std, prj.f_bar - 2.*prj.std,
                      fc='gray')
     plt.scatter(x_train, y_train)
     plt.plot(x, prj.f_bar)
+    plt.plot(x, prj.std+prj.f_bar)
     plt.show()
 
 
