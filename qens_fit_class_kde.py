@@ -52,7 +52,7 @@ class runkdenoidata(rhn, qc):
     def kde(self, x, y):
         self.WinFunc = 'Boxcar'
         self.M = 160
-        self.winparam = 1
+        self.winparam = 7
         self.selected_spectra = y
         self.selected_energy = x
         self.de = self.selected_energy[1] - self.selected_energy[0]

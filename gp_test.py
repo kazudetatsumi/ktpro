@@ -26,7 +26,7 @@ class GaussianProcess:
         self.x = np.linspace(self.min_x, self.max_x, self.num_inputs)
 
     def generate_train(self):
-        self.x_train = np.array([-2.3, 1.0, 3.5, -1.0, -4.0 ])
+        self.x_train = np.array([-2.3, 1.0, 3.5, -1.0, -4.0])
         self.y_train = np.array([1.11, 3.00,  -2.00, 4.0, 1.0])
         #self.x_train = np.array([-2.3, 1.0, 3.5, -1.0])
         #self.y_train = np.array([1.11, 3.00,  -2.00, 4.0])
@@ -39,8 +39,7 @@ class GaussianProcess:
 
     def calc_alpha(self):
         self.alpha = np.linalg.lstsq(self.L.T,
-                                     np.linalg.lstsq(self.L,
-                                                     self.y_train)[0]
+                                     np.linalg.lstsq(self.L, self.y_train)[0]
                                      )[0]
 
     def calc_fx_and_V_fx(self):
