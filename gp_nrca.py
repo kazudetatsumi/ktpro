@@ -6,8 +6,13 @@
 # self.f_bar : mean in predictive distribution
 # self.cov   : covariance matrix in predictive distribution
 # Kazuyoshi TATSUMI 2022/05/02
+import os
+os.environ["OPENBLAS_NUM_THREADS"] = "2"
+os.environ["MKL_NUM_THREADS"] = "2"
+os.environ["VECLIB_NUM_THREADS"] = "2"
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 
 class GaussianProcessRegression:
@@ -71,13 +76,13 @@ def searchrun2dnrca():
     density_file = prefix + "dist_dens.dat"
     #estimated_err_file = prefix + "estimated_err.dat"
     density = []
-    for iline, line in enumerate(open(estimated_density_file)):
+    for iline, line in enumerate(open(density_file)):
         if iline != 0:
             density.append(float(line[:-1].split(',')[2]))
     density = np.array(density)
 
-    #X, Y = np.meshgrid(np.linspace(0., 5., 51), np.linspace(0., 5., 51))
-    X, Y = np.meshgrid(np.linspace(0., 5., 11), np.linspace(0., 5., 11))
+    X, Y = np.meshgrid(np.linspace(0., 5., 51), np.linspace(0., 5., 51))
+    #X, Y = np.meshgrid(np.linspace(0., 5., 11), np.linspace(0., 5., 11))
 
     #density = density.reshape(X.shape)[::2, ::2].flatten()
     #X = X[::2, ::2]
@@ -94,18 +99,19 @@ def searchrun2dnrca():
     plt.axis('equal')
     plt.show()
 
-    for itry in range(0, 100):
+    for itry in range(0, 101):
         prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
         if itry % 10 == 0:
             print('itry:',itry)
             plt.subplot(1, 2, 1)
-            plt.pcolor(X, Y, prj.f_bar.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.0004, vmax=0.0004)
+            #plt.pcolor(X, Y, prj.f_bar.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.2004, vmax=0.0004)
+            plt.pcolor(X, Y, prj.f_bar.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.400, vmax=0.400)
             plt.axis('equal')
             plt.subplot(1, 2, 2)
             plt.pcolor(X, Y, prj.std.reshape(X.shape), shading='auto', cmap='Reds',vmin=0.)
             plt.scatter(prj.x_train[:,0], prj.x_train[:,1], marker='x')
             plt.axis('equal')
-            plt.show()
+            plt.savefig('test_nrca_very_large_'+str(itry)+'.png')
 
         if itry == 0:
             beta = 0.
