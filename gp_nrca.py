@@ -34,24 +34,8 @@ class GaussianProcessRegression:
         K = np.zeros((x1.shape[0], x2.shape[0]))
         for p, xp in enumerate(x1):
             for q, xq in enumerate(x2):
-                K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/1.)**2))
+                K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/5.)**2))
         return(K)
-
-
-def run():
-    x = np.linspace(-5., 5., 80)
-    # x_train = np.array([-2.3, 1.0, 3.5, -1.0, -4.0])
-    # y_train = np.array([1.11, 3.00,  -2.00, 4.0, 1.0])
-    x_train = np.array([-2.3])
-    y_train = np.array([1.11])
-    noiselevel = 0.000000000001
-    prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
-    plt.fill_between(x, prj.f_bar + 2.*prj.std, prj.f_bar - 2.*prj.std,
-                     fc='lightgray')
-    plt.scatter(x_train, y_train)
-    plt.plot(x, prj.f_bar)
-    plt.plot(x, prj.std+prj.f_bar)
-    plt.show()
 
 
 def searchrun():
@@ -81,60 +65,81 @@ def searchrun():
         y_train = np.append(y_train, testfunc(nextx))
 
 
-def searchrun2d():
-    X, Y = np.meshgrid(np.linspace(-5., 5., 50), np.linspace(-5., 5., 50))
+def searchrun2dnrca():
+    prefix = "/home/kazu/ktpro/sample_data_nrca/"
+    estimated_density_file = prefix + "estimated.dat"
+    density_file = prefix + "dist_dens.dat"
+    #estimated_err_file = prefix + "estimated_err.dat"
+    density = []
+    for iline, line in enumerate(open(estimated_density_file)):
+        if iline != 0:
+            density.append(float(line[:-1].split(',')[2]))
+    density = np.array(density)
+
+    #X, Y = np.meshgrid(np.linspace(0., 5., 51), np.linspace(0., 5., 51))
+    X, Y = np.meshgrid(np.linspace(0., 5., 11), np.linspace(0., 5., 11))
+
+    #density = density.reshape(X.shape)[::2, ::2].flatten()
+    #X = X[::2, ::2]
+    #Y = Y[::2, ::2]
     x = []
     for _x, _y in zip(X.flatten(), Y.flatten()):
         x.append([_x, _y])
     x = np.array(x)
 
-    x_train = np.array([[-2.3, -2.3]])
-    y_train = testfunc2d(x_train)
+    x_train = np.array([[2.5, 2.0]])
+    y_train = np.array([testfunc2dnrca(X, Y, density, x_train)])
     noiselevel = 0.000000000001
-    plt.pcolor(X, Y, testfunc2d(x).reshape(X.shape), shading='auto', cmap='bwr', vmin=-1., vmax=1.)
-    #plt.scatter(x_train[0], x_train[1], marker='x')
+    plt.pcolor(X, Y, density.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.0004, vmax=0.0004)
     plt.axis('equal')
     plt.show()
 
-    for itry in range(0, 101):
+    for itry in range(0, 100):
         prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
         if itry % 10 == 0:
             print('itry:',itry)
             plt.subplot(1, 2, 1)
-            plt.pcolor(X, Y, prj.f_bar.reshape(X.shape), shading='auto', cmap='bwr', vmin=-1., vmax=1.)
+            plt.pcolor(X, Y, prj.f_bar.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.0004, vmax=0.0004)
             plt.axis('equal')
             plt.subplot(1, 2, 2)
-            plt.pcolor(X, Y, prj.std.reshape(X.shape), shading='auto', cmap='bwr', vmin=-1., vmax=1.)
+            plt.pcolor(X, Y, prj.std.reshape(X.shape), shading='auto', cmap='Reds',vmin=0.)
+            plt.scatter(prj.x_train[:,0], prj.x_train[:,1], marker='x')
             plt.axis('equal')
             plt.show()
 
         if itry == 0:
             beta = 0.
         else:
-            beta = .2*np.log(itry)**0.5
-        activation = prj.f_bar + beta * prj.std
+            beta = 1.*np.log(itry)**0.5
         for ixtr, xtrain in enumerate(x_train):
             mask = np.sum((x - xtrain)**2., axis=1) > 0.00001
             if ixtr == 0:
                 tmask = mask
             tmask = mask*tmask
-        nextx = x[activation == np.max(activation[tmask])][0].squeeze()
+        if itry % 2 == 0:
+            activation = prj.f_bar + beta * prj.std
+            nextx = x[activation == np.max(activation[tmask])][0].squeeze()
+        else:
+            activation = prj.f_bar - beta * prj.std
+            nextx = x[activation == np.min(activation[tmask])][0].squeeze()
         #nextxindx = np.unravel_index(activation.argmax(), X.shape)
         #print('next position:', X[nextxindx], Y[nextxindx])
 
         print('adding to x_train', nextx)
         x_train = np.vstack((x_train, nextx))
-        y_train = np.append(y_train, testfunc2d(nextx[np.newaxis, :]))
+        y_train = np.append(y_train, testfunc2dnrca(X, Y, density, nextx[np.newaxis, :]))
 
 
 
-def testfunc(x):
-    return 2.*np.exp(-x**2.) + np.exp(-((x-1.5)/2.0)**2.)
+def testfunc2dnrca(X, Y, density, xvec):
+    test = (X.flatten() - xvec[0, 0])**2 + (Y.flatten() - xvec[0, 1])**2
+    return density[test.argmin()]
 
 
 def testfunc2d(x):
-    pos2 = np.array([1., 2.])
-    pos1 = np.array([0., 0.])
+    pos2 = np.array([2., 3.])
+    pos1 = np.array([1., 1.])
     return np.exp(-np.sum((x-pos1)**2., axis=1)) + 0.5*np.exp(-np.sum((x-pos2)**2., axis=1))
 
-searchrun2d()
+
+searchrun2dnrca()
