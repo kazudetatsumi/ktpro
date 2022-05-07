@@ -14,7 +14,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
 class GaussianProcessRegression:
     def __init__(self, x, x_train, y_train, noiselevel):
         self.x = x
@@ -148,4 +147,4 @@ def testfunc2d(x):
     return np.exp(-np.sum((x-pos1)**2., axis=1)) + 0.5*np.exp(-np.sum((x-pos2)**2., axis=1))
 
 
-searchrun2dnrca()
+#searchrun2dnrca()
