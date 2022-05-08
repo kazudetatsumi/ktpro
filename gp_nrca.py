@@ -34,6 +34,22 @@ class GaussianProcessRegression:
         self.conv = self.K_double_astarisc - self.V.T @ self.V
         self.std = np.diag(self.conv)**0.5
 
+    def renew(self, x_train, y_train):
+        self.x_train = x_train
+        self.y_train = y_train
+        self.K = self.kernel(self.x_train, self.x_train)
+        self.K_astarisc = self.kernel(self.x, self.x_train)
+        self.noise_mat = self.noiselevel*np.eye(self.x_train.shape[0])
+        self.K_I = self.K + self.noise_mat
+        self.L = np.linalg.cholesky(self.K_I)
+        self.f_bar = self.K_astarisc @\
+            np.linalg.lstsq(self.L.T, np.linalg.lstsq(self.L, self.y_train,
+                                                      rcond=None)[0],
+                            rcond=None)[0]
+        self.V = np.linalg.lstsq(self.L, self.K_astarisc.T, rcond=None)[0]
+        self.conv = self.K_double_astarisc - self.V.T @ self.V
+        self.std = np.diag(self.conv)**0.5
+
     def kernel(self, x1, x2):
         K = np.zeros((x1.shape[0], x2.shape[0]))
         for p, xp in enumerate(x1):
