@@ -12,7 +12,7 @@ def testrun():
     np.set_printoptions(linewidth=120)
     prefix = "/home/kazu/desktop/210108/Tatsumi/winparam_exam/" +\
              "test_mpi_fort_de_0.000025/160_1_0000001io_Boxcar_simu/runtst/tmp/"
-    outfile = prefix + "./outkdewidata_least_squares_alpha1_k7.pkl"
+    outfile = prefix + "./outkdewidata_least_squares_alpha1_k3.pkl"
     alpha = 1.0
     devf = prefix + "./qens_kde_o_divided_by_i_6204.pkl"
     tf = prefix + "./qens_kde_o_divided_by_i_6202.pkl"
