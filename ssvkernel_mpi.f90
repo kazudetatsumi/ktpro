@@ -54,13 +54,10 @@ contains
     !    print *, 'optws'
     !endif
     optws=optwsf(Wins, cfxw)
-    !if (rank==0) then
-    !    print *, 'opt'
-    !endif
-    call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
     if (rank==0) then
-        print *, "CHK"
+        print *, 'opt'
     endif
+    call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
     !Bootstrap sampling is not done currently,
     !because qens data have a long tail and are not suitable for bootstrap sampling.
     !yb = ybf(tin, xdat, optw) 
