@@ -4,7 +4,6 @@ import os
 import sys
 from mpi4py import MPI
 sys.path.append("/home/kazu/ktpro")
-from qens_class_fort_mpi import qens as qc
 from qens_fit_class_kde_widata import runkdewithidata as rkw
 
 
