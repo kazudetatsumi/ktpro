@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar 0875
+import os
 import sys
 sys.path.append("/home/kazu/ktpro")
 import qens_class_fort_mpi as qc
+home=os.path.expanduser("~")
 
 
 def run():
@@ -44,8 +46,8 @@ def run():
         #print("using default flrac """)
         frac = ""
 
-    datadir = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
-    outdir = "/home/kazu/desktop/210108/Tatsumi/pickles/"+dirname+"/"
+    datadir = home + "/desktop/210108/Tatsumi/srlz/"+dirname+"/"
+    outdir = home + "/desktop/210108/Tatsumi/pickles/"+dirname+"/"
     save_file = datadir + "/run"+runno+"united_"+frac+"spectra.pkl"
     #output_file = outdir + "qens_run"+runno+"united_kde_results_on_data_qsel.pkl"
     output_file = "./qens_run"+runno+frac+"united_kde_results_on_data_qsel.pkl"

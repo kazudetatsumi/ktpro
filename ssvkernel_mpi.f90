@@ -25,6 +25,7 @@ contains
     double precision, allocatable :: cfxw(:,:), y_hist(:)
     integer tidx
     comm = comm0
+    print *, 'CHK'
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
     if (WinFuncNo==1) then
