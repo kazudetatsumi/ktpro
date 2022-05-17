@@ -166,6 +166,7 @@ class qens:
         yb = np.zeros((nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
+        #MPI.COMM_WORLD.barrier()
 
         lib.ssvk(
                 c_int32(comm),

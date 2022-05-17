@@ -25,9 +25,9 @@ contains
     double precision, allocatable :: cfxw(:,:), y_hist(:)
     integer tidx
     comm = comm0
-    print *, 'CHK'
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
+    !write(10,*) rank
     if (WinFuncNo==1) then
         WinFunc='Boxcar'
     elseif (WinFuncNo==2) then
@@ -59,6 +59,7 @@ contains
     !    print *, 'opt'
     !endif
     call opt(optw, yopt, y_hist, xdat, tin, Wins, optws)
+    !yb=0.
     !Bootstrap sampling is not done currently,
     !because qens data have a long tail and are not suitable for bootstrap sampling.
     !yb = ybf(tin, xdat, optw) 
