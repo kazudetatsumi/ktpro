@@ -8,7 +8,7 @@ from qens_fit_class_kde_idata import runkdeidata as rki
 
 def testrun():
     np.set_printoptions(linewidth=120)
-    outfile = "./outkdeidata.pkl"
+    outfile = "./outkdeidata_test.pkl"
     alpha = 0.5
     devf = "./qens_kde_o_divided_by_i_6204.pkl"
     tf = "./qens_kde_o_divided_by_i_6202.pkl"
@@ -17,7 +17,7 @@ def testrun():
     itf = prefix + "qens_kde_results_on_idata_6202.pkl"
     elim = [-0.03, 0.07]
     elimw = [-0.04, 0.08]
-    numcycle = 3
+    numcycle = 30
     binwidth1 = 0.0014
     binwidth2 = 0.0003
     if os.path.isfile(outfile):

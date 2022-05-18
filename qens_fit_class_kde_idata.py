@@ -4,11 +4,12 @@ import os
 import sys
 from mpi4py import MPI
 sys.path.append("/home/kazu/ktpro")
-from qens_class_fort_mpi import qens as qc
+#from qens_class_fort_mpi import qens as qc
 from qens_fit_class_kde import runkdenoidata as rkn
 
 
-class runkdeidata(rkn, qc):
+#class runkdeidata(rkn, qc):
+class runkdeidata(rkn):
     def __init__(self, devf, tf, idevf, itf, outfile, alpha, elim, elimw,
                  numcycle=100, leastsq=True):
         self.elim = elim
@@ -47,8 +48,8 @@ class runkdeidata(rkn, qc):
         self.x, yt = self.get_data(self.tf)
         self.ixd, self.iyd = self.get_idata(self.idevf)
         self.ixt, self.iyt = self.get_idata(self.itf)
-        xdl, ydl = self.limit(xd, self.yd, self.elimw)
-        xtl, ytl = self.limit(self.x, yt, self.elimw)
+        xdl, ydl = self.limit2(xd, self.yd, self.elimw)
+        xtl, ytl = self.limit2(self.x, yt, self.elimw)
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         return xtl, ydlc, ytlc
 

@@ -47,8 +47,8 @@ class runhistnoidata(qf):
         self.icorr()
         xd, yd = self.get_data(self.devf)
         xt, yt = self.get_data(self.tf)
-        xdl, ydl = self.limit(xd, yd, self.elimw)
-        xtl, ytl = self.limit(xt, yt, self.elimw)
+        xdl, ydl = self.limit2(xd, yd, self.elimw)
+        xtl, ytl = self.limit2(xt, yt, self.elimw)
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         return xtl, ydlc, ytlc
 
@@ -230,7 +230,7 @@ class runhistnoidata(qf):
         # A smaller energy range is set for the squre differences,
         # because y involves convolution and this setting is preferable
         # to decrease the edge effect.
-        xl, dif = self.limit(x, t-y, self.elim)
+        xl, dif = self.limit2(x, t-y, self.elim)
         return dif
 
     def reconstruct(self, x, yd, out):
@@ -240,9 +240,9 @@ class runhistnoidata(qf):
             + _alpha2*self.convlore(yd, _gamma2, x)\
             + _delta*yd + _base
 
-    def limit(self, x, y, elim):
-        mask = np.where((x > elim[0]) & (x < elim[1]))
-        return x[mask], y[mask]
+#    def limit(self, x, y, elim):
+#        mask = np.where((x > elim[0]) & (x < elim[1]))
+#        return x[mask], y[mask]
 
     def generate_data(self, idata=False):
         if idata:

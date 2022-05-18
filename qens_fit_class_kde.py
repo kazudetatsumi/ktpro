@@ -44,8 +44,8 @@ class runkdenoidata(rhn, qc):
         self.icorr()
         xd, self.yd = self.get_data(self.devf)
         self.x, yt = self.get_data(self.tf)
-        xdl, ydl = self.limit(xd, self.yd, self.elimw)
-        xtl, ytl = self.limit(self.x, yt, self.elimw)
+        xdl, ydl = self.limit2(xd, self.yd, self.elimw)
+        xtl, ytl = self.limit2(self.x, yt, self.elimw)
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         return xtl, ydlc, ytlc
 

@@ -130,7 +130,9 @@ class qens_fit:
 
     def fun_lore(self, x, gamma):
         #return 1/np.pi*gamma/(x**2 + gamma**2)
-        f = 1/np.pi*gamma/(x**2 + gamma**2)
+        #f = 1/np.pi*gamma/(x**2 + gamma**2)
+        with np.errstate(divide='ignore'):
+            f = np.where( x**2+gamma**2 != 0., 1/np.pi*gamma/(x**2 + gamma**2), 0)
         #print(np.sum(f))
         f = f / np.sum(f)
         return f
@@ -199,10 +201,10 @@ class qens_fit:
             print(out[0])
         self.out = out[0]
         self.gamma = out[0][1]
-   #temp     if not self.quiet:
-   #temp         print("cov**0.5")
-   #temp         #print(out[1])
-   #temp         print(np.absolute(out[1]*s_sq)**0.5)
+        if not self.quiet:
+            print("cov**0.5")
+            #print(out[1])
+            print(np.absolute(out[1]*s_sq)**0.5)
         #self.gammaerror = np.absolute(out[1][1][1]*s_sq)**0.5
         if len(variables) == 4:
             _alpha, _gamma, _delta, _base = out[0]

@@ -40,26 +40,26 @@ class runhistwithidata(rki):
 
 #    def multii(self, itf, idf, ml, yd):
 #        xit, yit = self.get_idata(itf)
-#        xitl, yitl = self.limit(xit, yit, self.elimw)
+#        xitl, yitl = self.limit2(xit, yit, self.elimw)
 #        yit_ip = np.interp(self.x, xitl, yitl)
 #        xid, yid = self.get_idata(idf)
-#        xidl, yidl = self.limit(xid, yid, self.elimw)
+#        xidl, yidl = self.limit2(xid, yid, self.elimw)
 #        yid_ip = np.interp(self.x, xidl, yidl)
 #        return ml*yit_ip, yd*yid_ip
 #
 #    def get_yirw(self, itf, idf):
 #        xit, yit = self.get_irwdata(itf)
-#        xitl, yitl = self.limit(xit, yit, self.elimw)
+#        xitl, yitl = self.limit2(xit, yit, self.elimw)
 #        xid, yid = self.get_irwdata(idf)
-#        xidl, yidl = self.limit(xid, yid, self.elimw)
+#        xidl, yidl = self.limit2(xid, yid, self.elimw)
 #        return np.interp(self.x, xitl, yitl), np.interp(self.x, xidl, yidl)
 #
     def get_ixrw(self, ifile):
         ixrw, iyrw = self.get_irwdata(ifile)
         mergin = 0.001
         xlim = [-0.10025 - mergin, 0.14975 + mergin]
-        # self.ixrw, iyrw = self.limit(ixrw, iyrw, self.elimw)
-        self.ixrw, iyrw = self.limit(ixrw, iyrw, xlim)
+        # self.ixrw, iyrw = self.limit2(ixrw, iyrw, self.elimw)
+        self.ixrw, iyrw = self.limit2(ixrw, iyrw, xlim)
 
     def get_irwdata(self, ifile):
         dataset = self.read_pkl(ifile)

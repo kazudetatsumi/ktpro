@@ -5,11 +5,12 @@ import sys
 import matplotlib.pyplot as plt
 from mpi4py import MPI
 sys.path.append("/home/kazu/ktpro")
-from qens_class_fort_mpi import qens as qc
+#from qens_class_fort_mpi import qens as qc
 from qens_fit_class_hist_widata import runhistwithidata as rhw
 
 
-class runkdewithidata(rhw, qc):
+#class runkdewithidata(rhw, qc):
+class runkdewithidata(rhw):
     def __init__(self, devf, tf, idevf, itf, outfile, irwdf, alpha, elim,
                  elimw, numcycle=100, leastsq=True):
         super().__init__(devf, tf, idevf, itf, outfile, irwdf, alpha, elim,
