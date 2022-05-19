@@ -189,6 +189,7 @@ class qens_fit:
                          epsfcn=0.0001)
         s_sq = (self.res(out[0], self.x_tf, self.y_df, self.y_tf)**2).sum() /\
                (len(self.y_tf)-len(out[0]))
+        print('s_sq', s_sq)
         if not self.quiet:
             if len(variables) == 4:
                 print("estimated constants alpha, gamma, delta, base")
