@@ -59,7 +59,7 @@ def sqrun_kde_hist_2lore():
     #proj.optimize(figname="qens_kde_fit.png")
     #proj.optimize(variables=[1.67780642e-04, 3.08144561e-02, 1.16049540e-04, 7.85885231e-03, 2.04665269e-01, 4.17453525e+00], figname="qens_kde_fit2.png")
     #proj.optimize(variables=[2.18704786e-04, 1.67980295e-02, 4.92405238e-05, 1.88866588e-03, 1.21127501e-01, 5.02759930e-02], figname="qens_kde_fit2.png")
-    proj.optimize(variables=[7.18804786e-01, 1.07980295e-02, 2.32405238e-01, 1.08866588e-03, 1.21127501e-01, 5.02759930e-02])
+    proj.optimize(variables=[7.18804786e-01, 1.07980295e-02, 2.12405238e-01, 1.08866588e-03, 1.01127501e-01, 3.62759930e-02], figname="qens_kde_fit2.png")
 
     head = "/home/kazu/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     devf = head + "qens_hist_o_divided_by_i_"+runnod+".pkl"
@@ -72,8 +72,8 @@ def sqrun_kde_hist_2lore():
     #        figname="qens_hist_fit.png")
     #proj.optimize(variables=[1.35639516e-05, 2.61566022e-02, 2.16304425e-06, 4.97615634e-03, 7.62240950e-02], figname="qens_hist_fit2_basefixed.png")
     #proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05, 5.06836899e-03, 1.45026317e-01, 3.12477175e-02], figname="qens_hist_fit2.png")
-    proj.optimize(variables=[5.35639516e-01, 1.01566022e-01, 2.16304425e-01, 1.07615634e-03, 7.62240950e-02])
-    proj.optimize(variables=[5.64670711e-01, 1.07444797e-01, 2.17745873e-01, 1.06836899e-03, 1.45026317e-01, 3.12477175e-02])
+    proj.optimize(variables=[5.85639516e-01, 2.61566022e-02, 3.76304425e-01, 7.07615634e-03, 2.02240950e-01], figname="qens_hist_fit2_basefixed.png")
+    proj.optimize(variables=[5.84670711e-01, 2.67444797e-02, 3.77745873e-01, 6.06836899e-03, 2.05026317e-01, 1.02477175e-02], figname="qens_hist_fit2.png")
 
 
 sqrun_kde_hist_2lore()

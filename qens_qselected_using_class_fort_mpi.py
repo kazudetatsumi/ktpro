@@ -40,7 +40,11 @@ def run():
         #print("using default WinFunc Boxcar")
         WinFunc = "Boxcar"
     if len(sys.argv) >= 7:
-        frac = sys.argv[6]
+        num = int(sys.argv[6])
+    else:
+        num = 800
+    if len(sys.argv) >= 8:
+        frac = sys.argv[7]
         #print("frac =", frac)
     else:
         #print("using default flrac """)
@@ -56,7 +60,7 @@ def run():
                    WinFunc=WinFunc, figname=figname, showplot=False)
     proj.select_spectra()
     proj.add_shift_de()
-    proj.run_ssvkernel()
+    proj.run_ssvkernel(num=num)
     proj.plotter()
     proj.save_output(output_file)
 

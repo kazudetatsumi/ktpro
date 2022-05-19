@@ -134,7 +134,7 @@ class qens_fit:
         with np.errstate(divide='ignore'):
             f = np.where( x**2+gamma**2 != 0., 1/np.pi*gamma/(x**2 + gamma**2), 0)
         #print(np.sum(f))
-        f = f / np.sum(f)
+        f = f / np.abs(np.sum(f))
         return f
 
     def convloreorg(self, f, gamma, x):
@@ -323,7 +323,8 @@ class qens_fit:
         dataset['energy'] = x
         dataset['spectra'] = data
         with open(savefile, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def rebin_generated_samples(self, x, data,  num=200, shift=False):
         dx = x[1]-x[0]
@@ -461,7 +462,8 @@ def ssamplerun():
         dataset['energy'] = x
         dataset['spectra'] = data
         with open(savefile, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def check_generated_samples(self, x, data):
         #dx = x[1]-x[0]

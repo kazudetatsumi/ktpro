@@ -111,7 +111,8 @@ def samplerun():
         dataset['shwhms'] = shwhms
         dataset['x'] = x
         with open("./results_bootstrap.pkl", 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
     else:
         with open(savefile, 'rb') as f:
             #print('reading ', savefile)

@@ -318,7 +318,8 @@ class qens_fit:
         dataset['energy'] = x
         dataset['spectra'] = data
         with open(savefile, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def rebin_generated_samples(self, x, data,  num=600, shift=False):
         dx = x[1]-x[0]
@@ -456,7 +457,8 @@ def ssamplerun():
         dataset['energy'] = x
         dataset['spectra'] = data
         with open(savefile, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def check_generated_samples(self, x, data):
         #dx = x[1]-x[0]

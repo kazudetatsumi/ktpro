@@ -115,20 +115,13 @@ class qens:
         self.xvec_real = MPI.COMM_WORLD.bcast(self.xvec_real)
         #print(self.xvec[0:30])
 
-    def run_ssvkernel(self):
+    def run_ssvkernel(self, num=800):
         self.tin = np.arange(self.selected_energy.shape[0])
         #print("Check parameters of horizontal axis")
         #print("de=", self.de, "selected_energy[0]=",
         #      self.selected_energy[0], "num channels=", self.tin.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
-                                    #self.selected_energy[-1],
-                                    #num=self.selected_spectra.shape[0])
-                                    #self.selected_energy[-1], num=800)
-                                    #self.selected_energy[-1], num=2000)
-                                    self.selected_energy[-1], num=8000)
-                                    #self.selected_energy[-1], num=66700)
-                                    #self.selected_energy[-1], num=40000)
-                                    #self.selected_energy[-1], num=200000)
+                                    self.selected_energy[-1], num=num)
         #print(self.tin_real[0:10])
         print('number of tin_real elements=', self.tin_real.shape[0])
 
@@ -260,7 +253,8 @@ class qens:
         dataset['xlim'] = np.array([np.min(self.xvec_real),
                                    np.max(self.xvec_real)])
         with open(output_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def save_outputs(self,  output_file):
         dataset = {}
@@ -269,7 +263,8 @@ class qens:
         #dataset['xlim'] = np.array([np.min(self.xvec_real),
         #                           np.max(self.xvec_real)])
         with open(output_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
 
 def samplerun():

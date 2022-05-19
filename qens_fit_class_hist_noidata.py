@@ -168,7 +168,8 @@ class runhistnoidata(qf):
         dataset = {}
         dataset['out'] = self.outall
         with open(self.outfile, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def loadfile(self):
         with open(self.outfile, 'rb') as f:

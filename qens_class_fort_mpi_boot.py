@@ -226,7 +226,8 @@ class qens:
         dataset['xlim'] = np.array([np.min(self.xvec_real),
                                    np.max(self.xvec_real)])
         with open(output_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def save_outputs(self,  output_file):
         dataset = {}
@@ -235,7 +236,8 @@ class qens:
         #dataset['xlim'] = np.array([np.min(self.xvec_real),
         #                           np.max(self.xvec_real)])
         with open(output_file, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
 
 def samplerun():

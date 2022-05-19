@@ -33,7 +33,8 @@ class odata_divided_by_idata(qc.qens):
             dataset['energy'] = self.xo
             dataset['spectra'] = self.y
         with open(rfile, 'wb') as f:
-            pickle.dump(dataset, f, -1)
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
     def get_data(self, norm=False):
         #print(self.ofile, self.ifile)
