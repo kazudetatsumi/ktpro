@@ -26,15 +26,18 @@ def sqrun_kde_hist_2lore():
     else:
         print("using default frac \"\"")
         frac = ""
-    head = "/home/kazu/desktop/210108/Tatsumi/srlz/00001s/"
+    head = "/home/kazu/desktop/210108/Tatsumi/srlz/000005s/"
     devf = head+"run"+runnod+"united"+"_sspectra.pkl"
     tf = head+"run"+runno+"united"+frac+"_sspectra.pkl"
     elim = [-0.03, 0.07]
-    proj = qfc.qens_fit(devf, tf, elim, showplot=False)
+    proj = qfc.qens_fit(devf, tf, elim, showplot=False, leastsq=False)
     proj.icorr()
     proj.preprocessh(doicorr=True)
-    proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05,
-                             5.06836899e-03, 1.45026317e-01, 3.12477175e-02],
+    #proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05,
+    #                         5.06836899e-03, 1.45026317e-01, 3.12477175e-02],
+    #              figname="qens_hist_fit2.png")
+    proj.optimize(variables=[3.76770711e-01, 2.39354797e-02, 1.89745873e-01,
+                             6.03536899e-03, 1.18996317e-01, 2.65477175e-02],
                   figname="qens_hist_fit2.png")
 
 

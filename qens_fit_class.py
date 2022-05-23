@@ -11,12 +11,13 @@ plt.rcParams.update(params)
 
 
 class qens_fit:
-    def __init__(self, devf, tf, elim, showplot=True):
+    def __init__(self, devf, tf, elim, showplot=True, leastsq=True):
         self.devf = devf
         self.tf = tf
         self.elim = elim
         self.showplot = showplot
         self.quiet = False
+        self.leastsq = leastsq
 
     def preprocessnoi(self, doicorr=False):
         x_devf, y_ssvk_devf = self.get_idata(self.devf)
@@ -184,9 +185,20 @@ class qens_fit:
 
     def optimize(self, variables=[1.46103037e-04, 1.23754329e-02,
                  5.20429443e-01, 9.30889687e-06], figname=None):
-        out = so.leastsq(self.res, variables,
-                         args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
-                         epsfcn=0.0001)
+        de = self.x_tf[1] - self.x_tf[0]
+        print('de', de)
+        if self.leastsq:
+            out = so.leastsq(self.res, variables,
+                             args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
+                             epsfcn=0.0001)
+        else:
+            bounds = (0, np.inf)
+            out = so.least_squares(self.res, variables, bounds=bounds,
+                                   args=(self.x_tf, self.y_df, self.y_tf))
+            print(out.active_mask, out.success, out.x)
+            out = [out.x, np.linalg.inv(np.dot(out.jac.T, out.jac))]
+
+
         s_sq = (self.res(out[0], self.x_tf, self.y_df, self.y_tf)**2).sum() /\
                (len(self.y_tf)-len(out[0]))
         print('s_sq', s_sq)
@@ -199,7 +211,10 @@ class qens_fit:
                 print("estimated constants alpha1, gamma1, alpha2, gamma2, delta")
             #if len(variables) == 6:
                 #print("estimated constants alpha1, gamma1, alpha2, gamma2, delta, base")
-            print(out[0])
+        print(out[0])
+        self.afteroptimize(out, s_sq, variables, figname)
+
+    def afteroptimize(self, out, s_sq, variables, figname):
         self.out = out[0]
         self.gamma = out[0][1]
         if not self.quiet:
