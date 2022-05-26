@@ -36,9 +36,14 @@ def sqrun_kde_hist_2lore():
     #proj.optimize(variables=[2.64670711e-04, 2.67444797e-02, 4.57745873e-05,
     #                         5.06836899e-03, 1.45026317e-01, 3.12477175e-02],
     #              figname="qens_hist_fit2.png")
-    proj.optimize(variables=[3.76770711e-01, 2.39354797e-02, 1.89745873e-01,
-                             6.03536899e-03, 1.18996317e-01, 2.65477175e-02],
+    proj.optimize(variables=[5.12770711e-01, 1.31354797e-02, 1.53645873e-01,
+                             3.40336899e-03, 0.72996317e-01, 5.00477175e-02],
                   figname="qens_hist_fit2.png")
+    #proj.optimize(variables=[3.76770711e-01, 2.39354797e-02, 
+    #                         1.18996317e-01, 2.65477175e-02],
+    #              figname="qens_hist_fit2.png")
 
 
 sqrun_kde_hist_2lore()
+
+
