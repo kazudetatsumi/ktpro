@@ -77,6 +77,16 @@ class Sget_qlist(gqnc.get_qlist, object):
         self.spect(qmin, qmax)
         self.save_spectra(spectrafile)
 
+    def run_one_oneth_noselectq(self):
+        self.get_data()
+        self.get_all_data()
+        for i in range(0, 5):
+            qmin = 0.1 + 0.25*i
+            qmax = qmin + 0.25
+            spectrafile = str(self.fh)+"_"+str(qmin)+"-"+str(qmax)+"_spectra.pkl"
+            self.spect(qmin, qmax)
+            self.save_spectra(spectrafile)
+
     def merge(self):
         for ibundle in range(0, 200):
             numbers = np.arange(0, 5)
@@ -150,6 +160,22 @@ def samplerun_on_dna(binw):
             print(prj.HwParam)
             prj.run_one_oneth()
 
+def samplerun_on_dna_noselectq(binw):
+    fn = "0"+binw.split(".")[1]
+    hws = np.linspace(-0.05, 0.15, 11)
+    print(hws)
+    fts = [""]
+    tps = ["-1.0/-1.0"]
+    for ft, tp in zip(fts, tps):
+        prj = Sget_qlist()
+        prj.runno = 6207
+        prj.TimeParam = tp
+        for ihw in  range(0, 10):
+            prj.HwParam = binw + "/"+str(hws[ihw])+"/"+str(hws[ihw+1]-float(binw))
+            prj.fh = "./srlz/"+fn+"io/run"+str(prj.runno)+"_"+ft+str(ihw)
+            print(prj.HwParam)
+            prj.run_one_oneth_noselectq()
+
 def merge10(binw):
     fn = "0"+binw.split(".")[1]
     hws = np.linspace(-0.05, 0.15, 11)
@@ -183,6 +209,32 @@ def merge10(binw):
         prj.pklfile = fh[:-1]+term
         prj.save_pkl()
 
+def merge10_noselectq(binw):
+    fn = "0"+binw.split(".")[1]
+    hws = np.linspace(-0.05, 0.15, 11)
+    nf = 10
+    prj = Sget_qlist()
+    prj.runno = 6207
+    for i in range(0, 5):
+        qmin = 0.1 + 0.25*i
+        qmax = qmin + 0.25
+        for ihw in range(0, nf):
+            prj.fh = "./srlz/"+fn+"io/run"+str(prj.runno)+"_"+str(ihw)
+            prj.pklfile = str(prj.fh)+"_"+str(qmin)+"-"+str(qmax)+"_spectra.pkl"
+            prj.read_pkl()
+            if ihw == 0:
+                prj.ene = prj.dataset["energy"]
+                prj.spectra = prj.dataset["spectra"]
+            else:
+                prj.ene = np.concatenate((prj.ene, prj.dataset["energy"]))
+                prj.spectra = np.concatenate((prj.spectra, prj.dataset["spectra"]))
+        plt.plot(prj.ene, prj.spectra)
+        plt.show()
+        prj.dataset["energy"] = prj.ene
+        prj.dataset["spectra"] = prj.spectra
+        prj.pklfile = str(prj.fh)[:-1]+str(qmin)+"-"+str(qmax)+"_spectra.pkl"
+        print(prj.pklfile)
+        prj.save_pkl()
 
 def samplerun_random_merge():
     prj = Sget_qlist()
@@ -218,7 +270,9 @@ def check2():
 #check2()
 
 
-#samplerun_on_dna("0.000001")
-merge10("0.000001")
+#samplerun_on_dna("0.0001")
+#samplerun_on_dna_noselectq("0.000001")
+merge10_noselectq("0.000025")
+#merge10("0.0001")
 #samplerun_random_merge()
 

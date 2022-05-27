@@ -198,12 +198,12 @@ class get_qlist:
         y = np.ravel(self.dataset['omega'])
         z = np.ravel(self.dataset['intensity'])
         _x = x
-        area = np.where((_x <= qmax) & (_x >= qmin))
+        area = np.where((_x <= qmax) & (_x > qmin))
         x = x[area[0]]
         y = y[area[0]]
         z = z[area[0]]
-        print("CHECK FUCKING ENERGIES", np.max(y), np.min(y))
-        print("CHECK NUM OF UNIQUE ENERGIES", np.unique(y).shape)
+        #print("CHECK FUCKING ENERGIES", np.max(y), np.min(y))
+        #print("CHECK NUM OF UNIQUE ENERGIES", np.unique(y).shape)
         #### old ver num of enes are fixed ###
         #ene = np.linspace(np.min(y), np.max(y), 801)
         #z1d = np.zeros((801))
