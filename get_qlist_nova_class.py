@@ -6,8 +6,8 @@
 # Note that the Cmm and Manyo library should be loaded on the computer which serves a DNA4 environment.
 #
 ### We just read pklfiles containing numpy arrays. If you use this script on dna, uncomment the following two lines.
-import Cmm
-import Manyo
+#import Cmm
+#import Manyo
 ###
 import numpy as np
 import os

@@ -213,7 +213,7 @@ class qens:
             ax.plot(self.tin_real, self.y_[0], c='k', label='sskernel')
             ax.tick_params(top=True, right=True, direction='in', which='both',
                            labelbottom=False, width=1.5)
-            ax.set_xlim(-0.01, 0.01)
+            #ax.set_xlim(-0.01, 0.01)
             ax.set_ylabel('density')
             ax.set_xlabel('energy ($\mu eV$)')
             ax.set_ylim(0., np.max(self.y_[0])*1.2)
@@ -238,7 +238,7 @@ class qens:
             ax.tick_params(top=True, right=True, direction='in', which='both',
                            labelbottom=True, width=1.5)
             ax.set_xlim(tmprange)
-            ax.set_xlim(-0.01, 0.01)
+            #ax.set_xlim(-0.01, 0.01)
             plt.subplots_adjust(hspace=0.0)
             plt.legend()
             plt.savefig(self.figname)

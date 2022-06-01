@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-import Cmm
+#import Cmm
 import sys
 import get_qlist_nova_class as gqnc
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 m = 1.674927471*10**(-27)   # [kg]
 h = 6.62607015*10**(-34)    # [J. s]
@@ -78,14 +79,25 @@ class Sget_qlist(gqnc.get_qlist, object):
         self.save_spectra(spectrafile)
 
     def run_one_oneth_noselectq(self):
+        print(' before get_data', time.ctime())
         self.get_data()
+        print(' before get_all_data', time.ctime())
         self.get_all_data()
         for i in range(0, 5):
-            qmin = 0.1 + 0.25*i
-            qmax = qmin + 0.25
+            qmin = 0.1 + 0.15*i
+            qmax = qmin + 0.15
             spectrafile = str(self.fh)+"_"+str(qmin)+"-"+str(qmax)+"_spectra.pkl"
+            print(' before spect', time.ctime())
             self.spect(qmin, qmax)
             self.save_spectra(spectrafile)
+
+    def run_one_oneth_noq(self):
+        print(' before get_data', time.ctime())
+        self.get_data()
+        print(' before get_all_data', time.ctime())
+        self.get_all_data()
+        self.pklfile=str(self.fh)+"_data.pkl"
+        self.save_pkl()
 
     def merge(self):
         for ibundle in range(0, 200):
@@ -175,6 +187,21 @@ def samplerun_on_dna_noselectq(binw):
             prj.fh = "./srlz/"+fn+"io/run"+str(prj.runno)+"_"+ft+str(ihw)
             print(prj.HwParam)
             prj.run_one_oneth_noselectq()
+
+def samplerun_on_dna_noq(binw):
+    fn = "0"+binw.split(".")[1]
+    hws = np.linspace(-0.05, 0.15, 11)
+    print(hws)
+    fts = [""]
+    tps = ["-1.0/-1.0"]
+    for ft, tp in zip(fts, tps):
+        prj = Sget_qlist()
+        prj.runno = 6207
+        prj.TimeParam = tp
+        for ihw in  range(0, 1):
+            prj.HwParam = binw + "/"+str(hws[ihw])+"/"+str(hws[ihw+1]-float(binw))
+            prj.fh = "./srlz/"+fn+"io/run"+str(prj.runno)+"_"+ft+str(ihw)
+            prj.run_one_oneth_noq()
 
 def merge10(binw):
     fn = "0"+binw.split(".")[1]
@@ -271,8 +298,9 @@ def check2():
 
 
 #samplerun_on_dna("0.0001")
-#samplerun_on_dna_noselectq("0.000001")
-merge10_noselectq("0.000025")
+#samplerun_on_dna_noselectq("0.000025")
+samplerun_on_dna_noq("0.000001")
+#merge10_noselectq("0.000025")
 #merge10("0.0001")
 #samplerun_random_merge()
 
