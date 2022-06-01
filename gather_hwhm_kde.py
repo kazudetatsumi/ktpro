@@ -2,7 +2,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize as so
-#import os
+import os
+home=os.path.expanduser("~")
 
 params = {'mathtext.default': 'regular'}
 plt.rcParams.update(params)
@@ -12,7 +13,7 @@ plt.rcParams['axes.linewidth'] = 1.2
 
 
 def run():
-    prefix = "/home/kazu/desktop/210108/Tatsumi"
+    prefix = home + "/desktop/210108/Tatsumi"
     runs = ["6202", "6205", "6203", "6206", "6207"]
     temps = np.array([303, 288, 275, 263, 253])
     logfiles = []
