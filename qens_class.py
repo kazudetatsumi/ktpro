@@ -134,21 +134,6 @@ class qens:
         print("check!!!", self.selected_energy[0], self.selected_energy[-1],self.de)
         self.get_xvec()
 
-    #def get_xvec(self):
-        # To keep the accuracy, kde is executed on the channel numbers in the
-        # histogram data.
-        # The actual energies were retrieved by "_real" variables.
-        #self.xvec = np.array([idx for idx in
-        #                     range(0, self.selected_spectra.shape[0]) for
-        #                     num_repeat in
-        #                     range(0, int(self.selected_spectra[idx]))
-        #                      ], dtype=float)
-        #self.xvec_real = np.array([self.selected_energy[idx] for idx in
-        #                          range(0, self.selected_spectra.shape[0]) for
-        #                          num_repeat in
-        #                          range(0, int(self.selected_spectra[idx]))
-        #                           ], dtype=float)
-
     def get_xvec(self):
         # To keep the accuracy, kde is executed on the channel numbers in the
         # histogram data.

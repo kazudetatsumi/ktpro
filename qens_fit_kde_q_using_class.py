@@ -4,7 +4,6 @@ import sys
 import matplotlib.pyplot as plt
 sys.path.append("/home/kazu/ktpro")
 from qens_fit_class import qens_fit as qf
-from get_qlist_nova_class import get_qlist as gq
 
 
 def fit(devf, tf, variables, elim):
