@@ -20,9 +20,9 @@ m = 1.674927471*10**(-27)   # [kg]
 h = 6.62607015*10**(-34)    # [J. s]
 meVtoJ = 1.60218*10**(-22)  # [J/meV]
 
-print((meVtoJ * 2*m/(h**2))*10**(-20))
+#print((meVtoJ * 2*m/(h**2))*10**(-20))
 meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
-print(meVtoangsm2)
+#print(meVtoangsm2)
 
 
 class get_qlist:
@@ -151,8 +151,8 @@ class get_qlist:
 
     def read_pkl(self):
         with open(self.pklfile, 'rb') as f:
-            #self.dataset = pickle.load(f, encoding='latin1')
-            self.dataset = pickle.load(f)
+            self.dataset = pickle.load(f, encoding='latin1')
+            #self.dataset = pickle.load(f)
 
     def create_fig(self):
         self.fig = plt.figure(figsize=(10, 8))
@@ -212,7 +212,7 @@ class get_qlist:
         #    z1d[eidx] = np.sum(z[cond])
         #print("SUM of intensity:", np.sum(z1d))
         #### recent ver num of enes are taken from self.HwParam ###
-        hw = self.HwParam.split("/")
+        #hw = self.HwParam.split("/")
         #ene = np.arange(float(hw[1]), float(hw[2]), float(hw[0]))
         #ene = np.linspace(float(hw[1]), float(hw[2]), round((float(hw[2])-float(hw[1]))/float(hw[0])))
         ene = np.sort(np.unique(y))
