@@ -217,7 +217,10 @@ class get_qlist:
         #ene = np.linspace(float(hw[1]), float(hw[2]), round((float(hw[2])-float(hw[1]))/float(hw[0])))
         ene = np.sort(np.unique(y))
         z1d = np.zeros_like(ene)
+        print(ene.shape)
         for eidx, e in enumerate(ene):
+            if eidx % (ene.shape[0]/50) == 0:
+                print(int(eidx/float(ene.shape[0])*100), " %")
             #cond = np.where((y < e) & (y >= e - float(hw[0])))[0]
             cond = np.where(np.abs(y-e) < 0.0000000001)
             z1d[eidx] = np.sum(z[cond])

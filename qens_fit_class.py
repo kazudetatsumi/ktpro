@@ -193,6 +193,7 @@ class qens_fit:
                              epsfcn=0.0001)
         else:
             bounds = (0, np.inf)
+            bounds = ([0.,0.,0.,0.,0.,0.], np.inf)
             out = so.least_squares(self.res, variables, bounds=bounds,
                                    args=(self.x_tf, self.y_df, self.y_tf))
             print(out.active_mask, out.success, out.x)

@@ -4,6 +4,7 @@
 # and the usual qens histogram wiht several corections.
 import os
 import numpy as np
+import pickle
 import matplotlib.pyplot as plt
 import sys
 sys.path.append("/home/kazu/ktpro")
@@ -11,6 +12,8 @@ from qens_kde_results_odata_divided_by_idata_class\
     import odata_divided_by_idata as odbi
 from get_qlist_nova_class import get_qlist as gq
 pwd = os.getcwd()
+from qens_fit_class import qens_fit as qf
+elim = [-0.03, 0.07]
 
 
 def getsspectra(sfile, qmin, qmax):
@@ -40,7 +43,7 @@ def balloon(ky, sy):
     dt = min(np.diff(sy[0]))
     for k in range(yv.shape[0]):
         yv[k] = np.sum(sy_nz * dt * Gauss(sy[0][k]-t_nz, bw[k]))
-    yv = yv * np.sum(ky[0]) / np.sum(yv)
+    yv = yv * np.max(ky[0]) / np.max(yv)
     return yv
 
 
@@ -49,28 +52,61 @@ def Gauss(x, w):
     return y
 
 
-def testrun():
+def plotter(sy, syb, ky, divy, elim, runno, fig):
+    smask = np.where((sy[0] > elim[0]) & (sy[0] <= elim[1]))
+    kmask = np.where((ky[1] > elim[0]) & (ky[1] <= elim[1]))
+    dmask = np.where((divy[0] > elim[0]) & (divy[0] <= elim[1]))
+    plt.plot(sy[0][smask], syb[smask], label='balloon estimate')
+    plt.plot(ky[1][kmask], ky[0][kmask], label='kde on outgoing neutrons')
+    plt.plot(divy[0][dmask], divy[1][dmask]/np.max(divy[1][dmask])*np.max(syb[smask]), label='kde divided')
+    plt.yscale('log')
+    plt.legend()
+    #plt.savefig('balloon_run'+runno+'.png')
+    #plt.show()
+
+
+def save_pkl(sy, syb, pklfile):
+    dataset = {}
+    dataset['sy'] = sy
+    dataset['syb'] = syb
+    with open(pklfile, 'wb') as f:
+        pickle.dump(dataset, f, -1)
+
+
+def eachrunno(runno, fig):
     qrange = pwd.split('q')[1]
+    print(qrange)
     qmin = float(qrange.split('-')[0])
     qmax = float(qrange.split('-')[1])
-    sprefix = "/home/kazu/desktop/210108/Tatsumi/srlz/0000025/"
-    allqf = sprefix + "run6202s.pkl"
-    kf = "./qens_run6202united_kde_results_on_data_qsel.pkl"
-    kdivf = "./qens_kde_o_divided_by_i_6202.pkl"
-    elim = [-0.03, 0.07]
+    sprefix = "/home/kazu/desktop/210108/Tatsumi/srlz/0000001/"
+    allqf = sprefix + "run" + runno + "s.pkl"
+    kf = "./qens_run" + runno + "united_kde_results_on_data_qsel.pkl"
+    kdivf = "./qens_kde_o_divided_by_i_" + runno + ".pkl"
+    pklfile = "./qens_run" + runno + "_balloon.pkl"
+    print(allqf)
+    print(kf)
     ky = getbandwidth(kf)
     sy = getsspectra(allqf, qmin, qmax)
     syb = balloon(ky, sy)
     divy = getdivspectra(kdivf)
-    smask = np.where((sy[0] > elim[0]) & (sy[0] <= elim[1]))
-    kmask = np.where((ky[1] > elim[0]) & (ky[1] <= elim[1]))
-    dmask = np.where((divy[0] > elim[0]) & (divy[0] <= elim[1]))
-    plt.plot(sy[0][smask], syb[smask])
-    plt.plot(ky[1][kmask], ky[0][kmask])
-    plt.plot(divy[0][dmask], divy[1][dmask]*10.0)
-    plt.yscale('log')
-    plt.show()
+    plotter(sy, syb, ky, divy, elim, runno, fig)
+    save_pkl(sy, syb, pklfile)
+    return sy[0], syb
 
 
+def run():
+    fig = plt.figure()
+    xt, yt = eachrunno("6202", fig)
+    xd, yd = eachrunno("6204", fig)
+    plt.savefig('balloon_run.png')
+    proj = qf('dummy', 'dummy', elim, showplot=False, leastsq=False)
+    proj.icorr()
+    proj.x_tf, proj.y_tf = proj.limit2(xt, yt, elim)
+    proj.x_df, proj.y_df = proj.limit2(xd, yd, elim)
+    proj.correction()
+    proj.bg = 0.
+    fig = plt.figure()
+    proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit.png')
 
-testrun()
+
+run()
