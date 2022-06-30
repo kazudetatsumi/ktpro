@@ -16,14 +16,14 @@ def run():
     sprefix = "/home/kazu/desktop/210108/Tatsumi/srlz/0000001/"
     oprefix = "/home/kazu/desktop/210108/Tatsumi/srlz/0000001io/"
     savefix = "/home/kazu/desktop/210108/Tatsumi/winparam_exam/160_1_0000001io_Boxcar/n200000/skde/"
-    runno = "6204"
+    runno = "6202"
     #variables = [0.5, 0.02, 0.01, 0.01]
     qmins = np.arange(0.5, 0.6, 0.1)
     qmaxs = qmins + 0.1
     for qmin, qmax in zip(qmins, qmaxs):
         sfile = sprefix + "run" + runno + "s_" + "{:.1f}".format(qmin) + "-" "{:.1f}".format(qmax) + ".pkl"
         ofile = oprefix + "run" + runno + "__" + "{:.1f}".format(qmin) + "-" "{:.1f}".format(qmax) + "_spectra.pkl"
-        spectrafile =  savefix + "qens_run" + runno + "united_kde_results_on_data_qsel.pkl"
+        spectrafile =  savefix + "run" + runno + "united_spectra.pkl"
         sdataset = eachdata(sfile)
         odataset = eachdata(ofile)
         print(np.max(sdataset['spectra']))

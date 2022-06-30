@@ -14,6 +14,8 @@ from get_qlist_nova_class import get_qlist as gq
 pwd = os.getcwd()
 from qens_fit_class import qens_fit as qf
 elim = [-0.03, 0.07]
+import matplotlib
+matplotlib.use('Agg')
 
 
 def getsspectra(sfile, qmin, qmax):
@@ -73,6 +75,13 @@ def save_pkl(sy, syb, pklfile):
         pickle.dump(dataset, f, -1)
 
 
+def eachrunno_read_pkl(runno):
+    pklfile = "./qens_run" + runno + "_balloon.pkl"
+    with open(pklfile, 'rb') as f:
+        dataset = pickle.load(f)
+    return dataset['sy'][0], dataset['syb']
+
+
 def eachrunno(runno, fig):
     qrange = pwd.split('q')[1]
     print(qrange)
@@ -106,7 +115,24 @@ def run():
     proj.correction()
     proj.bg = 0.
     fig = plt.figure()
-    proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit.png')
+    #proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit.png')
+    proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002], figname='balloon_fit_4params.png')
+
+
+def fitrun():
+    xt, yt = eachrunno_read_pkl("6203")
+    xd, yd = eachrunno_read_pkl("6204")
+    proj = qf('dummy', 'dummy', elim, showplot=False, leastsq=False)
+    proj.icorr()
+    proj.x_tf, proj.y_tf = proj.limit2(xt, yt, elim)
+    proj.x_df, proj.y_df = proj.limit2(xd, yd, elim)
+    proj.correction()
+    proj.bg = proj.y_tf[-1]
+    fig = plt.figure()
+    #proj.optimize(variables=[0.387, 0.0250, 0.132, 0.00407, 0.437, 0.628], figname='balloon_fit.png')
+    #proj.optimize(variables=[0.655, 0.0129, 0.200, 0.00208, 0.171], figname='balloon_fit.png')
+    proj.optimize(variables=[0.655, 0.0129, 0.200, 0.00208], figname='balloon_fit.png')
+    #proj.optimize(variables=[0.8, 0.0005, 0.2, 0.0002], figname='balloon_fit.png')
 
 
 run()

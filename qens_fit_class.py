@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import numpy as np
 import pickle
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import scipy.optimize as so
 import scipy.signal as ss
@@ -193,7 +195,7 @@ class qens_fit:
                              epsfcn=0.0001)
         else:
             bounds = (0, np.inf)
-            bounds = ([0.,0.,0.,0.,0.,0.], np.inf)
+            #bounds = ([0.,0.,0.,0.,0.,0.], np.inf)
             out = so.least_squares(self.res, variables, bounds=bounds,
                                    args=(self.x_tf, self.y_df, self.y_tf))
             print(out.active_mask, out.success, out.x)
