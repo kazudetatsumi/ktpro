@@ -11,7 +11,8 @@ $OccupFound=0;
 while($OccupFound!=1)
  {
    chomp($line=<IN>);@values=split(/ +/,$line);
-   if($values[0] eq "_atom_site_occupancy"){$OccupFound=1;}
+   #if($values[0] eq "_atom_site_occupancy"){$OccupFound=1;}
+   if($line =~ /_atom_site_occupancy/){$OccupFound=1;}
    if($values[0] eq "_cell_length_a"){$A=$values[1];}
    if($values[0] eq "_cell_length_b"){$B=$values[1];}
    if($values[0] eq "_cell_length_c"){$C=$values[1];}
@@ -50,14 +51,16 @@ for($i=1;$i<=$NumEle;$i++)
    while($OccupFound!=1)
     {
        chomp($line=<IN>);@values=split(/ +/,$line);
-       if($values[0] eq "_atom_site_occupancy"){$OccupFound=1;print "$OccupFound\n";}
+       #if($values[0] eq "_atom_site_occupancy"){$OccupFound=1;print "$OccupFound\n";}
+       if($line =~ /_atom_site_occupancy/){$OccupFound=1;print "$OccupFound\n";}
     } 
    $Comp[$i]=0;
    for($j=1;$j<=$NumAtom;$j++)
     {
       chomp($line=<IN>);@values=split(/ +/,$line);
       print "$values[1]\n";
-      if($values[1] eq "$Elename[$i]"){$k++;$x[$k]=$values[2];$y[$k]=$values[3];$z[$k]=$values[4];$Ele[$k]=$Elename[$i];$Comp[$i]++;}
+      #if($values[1] eq "$Elename[$i]"){$k++;$x[$k]=$values[2];$y[$k]=$values[3];$z[$k]=$values[4];$Ele[$k]=$Elename[$i];$Comp[$i]++;}
+      if($values[1] eq "$Elename[$i]"){$k++;$x[$k]=$values[4];$y[$k]=$values[5];$z[$k]=$values[6];$Ele[$k]=$Elename[$i];$Comp[$i]++;}
     }
    
    close(IN);

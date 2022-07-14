@@ -42,9 +42,11 @@ def fit(devf, tf, variables, elim, qmin, qmax):
 
 
 def run():
+    if len(sys.argv) >= 2:
+        runnot = sys.argv[1]
     prefix = "/home/kazu/desktop/210108/Tatsumi/srlz/0000025/"
     devallqf = prefix + "run6204s.pkl"
-    tallqf = prefix + "run6205s.pkl"
+    tallqf = prefix + "run" + runnot + "s.pkl"
     qmin = 0.55
     qmax = 0.70
     elim = [-0.03, 0.07]

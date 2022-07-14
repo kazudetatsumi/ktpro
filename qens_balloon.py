@@ -104,8 +104,10 @@ def eachrunno(runno, fig):
 
 
 def run():
+    if len(sys.argv) >= 2:
+        runnot = sys.argv[1]
     fig = plt.figure()
-    xt, yt = eachrunno("6202", fig)
+    xt, yt = eachrunno(runnot, fig)
     xd, yd = eachrunno("6204", fig)
     plt.savefig('balloon_run.png')
     proj = qf('dummy', 'dummy', elim, showplot=False, leastsq=False)
@@ -120,7 +122,9 @@ def run():
 
 
 def fitrun():
-    xt, yt = eachrunno_read_pkl("6203")
+    if len(sys.argv) >= 2:
+        runnot = sys.argv[1]
+    xt, yt = eachrunno_read_pkl(runnot)
     xd, yd = eachrunno_read_pkl("6204")
     proj = qf('dummy', 'dummy', elim, showplot=False, leastsq=False)
     proj.icorr()
