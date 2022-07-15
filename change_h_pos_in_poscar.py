@@ -50,10 +50,9 @@ def GetAllHpos(std, nx, edgelength):
     return(hpos)
 
 
-def GetIrreducibleShift(sym, hpos):
+def GetIrreducibleShift_old(sym, hpos):
     irr_hpos = hpos[0].reshape((1, 3))
     for _hpos in hpos:
-        print(_hpos)
         for rot, trans in zip(sym['rotations'], sym['translations']):
             __hpos = np.matmul(rot, _hpos) + trans
             MatchFound = False
@@ -66,7 +65,28 @@ def GetIrreducibleShift(sym, hpos):
         if not MatchFound:
             irr_hpos = np.append(irr_hpos, (_hpos % 1.0).reshape((1, 3)),
                                  axis=0)
+    print(irr_hpos)
+    print(irr_hpos.shape)
     return irr_hpos
+
+
+def GetIrreducibleShift(sym, hpos):
+    #print(sym['rotations'].shape)
+    #print(hpos.shape)
+    #print(np.matmul(hpos, sym['rotations']).transpose(1, 0, 2).shape)
+    #print(sym['translations'].shape)
+    #print((np.matmul(hpos, sym['rotations']).transpose(1, 0, 2) + sym['translations']).shape)
+    for rot, trans in zip(sym['rotations'][1:], sym['translations'][1:]):
+        sym_hpos = (np.matmul(hpos, rot) + trans) % 1.0
+        cond = np.ones((sym_hpos.shape[0]), dtype=bool)
+        for i, _sym_hpos in enumerate(sym_hpos):
+            if cond[i]:
+                cond *= np.sum(np.abs(((hpos - _sym_hpos) % 1.0)), axis=1) >= 1e-5
+                cond[i] = True
+        hpos = hpos[cond]
+    print(hpos.shape)
+    print(hpos)
+    return hpos
 
 
 def GetDataOverAllHpos(hpos, irr_hpos, sym):
@@ -116,11 +136,13 @@ def run():
     sym = GetSym(infile)
     std = 0.5
     edgelength = 0.4
-    nx = 16
+    nx = 14
     hpos = GetAllHpos(std, nx, edgelength)
     irr_hpos = GetIrreducibleShift(sym, hpos)
-    GenerateShiftedPoscar(irr_hpos, std, infile)
+    #GenerateShiftedPoscar(irr_hpos, std, infile)
     #irr_idx = GetDataOverAllHpos(hpos, irr_hpos, sym)
+    #print(irr_idx)
+    #print(irr_idx.shape)
 
 
 run()
