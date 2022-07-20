@@ -61,7 +61,7 @@ class change_hpos():
         for ih, _hpos in enumerate(self.hpos):
             for rot, trans in zip(self.sym['rotations'],
                                   self.sym['translations']):
-                __hpos = np.matmul(rot, _hpos) + trans
+                __hpos = np.matmul(rot, _hpos) + trans 
                 MatchFound = False
                 for ir in irr_hpos:
                     if np.sum(np.abs(__hpos % 1.0 - ir)) < 1e-5:
@@ -85,14 +85,17 @@ class change_hpos():
         # + sym['translations']).shape)
         irr_hpos = np.array(self.hpos)
         isym = 0
-        for rot, trans in zip(self.sym['rotations'][1:],
-                              self.sym['translations'][1:]):
+        for rot, trans in zip(self.sym['rotations'],
+                              self.sym['translations']):
             isym += 1
-            sym_hpos = ((np.matmul(rot, irr_hpos.T)).T + trans) % 1.0
-            cond = np.ones((irr_hpos.shape[0]), dtype=bool)
-            for i, _irr_hpos in enumerate(irr_hpos):
+            #sym_hpos = (np.matmul(irr_hpos, rot) + trans) % 1.0
+            sym_hpos = ((np.matmul(rot, irr_hpos.transpose(1,0))).transpose(1,0) + trans) % 1.0
+            cond = np.ones((sym_hpos.shape[0]), dtype=bool)
+            if isym == 5:
+                print('irr_hpos:', irr_hpos)
+            for i, _sym_hpos in enumerate(sym_hpos):
                 if cond[i]:
-                    cond *= np.sum(np.abs(_irr_hpos - sym_hpos) % 1.0,
+                    cond *= np.sum(np.abs(((irr_hpos - _sym_hpos) % 1.0)),
                                    axis=1) >= 1e-5
                     cond[i] = True
             irr_hpos = irr_hpos[cond]
@@ -101,7 +104,7 @@ class change_hpos():
         self.irr_hpos = irr_hpos
 
     def GetIrreducibleShift2(self):
-        # this algorithm is too slow and buggy.
+        # this algorithm is too slow.
         test = (np.matmul(self.hpos,
                           self.sym['rotations'][1:]).transpose(1, 0, 2)
                 + self.sym['translations'][1:]) % 1.0
@@ -140,10 +143,9 @@ class change_hpos():
             for rot, trans in zip(self.sym['rotations'],
                                   self.sym['translations']):
                 sym_irr_hpos = (np.matmul(self.irr_hpos, rot) + trans) % 1.0
-                cond *= np.sum(np.abs((_hpos - sym_irr_hpos) % 1.0),
-                               axis=1) >= 1e-5
-            self.irr_idx[ih] = np.arange(0, self.irr_hpos.shape[0]
-                                         )[np.invert(cond)]
+                cond *= np.sum(np.abs((_hpos - sym_irr_hpos) % 1.0), axis=1) >= 1e-5
+
+            self.irr_idx[ih] = np.arange(0, self.irr_hpos.shape[0])[np.invert(cond)]
         print(self.irr_idx.shape)
 
     def GetDataOverAllHpos3(self):
@@ -162,23 +164,17 @@ class change_hpos():
         # print(self.irr_hpos.shape)
         # print(self.sym['rotations'].shape)
         # print(np.matmul(self.irr_hpos,
-        #       self.sym['rotations']).transpose(1, 0, 2).shape)
-        # print(np.matmul(self.sym['rotations'],
-        #                 self.irr_hpos.T).transpose(2, 0, 1).shape)
+        # self.sym['rotations']).transpose(1, 0, 2).shape)
         # print(self.sym['translations'].shape)
-        # test = (np.matmul(self.irr_hpos,
-        #                   self.sym['rotations']).transpose(1, 0, 2)
-        #         + self.sym['translations']) % 1.0
-        test = (np.matmul(self.sym['rotations'],
-                          self.irr_hpos.T).transpose(2, 0, 1)
+        test = (np.matmul(self.irr_hpos,
+                          self.sym['rotations']).transpose(1, 0, 2)
                 + self.sym['translations']) % 1.0
         test2 = np.repeat(np.expand_dims(test, 2), self.hpos.shape[0], axis=2)
-        cond = np.prod(np.sum(np.abs(self.hpos - test2) % 1.0,
+        cond = np.prod(np.sum(np.abs((self.hpos - test2) % 1.0),
                               axis=3) >= 1e-5, axis=1, dtype=bool)
         pairs = np.where(np.invert(cond))
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
         print(self.irr_idx.shape)
-        print(self.irr_idx)
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -219,36 +215,25 @@ class change_hpos():
         print(np.min(self.ene))
 
     def GetPotential(self):
-        self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
-                                                         self.nx))
+        self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx, self.nx))
 
     def PlotPotential(self):
-        # plt.pcolor(self.potential[:, :, 7] - np.min(self.potential))
-        # plt.colorbar()
-        # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
-        # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
-        # y = np.zeros((self.nx))
-        # x = np.zeros((self.nx))
+        #plt.pcolor(self.potential[:, :, 7] - np.min(self.potential))
+        #plt.colorbar()
+        #plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7], self.potential[:, 7, 7] - np.min(self.potential), marker='o')
+        #y = np.zeros((self.nx))
+        #x = np.zeros((self.nx))
         print(np.min(self.potential))
-        print(self.potential[7, 7, 7])
-        # for i in range(0, self.nx):
-        #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
-        #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,
-        #                                      self.nx))[i, i, 7])**2 +
-        #             (self.hpos[:,1].reshape((self.nx, self.nx,
-        #                                      self.nx))[i, i, 7])**2 +
-        #             (self.hpos[:,2].reshape((self.nx, self.nx,
-        #                                      self.nx))[i, i, 7])**2 )**0.5
-        # plt.plot(x, y, marker='o')
-        dist = ((self.hpos[:, 0].reshape((self.nx, self.nx, self.nx)) -
-                 self.hpos[:, 0].reshape((self.nx, self.nx,
-                                          self.nx))[7, 7, 7])**2 +
-                (self.hpos[:, 1].reshape((self.nx, self.nx, self.nx)) -
-                 self.hpos[:, 1].reshape((self.nx, self.nx,
-                                          self.nx))[7, 7, 7])**2 +
-                (self.hpos[:, 2].reshape((self.nx, self.nx, self.nx)) -
-                 self.hpos[:, 2].reshape((self.nx, self.nx,
-                                          self.nx))[7, 7, 7])**2)**0.5
+        print(self.potential[7,7,7])
+        #for i in range(0, self.nx):
+        #    y[i] = self.potential[i, i, 7] - np.min(self.potential)
+        #    x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[i, i, 7])**2 +
+        #            (self.hpos[:,1].reshape((self.nx, self.nx, self.nx))[i, i, 7])**2 +
+        #            (self.hpos[:,2].reshape((self.nx, self.nx, self.nx))[i, i, 7])**2 )**0.5
+        #plt.plot(x, y, marker='o')
+        dist = ((self.hpos[:, 0].reshape((self.nx, self.nx, self.nx)) - self.hpos[:, 0].reshape((self.nx, self.nx, self.nx))[7, 7, 7])**2 +
+                (self.hpos[:, 1].reshape((self.nx, self.nx, self.nx)) - self.hpos[:, 1].reshape((self.nx, self.nx, self.nx))[7, 7, 7])**2 +
+                (self.hpos[:, 2].reshape((self.nx, self.nx, self.nx)) - self.hpos[:, 2].reshape((self.nx, self.nx, self.nx))[7, 7, 7])**2)**0.5
         plt.plot([dist[i, i, 7] for i in range(self.nx-1, 6, -1)],
                  [self.potential[i, i, 7] - np.min(self.potential)
                  for i in range(self.nx-1, 6, -1)], marker='o', label='110')
@@ -265,7 +250,6 @@ class change_hpos():
     def WritePotential(self):
         np.savetxt('hpot.txt', self.potential.flatten())
 
-
 def samplerun():
     infile = 'CONTCAR'
     std = 0.5
@@ -277,10 +261,10 @@ def samplerun():
     prj.GetSym()
     prj.GetAllHpos()
     prj.GetIrreducibleShift()
-    # prj.GenerateShiftedPoscar()
-    prj.GetDataOverAllHpos4()
-    # print(prj.irr_idx)
-    # print(prj.irr_idx.shape)
+    #prj.GenerateShiftedPoscar()
+    prj.GetDataOverAllHpos()
+    #print(prj.irr_idx)
+    #print(prj.irr_idx.shape)
 
 
 def samplerun2():
@@ -299,7 +283,7 @@ def samplerun2():
     prj.GetDataOverAllHpos()
     prj.GetPotential()
     prj.PlotPotential()
-    # prj.WritePotential()
+    #prj.WritePotential()
 
 
 samplerun()
