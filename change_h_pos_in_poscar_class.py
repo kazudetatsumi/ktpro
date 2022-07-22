@@ -5,13 +5,15 @@ import matplotlib.pyplot as plt
 
 
 class change_hpos():
-    def __init__(self, infile, std, edgelength, nx, enefile=None, shift=None):
+    def __init__(self, infile, std, edgelength, nx, enefile=None,
+                 shift=[0., 0., 0.], hshift=[0., 0., 0.]):
         self.infile = infile
         self.std = std
         self.edgelength = edgelength
         self.nx = nx
         self.enefile = enefile
-        self.shift = shift
+        self.shift = np.array(shift)
+        self.hshift = np.array(hshift)
 
     def GetCrystalParamsFromPoscar(self):
         with open(self.infile, 'r') as f:
@@ -32,10 +34,10 @@ class change_hpos():
                                                ), dtype=float)
 
     def ShiftAllAtompos(self):
-        if type(self.shift) != 'NoneType':
+        if np.sum(np.abs(self.shift)) > 1e-5:
             print('All atom pos are shifted by', self.shift)
             pos_temp = self.cell[1]
-            pos_shift = pos_temp - self.shift
+            pos_shift = pos_temp - np.array(self.shift)
             self.cell = (self.cell[0], pos_shift, self.cell[2])
 
     def GetRefineCell(self):
@@ -67,7 +69,6 @@ class change_hpos():
                                      (self.std - self.edgelength[2]/2
                                       + iz*dx[2]) % 1.0])
             self.hpos = np.array(hpos)
-            print(self.hpos)
         else:
             print(self.edgelength)
             print(type(self.edgelength))
@@ -83,7 +84,8 @@ class change_hpos():
                                      (self.std - self.edgelength/2
                                       + iz*dx) % 1.0])
             self.hpos = np.array(hpos)
-            print(self.hpos)
+        self.hpos += self.hshift
+        print(self.hpos)
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
