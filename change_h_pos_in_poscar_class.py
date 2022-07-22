@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 
 
 class change_hpos():
-    def __init__(self, infile, std, edgelength, nx, enefile=None):
+    def __init__(self, infile, std, edgelength, nx, enefile=None, shift=None):
         self.infile = infile
         self.std = std
         self.edgelength = edgelength
         self.nx = nx
         self.enefile = enefile
+        self.shift = shift
 
     def GetCrystalParamsFromPoscar(self):
         with open(self.infile, 'r') as f:
@@ -30,31 +31,59 @@ class change_hpos():
                                                .split()[0:3][0:4]
                                                ), dtype=float)
 
+    def ShiftAllAtompos(self):
+        if type(self.shift) != 'NoneType':
+            print('All atom pos are shifted by', self.shift)
+            pos_temp = self.cell[1]
+            pos_shift = pos_temp - self.shift
+            self.cell = (self.cell[0], pos_shift, self.cell[2])
+
     def GetRefineCell(self):
         lattice, positions, numbers = spglib.refine_cell(self.cell)
         sorted_numbers = np.sort(numbers)
         sorted_positions = positions[np.argsort(numbers)]
+        sorted_positions[np.abs(sorted_positions) < 1e-10] = 0.
         self.cell = (lattice, sorted_positions, sorted_numbers)
 
     def GetSym(self):
         self.GetCrystalParamsFromPoscar()
         self.cell = (self.lattice, self.positions, self.numbers)
+        self.ShiftAllAtompos()
         self.GetRefineCell()
         print(spglib.get_spacegroup(self.cell, symprec=1e-5))
         self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
     def GetAllHpos(self):
         hpos = []
-        dx = self.edgelength/self.nx
-        # dx = self.edgelength/(self.nx-1)
-        for ix in range(0, self.nx):
-            for iy in range(0, self.nx):
-                for iz in range(0, self.nx):
-                    hpos.append([self.std - self.edgelength/2 + ix*dx % 1.0,
-                                 self.std - self.edgelength/2 + iy*dx % 1.0,
-                                 self.std - self.edgelength/2 + iz*dx % 1.0])
-        self.hpos = np.array(hpos)
-        print(self.hpos)
+        if type(self.edgelength) is list:
+            dx = np.array(self.edgelength)/self.nx
+            for ix in range(0, self.nx):
+                for iy in range(0, self.nx):
+                    for iz in range(0, self.nx):
+                        hpos.append([(self.std - self.edgelength[0]/2
+                                      + ix*dx[0]) % 1.0,
+                                     (self.std - self.edgelength[1]/2
+                                      + iy*dx[1]) % 1.0,
+                                     (self.std - self.edgelength[2]/2
+                                      + iz*dx[2]) % 1.0])
+            self.hpos = np.array(hpos)
+            print(self.hpos)
+        else:
+            print(self.edgelength)
+            print(type(self.edgelength))
+            # dx = self.edgelength/(self.nx-1)
+            dx = self.edgelength/self.nx
+            for ix in range(0, self.nx):
+                for iy in range(0, self.nx):
+                    for iz in range(0, self.nx):
+                        hpos.append([(self.std - self.edgelength/2
+                                      + ix*dx) % 1.0,
+                                     (self.std - self.edgelength/2
+                                      + iy*dx) % 1.0,
+                                     (self.std - self.edgelength/2
+                                      + iz*dx) % 1.0])
+            self.hpos = np.array(hpos)
+            print(self.hpos)
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
@@ -223,14 +252,15 @@ class change_hpos():
                                                          self.nx))
 
     def PlotPotential(self):
-        # plt.pcolor(self.potential[:, :, 7] - np.min(self.potential))
-        # plt.colorbar()
+        #plt.pcolor(self.potential[:, :, 5] - np.min(self.potential))
+        #plt.colorbar()
+        plt.plot(self.potential[5,5,:]-np.min(self.potential))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
         # x = np.zeros((self.nx))
         print(np.min(self.potential))
-        print(self.potential[7, 7, 7])
+        print(self.potential[5, 5, 5])
         # for i in range(0, self.nx):
         #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
         #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,
@@ -249,16 +279,16 @@ class change_hpos():
                 (self.hpos[:, 2].reshape((self.nx, self.nx, self.nx)) -
                  self.hpos[:, 2].reshape((self.nx, self.nx,
                                           self.nx))[7, 7, 7])**2)**0.5
-        plt.plot([dist[i, i, 7] for i in range(self.nx-1, 6, -1)],
-                 [self.potential[i, i, 7] - np.min(self.potential)
-                 for i in range(self.nx-1, 6, -1)], marker='o', label='110')
-        plt.plot([dist[i, 7, 7] for i in range(self.nx-1, 6, -1)],
-                 [self.potential[i, 7, 7] - np.min(self.potential)
-                 for i in range(self.nx-1, 6, -1)], marker='x', label='100')
-        plt.plot([dist[i, i, i] for i in range(self.nx-1, 6, -1)],
-                 [self.potential[i, i, i] - np.min(self.potential)
-                 for i in range(self.nx-1, 6, -1)], marker='.', label='111')
-        plt.legend()
+        #plt.plot([dist[i, i, 7] for i in range(self.nx-1, 6, -1)],
+        #         [self.potential[i, i, 7] - np.min(self.potential)
+        #         for i in range(self.nx-1, 6, -1)], marker='o', label='110')
+        #plt.plot([dist[i, 7, 7] for i in range(self.nx-1, 6, -1)],
+        #         [self.potential[i, 7, 7] - np.min(self.potential)
+        #         for i in range(self.nx-1, 6, -1)], marker='x', label='100')
+        #plt.plot([dist[i, i, i] for i in range(self.nx-1, 6, -1)],
+        #         [self.potential[i, i, i] - np.min(self.potential)
+        #         for i in range(self.nx-1, 6, -1)], marker='.', label='111')
+        #plt.legend()
 
         plt.show()
 
@@ -269,15 +299,15 @@ class change_hpos():
 def samplerun():
     infile = 'CONTCAR'
     std = 0.5
-    edgelength = 0.7
+    edgelength = 0.4
     # edgelength = 0.6
-    nx = 7
+    nx = 14
     # nx = 13
     prj = change_hpos(infile, std, edgelength, nx)
     prj.GetSym()
     prj.GetAllHpos()
     prj.GetIrreducibleShift()
-    # prj.GenerateShiftedPoscar()
+    prj.GenerateShiftedPoscar()
     prj.GetDataOverAllHpos4()
     # print(prj.irr_idx)
     # print(prj.irr_idx.shape)
@@ -286,7 +316,7 @@ def samplerun():
 def samplerun2():
     infile = 'CONTCAR'
     std = 0.5
-    edgelength = 0.7
+    edgelength = 0.4
     # edgelength = 0.6
     nx = 14
     #  nx = 13
@@ -296,10 +326,10 @@ def samplerun2():
     prj.GetSym()
     prj.GetAllHpos()
     prj.GetIrreducibleShift()
-    prj.GetDataOverAllHpos()
+    prj.GetDataOverAllHpos4()
     prj.GetPotential()
-    prj.PlotPotential()
-    # prj.WritePotential()
+    #prj.PlotPotential()
+    prj.WritePotential()
 
 
-samplerun()
+#samplerun()
