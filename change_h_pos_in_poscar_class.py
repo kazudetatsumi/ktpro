@@ -13,6 +13,7 @@ class change_hpos():
         self.nx = nx
         self.enefile = enefile
         self.shift = np.array(shift)
+        print(shift)
         self.hshift = np.array(hshift)
 
     def GetCrystalParamsFromPoscar(self):
@@ -39,6 +40,9 @@ class change_hpos():
             pos_temp = self.cell[1]
             pos_shift = pos_temp - np.array(self.shift)
             self.cell = (self.cell[0], pos_shift, self.cell[2])
+            self.positions = pos_shift
+        else:
+            print('Not shifted!')
 
     def GetRefineCell(self):
         lattice, positions, numbers = spglib.refine_cell(self.cell)
@@ -53,7 +57,19 @@ class change_hpos():
         self.ShiftAllAtompos()
         self.GetRefineCell()
         print(spglib.get_spacegroup(self.cell, symprec=1e-5))
-        self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        rpositions = np.zeros((self.positions.shape[0]-1, 3))
+        rnumbers = []
+        irp = 0
+        for ipos, pos in enumerate(self.positions):
+            if np.sum(np.abs(pos - self.std) % 1.0) >= 1e-5:
+                rpositions[irp] = pos
+                rnumbers.append(self.numbers[ipos])
+                irp += 1
+        # symmetry on the atoms without the target h atom
+        rcell = (self.lattice, rpositions, rnumbers)
+        print(spglib.get_spacegroup(rcell, symprec=1e-5))
+        self.sym = spglib.get_symmetry(rcell, symprec=1e-15)
+        #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
     def GetAllHpos(self):
         hpos = []
@@ -63,11 +79,11 @@ class change_hpos():
                 for iy in range(0, self.nx):
                     for iz in range(0, self.nx):
                         hpos.append([(self.std - self.edgelength[0]/2
-                                      + ix*dx[0]) % 1.0,
+                                      + (ix+self.hshift[0])*dx[0]) % 1.0,
                                      (self.std - self.edgelength[1]/2
-                                      + iy*dx[1]) % 1.0,
+                                      + (iy+self.hshift[1])*dx[1]) % 1.0,
                                      (self.std - self.edgelength[2]/2
-                                      + iz*dx[2]) % 1.0])
+                                      + (iz+self.hshift[2])*dx[2]) % 1.0])
             self.hpos = np.array(hpos)
         else:
             print(self.edgelength)
@@ -78,11 +94,11 @@ class change_hpos():
                 for iy in range(0, self.nx):
                     for iz in range(0, self.nx):
                         hpos.append([(self.std - self.edgelength/2
-                                      + ix*dx) % 1.0,
+                                      + (ix+self.hshift[0])*dx) % 1.0,
                                      (self.std - self.edgelength/2
-                                      + iy*dx) % 1.0,
+                                      + (iy+self.hshift[1])*dx) % 1.0,
                                      (self.std - self.edgelength/2
-                                      + iz*dx) % 1.0])
+                                      + (iz+self.hshift[2])*dx) % 1.0])
             self.hpos = np.array(hpos)
         self.hpos += self.hshift
         print(self.hpos)
@@ -227,7 +243,10 @@ class change_hpos():
                      .format(pos[il, 0], pos[il, 1], pos[il, 2])
 
         for iridx, ir in enumerate(self.irr_hpos):
-            outfile = 'POSCAR_' + str(iridx+1).zfill(3)
+            if self.irr_hpos.shape[0] > 1000:
+                outfile = 'POSCAR_' + str(iridx+1).zfill(4)
+            else:
+                outfile = 'POSCAR_' + str(iridx+1).zfill(3)
             with open(outfile, 'w') as f:
                 for il, line in enumerate(lines):
                     if il <= 8 or il >= 9 + self.positions.shape[0]:
@@ -254,15 +273,16 @@ class change_hpos():
                                                          self.nx))
 
     def PlotPotential(self):
-        #plt.pcolor(self.potential[:, :, 5] - np.min(self.potential))
-        #plt.colorbar()
-        plt.plot(self.potential[5,5,:]-np.min(self.potential))
+        plt.pcolor(self.potential[5, :, :] - np.min(self.potential))
+        plt.colorbar()
+        #plt.plot(self.potential[8,8,:]-np.min(self.potential))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
         # x = np.zeros((self.nx))
         print(np.min(self.potential))
-        print(self.potential[5, 5, 5])
+        print(np.unravel_index(np.argmin(self.potential), self.potential.shape))
+        print(self.potential[8,8,10])
         # for i in range(0, self.nx):
         #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
         #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,
@@ -295,7 +315,7 @@ class change_hpos():
         plt.show()
 
     def WritePotential(self):
-        np.savetxt('hpot.txt', self.potential.flatten())
+        np.savetxt('hpot.txt', self.potential.flatten(order='F'))
 
 
 def samplerun():

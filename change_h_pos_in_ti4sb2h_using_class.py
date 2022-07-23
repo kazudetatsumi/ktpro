@@ -7,12 +7,13 @@ from change_h_pos_in_poscar_class import change_hpos as ch
 def samplerun():
     infile = 'CONTCAR'
     std = 0.5
-    edgelength = [0.4, 0.4, 0.133]
+    edgelength = [0.6, 0.6, 0.164]
     # edgelength = 0.6
-    nx = 10
+    nx = 20
     shift = [0., 0., 0.0238267635235516]
-    hshift = [0., 0., -0.02]
+    hshift = [0., 0., -2]
     # nx = 13
+    print(shift)
     prj = ch(infile, std, edgelength, nx, shift=shift, hshift=hshift)
     prj.GetSym()
     prj.GetAllHpos()
@@ -26,12 +27,12 @@ def samplerun():
 def samplerun2():
     infile = 'CONTCAR'
     std = 0.5
-    edgelength = [0.4, 0.4, 0.133]
+    edgelength = [0.6, 0.6, 0.164]
     # edgelength = 0.6
-    nx = 10
+    nx = 20
     #  nx = 13
     shift = [0., 0., 0.0238267635235516]
-    hshift = [0., 0., -0.02]
+    hshift = [0., 0., -2]
     enefile = 'ENERGIES'
     prj = ch(infile, std, edgelength, nx, enefile=enefile, shift=shift,
              hshift=hshift)
@@ -42,7 +43,7 @@ def samplerun2():
     prj.GetDataOverAllHpos4()
     prj.GetPotential()
     prj.PlotPotential()
-    #prj.WritePotential()
+    prj.WritePotential()
 
 
 samplerun()
