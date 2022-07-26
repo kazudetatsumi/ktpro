@@ -57,6 +57,10 @@ class change_hpos():
         self.ShiftAllAtompos()
         self.GetRefineCell()
         print(spglib.get_spacegroup(self.cell, symprec=1e-5))
+        tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        print(tmpsym['rotations'].shape)
+        for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
+                print(rot, trans)
         rpositions = np.zeros((self.positions.shape[0]-1, 3))
         rnumbers = []
         irp = 0
@@ -68,7 +72,10 @@ class change_hpos():
         # symmetry on the atoms without the target h atom
         rcell = (self.lattice, rpositions, rnumbers)
         print(spglib.get_spacegroup(rcell, symprec=1e-5))
-        self.sym = spglib.get_symmetry(rcell, symprec=1e-15)
+        self.sym = spglib.get_symmetry(rcell, symprec=1e-5)
+        print(self.sym['rotations'].shape)
+        for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
+                print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
     def GetAllHpos(self):
@@ -100,7 +107,7 @@ class change_hpos():
                                      (self.std - self.edgelength/2
                                       + (iz+self.hshift[2])*dx) % 1.0])
             self.hpos = np.array(hpos)
-        self.hpos += self.hshift
+        #self.hpos += self.hshift
         print(self.hpos)
 
     def GetIrreducibleShift_old(self):
@@ -273,16 +280,16 @@ class change_hpos():
                                                          self.nx))
 
     def PlotPotential(self):
-        plt.pcolor(self.potential[5, :, :] - np.min(self.potential))
-        plt.colorbar()
-        #plt.plot(self.potential[8,8,:]-np.min(self.potential))
+        #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
+        #plt.colorbar()
+        plt.plot(self.potential[10,10,:]-np.min(self.potential))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
         # x = np.zeros((self.nx))
         print(np.min(self.potential))
         print(np.unravel_index(np.argmin(self.potential), self.potential.shape))
-        print(self.potential[8,8,10])
+        print(self.potential[10,10,12])
         # for i in range(0, self.nx):
         #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
         #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,

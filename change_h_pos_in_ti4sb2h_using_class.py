@@ -11,7 +11,7 @@ def samplerun():
     # edgelength = 0.6
     nx = 20
     shift = [0., 0., 0.0238267635235516]
-    hshift = [0., 0., -2]
+    hshift = [0., 0., -3]
     # nx = 13
     print(shift)
     prj = ch(infile, std, edgelength, nx, shift=shift, hshift=hshift)
@@ -32,7 +32,7 @@ def samplerun2():
     nx = 20
     #  nx = 13
     shift = [0., 0., 0.0238267635235516]
-    hshift = [0., 0., -2]
+    hshift = [0., 0., -3]
     enefile = 'ENERGIES'
     prj = ch(infile, std, edgelength, nx, enefile=enefile, shift=shift,
              hshift=hshift)
@@ -46,4 +46,4 @@ def samplerun2():
     prj.WritePotential()
 
 
-samplerun()
+samplerun2()
