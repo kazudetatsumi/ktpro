@@ -41,7 +41,32 @@ def samplerun2():
     prj.GetDataOverAllHpos4()
     prj.GetPotential()
     #prj.PlotPotential()
-    prj.WritePotential()
+    #prj.WritePotential()
+    prj.GetVG()
 
 
-samplerun()
+def samplerun3():
+    infile = 'CONTCAR'
+    std = 0.5
+    edgelength = 0.4
+    nx = 14
+    enefile = 'ENERGIES'
+    rg = 5
+    a = 4.07
+
+    prj = ch(infile, std, edgelength, nx, enefile=enefile, rg=rg, a=a)
+    prj.GetEnergies()
+    prj.GetSym()
+    prj.GetAllHpos()
+    prj.GetIrreducibleShift()
+    prj.GetDataOverAllHpos4()
+    prj.GetPotential()
+    prj.GetVG()
+    prj.GetG()
+    prj.GetH()
+    prj.GetEigen()
+    #prj.PlotPotential()
+    #prj.WritePotential()
+
+
+samplerun3()

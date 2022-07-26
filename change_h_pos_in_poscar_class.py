@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
-                 shift=[0., 0., 0.], hshift=[0., 0., 0.]):
+                 shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None,
+                 a=4.07):
         self.infile = infile
         self.std = std
         self.edgelength = edgelength
@@ -15,6 +16,12 @@ class change_hpos():
         self.shift = np.array(shift)
         print(shift)
         self.hshift = np.array(hshift)
+        self.rg = rg
+        a0 = 0.5291772
+        if type(self.edgelength) is not list:
+            self.a = a/a0*edgelength*nx/(nx-1)
+        self.mh = 1836
+        self.Eh = 27.211
 
     def GetCrystalParamsFromPoscar(self):
         with open(self.infile, 'r') as f:
@@ -277,7 +284,7 @@ class change_hpos():
 
     def GetPotential(self):
         self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
-                                                         self.nx))
+                                                         self.nx), order='F')
 
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
@@ -323,6 +330,38 @@ class change_hpos():
 
     def WritePotential(self):
         np.savetxt('hpot.txt', self.potential.flatten(order='F'))
+
+    def GetVG(self):
+        self.z = np.fft.fftn((self.potential-np.min(self.potential))
+                             / self.Eh, norm='forward')
+
+    def GetG(self):
+        Gs = []
+        for i in range(-self.nx//2, self.nx//2+1):
+            for j in range(-self.nx//2, self.nx//2+1):
+                for k in range(-self.nx//2, self.nx//2+1):
+                    if i**2 + j**2 + k**2 < self.rg**2:
+                        Gs.append([i, j, k])
+        self.Gs = np.array(Gs).reshape((-1, 3))
+
+    def GetH(self):
+        self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]))
+        for i, gi in enumerate(self.Gs):
+            for j, gj in enumerate(self.Gs):
+                if i == j:
+                    K = (2*np.pi/self.a)**2*np.dot(gi, gi)/(2.*self.mh)
+                else:
+                    K = 0.
+                dg = (gi - gj) % self.nx
+                V = self.z[dg[0], dg[1], dg[2]]
+                self.H[i, j] = K + V
+
+    def GetEigen(self):
+        self.E, self.U = np.linalg.eigh(self.H)
+        self.E *= self.Eh * 1000.
+        print(self.E[0:5])
+        plt.plot(self.E[0:13], marker='o')
+        plt.show()
 
 
 def samplerun():
