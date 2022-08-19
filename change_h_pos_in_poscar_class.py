@@ -19,7 +19,8 @@ class change_hpos():
         self.rg = rg
         a0 = 0.5291772
         if type(self.edgelength) is not list:
-            self.a = a/a0*edgelength*nx/(nx-1)
+            #self.a = a/a0*edgelength*nx/(nx-1)
+            self.a = a/a0*edgelength
         self.mh = 1836
         self.Eh = 27.211
 
@@ -359,9 +360,30 @@ class change_hpos():
     def GetEigen(self):
         self.E, self.U = np.linalg.eigh(self.H)
         self.E *= self.Eh * 1000.
-        print(self.E[0:5])
-        plt.plot(self.E[0:13], marker='o')
+        print(self.E[0:10] - np.min(self.E))
+        plt.plot(self.E[0:13] - np.min(self.E), marker='o')
         plt.show()
+
+    def GetDensity(self):
+        nmesh = self.nx*2
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).reshape((3, -1))
+        arg = -1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
+        wavefuncs = np.matmul(self.U.T, np.exp(arg))
+        wavefunc = wavefuncs[0].reshape((nmesh, nmesh, nmesh))
+        den = np.imag(wavefunc)**2+np.real(wavefunc)**2
+        plt.pcolor(den[:,:,14])
+        plt.show()
+        #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
+        #for ix in range(self.nx):
+        #    for iy in range(self.nx):
+        #        for ig in range(self.Gs.shape[0]):
+        #            g = self.Gs[ig]
+        #            phi[ix, iy] += self.U[ig, 0]*np.exp(-2.0*np.pi*1.j*(1.0*g[0]*ix+1.0*g[1]*iy+g[2]*7.0)/self.nx)
+        #den = np.imag(phi)**2+np.real(phi)**2
+        #plt.pcolor(den)
+        #plt.show()
+
 
 
 def samplerun():
