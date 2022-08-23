@@ -346,7 +346,8 @@ class change_hpos():
         self.Gs = np.array(Gs).reshape((-1, 3))
 
     def GetH(self):
-        self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]))
+        self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
+                          )
         for i, gi in enumerate(self.Gs):
             for j, gj in enumerate(self.Gs):
                 if i == j:
@@ -360,20 +361,24 @@ class change_hpos():
     def GetEigen(self):
         self.E, self.U = np.linalg.eigh(self.H)
         self.E *= self.Eh * 1000.
-        print(self.E[0:10] - np.min(self.E))
-        plt.plot(self.E[0:13] - np.min(self.E), marker='o')
-        plt.show()
+        #print(self.E[0:10] - np.min(self.E))
+        #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
+        #plt.show()
 
-    def GetDensity(self):
+    def GetWavefuncs(self):
         nmesh = self.nx*2
         a = np.arange(nmesh)
-        pos = np.array(np.meshgrid(a, a, a)).reshape((3, -1))
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape((3, -1))
         arg = -1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
-        wavefuncs = np.matmul(self.U.T, np.exp(arg))
-        wavefunc = wavefuncs[0].reshape((nmesh, nmesh, nmesh))
-        den = np.imag(wavefunc)**2+np.real(wavefunc)**2
-        plt.pcolor(den[:,:,14])
-        plt.show()
+        self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
+                (-1, nmesh, nmesh, nmesh))
+        print(self.wavefuncs[0]*self.wavefuncs[1])
+
+    def GetDensity(self):
+        self.GetWavefuncs()
+        self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
+        #plt.pcolor(self.densities[0,:,:,14])
+        #plt.show()
         #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
         #for ix in range(self.nx):
         #    for iy in range(self.nx):
@@ -384,6 +389,37 @@ class change_hpos():
         #plt.pcolor(den)
         #plt.show()
 
+    def GetDensityFile(self, no):
+        outfile = 'density' + str(no) + '.out'
+        den = self.densities[no].flatten()
+        out = ""
+        for irow in range(den.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    den[irow*5], den[irow*5+1], den[irow*5+2], den[irow*5+3],
+                    den[irow*5+4])
+        last = ""
+        for il in range(den.shape[0] % 5):
+            last += "{:.11e} ".format(den[il+(den.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
+    def GetTransitionMatrix(self, q):
+        self.GetWavefuncs()
+        nmesh = self.nx*2
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape(3, -1)
+        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh).reshape(nmesh, nmesh, nmesh)
+        mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(arg)
+        sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        ene = np.arange(0, 3000, 1)
+        spec = np.zeros(3000)
+        for iw, s in enumerate(sqw[1:]):
+            dE = (self.E[iw+1] - self.E[0])
+            sigma = dE*0.02
+            spec += s*np.exp(-(ene - dE)**2/sigma**2)
+        plt.plot(ene, spec)
+        plt.xlim((0, 400))
 
 
 def samplerun():
