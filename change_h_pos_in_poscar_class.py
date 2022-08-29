@@ -14,7 +14,7 @@ class change_hpos():
         self.nx = nx
         self.enefile = enefile
         self.shift = np.array(shift)
-        print(shift)
+        # print(shift)
         self.hshift = np.array(hshift)
         self.rg = rg
         a0 = 0.5291772
@@ -49,8 +49,8 @@ class change_hpos():
             pos_shift = pos_temp - np.array(self.shift)
             self.cell = (self.cell[0], pos_shift, self.cell[2])
             self.positions = pos_shift
-        else:
-            print('Not shifted!')
+        # else:
+        #     print('Not shifted!')
 
     def GetRefineCell(self):
         lattice, positions, numbers = spglib.refine_cell(self.cell)
@@ -64,11 +64,11 @@ class change_hpos():
         self.cell = (self.lattice, self.positions, self.numbers)
         self.ShiftAllAtompos()
         self.GetRefineCell()
-        print(spglib.get_spacegroup(self.cell, symprec=1e-5))
+        # print(spglib.get_spacegroup(self.cell, symprec=1e-5))
         tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
-        print(tmpsym['rotations'].shape)
-        for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
-                print(rot, trans)
+        # print(tmpsym['rotations'].shape)
+        # for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
+        #         print(rot, trans)
         rpositions = np.zeros((self.positions.shape[0]-1, 3))
         rnumbers = []
         irp = 0
@@ -79,14 +79,17 @@ class change_hpos():
                 irp += 1
         # symmetry on the atoms without the target h atom
         rcell = (self.lattice, rpositions, rnumbers)
-        print(spglib.get_spacegroup(rcell, symprec=1e-5))
+        # print(spglib.get_spacegroup(rcell, symprec=1e-5))
         self.sym = spglib.get_symmetry(rcell, symprec=1e-5)
-        print(self.sym['rotations'].shape)
-        for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
-                print(rot, trans)
+        # print(self.sym['rotations'].shape)
+        # for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
+        #         print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
     def GetAllHpos(self):
+        # Obtain all H positions in a 2D np array [atomidx, x/y/z/ axis],
+        # whose 1st axis is in the C order, i.e., the z coordination is most
+        # rapidly changed.
         hpos = []
         if type(self.edgelength) is list:
             dx = np.array(self.edgelength)/self.nx
@@ -101,8 +104,8 @@ class change_hpos():
                                       + (iz+self.hshift[2])*dx[2]) % 1.0])
             self.hpos = np.array(hpos)
         else:
-            print(self.edgelength)
-            print(type(self.edgelength))
+            # print(self.edgelength)
+            # print(type(self.edgelength))
             # dx = self.edgelength/(self.nx-1)
             dx = self.edgelength/self.nx
             for ix in range(0, self.nx):
@@ -116,7 +119,7 @@ class change_hpos():
                                       + (iz+self.hshift[2])*dx) % 1.0])
             self.hpos = np.array(hpos)
         #self.hpos += self.hshift
-        print(self.hpos)
+        # print(self.hpos)
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
@@ -134,11 +137,12 @@ class change_hpos():
             if not MatchFound:
                 irr_hpos = np.append(irr_hpos, (_hpos % 1.0).reshape((1, 3)),
                                      axis=0)
-        print(irr_hpos)
-        print(irr_hpos.shape)
+        # print(irr_hpos)
+        # print(irr_hpos.shape)
         self.irr_hpos = irr_hpos
 
     def GetIrreducibleShift(self):
+        # Obtain irreducible H positions w.r.t. symmetry operations.
         # print(sym['rotations'].shape)
         # print(hpos.shape)
         # print(np.matmul(hpos, sym['rotations']).transpose(1, 0, 2).shape)
@@ -158,8 +162,8 @@ class change_hpos():
                                    axis=1) >= 1e-5
                     cond[i] = True
             irr_hpos = irr_hpos[cond]
-        print(irr_hpos.shape)
-        print(irr_hpos)
+        # print(irr_hpos.shape)
+        # print(irr_hpos)
         self.irr_hpos = irr_hpos
 
     def GetIrreducibleShift2(self):
@@ -177,6 +181,10 @@ class change_hpos():
         #self.irr_hpos = self.hpos[irr_idx]
 
     def GetDataOverAllHpos(self):
+        # Inverse process to the process 'IrreducibleShift'.
+        # Here the irreducible H index for each of all the H positions is
+        # clarified.
+        # GetDataOverAllHpos4 is fastest.
         self.irr_idx = np.zeros((self.hpos.shape[0]), dtype=int)
         for ih, _hpos in enumerate(self.hpos):
             MatchFound = False
@@ -192,8 +200,8 @@ class change_hpos():
                     break
             if not MatchFound:
                 self.irr_idx[ih] = 999
-        print(self.irr_idx)
-        print(self.irr_idx.shape)
+        # print(self.irr_idx)
+        # print(self.irr_idx.shape)
 
     def GetDataOverAllHpos2(self):
         self.irr_idx = np.zeros((self.hpos.shape[0]), dtype=int)
@@ -206,7 +214,7 @@ class change_hpos():
                                axis=1) >= 1e-5
             self.irr_idx[ih] = np.arange(0, self.irr_hpos.shape[0]
                                          )[np.invert(cond)]
-        print(self.irr_idx.shape)
+        # print(self.irr_idx.shape)
 
     def GetDataOverAllHpos3(self):
         self.irr_idx = np.zeros((self.hpos.shape[0]), dtype=int)
@@ -218,7 +226,7 @@ class change_hpos():
                            axis=2) >= 1e-5, axis=1, dtype=bool)
             self.irr_idx[ih] = np.arange(0, self.irr_hpos.shape[0]
                                          )[np.invert(cond)]
-        print(self.irr_idx)
+        # print(self.irr_idx)
 
     def GetDataOverAllHpos4(self):
         # print(self.irr_hpos.shape)
@@ -239,8 +247,8 @@ class change_hpos():
                               axis=3) >= 1e-5, axis=1, dtype=bool)
         pairs = np.where(np.invert(cond))
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
-        print(self.irr_idx.shape)
-        print(self.irr_idx)
+        # print(self.irr_idx.shape)
+        # print(self.irr_idx)
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -281,11 +289,11 @@ class change_hpos():
         for line in lines:
             ene.append(line.split()[3])
         self.ene = np.array(ene, dtype=float)
-        print(np.min(self.ene))
+        # print(np.min(self.ene))
 
     def GetPotential(self):
         self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
-                                                         self.nx), order='F')
+                                                         self.nx))
 
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
@@ -330,6 +338,8 @@ class change_hpos():
         plt.show()
 
     def WritePotential(self):
+        # Write the potential in a column, which is in the Fortran order,
+        # because Maple uses the Fortran order as its default.
         np.savetxt('hpot.txt', self.potential.flatten(order='F'))
 
     def GetVG(self):
@@ -372,7 +382,6 @@ class change_hpos():
         arg = -1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
         self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
                 (-1, nmesh, nmesh, nmesh))
-        print(self.wavefuncs[0]*self.wavefuncs[1])
 
     def GetDensity(self):
         self.GetWavefuncs()
@@ -419,6 +428,7 @@ class change_hpos():
             sigma = dE*0.02
             spec += s*np.exp(-(ene - dE)**2/sigma**2)
         plt.plot(ene, spec)
+        plt.bar(self.E[1:] - self.E[0], sqw[1:])
         plt.xlim((0, 400))
 
 
