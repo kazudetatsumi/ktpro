@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
-                 shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None,
-                 a=4.07):
+                 shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None):
         self.infile = infile
         self.std = std
         self.edgelength = edgelength
@@ -17,10 +16,7 @@ class change_hpos():
         # print(shift)
         self.hshift = np.array(hshift)
         self.rg = rg
-        a0 = 0.5291772
-        if type(self.edgelength) is not list:
-            #self.a = a/a0*edgelength*nx/(nx-1)
-            self.a = a/a0*edgelength
+        self.a0 = 0.5291772
         self.mh = 1836
         self.Eh = 27.211
 
@@ -33,6 +29,17 @@ class change_hpos():
             lattice[ivec] = np.array((self.lines[ivec+2].split()[0:3]),
                                      dtype=float)
         self.lattice = lattice * latmag
+        if type(self.edgelength) is list:
+            self.a = np.sum(self.lattice[0, :]**2)**0.5/self.a0*self.edgelength[0]
+            self.b = np.sum(self.lattice[1, :]**2)**0.5/self.a0*self.edgelength[1]
+            self.c = np.sum(self.lattice[2, :]**2)**0.5/self.a0*self.edgelength[2]
+        else:
+            self.a = np.sum(self.lattice[0, :]**2)**0.5/self.a0*self.edgelength
+            self.b = np.sum(self.lattice[1, :]**2)**0.5/self.a0*self.edgelength
+            self.c = np.sum(self.lattice[2, :]**2)**0.5/self.a0*self.edgelength
+        print("chk, a=", self.a)
+        print("chk, b=", self.b)
+        print("chk, c=", self.c)
         nspc = np.asarray((self.lines[6].split()), dtype=int)
         self.numbers = [i+1 for i in range(0, nspc.shape[0])
                         for j in range(0, nspc[i])]
@@ -348,11 +355,19 @@ class change_hpos():
 
     def GetG(self):
         Gs = []
-        for i in range(-self.nx//2, self.nx//2+1):
-            for j in range(-self.nx//2, self.nx//2+1):
-                for k in range(-self.nx//2, self.nx//2+1):
-                    if i**2 + j**2 + k**2 < self.rg**2:
-                        Gs.append([i, j, k])
+        if type(self.edgelength) is list:
+            for i in range(-self.nx//2, self.nx//2+1):
+                for j in range(-self.nx//2, self.nx//2+1):
+                    for k in range(-self.nx//2, self.nx//2+1):
+                        if (i/self.a)**2 + (j/self.b)**2 + (k/self.c)**2 \
+                                < self.rg**2:
+                            Gs.append([i, j, k])
+        else:
+            for i in range(-self.nx//2, self.nx//2+1):
+                for j in range(-self.nx//2, self.nx//2+1):
+                    for k in range(-self.nx//2, self.nx//2+1):
+                        if i**2 + j**2 + k**2 < self.rg**2:
+                            Gs.append([i, j, k])
         self.Gs = np.array(Gs).reshape((-1, 3))
 
     def GetH(self):
@@ -361,7 +376,11 @@ class change_hpos():
         for i, gi in enumerate(self.Gs):
             for j, gj in enumerate(self.Gs):
                 if i == j:
-                    K = (2*np.pi/self.a)**2*np.dot(gi, gi)/(2.*self.mh)
+                    _gi = np.zeros(gi.shape)
+                    _gi[0] = gi[0]/self.a
+                    _gi[1] = gi[1]/self.b
+                    _gi[2] = gi[2]/self.c
+                    K = (2*np.pi)**2*np.dot(_gi, _gi)/(2.*self.mh)
                 else:
                     K = 0.
                 dg = (gi - gj) % self.nx
