@@ -401,7 +401,7 @@ class change_hpos():
         nmesh = self.nx*2
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape((3, -1))
-        arg = -1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
+        arg = 1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
         self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
                 (-1, nmesh, nmesh, nmesh))
 
@@ -422,7 +422,7 @@ class change_hpos():
 
     def GetDensityFile(self, no):
         outfile = 'density' + str(no) + '.out'
-        den = self.densities[no].flatten()
+        den = self.densities[no].flatten(order='F')
         out = ""
         for irow in range(den.shape[0] // 5):
             out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
@@ -435,23 +435,72 @@ class change_hpos():
         with open(outfile, 'w') as f:
             f.write(out)
 
-    def GetTransitionMatrix(self, q):
-        self.GetWavefuncs()
+    #def GetTransitionMatrix(self, q, domegas, Isplot=True, label=None):
+    def GetTransitionMatrix(self, q, Isplot=True, label=None):
         nmesh = self.nx*2
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape(3, -1)
-        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh).reshape(nmesh, nmesh, nmesh)
+        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+        #mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(np.repeat(np.expand_dims(arg, 1), self.wavefuncs.shape[0], axis=1))
         mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(arg)
-        sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        #mat2 = (mat.transpose((1, 2, 3, 4, 0))*domegas).transpose((0, 4, 1, 2, 3))
+        self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        #self.sqw = (np.abs(mat.reshape(mat2.shape[0], mat2.shape[1], -1).sum(axis=1))**2).sum(axis=1)
+        if Isplot:
+            ene = np.arange(0, 3000, 1)
+            spec = np.zeros(3000)
+            for iw, s in enumerate(self.sqw[1:]):
+                dE = (self.E[iw+1] - self.E[0])
+                sigma = dE*0.02
+                spec += s*np.exp(-(ene - dE)**2/sigma**2)
+            plt.plot(ene, spec, label=label)
+            plt.bar(self.E[1:] - self.E[0], self.sqw[1:])
+            plt.xlim((0, 400))
+
+    def Integrateoverallsolidangle(self, qlength):
+        nmesh = 10
+        thetas = np.pi*np.arange(0, nmesh)/nmesh
+        dtheta = thetas[1] - thetas[0]
+        phis = 2.0*np.pi*np.arange(0, nmesh*2)/nmesh*2
+        dphi = phis[1] - phis[0]
+        print(dtheta, dphi)
+        print(thetas)
+        print(phis)
+        #nmesh = 10
+        #a = np.arange(nmesh)
+        #pos = np.array(np.meshgrid(a, a)).reshape(2, -1)
+        #thetas = np.pi*pos[0]/nmesh
+        #phis = 2.0*np.pi*pos[1]/nmesh
+        #dtheta = np.pi/nmesh
+        #dphi = 2.0*np.pi/nmesh
+        #domegas = np.sin(thetas)*dtheta*dphi
+        #qs = np.zeros((thetas.shape[0], 3))
+        #qs[:,0] = np.sin(thetas)*np.cos(phis)
+        #qs[:,1] = np.sin(thetas)*np.sin(phis)
+        #qs[:,2] = np.cos(thetas)
+        #self.GetTransitionMatrix(qs, domegas,  Isplot=True)
+
+
+        for it, theta in enumerate(thetas):
+            for ip, phi in enumerate(phis):
+                print(it, ip)
+                domega = np.sin(theta)*dtheta*dphi
+                #q = qlength * np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+                q = qlength * np.array([np.cos(theta), np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi)])
+                self.GetTransitionMatrix(q, Isplot=False)
+                if it == 0 and ip == 0:
+                    IntegratedSqw = np.zeros_like(self.sqw)
+                IntegratedSqw += self.sqw*domega
         ene = np.arange(0, 3000, 1)
         spec = np.zeros(3000)
-        for iw, s in enumerate(sqw[1:]):
+        for iw, s in enumerate(IntegratedSqw[1:]):
             dE = (self.E[iw+1] - self.E[0])
             sigma = dE*0.02
             spec += s*np.exp(-(ene - dE)**2/sigma**2)
         plt.plot(ene, spec)
-        plt.bar(self.E[1:] - self.E[0], sqw[1:])
+        plt.bar(self.E[1:] - self.E[0], IntegratedSqw[1:])
         plt.xlim((0, 400))
+
 
 
 def samplerun():
