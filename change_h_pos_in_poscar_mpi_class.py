@@ -2,6 +2,7 @@
 import numpy as np
 import spglib
 import matplotlib.pyplot as plt
+from mpi4py import MPI
 
 
 class change_hpos():
@@ -508,48 +509,37 @@ class change_hpos():
         plt.xlim((0, 400))
 
     def Integrateoverallsolidangle2(self, qlength):
-        nmesh = 10
+        comm = MPI.COMM_WORLD
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
+        nmesh = 16
         coss, weights = np.polynomial.legendre.leggauss(nmesh)
         thetas = np.arccos(coss)
         phis = 2.0*np.pi*np.arange(0, nmesh*2)/nmesh*2
-        #dphi = phis[1] - phis[0]
-        #print(dtheta, dphi)
-        #print(thetas)
-        #print(phis)
-        #nmesh = 10
-        #a = np.arange(nmesh)
-        #pos = np.array(np.meshgrid(a, a)).reshape(2, -1)
-        #thetas = np.pi*pos[0]/nmesh
-        #phis = 2.0*np.pi*pos[1]/nmesh
-        #dtheta = np.pi/nmesh
-        #dphi = 2.0*np.pi/nmesh
-        #domegas = np.sin(thetas)*dtheta*dphi
-        #qs = np.zeros((thetas.shape[0], 3))
-        #qs[:,0] = np.sin(thetas)*np.cos(phis)
-        #qs[:,1] = np.sin(thetas)*np.sin(phis)
-        #qs[:,2] = np.cos(thetas)
-        #self.GetTransitionMatrix(qs, domegas,  Isplot=True)
-
-
         for it, theta in enumerate(thetas):
-            for ip, phi in enumerate(phis):
-                print(it, ip)
-                #domega = np.sin(theta)*dtheta*dphi
-                #q = qlength * np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
-                q = qlength * np.array([np.cos(theta), np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi)])
-                self.GetTransitionMatrix(q, Isplot=False)
-                if it == 0 and ip == 0:
-                    IntegratedSqw = np.zeros_like(self.sqw)
-                IntegratedSqw += self.sqw*weights[it]
+            #for ip, phi in enumerate(phis):
+            phi = phis[rank]
+            print(it, rank)
+            #domega = np.sin(theta)*dtheta*dphi
+            #q = qlength * np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+            q = qlength * np.array([np.cos(theta), np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi)])
+            self.GetTransitionMatrix(q, Isplot=False)
+            if it == 0:
+                IntegratedSqw = np.zeros((self.sqw.shape[0]))
+                IntegratedSqwg = np.zeros((self.sqw.shape[0]*size))
+            IntegratedSqw += self.sqw*weights[it]
+        comm.Allgather([IntegratedSqw, MPI.DOUBLE], [IntegratedSqwg, MPI.DOUBLE])
+        IntegratedSqw = np.sum(IntegratedSqwg.reshape((-1, self.sqw.shape[0])), axis=0)
         ene = np.arange(0, 3000, 1)
         spec = np.zeros(3000)
         for iw, s in enumerate(IntegratedSqw[1:]):
             dE = (self.E[iw+1] - self.E[0])
             sigma = dE*0.02
             spec += s*np.exp(-(ene - dE)**2/sigma**2)
-        plt.plot(ene, spec)
-        plt.bar(self.E[1:] - self.E[0], IntegratedSqw[1:])
-        plt.xlim((0, 400))
+        if rank == 0:
+            plt.plot(ene, spec)
+            plt.bar(self.E[1:] - self.E[0], IntegratedSqw[1:])
+            plt.xlim((0, 400))
 
 
 def samplerun():
