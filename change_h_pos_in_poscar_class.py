@@ -136,6 +136,19 @@ class change_hpos():
         #self.hpos += self.hshift
         #print(self.hpos)
 
+    def GetAllHpos_vec(self):
+        vec = np.array([[1., -1., 0], [1., 1., 0], [0., 0., 1.]])
+        hpos = np.zeros((self.nx**3, 3))
+        dx = np.array(self.edgelength)/(self.nx - 1)
+        ih = 0
+        for ix in range(0, self.nx):
+            for iy in range(0, self.nx):
+                for iz in range(0, self.nx):
+                    hpos[ih, :] = self.std + (((np.array([ix, iy, iz]) + self.hshift)*dx - np.array([0.5, 0.5, 0.5])*self.edgelength)*vec).sum(axis=1)
+                    ih += 1
+        self.hpos = np.array(hpos)
+
+
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
         for ih, _hpos in enumerate(self.hpos):
