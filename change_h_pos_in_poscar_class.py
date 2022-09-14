@@ -281,7 +281,7 @@ class change_hpos():
                      .format(pos[il, 0], pos[il, 1], pos[il, 2])
 
         for iridx, ir in enumerate(self.irr_hpos):
-            if self.irr_hpos.shape[0] > 1000:
+            if self.irr_hpos.shape[0] > 999:
                 outfile = 'POSCAR_' + str(iridx+1).zfill(4)
             else:
                 outfile = 'POSCAR_' + str(iridx+1).zfill(3)
@@ -296,6 +296,34 @@ class change_hpos():
                                     .format(ir[0], ir[1], ir[2]))
                         else:
                             f.write(line)
+    
+    def GenerateExpandedPoscar(self):
+        epsiron = 0.002
+        nst = (self.nx*2+1)**2
+        est = np.zeros((nst, 3))
+        iest = 0
+        for ix in range(-self.nx, self.nx+1):
+            for iy in range(-self.nx, self.nx+1):
+                est[iest, 0] = 1.0 + float(ix)*epsiron
+                est[iest, 1] = 1.0 + float(ix)*epsiron
+                est[iest, 2] = 1.0 + float(iy)*epsiron
+                iest += 1
+        lat = self.lattice
+        lines = self.lines
+        for iest in range(0, nst):
+            if nst > 999:
+                outfile = 'POSCAR_' + str(iest+1).zfill(4)
+            else:
+                outfile = 'POSCAR_' + str(iest+1).zfill(3)
+            with open(outfile, 'w') as f:
+                for il, line in enumerate(lines):
+                    if il >= 2 and il <= 4:
+                        f.write("     {:21.16f}    {:21.16f}    {:21.16f} \n"\
+                        .format(lat[il-2, 0]*est[iest, il-2],
+                                lat[il-2, 1]*est[iest, il-2],
+                                lat[il-2, 2]*est[iest, il-2]))
+                    else:
+                        f.write(line)
 
     def GetEnergies(self, relax=False):
         ene = []
@@ -316,14 +344,15 @@ class change_hpos():
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
         #plt.colorbar()
-        plt.plot(self.potential[10,10,:]-np.min(self.potential))
+        plt.plot(self.potential[:,5,5]-np.min(self.potential))
+        plt.ylim((0,2))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
         # x = np.zeros((self.nx))
         print(np.min(self.potential))
         print(np.unravel_index(np.argmin(self.potential), self.potential.shape))
-        print(self.potential[10,10,12])
+        print(self.potential[5,5,6])
         # for i in range(0, self.nx):
         #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
         #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,
@@ -414,8 +443,10 @@ class change_hpos():
     def GetDensity(self):
         self.GetWavefuncs()
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
-        #plt.pcolor(self.densities[0,:,:,14])
-        #plt.show()
+        #plt.pcolor(self.densities[0, 10, :, :])
+        print(np.unravel_index(np.argmax(self.densities[7, :, :, :]), self.densities[7, :, :, :].shape))
+        plt.plot(self.densities[1, :, 15, 15])
+        plt.show()
         #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
         #for ix in range(self.nx):
         #    for iy in range(self.nx):
