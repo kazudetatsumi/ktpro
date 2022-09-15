@@ -147,7 +147,8 @@ class change_hpos():
                     hpos[ih, :] = self.std + (((np.array([ix, iy, iz]) + self.hshift)*dx - np.array([0.5, 0.5, 0.5])*self.edgelength)*vec).sum(axis=1)
                     ih += 1
         self.hpos = np.array(hpos)
-
+        hlat = np.matmul(self.lattice.T, vec)*self.edgelength
+        self.edgelengthina0 = (((hlat**2).sum(axis=0))**0.5)/self.a0
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
@@ -208,7 +209,7 @@ class change_hpos():
         #        irr_idx.append(icol)
         #self.irr_hpos = self.hpos[irr_idx]
 
-    def GetDataOverAllHpos(self):
+    def GetDataOverA0llHpos(self):
         # Inverse process to the process 'IrreducibleShift'.
         # Here the irreducible H index for each of all the H positions is
         # clarified.
@@ -357,7 +358,7 @@ class change_hpos():
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
         #plt.colorbar()
-        plt.plot(self.potential[:,5,5]-np.min(self.potential))
+        plt.plot(self.potential[:,10,10]-np.min(self.potential))
         plt.ylim((0,2))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
