@@ -7,9 +7,9 @@
 # self.cov   : covariance matrix in predictive distribution
 # Kazuyoshi TATSUMI 2022/05/02
 import os
-os.environ["OPENBLAS_NUM_THREADS"] = "2"
-os.environ["MKL_NUM_THREADS"] = "2"
-os.environ["VECLIB_NUM_THREADS"] = "2"
+os.environ["OPENBLAS_NUM_THREADS"] = "36"
+os.environ["MKL_NUM_THREADS"] = "36"
+os.environ["VECLIB_NUM_THREADS"] = "36"
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -25,20 +25,27 @@ class GaussianProcessRegression:
         self.noise_mat = self.noiselevel*np.eye(self.x_train.shape[0])
         self.K_I = self.K + self.noise_mat
         self.L = np.linalg.cholesky(self.K_I)
+        print("calclulating f_bar")
         self.f_bar = self.K_astarisc @\
             np.linalg.lstsq(self.L.T, np.linalg.lstsq(self.L, self.y_train,
                                                       rcond=None)[0],
                             rcond=None)[0]
+        print("calculating K_double_astarisc")
         self.K_double_astarisc = self.kernel(self.x, self.x)
+        print("calculating V")
         self.V = np.linalg.lstsq(self.L, self.K_astarisc.T, rcond=None)[0]
+        print("caluclating cov")
         self.conv = self.K_double_astarisc - self.V.T @ self.V
+        print("calculating std")
         self.std = np.diag(self.conv)**0.5
 
     def renew(self, x_train, y_train):
         self.x_train = x_train
         self.y_train = y_train
         self.K = self.kernel(self.x_train, self.x_train)
+        print("calculating K_astrisc")
         self.K_astarisc = self.kernel(self.x, self.x_train)
+        print("calculating noise_mat")
         self.noise_mat = self.noiselevel*np.eye(self.x_train.shape[0])
         self.K_I = self.K + self.noise_mat
         self.L = np.linalg.cholesky(self.K_I)
