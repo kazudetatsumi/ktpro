@@ -57,6 +57,24 @@ class change_hpos():
                                                .split()[0:3][0:4]
                                                ), dtype=float)
 
+    def GetCartecianCoord(self):
+        print(self.positions.shape)
+        print(self.lattice.shape)
+        print(np.matmul(self.positions, self.lattice))
+        carts = np.matmul(self.positions, self.lattice)
+        lines = self.lines
+        outfile = 'POSCAR_chk'
+        with open(outfile, 'w') as f:
+            for il, line in enumerate(lines):
+                if il >= 9:
+                    f.write("     {:21.16f}    {:21.16f}    {:21.16f} \n"
+                            .format(carts[il-9, 0], carts[il-9, 1],
+                                    carts[il-9, 2]))
+                elif il == 8:
+                    f.write("Cartecian \n")
+                else:
+                    f.write(line)
+
     def ShiftAllAtompos(self):
         if np.sum(np.abs(self.shift)) > 1e-5:
             print('All atom pos are shifted by', self.shift)
@@ -144,7 +162,10 @@ class change_hpos():
         for ix in range(0, self.nx):
             for iy in range(0, self.nx):
                 for iz in range(0, self.nx):
-                    hpos[ih, :] = self.std + (((np.array([ix, iy, iz]) + self.hshift)*dx - np.array([0.5, 0.5, 0.5])*self.edgelength)*vec).sum(axis=1)
+                    hpos[ih, :] = self.std + (((np.array([ix, iy, iz]) +
+                                              self.hshift)*dx -
+                                              np.array([0.5, 0.5, 0.5]) *
+                                              self.edgelength)*vec).sum(axis=1)
                     ih += 1
         self.hpos = np.array(hpos)
         hlat = np.matmul(self.lattice.T, vec)*self.edgelength

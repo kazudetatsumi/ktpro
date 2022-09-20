@@ -17,8 +17,9 @@ class hpdos(sac.sqwto1dspectrum):
 
     def plotter(self):
         for sidx, site in enumerate(self.sites):
-            infile = "/home/kazu/WORK/vasp-phonopy/la2ni10h1/lda/" + site +\
-                     "/k334/partial_dos.dat_"+self.projdir
+            #infile = "/home/kazu/WORK/vasp-phonopy/la2ni10h1/lda/" + site +\
+            #         "/k334/partial_dos.dat_"+self.projdir
+            infile = self.head + site + self.middle + self.projdir
             pdos = np.genfromtxt(infile, dtype=float)
             datasize = pdos.shape
             ax = self.fig.add_subplot(self.gs[sidx, 0])
