@@ -58,10 +58,15 @@ class change_hpos():
                                                ), dtype=float)
 
     def GetCartecianCoord(self):
-        print(self.positions.shape)
-        print(self.lattice.shape)
-        print(np.matmul(self.positions, self.lattice))
-        carts = np.matmul(self.positions, self.lattice)
+        #print(self.positions.shape)
+        #print(self.lattice.shape)
+        #print(np.matmul(self.positions, self.lattice))
+        lat = self.cell[0]
+        positions = self.cell[1]
+        print(lat)
+        print(positions.shape)
+        print(self.cell[1])
+        carts = np.matmul(positions, lat)
         lines = self.lines
         outfile = 'POSCAR_chk'
         with open(outfile, 'w') as f:
@@ -86,7 +91,9 @@ class change_hpos():
         #     print('Not shifted!')
 
     def GetRefineCell(self):
-        lattice, positions, numbers = spglib.refine_cell(self.cell)
+        #lattice, positions, numbers = spglib.refine_cell(self.cell)
+        #To obatin the primitive cell, use find_primitive instead of refine_cell.
+        lattice, positions, numbers = spglib.find_primitive(self.cell)
         sorted_numbers = np.sort(numbers)
         sorted_positions = positions[np.argsort(numbers)]
         sorted_positions[np.abs(sorted_positions) < 1e-10] = 0.
@@ -98,7 +105,7 @@ class change_hpos():
         self.ShiftAllAtompos()
         self.GetRefineCell()
         # print(spglib.get_spacegroup(self.cell, symprec=1e-5))
-        tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        # tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
         # print(tmpsym['rotations'].shape)
         # for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
         #         print(rot, trans)
@@ -119,7 +126,7 @@ class change_hpos():
         #         print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
-    def GetAllHpos(self):
+    def GetAllHpos(self, cart=False):
         # Obtain all H positions in a 2D np array [atomidx, x/y/z/ axis],
         # whose 1st axis is in the C order, i.e., the z coordination is most
         # rapidly changed.
@@ -136,6 +143,16 @@ class change_hpos():
                                      (self.std[2] - self.edgelength[2]/2
                                       + (iz+self.hshift[2])*dx[2]) % 1.0])
             self.hpos = np.array(hpos)
+        elif cart:
+            # use cartecian coord.
+            dx = self.edgelength / (self.nx - 1)
+            for ix in range(0, self.nx):
+                for iy in range(0, self.nx):
+                    for iz in range(0, self.nx):
+                        hpos.append([- self.edgelength/2 + ix*dx,
+                                     - self.edgelength/2 + iy*dx,
+                                     - self.edgelength/2 + iz*dx])
+            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0]))
         else:
             # print(self.edgelength)
             # print(type(self.edgelength))
@@ -193,7 +210,7 @@ class change_hpos():
 
     def GetIrreducibleShift(self):
         # Obtain irreducible H positions w.r.t. symmetry operations.
-        # print(sym['rotations'].shape)
+        print('chk rot', self.sym['rotations'].shape)
         # print(hpos.shape)
         # print(np.matmul(hpos, sym['rotations']).transpose(1, 0, 2).shape)
         # print(sym['translations'].shape)
@@ -212,8 +229,8 @@ class change_hpos():
                                    axis=1) >= 1e-5
                     cond[i] = True
             irr_hpos = irr_hpos[cond]
-        # print(irr_hpos.shape)
-        # print(irr_hpos)
+        print('chk, irr_hpos',irr_hpos.shape)
+        #print(irr_hpos)
         self.irr_hpos = irr_hpos
 
     def GetIrreducibleShift2(self):
@@ -289,16 +306,23 @@ class change_hpos():
         # test = (np.matmul(self.irr_hpos,
         #                   self.sym['rotations']).transpose(1, 0, 2)
         #         + self.sym['translations']) % 1.0
+        print('chk rot', self.sym['rotations'].shape)
+        print('chk hpos', self.hpos.shape)
+        print('chk hpos', self.hpos)
         test = (np.matmul(self.sym['rotations'],
                           self.irr_hpos.T).transpose(2, 0, 1)
                 + self.sym['translations']) % 1.0
+        print('chk test', test.shape)
         test2 = np.repeat(np.expand_dims(test, 2), self.hpos.shape[0], axis=2)
+        print('chk test2', test2.shape)
         cond = np.prod(np.sum(np.abs(self.hpos - test2) % 1.0,
                               axis=3) >= 1e-5, axis=1, dtype=bool)
+        print('chk cond', cond.shape)
         pairs = np.where(np.invert(cond))
+        print('chk pairs', pairs[0].shape)
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
-        # print(self.irr_idx.shape)
-        # print(self.irr_idx)
+        print('chk, irr_idx',self.irr_idx.shape)
+        print('chk, irr_idx',self.irr_idx)
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -373,6 +397,7 @@ class change_hpos():
         # print(np.min(self.ene))
 
     def GetPotential(self):
+        print(self.irr_idx.shape)
         self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
                                                          self.nx))
 
