@@ -47,7 +47,7 @@ class change_hpos():
         #print("chk, a=", self.a)
         #print("chk, b=", self.b)
         #print("chk, c=", self.c)
-        print("chk, test", self.edgelengthina0)
+        # print("chk, test", self.edgelengthina0)
         nspc = np.asarray((self.lines[6].split()), dtype=int)
         self.numbers = [i+1 for i in range(0, nspc.shape[0])
                         for j in range(0, nspc[i])]
@@ -63,9 +63,9 @@ class change_hpos():
         #print(np.matmul(self.positions, self.lattice))
         lat = self.cell[0]
         positions = self.cell[1]
-        print(lat)
-        print(positions.shape)
-        print(self.cell[1])
+        # print(lat)
+        # print(positions.shape)
+        # print(self.cell[1])
         carts = np.matmul(positions, lat)
         lines = self.lines
         outfile = 'POSCAR_chk'
@@ -152,7 +152,7 @@ class change_hpos():
                         hpos.append([- self.edgelength/2 + ix*dx,
                                      - self.edgelength/2 + iy*dx,
                                      - self.edgelength/2 + iz*dx])
-            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0]))
+            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])) % 1.0
         else:
             # print(self.edgelength)
             # print(type(self.edgelength))
@@ -210,7 +210,7 @@ class change_hpos():
 
     def GetIrreducibleShift(self):
         # Obtain irreducible H positions w.r.t. symmetry operations.
-        print('chk rot', self.sym['rotations'].shape)
+        # print('chk rot', self.sym['rotations'].shape)
         # print(hpos.shape)
         # print(np.matmul(hpos, sym['rotations']).transpose(1, 0, 2).shape)
         # print(sym['translations'].shape)
@@ -229,7 +229,7 @@ class change_hpos():
                                    axis=1) >= 1e-5
                     cond[i] = True
             irr_hpos = irr_hpos[cond]
-        print('chk, irr_hpos',irr_hpos.shape)
+        # print('chk, irr_hpos',irr_hpos.shape)
         #print(irr_hpos)
         self.irr_hpos = irr_hpos
 
@@ -306,23 +306,23 @@ class change_hpos():
         # test = (np.matmul(self.irr_hpos,
         #                   self.sym['rotations']).transpose(1, 0, 2)
         #         + self.sym['translations']) % 1.0
-        print('chk rot', self.sym['rotations'].shape)
-        print('chk hpos', self.hpos.shape)
-        print('chk hpos', self.hpos)
+        # print('chk rot', self.sym['rotations'].shape)
+        # print('chk hpos', self.hpos.shape)
+        # print('chk hpos', self.hpos)
         test = (np.matmul(self.sym['rotations'],
                           self.irr_hpos.T).transpose(2, 0, 1)
                 + self.sym['translations']) % 1.0
-        print('chk test', test.shape)
+        # print('chk test', test.shape)
         test2 = np.repeat(np.expand_dims(test, 2), self.hpos.shape[0], axis=2)
-        print('chk test2', test2.shape)
+        # print('chk test2', test2.shape)
         cond = np.prod(np.sum(np.abs(self.hpos - test2) % 1.0,
                               axis=3) >= 1e-5, axis=1, dtype=bool)
-        print('chk cond', cond.shape)
+        # print('chk cond', cond.shape)
         pairs = np.where(np.invert(cond))
-        print('chk pairs', pairs[0].shape)
+        # print('chk pairs', pairs[0].shape)
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
-        print('chk, irr_idx',self.irr_idx.shape)
-        print('chk, irr_idx',self.irr_idx)
+        # print('chk, irr_idx',self.irr_idx.shape)
+        # print('chk, irr_idx',self.irr_idx)
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -397,14 +397,14 @@ class change_hpos():
         # print(np.min(self.ene))
 
     def GetPotential(self):
-        print(self.irr_idx.shape)
+        # print(self.irr_idx.shape)
         self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
                                                          self.nx))
 
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
         #plt.colorbar()
-        plt.plot(self.potential[:,10,10]-np.min(self.potential))
+        plt.plot(self.potential[:,5,5]-np.min(self.potential))
         plt.ylim((0,2))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
@@ -412,7 +412,7 @@ class change_hpos():
         # x = np.zeros((self.nx))
         print(np.min(self.potential))
         print(np.unravel_index(np.argmin(self.potential), self.potential.shape))
-        print(self.potential[5,5,6])
+        print(self.potential[5,5,5])
         # for i in range(0, self.nx):
         #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
         #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,
@@ -424,13 +424,13 @@ class change_hpos():
         # plt.plot(x, y, marker='o')
         dist = ((self.hpos[:, 0].reshape((self.nx, self.nx, self.nx)) -
                  self.hpos[:, 0].reshape((self.nx, self.nx,
-                                          self.nx))[7, 7, 7])**2 +
+                                          self.nx))[2, 2, 2])**2 +
                 (self.hpos[:, 1].reshape((self.nx, self.nx, self.nx)) -
                  self.hpos[:, 1].reshape((self.nx, self.nx,
-                                          self.nx))[7, 7, 7])**2 +
+                                          self.nx))[2, 2, 2])**2 +
                 (self.hpos[:, 2].reshape((self.nx, self.nx, self.nx)) -
                  self.hpos[:, 2].reshape((self.nx, self.nx,
-                                          self.nx))[7, 7, 7])**2)**0.5
+                                          self.nx))[2, 2, 2])**2)**0.5
         #plt.plot([dist[i, i, 7] for i in range(self.nx-1, 6, -1)],
         #         [self.potential[i, i, 7] - np.min(self.potential)
         #         for i in range(self.nx-1, 6, -1)], marker='o', label='110')
