@@ -131,7 +131,7 @@ class change_hpos():
         # whose 1st axis is in the C order, i.e., the z coordination is most
         # rapidly changed.
         hpos = []
-        if type(self.edgelength) is list:
+        if type(self.edgelength) is list and not cart:
             dx = np.array(self.edgelength)/self.nx
             for ix in range(0, self.nx):
                 for iy in range(0, self.nx):
@@ -143,7 +143,7 @@ class change_hpos():
                                      (self.std[2] - self.edgelength[2]/2
                                       + (iz+self.hshift[2])*dx[2]) % 1.0])
             self.hpos = np.array(hpos)
-        elif cart:
+        elif type(self.edgelength) is not list and cart:
             # use cartecian coord.
             dx = self.edgelength / (self.nx - 1)
             for ix in range(0, self.nx):
@@ -152,7 +152,21 @@ class change_hpos():
                         hpos.append([- self.edgelength/2 + ix*dx,
                                      - self.edgelength/2 + iy*dx,
                                      - self.edgelength/2 + iz*dx])
-            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])) % 1.0
+            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])
+                                  ) % 1.0
+            self.edgelengthina0 = self.edgelength/self.a0
+        elif type(self.edgelength) is list and cart:
+            # use cartecian coord.
+            dx = self.edgelength / (self.nx - 1)
+            for ix in range(0, self.nx):
+                for iy in range(0, self.nx):
+                    for iz in range(0, self.nx):
+                        hpos.append([- self.edgelength[0]/2 + ix*dx,
+                                     - self.edgelength[1]/2 + iy*dx,
+                                     - self.edgelength[2]/2 + iz*dx])
+            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])
+                                  ) % 1.0
+            self.edgelengthina0 = self.edgelength/self.a0
         else:
             # print(self.edgelength)
             # print(type(self.edgelength))
@@ -187,6 +201,7 @@ class change_hpos():
         self.hpos = np.array(hpos)
         hlat = np.matmul(self.lattice.T, vec)*self.edgelength
         self.edgelengthina0 = (((hlat**2).sum(axis=0))**0.5)/self.a0
+        print(self.edgelengthina0)
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
@@ -404,7 +419,7 @@ class change_hpos():
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
         #plt.colorbar()
-        plt.plot(self.potential[:,5,5]-np.min(self.potential))
+        plt.plot(self.potential[:,10,10]-np.min(self.potential))
         plt.ylim((0,2))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
@@ -488,7 +503,7 @@ class change_hpos():
     def GetEigen(self):
         self.E, self.U = np.linalg.eigh(self.H)
         self.E *= self.Eh * 1000.
-        #print(self.E[0:10] - np.min(self.E))
+        print(self.E[0:10] - np.min(self.E))
         #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
         #plt.show()
 
@@ -505,7 +520,7 @@ class change_hpos():
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
         #plt.pcolor(self.densities[0, 10, :, :])
         print(np.unravel_index(np.argmax(self.densities[7, :, :, :]), self.densities[7, :, :, :].shape))
-        plt.plot(self.densities[1, :, 15, 15])
+        plt.plot(self.densities[1, :, 10, 10])
         plt.show()
         #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
         #for ix in range(self.nx):
@@ -520,6 +535,22 @@ class change_hpos():
     def GetDensityFile(self, no):
         outfile = 'density' + str(no) + '.out'
         den = self.densities[no].flatten(order='F')
+        out = ""
+        for irow in range(den.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    den[irow*5], den[irow*5+1], den[irow*5+2], den[irow*5+3],
+                    den[irow*5+4])
+        last = ""
+        for il in range(den.shape[0] % 5):
+            last += "{:.11e} ".format(den[il+(den.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
+    def GetPotFile(self):
+        outfile = 'potential.out'
+        den = (self.potential-np.min(self.potential)).flatten(order='F')
+        den = den/np.sum(den)
         out = ""
         for irow in range(den.shape[0] // 5):
             out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(

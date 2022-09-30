@@ -20,6 +20,8 @@ class GaussianProcessRegression:
         self.x_train = x_train
         self.y_train = y_train
         self.noiselevel = noiselevel
+
+    def new(self):
         self.K = self.kernel(self.x_train, self.x_train)
         self.K_astarisc = self.kernel(self.x, self.x_train)
         self.noise_mat = self.noiselevel*np.eye(self.x_train.shape[0])
@@ -62,6 +64,9 @@ class GaussianProcessRegression:
         for p, xp in enumerate(x1):
             for q, xq in enumerate(x2):
                 K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/5.)**2))
+                #K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/0.5)**2))
+                #K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/1.)**2))
+                #K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/0.003)**2))
         return(K)
 
 
@@ -70,26 +75,30 @@ def searchrun():
     x_train = np.array([-2.3])
     y_train = testfunc(x_train)
     noiselevel = 0.000000000001
+    prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
+    prj.new()
     for itry in range(0, 20):
-        prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
         plt.fill_between(x, prj.f_bar + 2.*prj.std, prj.f_bar - 2.*prj.std,
                          fc='gray')
         plt.scatter(x_train, y_train, marker='x')
         plt.plot(x, testfunc(x))
         plt.plot(x, prj.f_bar)
         plt.show()
-        beta = (0.1*np.log(itry*1.))**0.5
-        beta =5.*np.log(itry)**0.5
-        if itry % 2 == 1:
+        #beta = (0.1*np.log(itry*1.))**0.5
+        beta = (20.*np.log(itry))**0.5
+        print(itry)
+        if itry % 3 == 0:
             activation = prj.f_bar + beta * prj.std
             nextx = x[np.argmax(activation)]
-        else:
+        elif itry % 3 == 1:
             activation = prj.f_bar - beta * prj.std
             nextx = x[np.argmin(activation)]
-        #activation = prj.f_bar + beta * prj.std
-        #nextx = x[np.argmax(activation)]
+        else:
+            activation = prj.std
+            nextx = x[np.argmax(activation)]
         x_train = np.append(x_train, nextx)
         y_train = np.append(y_train, testfunc(nextx))
+        prj.renew(x_train, y_train)
 
 
 def searchrun2dnrca():
@@ -170,4 +179,9 @@ def testfunc2d(x):
     return np.exp(-np.sum((x-pos1)**2., axis=1)) + 0.5*np.exp(-np.sum((x-pos2)**2., axis=1))
 
 
+def testfunc(x):
+    return 2.*np.exp(-x**2.) + np.exp(-((x-1.5)/2.0)**2.)
+
+
 #searchrun2dnrca()
+#searchrun()
