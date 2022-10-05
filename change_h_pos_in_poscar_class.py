@@ -126,7 +126,7 @@ class change_hpos():
         #         print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
-    def GetAllHpos(self, cart=False):
+    def GetAllHpos(self, cart=False, rot=np.array([[1,0,0],[0,1,0],[0,0,1]])):
         # Obtain all H positions in a 2D np array [atomidx, x/y/z/ axis],
         # whose 1st axis is in the C order, i.e., the z coordination is most
         # rapidly changed.
@@ -147,26 +147,31 @@ class change_hpos():
             # use cartecian coord.
             dx = self.edgelength / (self.nx - 1)
             for ix in range(0, self.nx):
+            #for ix in range(self.nx // 2, self.nx // 2 + 1):
                 for iy in range(0, self.nx):
+                #for iy in range(self.nx // 2, self.nx // 2 + 1):
                     for iz in range(0, self.nx):
+                    #for iz in range(self.nx // 2, self.nx // 2 + 1):
                         hpos.append([- self.edgelength/2 + ix*dx,
                                      - self.edgelength/2 + iy*dx,
                                      - self.edgelength/2 + iz*dx])
-            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])
-                                  ) % 1.0
+            hpos = np.matmul(np.array(hpos), rot)
+            self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))\
+                + self.std) % 1.0
+            print('chk',self.hpos)
             self.edgelengthina0 = self.edgelength/self.a0
-        elif type(self.edgelength) is list and cart:
-            # use cartecian coord.
-            dx = self.edgelength / (self.nx - 1)
-            for ix in range(0, self.nx):
-                for iy in range(0, self.nx):
-                    for iz in range(0, self.nx):
-                        hpos.append([- self.edgelength[0]/2 + ix*dx,
-                                     - self.edgelength[1]/2 + iy*dx,
-                                     - self.edgelength[2]/2 + iz*dx])
-            self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])
-                                  ) % 1.0
-            self.edgelengthina0 = self.edgelength/self.a0
+        #elif type(self.edgelength) is list and cart:
+        #    # use cartecian coord.
+        #    dx = self.edgelength / (self.nx - 1)
+        #    for ix in range(0, self.nx):
+        #        for iy in range(0, self.nx):
+        #            for iz in range(0, self.nx):
+        #                hpos.append([- self.edgelength[0]/2 + ix*dx,
+        #                             - self.edgelength[1]/2 + iy*dx,
+        #                             - self.edgelength[2]/2 + iz*dx])
+        #    self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])
+        #                          ) % 1.0
+        #    self.edgelengthina0 = self.edgelength/self.a0
         else:
             # print(self.edgelength)
             # print(type(self.edgelength))
@@ -182,8 +187,7 @@ class change_hpos():
                                      (self.std[2] - self.edgelength/2
                                       + (iz+self.hshift[2])*dx) % 1.0])
             self.hpos = np.array(hpos)
-        #self.hpos += self.hshift
-        #print(self.hpos)
+        print("edgelength(s) in Angs:", self.edgelengthina0*self.a0)
 
     def GetAllHpos_vec(self):
         vec = np.array([[1., -1., 0], [1., 1., 0], [0., 0., 1.]])
@@ -198,10 +202,10 @@ class change_hpos():
                                               np.array([0.5, 0.5, 0.5]) *
                                               self.edgelength)*vec).sum(axis=1)
                     ih += 1
-        self.hpos = np.array(hpos)
+        self.hpos = np.array(hpos) % 1.0
         hlat = np.matmul(self.lattice.T, vec)*self.edgelength
         self.edgelengthina0 = (((hlat**2).sum(axis=0))**0.5)/self.a0
-        print(self.edgelengthina0)
+        print("edgelengths in Angs.:", self.edgelengthina0*self.a0)
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
@@ -412,22 +416,25 @@ class change_hpos():
         # print(np.min(self.ene))
 
     def GetPotential(self):
-        # print(self.irr_idx.shape)
+        print(self.irr_idx.shape)
         self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
                                                          self.nx))
 
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
         #plt.colorbar()
-        plt.plot(self.potential[:,10,10]-np.min(self.potential))
-        plt.ylim((0,2))
+        print(self.nx // 2)
+        plt.plot(self.potential[self.nx // 2, self.nx // 2, :]
+                 - np.min(self.potential))
+        plt.ylim((0, 2))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
         # x = np.zeros((self.nx))
         print(np.min(self.potential))
-        print(np.unravel_index(np.argmin(self.potential), self.potential.shape))
-        print(self.potential[5,5,5])
+        print(np.unravel_index(np.argmin(self.potential), self.potential.shape)
+              )
+        print(self.potential[self.nx // 2, self.nx // 2, self.nx // 2])
         # for i in range(0, self.nx):
         #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
         #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,
@@ -437,15 +444,15 @@ class change_hpos():
         #             (self.hpos[:,2].reshape((self.nx, self.nx,
         #                                      self.nx))[i, i, 7])**2 )**0.5
         # plt.plot(x, y, marker='o')
-        dist = ((self.hpos[:, 0].reshape((self.nx, self.nx, self.nx)) -
-                 self.hpos[:, 0].reshape((self.nx, self.nx,
-                                          self.nx))[2, 2, 2])**2 +
-                (self.hpos[:, 1].reshape((self.nx, self.nx, self.nx)) -
-                 self.hpos[:, 1].reshape((self.nx, self.nx,
-                                          self.nx))[2, 2, 2])**2 +
-                (self.hpos[:, 2].reshape((self.nx, self.nx, self.nx)) -
-                 self.hpos[:, 2].reshape((self.nx, self.nx,
-                                          self.nx))[2, 2, 2])**2)**0.5
+        #dist = ((self.hpos[:, 0].reshape((self.nx, self.nx, self.nx)) -
+        #         self.hpos[:, 0].reshape((self.nx, self.nx,
+        #                                  self.nx))[2, 2, 2])**2 +
+        #        (self.hpos[:, 1].reshape((self.nx, self.nx, self.nx)) -
+        #         self.hpos[:, 1].reshape((self.nx, self.nx,
+        #                                  self.nx))[2, 2, 2])**2 +
+        #        (self.hpos[:, 2].reshape((self.nx, self.nx, self.nx)) -
+        #         self.hpos[:, 2].reshape((self.nx, self.nx,
+        #                                  self.nx))[2, 2, 2])**2)**0.5
         #plt.plot([dist[i, i, 7] for i in range(self.nx-1, 6, -1)],
         #         [self.potential[i, i, 7] - np.min(self.potential)
         #         for i in range(self.nx-1, 6, -1)], marker='o', label='110')
@@ -492,7 +499,8 @@ class change_hpos():
         for i, gi in enumerate(self.Gs):
             for j, gj in enumerate(self.Gs):
                 if i == j:
-                    _gi = gi/self.edgelengthina0
+                    #_gi = gi/self.edgelengthina0
+                    _gi = gi/(self.edgelengthina0/(self.nx-1)*self.nx)
                     K = (2*np.pi)**2*np.dot(_gi, _gi)/(2.*self.mh)
                 else:
                     K = 0.
