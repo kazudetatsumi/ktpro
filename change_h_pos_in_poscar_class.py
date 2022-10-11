@@ -2,11 +2,13 @@
 import numpy as np
 import spglib
 import matplotlib.pyplot as plt
+import pickle
 
 
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
-                 shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None):
+                 shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None, prim=True,
+                 oldedgelength=False):
         self.infile = infile
         if type(std) is list:
             self.std = np.array(std)
@@ -22,6 +24,15 @@ class change_hpos():
         self.a0 = 0.5291772
         self.mh = 1836
         self.Eh = 27.211
+        self.prim = prim
+        self.oldedgelength = oldedgelength
+        ## dx is set as follows since 2022/10/05
+        ## note that this is formally the same for all of the fractional/cartecian
+        ## and scalar/list self.edgelength.
+        if self.oldedgelength:
+            self.dx = np.array(self.edgelength)/(self.nx - 1)
+        else:
+            self.dx = np.array(self.edgelength)/self.nx
 
     def GetCrystalParamsFromPoscar(self):
         with open(self.infile, 'r') as f:
@@ -91,9 +102,10 @@ class change_hpos():
         #     print('Not shifted!')
 
     def GetRefineCell(self):
-        #lattice, positions, numbers = spglib.refine_cell(self.cell)
-        #To obatin the primitive cell, use find_primitive instead of refine_cell.
-        lattice, positions, numbers = spglib.find_primitive(self.cell)
+        if self.prim:
+            lattice, positions, numbers = spglib.find_primitive(self.cell)
+        else:
+            lattice, positions, numbers = spglib.refine_cell(self.cell)
         sorted_numbers = np.sort(numbers)
         sorted_positions = positions[np.argsort(numbers)]
         sorted_positions[np.abs(sorted_positions) < 1e-10] = 0.
@@ -132,29 +144,31 @@ class change_hpos():
         # rapidly changed.
         hpos = []
         if type(self.edgelength) is list and not cart:
-            dx = np.array(self.edgelength)/self.nx
+            ## dx was set as follows before 2022/10/05
+            #dx = np.array(self.edgelength)/self.nx
             for ix in range(0, self.nx):
                 for iy in range(0, self.nx):
                     for iz in range(0, self.nx):
                         hpos.append([(self.std[0] - self.edgelength[0]/2
-                                      + (ix+self.hshift[0])*dx[0]) % 1.0,
+                                      + (ix+self.hshift[0])*self.dx[0]) % 1.0,
                                      (self.std[1] - self.edgelength[1]/2
-                                      + (iy+self.hshift[1])*dx[1]) % 1.0,
+                                      + (iy+self.hshift[1])*self.dx[1]) % 1.0,
                                      (self.std[2] - self.edgelength[2]/2
-                                      + (iz+self.hshift[2])*dx[2]) % 1.0])
+                                      + (iz+self.hshift[2])*self.dx[2]) % 1.0])
             self.hpos = np.array(hpos)
         elif type(self.edgelength) is not list and cart:
-            # use cartecian coord.
-            dx = self.edgelength / (self.nx - 1)
+            ## use cartecian coord.
+            ## dx was set as follows before 2022/10/05
+            #dx = self.edgelength / (self.nx - 1)
             for ix in range(0, self.nx):
             #for ix in range(self.nx // 2, self.nx // 2 + 1):
                 for iy in range(0, self.nx):
                 #for iy in range(self.nx // 2, self.nx // 2 + 1):
                     for iz in range(0, self.nx):
                     #for iz in range(self.nx // 2, self.nx // 2 + 1):
-                        hpos.append([- self.edgelength/2 + ix*dx,
-                                     - self.edgelength/2 + iy*dx,
-                                     - self.edgelength/2 + iz*dx])
+                        hpos.append([- self.edgelength/2 + ix*self.dx,
+                                     - self.edgelength/2 + iy*self.dx,
+                                     - self.edgelength/2 + iz*self.dx])
             hpos = np.matmul(np.array(hpos), rot)
             self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))\
                 + self.std) % 1.0
@@ -173,32 +187,31 @@ class change_hpos():
         #                          ) % 1.0
         #    self.edgelengthina0 = self.edgelength/self.a0
         else:
-            # print(self.edgelength)
-            # print(type(self.edgelength))
-            # dx = self.edgelength/(self.nx-1)
-            dx = self.edgelength/self.nx
+            ## dx was set as follows before 2022/10/05
+            #dx = self.edgelength/self.nx
             for ix in range(0, self.nx):
                 for iy in range(0, self.nx):
                     for iz in range(0, self.nx):
                         hpos.append([(self.std[0] - self.edgelength/2
-                                      + (ix+self.hshift[0])*dx) % 1.0,
+                                      + (ix+self.hshift[0])*self.dx) % 1.0,
                                      (self.std[1] - self.edgelength/2
-                                      + (iy+self.hshift[1])*dx) % 1.0,
+                                      + (iy+self.hshift[1])*self.dx) % 1.0,
                                      (self.std[2] - self.edgelength/2
-                                      + (iz+self.hshift[2])*dx) % 1.0])
+                                      + (iz+self.hshift[2])*self.dx) % 1.0])
             self.hpos = np.array(hpos)
         print("edgelength(s) in Angs:", self.edgelengthina0*self.a0)
 
     def GetAllHpos_vec(self):
         vec = np.array([[1., -1., 0], [1., 1., 0], [0., 0., 1.]])
         hpos = np.zeros((self.nx**3, 3))
-        dx = np.array(self.edgelength)/(self.nx - 1)
+        ## dx was set as follows before 2022/10/05
+        #dx = np.array(self.edgelength)/(self.nx - 1)
         ih = 0
         for ix in range(0, self.nx):
             for iy in range(0, self.nx):
                 for iz in range(0, self.nx):
                     hpos[ih, :] = self.std + (((np.array([ix, iy, iz]) +
-                                              self.hshift)*dx -
+                                              self.hshift)*self.dx -
                                               np.array([0.5, 0.5, 0.5]) *
                                               self.edgelength)*vec).sum(axis=1)
                     ih += 1
@@ -493,14 +506,16 @@ class change_hpos():
         self.Gs = np.array(Gs).reshape((-1, 3))
         print('chk Gs:', self.Gs.shape)
 
-    def GetH(self):
+    def GetH(self, oldedgelength=False):
         self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
                           )
         for i, gi in enumerate(self.Gs):
             for j, gj in enumerate(self.Gs):
                 if i == j:
-                    #_gi = gi/self.edgelengthina0
-                    _gi = gi/(self.edgelengthina0/(self.nx-1)*self.nx)
+                    if self.oldedgelength:
+                        _gi = gi/(self.edgelengthina0/(self.nx-1)*self.nx)
+                    else:
+                        _gi = gi/self.edgelengthina0
                     K = (2*np.pi)**2*np.dot(_gi, _gi)/(2.*self.mh)
                 else:
                     K = 0.
@@ -511,7 +526,7 @@ class change_hpos():
     def GetEigen(self):
         self.E, self.U = np.linalg.eigh(self.H)
         self.E *= self.Eh * 1000.
-        print(self.E[0:10] - np.min(self.E))
+        print(self.E[0:15] - np.min(self.E))
         #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
         #plt.show()
 
@@ -571,8 +586,7 @@ class change_hpos():
         with open(outfile, 'w') as f:
             f.write(out)
 
-    #def GetTransitionMatrix(self, q, domegas, Isplot=True, label=None):
-    def GetTransitionMatrix(self, q, Isplot=True, label=None):
+    def GetTransitionMatrix(self, q, Isplot=True, label=None, Iswrite=True):
         nmesh = self.nx*2
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape(3, -1)
@@ -580,18 +594,41 @@ class change_hpos():
         #mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(np.repeat(np.expand_dims(arg, 1), self.wavefuncs.shape[0], axis=1))
         mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(arg)
         #mat2 = (mat.transpose((1, 2, 3, 4, 0))*domegas).transpose((0, 4, 1, 2, 3))
-        self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
         #self.sqw = (np.abs(mat.reshape(mat2.shape[0], mat2.shape[1], -1).sum(axis=1))**2).sum(axis=1)
+        ene = np.arange(0, 3000, 1)
+        spec = np.zeros(3000)
+        for iw, s in enumerate(sqw[1:]):
+            dE = (self.E[iw+1] - self.E[0])
+            sigma = dE*0.02
+            spec += s*np.exp(-(ene - dE)**2/sigma**2)
+        if Iswrite:
+            self.dataset = {}
+            self.dataset['ene'] = ene
+            self.dataset['spec'] = spec
+            self.dataset['E'] = self.E
+            self.dataset['sqw'] = sqw
+            with open("./savedata_" + label + ".pkl", 'wb') as f:
+                pickle.dump(self.dataset, f, 4)
         if Isplot:
-            ene = np.arange(0, 3000, 1)
-            spec = np.zeros(3000)
-            for iw, s in enumerate(self.sqw[1:]):
-                dE = (self.E[iw+1] - self.E[0])
-                sigma = dE*0.02
-                spec += s*np.exp(-(ene - dE)**2/sigma**2)
-            plt.plot(ene, spec, label=label)
-            plt.bar(self.E[1:] - self.E[0], self.sqw[1:])
-            plt.xlim((0, 400))
+            self.Plotter(label=label)
+
+    def PlotSavedData(self, infile, label):
+        self.LoadData(infile)
+        self.Plotter(label=label)
+
+    def LoadData(self, infile):
+        with open(infile, 'rb') as f:
+            self.dataset = pickle.load(f)
+
+    def Plotter(self, label=None):
+        ene = self.dataset['ene']
+        spec = self.dataset['spec']
+        E = self.dataset['E']
+        sqw = self.dataset['sqw']
+        plt.plot(ene, spec, label=label)
+        plt.bar(E[1:] - E[0], sqw[1:])
+        plt.xlim((0, 400))
 
     def Integrateoverallsolidangle(self, qlength):
         nmesh = 10

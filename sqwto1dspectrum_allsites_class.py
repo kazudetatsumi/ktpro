@@ -79,7 +79,7 @@ class sqwto1dspectrum(isc.interpolate_and_subt):
             suptitle = "inc q between "+str(self.qmin)+" and "+str(self.qmax) \
                        + " $\AA^{-1}$"
         self.fig = plt.figure(figsize=figsize)
-        self.fig.suptitle(suptitle)
+        #self.fig.suptitle(suptitle)
         self.gs = self.fig.add_gridspec(nr, 1, hspace=0, wspace=0)
 
     def plotter(self, bottomno=None):
@@ -136,7 +136,7 @@ class sqwto1dspectrum(isc.interpolate_and_subt):
                        labelbottom=True, width=2)
 
     def pngplot(self, pngfile, nr=2, extent=(-1.63, 1.63, -1, 1)):
-        ax = self.fig.add_subplot(self.gs[nr, 0])
+        ax = self.fig.add_subplot(self.gs[nr:, 0])
         ax.imshow(mpimg.imread(pngfile),  extent=extent)
         ax.set_axis_off()
 
