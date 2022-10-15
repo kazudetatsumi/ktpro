@@ -9,7 +9,7 @@ from mpi4py import MPI
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
                  shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None, prim=True,
-                 oldedgelength=False):
+                 oldedgelength=False, deuterium=False):
         self.infile = infile
         if type(std) is list:
             self.std = np.array(std)
@@ -23,7 +23,10 @@ class change_hpos():
         self.hshift = np.array(hshift)
         self.rg = rg
         self.a0 = 0.5291772
-        self.mh = 1836
+        if deuterium:
+            self.mh = 1836*2
+        else:
+            self.mh = 1836
         self.Eh = 27.211
         self.prim = prim
         self.oldedgelength = oldedgelength
@@ -536,12 +539,18 @@ class change_hpos():
                 V = self.z[dg[0], dg[1], dg[2]]
                 self.H[i, j] = K + V
 
-    def GetEigen(self):
+    def GetEigen(self, Issave=False):
         rank = MPI.COMM_WORLD.Get_rank()
         self.E, self.U = np.linalg.eigh(self.H)
         self.E *= self.Eh * 1000.
         if rank == 0:
             print(self.E[0:15] - np.min(self.E))
+            if Issave:
+                dataset = {}
+                dataset['E'] = self.E
+                dataset['U'] = self.U
+                with open("./save_eigen.pkl", 'wb') as f:
+                    pickle.dump(dataset, f, 4)
 
     def GetWavefuncs(self):
         nmesh = self.nx*2

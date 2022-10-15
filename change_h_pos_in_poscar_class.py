@@ -59,11 +59,11 @@ class change_hpos():
         #print("chk, b=", self.b)
         #print("chk, c=", self.c)
         # print("chk, test", self.edgelengthina0)
-        nspc = np.asarray((self.lines[6].split()), dtype=int)
-        self.numbers = [i+1 for i in range(0, nspc.shape[0])
-                        for j in range(0, nspc[i])]
-        self.positions = np.zeros((np.sum(nspc), 3))
-        for ipos in range(0, np.sum(nspc)):
+        self.nspc = np.asarray((self.lines[6].split()), dtype=int)
+        self.numbers = [i+1 for i in range(0, self.nspc.shape[0])
+                        for j in range(0, self.nspc[i])]
+        self.positions = np.zeros((np.sum(self.nspc), 3))
+        for ipos in range(0, np.sum(self.nspc)):
             self.positions[ipos] = np.asarray((self.lines[9+ipos]
                                                .split()[0:3][0:4]
                                                ), dtype=float)
@@ -523,12 +523,24 @@ class change_hpos():
                 V = self.z[dg[0], dg[1], dg[2]]
                 self.H[i, j] = K + V
 
-    def GetEigen(self):
+    def GetEigen(self, Issave=False):
         self.E, self.U = np.linalg.eigh(self.H)
         self.E *= self.Eh * 1000.
         print(self.E[0:15] - np.min(self.E))
         #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
         #plt.show()
+        if Issave:
+            dataset = {}
+            dataset['E'] = self.E
+            dataset['U'] = self.U
+            with open("./save_eigen.pkl", 'wb') as f:
+                pickle.dump(dataset, f, 4)
+
+    def LoadEigen(self):
+        with open("./save_eigen.pkl", 'rb') as f:
+            dataset = pickle.load(f)
+            self.E = dataset['E']
+            self.U = dataset['U']
 
     def GetWavefuncs(self):
         nmesh = self.nx*2
@@ -586,20 +598,20 @@ class change_hpos():
         with open(outfile, 'w') as f:
             f.write(out)
 
-    def GetTransitionMatrix(self, q, Isplot=True, label=None, Iswrite=True):
+    def GetTransitionMatrix(self, q, Isplot=True, label=None, Iswrite=True, istate=0):
         nmesh = self.nx*2
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape(3, -1)
         arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh).reshape(-1, nmesh, nmesh, nmesh).squeeze()
         #mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(np.repeat(np.expand_dims(arg, 1), self.wavefuncs.shape[0], axis=1))
-        mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(arg)
+        mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
         #mat2 = (mat.transpose((1, 2, 3, 4, 0))*domegas).transpose((0, 4, 1, 2, 3))
         sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
         #self.sqw = (np.abs(mat.reshape(mat2.shape[0], mat2.shape[1], -1).sum(axis=1))**2).sum(axis=1)
         ene = np.arange(0, 3000, 1)
         spec = np.zeros(3000)
         for iw, s in enumerate(sqw[1:]):
-            dE = (self.E[iw+1] - self.E[0])
+            dE = (self.E[iw+1] - self.E[istate])
             sigma = dE*0.02
             spec += s*np.exp(-(ene - dE)**2/sigma**2)
         if Iswrite:

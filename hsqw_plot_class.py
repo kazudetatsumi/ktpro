@@ -17,12 +17,20 @@ class hpdos(sac.sqwto1dspectrum):
         self.infiles = infiles
 
     def plotter(self, elow=0, ehigh=400, tx=75, ty=1.4*10**8,
-                noxlabel=False, numoffolds=2):
+                noxlabel=False, numoffolds=2, short=False):
         for iidx, infile in enumerate(self.infiles):
             self.load_pkl(infile)
             ax = self.fig.add_subplot(self.gs[iidx, 0])
             ax.plot(self.dataset['ene'], self.dataset['spec'])
-            words = self.getwords(infile, numoffolds)
+            tmpylim = ax.get_ylim()
+            ax.set_ylim(0, tmpylim[1])
+            if short:
+                words = [infile.split('/')[-1]]
+                if iidx == 0:
+                    ax.text(elow, tmpylim[1]*1.05, '%s' % infile.split(words[0])[0], fontsize=9)
+                ty=tmpylim[1]*0.8
+            else:
+                words = self.getwords(infile, numoffolds)
             for iw, word in enumerate(words):
                 ax.text(tx, ty-iw*ty/12, '%s' % word, fontsize=9)
             ax.tick_params(labelbottom=False)

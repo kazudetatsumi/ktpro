@@ -13,6 +13,7 @@ os.environ["VECLIB_NUM_THREADS"] = "36"
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+from mpi4py import MPI
 
 
 class GaussianProcessRegression:
@@ -34,7 +35,7 @@ class GaussianProcessRegression:
                                                       rcond=None)[0],
                             rcond=None)[0]
         print("calculating K_double_astarisc")
-        self.K_double_astarisc = self.kernel(self.x, self.x)
+        self.K_double_astarisc = self.kernel_mpi(self.x, self.x)
         print("calculating V")
         self.V = np.linalg.lstsq(self.L, self.K_astarisc.T, rcond=None)[0]
         print("caluclating cov")
@@ -65,15 +66,36 @@ class GaussianProcessRegression:
         for p, xp in enumerate(x1):
             for q, xq in enumerate(x2):
                 K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/5.)**2))
-                #K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/0.5)**2))
-                #K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/1.)**2))
-                #K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/0.003)**2))
         return(K)
 
-    def kernel2(self, x1, x2):
-        test_x1 = np.repeat(np.epand_dims(x1, 2), x2.shape[0], axis=2)
-        test_x2 = np.repeat(np.epand_dims(x2, 2), x1.shape[0], axis=2).transpose(2, 1, 0)
-        return(np.exp(-0.5*np.sum(((test_x1 - test_x2)/5.)**2, axis=1)))
+    def kernel_d(self, x1, x2):
+        rank = MPI.COMM_WORLD.Get_rank()
+        K = np.zeros((x1.shape[0], x2.shape[0]))
+        for p, xp in enumerate(x1):
+            for q, xq in enumerate(x2):
+                K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/5.)**2))
+        if rank == 0:
+            print(K[3:8, 3], x1.shape, x2.shape)
+        return(K)
+
+    def kernel_mpi(self, x1, x2):
+        comm = MPI.COMM_WORLD
+        rank = MPI.COMM_WORLD.Get_rank()
+        size = MPI.COMM_WORLD.Get_size()
+        #K = np.zeros((x1.shape[0], x2.shape[0]))
+        nx1 = x1.shape[0] // size
+        K = np.zeros((x1.shape[0]*x2.shape[0]))
+        Ks = np.zeros((nx1, x2.shape[0]))
+        #for p, xp in enumerate(x1):
+        for p in range(rank*nx1, (rank+1)*nx1):
+            for q, xq in enumerate(x2):
+                Ks[p-rank*nx1, q] = np.exp(-0.5*np.sum(((x1[p] - xq)/5.)**2))
+        Ks = Ks.flatten()
+        comm.Allgather([Ks, MPI.DOUBLE], [K, MPI.DOUBLE])
+        K = K.reshape((x1.shape[0], x2.shape[0]))
+        if rank == 0:
+            print(K[3:8, 3], x1.shape, x2.shape)
+        return(K)
 
     def savedata(self, base=None):
         dataset = {}
