@@ -144,7 +144,8 @@ class change_hpos():
         #         print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
-    def GetAllHpos(self, cart=False, rot=np.array([[1,0,0],[0,1,0],[0,0,1]])):
+    def GetAllHpos(self, cart=False, rot=np.array([[1, 0, 0], [0, 1, 0],
+                                                  [0, 0, 1]])):
         # Obtain all H positions in a 2D np array [atomidx, x/y/z/ axis],
         # whose 1st axis is in the C order, i.e., the z coordination is most
         # rapidly changed.
@@ -177,8 +178,8 @@ class change_hpos():
                                      - self.edgelength/2 + iy*self.dx,
                                      - self.edgelength/2 + iz*self.dx])
             hpos = np.matmul(np.array(hpos), rot)
-            self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))\
-                + self.std) % 1.0
+            self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))
+                         + self.std) % 1.0
             #print('chk',self.hpos)
             self.edgelengthina0 = self.edgelength/self.a0
         #elif type(self.edgelength) is list and cart:
@@ -522,7 +523,7 @@ class change_hpos():
         if rank == 0:
             print('chk Gs:', self.Gs.shape)
 
-    def GetH(self, oldedgelength=False):
+    def GetH(self):
         self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
                           )
         for i, gi in enumerate(self.Gs):
@@ -552,10 +553,17 @@ class change_hpos():
                 with open("./save_eigen.pkl", 'wb') as f:
                     pickle.dump(dataset, f, 4)
 
+    def LoadEigen(self):
+        with open("./save_eigen.pkl", 'rb') as f:
+            dataset = pickle.load(f)
+            self.E = dataset['E']
+            self.U = dataset['U']
+
     def GetWavefuncs(self):
         nmesh = self.nx*2
         a = np.arange(nmesh)
-        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape((3, -1))
+        pos = np.array(np.meshgrid(a, a, a)).transpose(
+                      (0, 2, 1, 3)).reshape((3, -1))
         arg = 1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
         self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
                 (-1, nmesh, nmesh, nmesh))
@@ -564,7 +572,8 @@ class change_hpos():
         self.GetWavefuncs()
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
         #plt.pcolor(self.densities[0, 10, :, :])
-        print(np.unravel_index(np.argmax(self.densities[7, :, :, :]), self.densities[7, :, :, :].shape))
+        print(np.unravel_index(np.argmax(self.densities[7, :, :, :]),
+                               self.densities[7, :, :, :].shape))
         plt.plot(self.densities[1, :, 10, 10])
         plt.show()
         #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
@@ -611,8 +620,10 @@ class change_hpos():
     def GetTransitionMatrix(self, q, Isplot=True, label=None, Iswrite=True):
         nmesh = self.nx*2
         a = np.arange(nmesh)
-        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape(3, -1)
-        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+        pos = np.array(np.meshgrid(a, a, a)).transpose(
+                       (0, 2, 1, 3)).reshape(3, -1)
+        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh).reshape(
+                -1, nmesh, nmesh, nmesh).squeeze()
         #mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(np.repeat(np.expand_dims(arg, 1), self.wavefuncs.shape[0], axis=1))
         mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(arg)
         #mat2 = (mat.transpose((1, 2, 3, 4, 0))*domegas).transpose((0, 4, 1, 2, 3))

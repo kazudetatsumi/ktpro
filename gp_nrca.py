@@ -60,7 +60,7 @@ class GaussianProcessRegression:
         self.conv = self.K_double_astarisc - self.V.T @ self.V
         self.std = np.diag(self.conv)**0.5
 
-    def kernel(self, x1, x2):
+    def kernelorg(self, x1, x2):
         K = np.zeros((x1.shape[0], x2.shape[0]))
         for p, xp in enumerate(x1):
             for q, xq in enumerate(x2):
@@ -70,10 +70,12 @@ class GaussianProcessRegression:
                 #K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/0.003)**2))
         return(K)
 
-    def kernel2(self, x1, x2):
-        test_x1 = np.repeat(np.epand_dims(x1, 2), x2.shape[0], axis=2)
-        test_x2 = np.repeat(np.epand_dims(x2, 2), x1.shape[0], axis=2).transpose(2, 1, 0)
-        return(np.exp(-0.5*np.sum(((test_x1 - test_x2)/5.)**2, axis=1)))
+    def kernel(self, x1, x2):
+        test_x1 = np.repeat(np.expand_dims(x1, 2), x2.shape[0], axis=2)
+        test_x2 = np.repeat(np.expand_dims(x2, 2), x1.shape[0],
+                            axis=2).transpose(2, 1, 0)
+        K = np.exp(-0.5*np.sum(((test_x1 - test_x2)/5.)**2, axis=1))
+        return(K)
 
     def savedata(self, base=None):
         dataset = {}
@@ -91,8 +93,8 @@ class GaussianProcessRegression:
             dataset = pickle.load(f)
             self.x_train = dataset['x_train']
             self.y_train = dataset['y_train']
-            self.f_bar = dataset['f_bar']
-            self.std = dataset['std']
+            # self.f_bar = dataset['f_bar']
+            # self.std = dataset['std']
             if base:
                 return dataset['base']
 

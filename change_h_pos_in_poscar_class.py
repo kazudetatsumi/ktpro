@@ -63,8 +63,13 @@ class change_hpos():
         self.numbers = [i+1 for i in range(0, self.nspc.shape[0])
                         for j in range(0, self.nspc[i])]
         self.positions = np.zeros((np.sum(self.nspc), 3))
+        if "Di" in self.lines[7] or "di" in self.lines[7] or\
+           "Car" in self.lines[7] or "car" in self.lines[7]:
+            self.iniline = 8
+        elif "Sel" in self.lines[7] or "sel" in self.lines[7]:
+            self.iniline = 9
         for ipos in range(0, np.sum(self.nspc)):
-            self.positions[ipos] = np.asarray((self.lines[9+ipos]
+            self.positions[ipos] = np.asarray((self.lines[self.iniline+ipos]
                                                .split()[0:3][0:4]
                                                ), dtype=float)
 
@@ -138,7 +143,8 @@ class change_hpos():
         #         print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
-    def GetAllHpos(self, cart=False, rot=np.array([[1,0,0],[0,1,0],[0,0,1]])):
+    def GetAllHpos(self, cart=False, rot=np.array([[1, 0, 0], [0, 1, 0],
+                                                   [0, 0, 1]])):
         # Obtain all H positions in a 2D np array [atomidx, x/y/z/ axis],
         # whose 1st axis is in the C order, i.e., the z coordination is most
         # rapidly changed.
@@ -170,9 +176,9 @@ class change_hpos():
                                      - self.edgelength/2 + iy*self.dx,
                                      - self.edgelength/2 + iz*self.dx])
             hpos = np.matmul(np.array(hpos), rot)
-            self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))\
-                + self.std) % 1.0
-            print('chk',self.hpos)
+            self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))
+                         + self.std) % 1.0
+            print('chk', self.hpos)
             self.edgelengthina0 = self.edgelength/self.a0
         #elif type(self.edgelength) is list and cart:
         #    # use cartecian coord.
@@ -365,11 +371,13 @@ class change_hpos():
                 .format(lat[il, 0], lat[il, 1], lat[il, 2])
         for il in range(len(self.numbers)):
             if il <= 3:
-                lines[il+9] = "  {:.16f}  {:.16f}  {:.16f}   F   F   F\n"\
-                     .format(pos[il, 0], pos[il, 1], pos[il, 2])
+                lines[il+self.iniline] =\
+                        "  {:.16f}  {:.16f}  {:.16f}   F   F   F\n"\
+                        .format(pos[il, 0], pos[il, 1], pos[il, 2])
             else:
-                lines[il+9] = "  {:.16f}  {:.16f}  {:.16f}   T   T   T\n"\
-                     .format(pos[il, 0], pos[il, 1], pos[il, 2])
+                lines[il+self.iniline] =\
+                        "  {:.16f}  {:.16f}  {:.16f}   T   T   T\n"\
+                        .format(pos[il, 0], pos[il, 1], pos[il, 2])
 
         for iridx, ir in enumerate(self.irr_hpos):
             if self.irr_hpos.shape[0] > 999:
@@ -378,7 +386,8 @@ class change_hpos():
                 outfile = 'POSCAR_' + str(iridx+1).zfill(3)
             with open(outfile, 'w') as f:
                 for il, line in enumerate(lines):
-                    if il <= 8 or il >= 9 + self.positions.shape[0]:
+                    if il <= self.iniline-1 or\
+                       il >= self.iniline + self.positions.shape[0]:
                         f.write(line)
                     else:
                         if np.sum(np.abs(np.asarray(line.split()[0:3],
@@ -409,10 +418,10 @@ class change_hpos():
             with open(outfile, 'w') as f:
                 for il, line in enumerate(lines):
                     if il >= 2 and il <= 4:
-                        f.write("     {:21.16f}    {:21.16f}    {:21.16f} \n"\
-                        .format(lat[il-2, 0]*est[iest, il-2],
-                                lat[il-2, 1]*est[iest, il-2],
-                                lat[il-2, 2]*est[iest, il-2]))
+                        f.write("     {:21.16f}    {:21.16f}    {:21.16f} \n"
+                                .format(lat[il-2, 0]*est[iest, il-2],
+                                        lat[il-2, 1]*est[iest, il-2],
+                                        lat[il-2, 2]*est[iest, il-2]))
                     else:
                         f.write(line)
 
@@ -495,7 +504,8 @@ class change_hpos():
                 for j in range(-self.nx//2, self.nx//2+1):
                     for k in range(-self.nx//2, self.nx//2+1):
                         #if (i/self.edgelengthina0[0])**2 + (j/self.edgelengthina0[1])**2 + (k/self.edgelengthina0[2])**2 < self.rg**2:
-                        if np.sum((np.array([i, j, k])/self.edgelengthina0)**2) < self.rg**2:
+                        if np.sum((np.array([i, j, k])/self.edgelengthina0)**2
+                                  ) < self.rg**2:
                             Gs.append([i, j, k])
         else:
             for i in range(-self.nx//2, self.nx//2+1):
@@ -506,7 +516,7 @@ class change_hpos():
         self.Gs = np.array(Gs).reshape((-1, 3))
         print('chk Gs:', self.Gs.shape)
 
-    def GetH(self, oldedgelength=False):
+    def GetH(self):
         self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
                           )
         for i, gi in enumerate(self.Gs):
@@ -545,7 +555,8 @@ class change_hpos():
     def GetWavefuncs(self):
         nmesh = self.nx*2
         a = np.arange(nmesh)
-        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape((3, -1))
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape((3, -1))
         arg = 1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
         self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
                 (-1, nmesh, nmesh, nmesh))
@@ -554,7 +565,8 @@ class change_hpos():
         self.GetWavefuncs()
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
         #plt.pcolor(self.densities[0, 10, :, :])
-        print(np.unravel_index(np.argmax(self.densities[7, :, :, :]), self.densities[7, :, :, :].shape))
+        print(np.unravel_index(np.argmax(self.densities[7, :, :, :]),
+                               self.densities[7, :, :, :].shape))
         plt.plot(self.densities[1, :, 10, 10])
         plt.show()
         #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
@@ -598,11 +610,14 @@ class change_hpos():
         with open(outfile, 'w') as f:
             f.write(out)
 
-    def GetTransitionMatrix(self, q, Isplot=True, label=None, Iswrite=True, istate=0):
+    def GetTransitionMatrix(self, q, Isplot=True, label=None, Iswrite=True,
+                            istate=0):
         nmesh = self.nx*2
         a = np.arange(nmesh)
-        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)).reshape(3, -1)
-        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape(3, -1)
+        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh
+               ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
         #mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(np.repeat(np.expand_dims(arg, 1), self.wavefuncs.shape[0], axis=1))
         mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
         #mat2 = (mat.transpose((1, 2, 3, 4, 0))*domegas).transpose((0, 4, 1, 2, 3))
