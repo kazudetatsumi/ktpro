@@ -8,7 +8,7 @@ import pickle
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
                  shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None, prim=True,
-                 oldedgelength=False):
+                 oldedgelength=False, deuterium=False):
         self.infile = infile
         if type(std) is list:
             self.std = np.array(std)
@@ -22,7 +22,10 @@ class change_hpos():
         self.hshift = np.array(hshift)
         self.rg = rg
         self.a0 = 0.5291772
-        self.mh = 1836
+        if deuterium:
+            self.mh = 1836*2
+        else:
+            self.mh = 1836
         self.Eh = 27.211
         self.prim = prim
         self.oldedgelength = oldedgelength
@@ -610,8 +613,8 @@ class change_hpos():
         with open(outfile, 'w') as f:
             f.write(out)
 
-    def GetTransitionMatrix(self, q, Isplot=True, label=None, Iswrite=True,
-                            istate=0):
+    def GetTransitionMatrix(self, q, Isplot=True, label=None, istate=0,
+                            Iscalledbyigos=False):
         nmesh = self.nx*2
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
@@ -621,22 +624,22 @@ class change_hpos():
         #mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(np.repeat(np.expand_dims(arg, 1), self.wavefuncs.shape[0], axis=1))
         mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
         #mat2 = (mat.transpose((1, 2, 3, 4, 0))*domegas).transpose((0, 4, 1, 2, 3))
-        sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
         #self.sqw = (np.abs(mat.reshape(mat2.shape[0], mat2.shape[1], -1).sum(axis=1))**2).sum(axis=1)
         ene = np.arange(0, 3000, 1)
         spec = np.zeros(3000)
-        for iw, s in enumerate(sqw[1:]):
-            dE = (self.E[iw+1] - self.E[istate])
-            sigma = dE*0.02
-            spec += s*np.exp(-(ene - dE)**2/sigma**2)
-        if Iswrite:
-            self.dataset = {}
-            self.dataset['ene'] = ene
-            self.dataset['spec'] = spec
-            self.dataset['E'] = self.E
-            self.dataset['sqw'] = sqw
-            with open("./savedata_" + label + ".pkl", 'wb') as f:
-                pickle.dump(self.dataset, f, 4)
+        if not Iscalledbyigos:
+            for iw, s in enumerate(self.sqw[1:]):
+                dE = (self.E[iw+1] - self.E[istate])
+                sigma = dE*0.02
+                spec += s*np.exp(-(ene - dE)**2/sigma**2)
+                self.dataset = {}
+                self.dataset['ene'] = ene
+                self.dataset['spec'] = spec
+                self.dataset['E'] = self.E
+                self.dataset['sqw'] = self.sqw
+                with open("./savedata_" + label + ".pkl", 'wb') as f:
+                    pickle.dump(self.dataset, f, 4)
         if Isplot:
             self.Plotter(label=label)
 
@@ -686,8 +689,10 @@ class change_hpos():
                 print(it, ip)
                 domega = np.sin(theta)*dtheta*dphi
                 #q = qlength * np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
-                q = qlength * np.array([np.cos(theta), np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi)])
-                self.GetTransitionMatrix(q, Isplot=False)
+                q = qlength * np.array([np.cos(theta),
+                                        np.sin(theta)*np.cos(phi),
+                                        np.sin(theta)*np.sin(phi)])
+                self.GetTransitionMatrix(q, Isplot=False, Iscalledbyigos=True)
                 if it == 0 and ip == 0:
                     IntegratedSqw = np.zeros_like(self.sqw)
                 IntegratedSqw += self.sqw*domega
@@ -730,8 +735,10 @@ class change_hpos():
                 print(it, ip)
                 #domega = np.sin(theta)*dtheta*dphi
                 #q = qlength * np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
-                q = qlength * np.array([np.cos(theta), np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi)])
-                self.GetTransitionMatrix(q, Isplot=False)
+                q = qlength * np.array([np.cos(theta),
+                                        np.sin(theta)*np.cos(phi),
+                                        np.sin(theta)*np.sin(phi)])
+                self.GetTransitionMatrix(q, Isplot=False, Iscalledbyigos=True)
                 if it == 0 and ip == 0:
                     IntegratedSqw = np.zeros_like(self.sqw)
                 IntegratedSqw += self.sqw*weights[it]

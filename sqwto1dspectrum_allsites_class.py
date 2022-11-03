@@ -14,7 +14,7 @@ params = {'mathtext.default': 'regular'}
 plt.rcParams.update(params)
 
 
-plt.rcParams['font.size'] = 18
+plt.rcParams['font.size'] = 12
 plt.rcParams['font.family'] = 'Arial'
 plt.rcParams['axes.linewidth'] = 2
 
@@ -82,18 +82,25 @@ class sqwto1dspectrum(isc.interpolate_and_subt):
         #self.fig.suptitle(suptitle)
         self.gs = self.fig.add_gridspec(nr, 1, hspace=0, wspace=0)
 
-    def plotter(self, bottomno=None):
+    def plotter(self, bottomno=None, elow=0, ehigh=250, numfolds=2):
         for isite,  site in enumerate(self.sites):
             #ax = self.fig.add_subplot(len(self.sites)+1, 1, isite + 1)
             ax = self.fig.add_subplot(self.gs[isite, 0])
             for imid, middle in enumerate(self.middles[isite]):
                 ax.plot(self.alldata[isite, imid, :, 0],
-                        self.alldata[isite, imid, :, 1], label=middle, c='k',
+                        self.alldata[isite, imid, :, 1], label=middle, 
                         lw=2)
-            ax.legend(fontsize="xx-small")
+            #ax.legend(fontsize="xx-small")
             ax.set_ylim(0, np.max(self.alldata[isite, :, :, 1])*1.05)
-            ax.set_xlim(0, 250)
-            ax.text(10, np.max(self.alldata[isite, :, :, 1])*0.6, site)
+            ax.set_xlim(elow, ehigh)
+            _words = self.head + site + self.middles[isite][0] + self.tail
+            words = self.getwords(_words.split('vasp')[1], numfolds)
+            #ax.text(elow + (ehigh-elow)*0.05, np.max(self.alldata[isite, :, :, 1])*0.6, site)
+            tx = elow + (ehigh-elow)*0.05
+            ty = np.max(self.alldata[isite, :, :, 1])*0.9
+            for iw, word in enumerate(words):
+                ax.text(tx, ty-iw*ty/13, '%s' % word, fontsize=8)
+            #ax.text(elow + (ehigh-elow)*0.05, np.max(self.alldata[isite, :, :, 1])*0.6, words, fontsize=8)
             ax.set_yticks([])
             if isite == bottomno:
                 ax.set_xlabel('Neutron Energy Loss (meV)')
@@ -135,8 +142,27 @@ class sqwto1dspectrum(isc.interpolate_and_subt):
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=True, width=2)
 
+    def sumplot2(self, fracs, nr=3, elow=50, ehigh=210, text=None):
+        ax = self.fig.add_subplot(self.gs[nr, 0])
+        x = self.alldata[1, 0, :, 0]
+        y = np.matmul(self.alldata[:, 0, :, 1].T, np.array(fracs))
+        ax.plot(x, y, lw=2)
+        ax.set_yticks([])
+        ax.set_ylim(0, np.max(y)*1.05)
+        ax.set_xlim(elow, ehigh)
+        tx = elow + (ehigh-elow)*0.05
+        ty = np.max(y)*0.9
+        ax.set_xlabel('Neutron Energy Loss (meV)')
+        if text:
+            ax.text(tx, ty-ty/12, '%s' % text, fontsize=8)
+        ax.tick_params(top=True, right=True, direction='in', which='both',
+                       labelbottom=True, width=2)
+
     def pngplot(self, pngfile, nr=2, extent=(-1.63, 1.63, -1, 1)):
-        ax = self.fig.add_subplot(self.gs[nr:, 0])
+        if type(nr) is slice:
+            ax = self.fig.add_subplot(self.gs[nr, 0])
+        else:
+            ax = self.fig.add_subplot(self.gs[nr:, 0])
         ax.imshow(mpimg.imread(pngfile),  extent=extent)
         ax.set_axis_off()
 
@@ -158,7 +184,34 @@ class sqwto1dspectrum(isc.interpolate_and_subt):
         ax.set_xlabel('Neutron Energy Loss (meV)')
         ax.tick_params(top=True, right=True, direction='in', which='both',
                        labelbottom=True, width=2)
-        
+
+    def getwords(self, infile, numoffolds):
+        words = infile.split('/')[1:]
+        lens = []
+        lenss = [0]
+        _il = 0
+        _words = []
+        for i in range(numoffolds):
+            if i == numoffolds + 1:
+                lens.append(len(words) % numoffolds)
+            else:
+                lens.append(len(words) // numoffolds)
+        for il, _len in enumerate(lens):
+            _il += _len
+            lenss.append(_il)
+        for il in range(len(lenss)):
+            _word = ""
+            if il == len(lenss)-1:
+                for ill in range(lenss[il], len(words)):
+                    _word += "/"
+                    _word += words[ill]
+            else:
+                for ill in range(lenss[il], lenss[il+1]):
+                    _word += "/"
+                    _word += words[ill]
+            _words.append(_word)
+        return(_words)
+
 
 
 
