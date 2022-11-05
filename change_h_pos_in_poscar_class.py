@@ -210,8 +210,10 @@ class change_hpos():
             self.hpos = np.array(hpos)
         print("edgelength(s) in Angs:", self.edgelengthina0*self.a0)
 
-    def GetAllHpos_vec(self):
-        vec = np.array([[1., -1., 0], [1., 1., 0], [0., 0., 1.]])
+    def GetAllHpos_vec(self, vec=[[1., -1., 0.],
+                                  [1.,  1., 0.],
+                                  [0.,  0., 1.]]):
+        vec = np.array(vec)
         hpos = np.zeros((self.nx**3, 3))
         ## dx was set as follows before 2022/10/05
         #dx = np.array(self.edgelength)/(self.nx - 1)
@@ -229,6 +231,41 @@ class change_hpos():
         self.edgelengthina0 = (((hlat**2).sum(axis=0))**0.5)/self.a0
         print("edgelengths in Angs.:", self.edgelengthina0*self.a0)
 
+    def GetAllHpos_mat(self, mat=[[1., -1., 0.],
+                                  [1.,  1., 0.],
+                                  [0.,  0., 1.]]):
+        # Here self.edgelength is assumed in Angs.
+        mat = np.array(mat)
+        _hlat = np.matmul(self.lattice.T, mat)
+        _edgelength = ((_hlat**2).sum(axis=0))**0.5
+        hlat = np.matmul(self.lattice.T, mat)*self.edgelength/_edgelength
+        edgelength = ((hlat**2).sum(axis=0))**0.5
+        print("edgelengths in Angs.:", edgelength)
+        self.edgelengthina0 = edgelength/self.a0
+        hpos = np.zeros((self.nx**3, 3))
+        ih = 0
+        for ix in range(0, self.nx):
+            for iy in range(0, self.nx):
+                for iz in range(0, self.nx):
+                    if self.oldedgelength:
+                        hpos[ih, :] = self.std +\
+                                ((np.array([ix, iy, iz])/(self.nx - 1) +
+                                  self.hshift - np.array([0.5, 0.5, 0.5])) *
+                                 mat*self.edgelength/_edgelength).sum(axis=1)
+                    else:
+                        hpos[ih, :] = self.std +\
+                                ((np.array([ix, iy, iz])/self.nx + self.hshift
+                                    - np.array([0.5, 0.5, 0.5])) *
+                                 mat*self.edgelength/_edgelength).sum(axis=1)
+                    ih += 1
+        self.hpos = np.array(hpos) % 1.0
+        self.hpos[np.abs(self.hpos - 1.0) < 1e-14] = 0.
+        # print(self.hpos.shape)
+        # for hp in self.hpos:
+        #     print(hp)
+        self.hlat = hlat
+        #print(self.hlat)
+
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
         for ih, _hpos in enumerate(self.hpos):
@@ -245,8 +282,8 @@ class change_hpos():
             if not MatchFound:
                 irr_hpos = np.append(irr_hpos, (_hpos % 1.0).reshape((1, 3)),
                                      axis=0)
-        # print(irr_hpos)
-        # print(irr_hpos.shape)
+        print(irr_hpos.shape)
+        print(irr_hpos)
         self.irr_hpos = irr_hpos
 
     def GetIrreducibleShift(self):
@@ -263,6 +300,7 @@ class change_hpos():
                               self.sym['translations'][1:]):
             isym += 1
             sym_hpos = ((np.matmul(rot, irr_hpos.T)).T + trans) % 1.0
+            sym_hpos[np.abs(sym_hpos - 1.0) <= 1e-14] = 0.
             cond = np.ones((irr_hpos.shape[0]), dtype=bool)
             for i, _irr_hpos in enumerate(irr_hpos):
                 if cond[i]:
@@ -271,7 +309,7 @@ class change_hpos():
                     cond[i] = True
             irr_hpos = irr_hpos[cond]
         # print('chk, irr_hpos',irr_hpos.shape)
-        #print(irr_hpos)
+        # print(irr_hpos)
         self.irr_hpos = irr_hpos
 
     def GetIrreducibleShift2(self):
@@ -288,7 +326,7 @@ class change_hpos():
         #        irr_idx.append(icol)
         #self.irr_hpos = self.hpos[irr_idx]
 
-    def GetDataOverA0llHpos(self):
+    def GetDataOverAllHpos(self):
         # Inverse process to the process 'IrreducibleShift'.
         # Here the irreducible H index for each of all the H positions is
         # clarified.
@@ -299,8 +337,11 @@ class change_hpos():
             for iridx, ir in enumerate(self.irr_hpos):
                 for rot, trans in zip(self.sym['rotations'],
                                       self.sym['translations']):
-                    if np.sum(np.abs(_hpos - ((np.matmul(rot, ir) + trans)
-                                              % 1.0))) < 1e-5:
+                    _sympos = (np.matmul(rot, ir) + trans) % 1.0
+                    _sympos[np.abs(_sympos - 1.0) <= 1e-14] = 0.
+                    #if np.sum(np.abs(_hpos - ((np.matmul(rot, ir) + trans)
+                    #                          % 1.0))) < 1e-5:
+                    if np.sum(np.abs(_hpos - _sympos)) < 1e-5:
                         MatchFound = True
                         self.irr_idx[ih] = iridx
                         break
@@ -308,6 +349,13 @@ class change_hpos():
                     break
             if not MatchFound:
                 self.irr_idx[ih] = 999
+                print('FUCK!! not mached', _hpos)
+                #for iridx, ir in enumerate(self.irr_hpos):
+                #    for rot, trans in zip(self.sym['rotations'],
+                #                          self.sym['translations']):
+                #        _sympos = (np.matmul(rot, ir) + trans) % 1.0
+                #        _sympos[np.abs(_sympos - 1.0) <= 1e-7] = 0.
+                #        print(_sympos)
         # print(self.irr_idx)
         # print(self.irr_idx.shape)
 
@@ -353,6 +401,7 @@ class change_hpos():
         test = (np.matmul(self.sym['rotations'],
                           self.irr_hpos.T).transpose(2, 0, 1)
                 + self.sym['translations']) % 1.0
+        test[np.abs(test - 1.) <= 1e-15] = 0.
         # print('chk test', test.shape)
         test2 = np.repeat(np.expand_dims(test, 2), self.hpos.shape[0], axis=2)
         # print('chk test2', test2.shape)
@@ -362,8 +411,7 @@ class change_hpos():
         pairs = np.where(np.invert(cond))
         # print('chk pairs', pairs[0].shape)
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
-        # print('chk, irr_idx',self.irr_idx.shape)
-        # print('chk, irr_idx',self.irr_idx)
+        print('chk, irr_idx',self.irr_idx.shape)
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -497,8 +545,17 @@ class change_hpos():
         np.savetxt('hpot.txt', self.potential.flatten(order='F'))
 
     def GetVG(self):
-        self.z = np.fft.fftn((self.potential-np.min(self.potential))
-                             / self.Eh, norm='forward')
+        if 'hlat' in dir(self):
+            edgelength = ((self.hlat**2).sum(axis=0))**0.5
+            print('FUCK', np.prod(edgelength))
+            print('FUCK', np.linalg.det(self.hlat))
+
+            self.z = np.prod(edgelength)/np.linalg.det(self.hlat) *\
+                np.fft.fftn((self.potential-np.min(self.potential))
+                            / self.Eh, norm='forward')
+        else:
+            self.z = np.fft.fftn((self.potential-np.min(self.potential))
+                                 / self.Eh, norm='forward')
 
     def GetG(self):
         Gs = []
@@ -510,6 +567,20 @@ class change_hpos():
                         if np.sum((np.array([i, j, k])/self.edgelengthina0)**2
                                   ) < self.rg**2:
                             Gs.append([i, j, k])
+        elif 'hlat' in dir(self):
+            #print('check rec lat edgelength:',
+            #      ((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
+            for i in range(-self.nx//2, self.nx//2+1):
+                for j in range(-self.nx//2, self.nx//2+1):
+                    for k in range(-self.nx//2, self.nx//2+1):
+                        glen = (np.matmul(np.linalg.inv(self.hlat).T,
+                                          np.array([i, j, k]))**2
+                                ).sum(axis=0)**0.5
+                        if glen < self.rg**2:
+                            Gs.append([i, j, k])
+            #print(((np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0, 0])))**2).sum(axis=0)**0.5)
+            #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1, 0])))
+            #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0, 1])))
         else:
             for i in range(-self.nx//2, self.nx//2+1):
                 for j in range(-self.nx//2, self.nx//2+1):
@@ -518,6 +589,11 @@ class change_hpos():
                             Gs.append([i, j, k])
         self.Gs = np.array(Gs).reshape((-1, 3))
         print('chk Gs:', self.Gs.shape)
+        #print(np.matmul(np.array([1, 1, 1]), np.linalg.inv(self.hlat)))
+        #print(((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
+        #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0., 0])))
+        #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1., 0])))
+        #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0., 1])))
 
     def GetH(self):
         self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
@@ -526,9 +602,18 @@ class change_hpos():
             for j, gj in enumerate(self.Gs):
                 if i == j:
                     if self.oldedgelength:
-                        _gi = gi/(self.edgelengthina0/(self.nx-1)*self.nx)
+                        if 'hlat' in dir(self):
+                            _gi = np.matmul(np.linalg.inv(self.hlat/self.a0 /
+                                                          (self.nx-1)*self.nx
+                                                          ).T, gi)
+                        else:
+                            _gi = gi/(self.edgelengthina0/(self.nx-1)*self.nx)
                     else:
-                        _gi = gi/self.edgelengthina0
+                        if 'hlat' in dir(self):
+                            _gi = np.matmul(np.linalg.inv(self.hlat/self.a0
+                                                          ).T, gi)
+                        else:
+                            _gi = gi/self.edgelengthina0
                     K = (2*np.pi)**2*np.dot(_gi, _gi)/(2.*self.mh)
                 else:
                     K = 0.
