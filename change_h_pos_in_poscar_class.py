@@ -264,7 +264,20 @@ class change_hpos():
         # for hp in self.hpos:
         #     print(hp)
         self.hlat = hlat
-        #print(self.hlat)
+        print(self.hlat.T)
+
+    def GetAllHpos_nxyz(self):
+        hpos = []
+        for ix in range(0, self.nx[0]):
+            for iy in range(0, self.nx[1]):
+                for iz in range(0, self.nx[2]):
+                    hpos.append([(self.std[0] - self.edgelength[0]/2
+                                  + (ix+self.hshift[0])*self.dx[0]) % 1.0,
+                                 (self.std[1] - self.edgelength[1]/2
+                                  + (iy+self.hshift[1])*self.dx[1]) % 1.0,
+                                 (self.std[2] - self.edgelength[2]/2
+                                  + (iz+self.hshift[2])*self.dx[2]) % 1.0])
+            self.hpos = np.array(hpos)
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
@@ -486,12 +499,16 @@ class change_hpos():
             else:
                 ene.append(line.split()[3])
         self.ene = np.array(ene, dtype=float)
-        # print(np.min(self.ene))
 
     def GetPotential(self):
         print(self.irr_idx.shape)
         self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
                                                          self.nx))
+
+    def GetPotential_nxyz(self):
+        print(self.irr_idx.shape)
+        self.potential = self.ene[self.irr_idx].reshape((self.nx[0], self.nx[1],
+                                                         self.nx[2]))
 
     def PlotPotential(self):
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
@@ -499,7 +516,7 @@ class change_hpos():
         print(self.nx // 2)
         plt.plot(self.potential[self.nx // 2, self.nx // 2, :]
                  - np.min(self.potential))
-        plt.ylim((0, 2))
+        plt.ylim((0, 0.1))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
@@ -550,9 +567,12 @@ class change_hpos():
             print('FUCK', np.prod(edgelength))
             print('FUCK', np.linalg.det(self.hlat))
 
-            self.z = np.prod(edgelength)/np.linalg.det(self.hlat) *\
-                np.fft.fftn((self.potential-np.min(self.potential))
-                            / self.Eh, norm='forward')
+            #self.z = np.prod(edgelength)/np.linalg.det(self.hlat) *\
+            #    np.fft.fftn((self.potential-np.min(self.potential))
+            #                / self.Eh, norm='forward')
+            print('But here I do not correct the volumetric differnce')
+            self.z = np.fft.fftn((self.potential-np.min(self.potential))
+                                 / self.Eh, norm='forward')
         else:
             self.z = np.fft.fftn((self.potential-np.min(self.potential))
                                  / self.Eh, norm='forward')
@@ -685,6 +705,8 @@ class change_hpos():
     def GetPotFile(self):
         outfile = 'potential.out'
         den = (self.potential-np.min(self.potential)).flatten(order='F')
+        #den = den/np.sum(den)
+        den = np.max(den) - den
         den = den/np.sum(den)
         out = ""
         for irow in range(den.shape[0] // 5):

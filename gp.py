@@ -30,12 +30,22 @@ class GaussianProcessRegression:
         self.conv = self.K_double_astarisc - self.V.T @ self.V
         self.std = np.diag(self.conv)**0.5
 
-    def kernel(self, x1, x2):
+
+    def kernelorg(self, x1, x2):
         K = np.zeros((x1.shape[0], x2.shape[0]))
         for p, xp in enumerate(x1):
             for q, xq in enumerate(x2):
-                K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/1.)**2))
+                K[p, q] = np.exp(-0.5*np.sum(((xp - xq)/5.)**2))
         return(K)
+
+    def kernel(self, x1, x2):
+        K = np.zeros((x1.shape[0], x2.shape[0]))
+        test_x1 = np.repeat(np.expand_dims(x1, 1), x2.shape[0], axis=1)
+        test_x2 = np.repeat(np.expand_dims(x2, 1), x1.shape[0], axis=1
+                            ).transpose(1, 0)
+        K = np.exp(-0.5*((test_x1 - test_x2)/0.05)**2)
+        return(K)
+
 
 
 def run():
@@ -137,4 +147,4 @@ def testfunc2d(x):
     pos1 = np.array([0., 0.])
     return np.exp(-np.sum((x-pos1)**2., axis=1)) + 0.5*np.exp(-np.sum((x-pos2)**2., axis=1))
 
-searchrun2d()
+#searchrun2d()
