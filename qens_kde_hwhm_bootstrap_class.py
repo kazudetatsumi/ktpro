@@ -50,10 +50,18 @@ class bootstrap(div, fit):
         self.y_tfs = self.y_tf
         self.allout = np.zeros((self.y_dfs.shape[0], 7, 6))
         allout = []
+        ## To fit the present qens_fit_class
+        self.leastsq = False
+        ##
         for sidx, (self.y_df, self.y_tf) in enumerate(zip(self.y_dfs, self.y_tfs)):
-            fit.optimize(self, variables=[1.62856562e-05, 3.05453407e-02,
-                                          1.11413842e-05, 7.41258597e-03,
-                                          2.07570182e-01, 2.27120576e-02])
+            #fit.optimize(self, variables=[1.62856562e-05, 3.05453407e-02,
+            #                              1.11413842e-05, 7.41258597e-03,
+            #                              2.07570182e-01, 2.27120576e-02])
+            # Initial parameters are modified because fun_lore in
+            # qens_fit_class is now normalized.
+            fit.optimize(self, variables=[0.59704786e-00, 2.67980295e-02,
+                                          3.82405238e-01, 7.88866588e-03,
+                                          0.21127501e+00, 1.82759930e-02])
             if np.all(self.out > 0.):
                 if self.out[1] < self.out[3]:
                     tmp = self.out[1]

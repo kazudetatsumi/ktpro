@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import numpy as np
 import pickle
-import matplotlib
-matplotlib.use('agg')
+#import matplotlib
+#matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import scipy.optimize as so
 import scipy.signal as ss
@@ -188,7 +188,7 @@ class qens_fit:
     def optimize(self, variables=[1.46103037e-04, 1.23754329e-02,
                  5.20429443e-01, 9.30889687e-06], figname=None):
         de = self.x_tf[1] - self.x_tf[0]
-        print('de', de)
+        #print('de', de)
         if self.leastsq:
             out = so.leastsq(self.res, variables,
                              args=(self.x_tf, self.y_df, self.y_tf), full_output=1,
@@ -198,13 +198,13 @@ class qens_fit:
             #bounds = ([0.,0.,0.,0.,0.,0.], np.inf)
             out = so.least_squares(self.res, variables, bounds=bounds,
                                    args=(self.x_tf, self.y_df, self.y_tf))
-            print(out.active_mask, out.success, out.x)
+            #print(out.active_mask, out.success, out.x)
             out = [out.x, np.linalg.inv(np.dot(out.jac.T, out.jac))]
 
 
         s_sq = (self.res(out[0], self.x_tf, self.y_df, self.y_tf)**2).sum() /\
                (len(self.y_tf)-len(out[0]))
-        print('s_sq', s_sq)
+        #print('s_sq', s_sq)
         if not self.quiet:
             if len(variables) == 4:
                 print("estimated constants alpha, gamma, delta, base")
@@ -214,7 +214,7 @@ class qens_fit:
                 print("estimated constants alpha1, gamma1, alpha2, gamma2, delta")
             #if len(variables) == 6:
                 #print("estimated constants alpha1, gamma1, alpha2, gamma2, delta, base")
-        print(out[0])
+        #print(out[0])
         self.afteroptimize(out, s_sq, variables, figname)
 
     def afteroptimize(self, out, s_sq, variables, figname):

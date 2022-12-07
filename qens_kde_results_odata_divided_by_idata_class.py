@@ -37,7 +37,7 @@ class odata_divided_by_idata(qc.qens):
             pickle.dump(dataset, f, 4)
 
     def get_data(self, norm=False):
-        print(self.ofile, self.ifile)
+        #print(self.ofile, self.ifile)
         self.odataset = self.read_pkl(self.ofile)
         self.idataset = self.read_pkl(self.ifile)
         if self.iskde:

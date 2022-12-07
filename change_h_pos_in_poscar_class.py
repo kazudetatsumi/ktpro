@@ -516,7 +516,7 @@ class change_hpos():
         print(self.nx // 2)
         plt.plot(self.potential[self.nx // 2, self.nx // 2, :]
                  - np.min(self.potential))
-        plt.ylim((0, 0.1))
+        plt.ylim((0, 1.))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
