@@ -233,6 +233,7 @@ for($i=1;$i<=$numatom;$i++)
  if($ele[$ne[$i]] eq "Y"){$znum=39;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "Al"){$znum=13;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "Rh"){$znum=45;$numC++;$sortnum=$numC;}
+ if($ele[$ne[$i]] eq "Pd"){$znum=46;$numC++;$sortnum=$numC;}
  if($ele[$ne[$i]] eq "Cs"){$znum=55;$numC++;$sortnum=$numC;}
 
  
