@@ -18,11 +18,11 @@ class hpdos(sac.sqwto1dspectrum):
         self.THztomeV = 4.13567
 
     def plotter(self, elow=0, ehigh=400, tx=75, ty=1.4*10**8,
-                noxlabel=False, numoffolds=2, short=False):
+                noxlabel=False, numoffolds=2, short=False, nr=0):
         for iidx, infile in enumerate(self.infiles):
             #print(infile, iidx)
             self.load_pkl(infile)
-            ax = self.fig.add_subplot(self.gs[iidx, 0])
+            ax = self.fig.add_subplot(self.gs[iidx+nr, 0])
             ax.plot(self.dataset['ene'], self.dataset['spec'])
             tmpylim = ax.get_ylim()
             ax.set_ylim(0, tmpylim[1])
@@ -36,7 +36,7 @@ class hpdos(sac.sqwto1dspectrum):
                 ty = tmpylim[1]*0.9
                 words = self.getwords(infile.split('vasp')[-1], numoffolds)
             for iw, word in enumerate(words):
-                ax.text(tx, ty-iw*ty/13, '%s' % word, fontsize=8)
+                ax.text(tx, ty-iw*ty/8, '%s' % word, fontsize=8)
             ax.tick_params(labelbottom=False)
             ax.tick_params(direction="in")
             if iidx == len(self.infiles)-1 and not noxlabel:

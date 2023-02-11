@@ -6,8 +6,8 @@
 # Note that the Cmm and Manyo library should be loaded on the computer which serves a DNA4 environment.
 #
 ### We just read pklfiles containing numpy arrays. If you use this script on dna, uncomment the following two lines.
-import Cmm
-import Manyo
+#import Cmm
+#import Manyo
 ###
 import numpy as np
 import os
@@ -35,12 +35,12 @@ class Sget_qlist(gq):
 
     def get_org_data(self, binw):
         self.DAT = Cmm.GetHistogramHW(
-                runNo=6202, HwParam=binw+"/-0.03/0.07",
+                runNo=6204, HwParam=binw+"/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
                 useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
         self.EC = Cmm.GetHistogramMon(
-                    runNo=6202, useEiConv=True, LambdaParam="6.321/4.15",
+                    runNo=6204, useEiConv=True, LambdaParam="6.321/4.15",
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
                     TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
@@ -96,7 +96,7 @@ class Sget_qlist(gq):
 
     def load_pkl(self):
         with open(self.pklfile, 'rb') as f:
-            self.spectrab = pickle.load(f)
+            self.spectrab = pickle.load(f, encoding='latin1')
 
     def get_boot_strap_sampled_spectra(self, nbs, seed=314):
         intensity1d = self.intensity.flatten().astype(int)
@@ -131,18 +131,18 @@ class Sget_qlist(gq):
 
 
 def run():
-    prj = Sget_qlist(pklfile="run6202spectrab.pkl")
+    prj = Sget_qlist(pklfile="run6204spectrab.pkl")
     prj.get_org_data("0.000025")
     #prj.get_org_data("0.001025")
     prj.get_org_intensity_array()
     print(datetime.datetime.now(), 'org data obtained')
-    nbs = 100
+    nbs = 1
     prj.get_boot_strap_sampled_spectra(nbs)
     prj.save_pkl()
 
 
 def check():
-    prj = Sget_qlist(pklfile="run6202spectrab.pkl")
+    prj = Sget_qlist(pklfile="run6204spectrab.pkl")
     prj.load_pkl()
     for inb in range(prj.spectrab.shape[0]):
         plt.plot(prj.spectrab[inb, 0, :], prj.spectrab[inb, 1, :])
@@ -150,6 +150,6 @@ def check():
 
 
 #run()
-check()
+#check()
 
 

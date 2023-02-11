@@ -10,23 +10,23 @@ import sys
 sys.path.append("/home/kazu/ktpro")
 from qens_kde_results_odata_divided_by_idata_class\
     import odata_divided_by_idata as odbi
-from get_qlist_nova_class import get_qlist as gq
+#from get_qlist_nova_class import get_qlist as gq
+from get_resampled_data import Sget_qlist as sgq
 pwd = os.getcwd()
 from qens_fit_class import qens_fit as qf
 elim = [-0.03, 0.07]
-import matplotlib
-matplotlib.use('Agg')
+#import matplotlib
+#matplotlib.use('Agg')
 
 
-def getsspectra(sfile, qmin, qmax):
-    prj = gq(pklfile=sfile)
-    prj.read_pkl()
-    prj.spect(qmin, qmax)
-    return prj.ene, prj.spectra
+def getrsspectra(rsfile):
+    prj = sgq(pklfile=rsfile)
+    prj.load_pkl()
+    return prj.spectrab[0, 0, :], prj.spectrab[0, 1, :]
 
 
 def getdivspectra(divfile):
-    prj = gq(pklfile=divfile)
+    prj = sgq(pklfile=divfile)
     prj.read_pkl()
     return(prj.dataset['xo'], prj.dataset['yr_ssvk'])
 
@@ -64,7 +64,7 @@ def plotter(sy, syb, ky, divy, elim, runno, fig):
     plt.yscale('log')
     plt.legend()
     #plt.savefig('balloon_run'+runno+'.png')
-    #plt.show()
+    plt.show()
 
 
 def save_pkl(sy, syb, pklfile):
@@ -83,33 +83,33 @@ def eachrunno_read_pkl(runno):
 
 
 def eachrunno(runno, fig):
-    qrange = pwd.split('q')[1]
-    print(qrange)
-    qmin = float(qrange.split('-')[0])
-    qmax = float(qrange.split('-')[1])
-    sprefix = "/home/kazu/desktop/210108/Tatsumi/srlz/0000001/"
-    allqf = sprefix + "run" + runno + "s.pkl"
+    #qrange = pwd.split('q')[1]
+    #print(qrange)
+    #qmin = float(qrange.split('-')[0])
+    #qmax = float(qrange.split('-')[1])
+    #sprefix = "/home/kazu/desktop/210108/Tatsumi/srlz/0000001/"
+    rsfile = "./run" + runno + "spectrab.pkl"
     kf = "./qens_run" + runno + "united_kde_results_on_data_qsel.pkl"
     kdivf = "./qens_kde_o_divided_by_i_" + runno + ".pkl"
-    pklfile = "./qens_run" + runno + "_balloon.pkl"
-    print(allqf)
+    pklfile = "./qens_runr" + runno + "_balloon.pkl"
+    print(rsfile)
     print(kf)
     ky = getbandwidth(kf)
-    sy = getsspectra(allqf, qmin, qmax)
+    sy = getrsspectra(rsfile)
     syb = balloon(ky, sy)
     divy = getdivspectra(kdivf)
     plotter(sy, syb, ky, divy, elim, runno, fig)
-    save_pkl(sy, syb, pklfile)
+    #save_pkl(sy, syb, pklfile)
     return sy[0], syb
 
 
 def run():
-    if len(sys.argv) >= 2:
-        runnot = sys.argv[1]
+    #if len(sys.argv) >= 2:
+    #    runnot = sys.argv[1]
     fig = plt.figure()
-    xt, yt = eachrunno(runnot, fig)
+    xt, yt = eachrunno("6202", fig)
     xd, yd = eachrunno("6204", fig)
-    plt.savefig('balloon_run.png')
+    #plt.savefig('balloon_run.png')
     proj = qf('dummy', 'dummy', elim, showplot=False, leastsq=False)
     proj.icorr()
     proj.x_tf, proj.y_tf = proj.limit2(xt, yt, elim)
@@ -117,8 +117,8 @@ def run():
     proj.correction()
     proj.bg = 0.
     fig = plt.figure()
-    #proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit.png')
-    proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002], figname='balloon_fit_4params.png')
+    proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit.png')
+    #proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002], figname='balloon_fit_4params.png')
 
 
 def fitrun():
