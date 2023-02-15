@@ -6,6 +6,14 @@
 # Note that the Cmm and Manyo library should be loaded on the computer which serves a DNA4 environment.
 #
 ### We just read pklfiles containing numpy arrays. If you use this script on dna, uncomment the following two lines.
+try:
+    import Cmm
+except ModuleNotFoundError:
+    pass
+try:
+    import Manyo
+except ModuleNotFoundError:
+    pass
 #import Cmm
 #import Manyo
 ###
@@ -153,6 +161,12 @@ class get_qlist:
         with open(self.pklfile, 'rb') as f:
             self.dataset = pickle.load(f, encoding='latin1')
             #self.dataset = pickle.load(f)
+            
+    def save_hdf5(self):
+        with open(self.hdf5file, 'wb') as hf:
+            hf.create_dataset('omega', data=self.dataset['omega'])
+            hf.create_dataset('q', data=self.dataset['q'])
+            hf.create_dataset('intensity', data=self.dataset['intensity'])
 
     def create_fig(self):
         self.fig = plt.figure(figsize=(10, 8))
@@ -193,7 +207,7 @@ class get_qlist:
         self.plot_sub(Y, X, Z, 1, np.max(Z))
         plt.show()
 
-    def spect(self, qmin, qmax):
+    def spect(self, qmin, qmax, isplot=False):
         x = np.ravel(self.dataset['q'])
         y = np.ravel(self.dataset['omega'])
         z = np.ravel(self.dataset['intensity'])
@@ -226,10 +240,11 @@ class get_qlist:
             z1d[eidx] = np.sum(z[cond])
         self.ene = ene
         self.spectra = z1d
-        #self.create_fig()
-        #plt.plot(ene, z1d)
-        #plt.yscale('log')
-        #plt.show()
+        if isplot:
+            self.create_fig()
+            plt.plot(ene, z1d)
+            #plt.yscale('log')
+            plt.show()
 
     def save_spectra(self, spectrafile, old=False):
         dataset = {}
