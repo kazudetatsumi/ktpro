@@ -29,34 +29,38 @@ class Sget_qlist(gq):
         self.save_file = save_file
         self.pklfile = pklfile
 
-    def get_org_data(self, binw):
+    def get_org_data(self, binw, runNo):
         self.DAT = Cmm.GetHistogramHW(
-                runNo=6202, HwParam=binw+"/-0.05/0.15",
+                runNo=runNo, HwParam=binw+"/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
                 useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
         self.EC = Cmm.GetHistogramMon(
-                    runNo=6202, useEiConv=True, LambdaParam="6.321/4.15",
+                    runNo=runNo, useEiConv=True, LambdaParam="6.321/4.15",
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
-                    TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
+                    TimeParam="-1.0/-1.0", UseFastChopper=True,
+                    isHistogram=False)
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
 
     def get_org_intensity_array(self):
         self.intensity = np.zeros((self.DAT.PutSize(),
-                                 self.DAT(0).PutSize(),
-                                 len(self.DAT(0)(0).PutYList())))
+                                   self.DAT(0).PutSize(),
+                                   len(self.DAT(0)(0).PutYList())))
         for ecaidx in range(0, self.DAT.PutSize()):
             for ecidx in range(0, self.DAT(0).PutSize()):
-                self.intensity[ecaidx, ecidx, :] = np.array(self.DAT(ecaidx, ecidx)
-                                                           .PutYList())
+                self.intensity[ecaidx, ecidx, :] = np.array(
+                                                   self.DAT(ecaidx, ecidx)
+                                                   .PutYList())
 
     def get_qemapb(self, intensityb):
         self.DATB = Manyo.ElementContainerMatrix(self.DAT)
         ctp = Manyo.CppToPython()
         for ecaidx in range(0, self.DATB.PutSize()):
             for ecidx in range(0, self.DATB(0).PutSize()):
-                vecy = ctp.ListToDoubleVector(intensityb[ecaidx, ecidx, :].tolist())
-                vece = ctp.ListToDoubleVector((intensityb[ecaidx, ecidx, :]**0.5).tolist())
+                vecy = ctp.ListToDoubleVector(intensityb[ecaidx,
+                                                         ecidx, :].tolist())
+                vece = ctp.ListToDoubleVector((intensityb[ecaidx,
+                                               ecidx, :]**0.5).tolist())
                 self.DATB(ecaidx, ecidx).Replace("Intensity", vecy)
                 self.DATB(ecaidx, ecidx).Replace("Error", vece)
                 self.DATB(ecaidx, ecidx).SetKeys("EnergyTransfer", "Intensity",
@@ -81,10 +85,13 @@ class Sget_qlist(gq):
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
         self.DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0,
                                      deltaQ=0.05)
+
     def get_all_sdatab(self):
         q = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())))
-        omega = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())))
-        intensity = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())))
+        omega = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())
+                          ))
+        intensity = np.zeros((self.DATBQE.PutSize(),
+                              len(self.DATBQE(0).PutYList())))
         ones = np.ones((len(self.DATBQE(0).PutYList())))
         for ecidx in range(0, self.DATBQE.PutSize()):
             omega[ecidx, :] = np.array(self.DATBQE(ecidx).PutXList()[:-1])
@@ -99,7 +106,8 @@ class Sget_qlist(gq):
     def get_all_sdata(self):
         q = np.zeros((self.DATQE.PutSize(), len(self.DATQE(0).PutYList())))
         omega = np.zeros((self.DATQE.PutSize(), len(self.DATQE(0).PutYList())))
-        intensity = np.zeros((self.DATQE.PutSize(), len(self.DATQE(0).PutYList())))
+        intensity = np.zeros((self.DATQE.PutSize(),
+                              len(self.DATQE(0).PutYList())))
         ones = np.ones((len(self.DATQE(0).PutYList())))
         for ecidx in range(0, self.DATQE.PutSize()):
             omega[ecidx, :] = np.array(self.DATQE(ecidx).PutXList()[:-1])
@@ -115,9 +123,12 @@ class Sget_qlist(gq):
         with open(self.pklfile, 'wb') as f:
             pickle.dump(self.spectrab, f, -1)
 
-    def load_pkl(self):
+    def load_pkl(self, ispython2=False):
         with open(self.pklfile, 'rb') as f:
-            self.spectrab = pickle.load(f)
+            if ispython2:
+                self.spectrab = pickle.load(f, encoding='latin1')
+            else:
+                self.spectrab = pickle.load(f)
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314):
         intensity1d = self.intensity.flatten().astype(int)
@@ -149,7 +160,8 @@ class Sget_qlist(gq):
             self.get_qemapb(intensityb)
             print(datetime.datetime.now(), '1 resampled manyo-data obtained')
             self.get_all_sdatab()
-            print(datetime.datetime.now(), '1 corrected resampled manyo-data obtained')
+            print(datetime.datetime.now(),
+                  '1 corrected resampled manyo-data obtained')
             self.spect(qmin, qmax, isplot=True)
             if inb == 0:
                 print(self.ene.shape)

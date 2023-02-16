@@ -25,9 +25,9 @@ def run():
     print(intensities[-5:-1])
 
 
-def run_org():
-    prj = sgq(pklfile="run6202spectraorg.pkl")
-    prj.get_org_data("0.000025")
+def run_org(runNo):
+    prj = sgq(pklfile="run" + str(runNo) + "spectraorg.pkl")
+    prj.get_org_data("0.000025", runNo)
     prj.get_qemap()
     prj.get_all_sdata()
     prj.spect(0.55, 0.70, isplot=True)
@@ -51,6 +51,7 @@ def check():
     plt.show()
 
 
-run()
+#run()
 #check()
-#run_org()
+runNo = 6202
+run_org(runNo)

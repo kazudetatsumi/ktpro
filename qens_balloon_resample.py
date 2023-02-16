@@ -11,7 +11,7 @@ sys.path.append("/home/kazu/ktpro")
 from qens_kde_results_odata_divided_by_idata_class\
     import odata_divided_by_idata as odbi
 #from get_qlist_nova_class import get_qlist as gq
-from get_resampled_data import Sget_qlist as sgq
+from get_resampled_data_class import Sget_qlist as sgq
 pwd = os.getcwd()
 from qens_fit_class import qens_fit as qf
 elim = [-0.03, 0.07]
@@ -21,7 +21,7 @@ elim = [-0.03, 0.07]
 
 def getrsspectra(rsfile):
     prj = sgq(pklfile=rsfile)
-    prj.load_pkl()
+    prj.load_pkl(ispython2=True)
     return prj.spectrab[0, 0, :], prj.spectrab[0, 1, :]
 
 
@@ -117,7 +117,7 @@ def run():
     proj.correction()
     proj.bg = 0.
     fig = plt.figure()
-    proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit.png')
+    proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit_resampled.png')
     #proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002], figname='balloon_fit_4params.png')
 
 
