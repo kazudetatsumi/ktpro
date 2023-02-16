@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-# This script read the raw neutron count data of DNA without any corrections and resample the count data
-# and apply the necessary corrections to deduce resampled QENS data corresponding to dobule differential 
-# cross-sections.
+# This script reads a set of raw neutron count data of DNA without any
+# corrections, i.e., an uncorrected energy container matrix using Manyo
+# library, samples counts from the data in a bootstrap manner and applies the
+# necessary corrections to draw bootstrap sampled QENS data corresponding to
+# double differentia cross-sections.
 # Kazuyoshi TATSUMI 2023/02/15
 try:
     import Cmm
@@ -13,15 +15,13 @@ import matplotlib.pyplot as plt
 import pickle
 from scipy.interpolate import griddata
 import datetime
+from mpi4py import MPI
 from get_qlist_nova_class import get_qlist as gq
 
 m = 1.674927471*10**(-27)   # [kg]
 h = 6.62607015*10**(-34)    # [J. s]
 meVtoJ = 1.60218*10**(-22)  # [J/meV]
-
-print((meVtoJ * 2*m/(h**2))*10**(-20))
 meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
-print(meVtoangsm2)
 
 
 class Sget_qlist(gq):
@@ -29,34 +29,37 @@ class Sget_qlist(gq):
         self.save_file = save_file
         self.pklfile = pklfile
 
-    def get_org_data(self, binw):
+    def get_org_data(self, binw, runNo):
         self.DAT = Cmm.GetHistogramHW(
-                runNo=6202, HwParam=binw+"/-0.05/0.15",
+                runNo=runNo, HwParam=binw+"/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
                 useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
         self.EC = Cmm.GetHistogramMon(
-                    runNo=6202, useEiConv=True, LambdaParam="6.321/4.15",
+                    runNo=runNo, useEiConv=True, LambdaParam="6.321/4.15",
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
-                    TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
+                    TimeParam="-1.0/-1.0", UseFastChopper=True,
+                    isHistogram=False)
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
 
     def get_org_intensity_array(self):
         self.intensity = np.zeros((self.DAT.PutSize(),
-                                 self.DAT(0).PutSize(),
-                                 len(self.DAT(0)(0).PutYList())))
+                                   self.DAT(0).PutSize(),
+                                   len(self.DAT(0)(0).PutYList())))
         for ecaidx in range(0, self.DAT.PutSize()):
             for ecidx in range(0, self.DAT(0).PutSize()):
-                self.intensity[ecaidx, ecidx, :] = np.array(self.DAT(ecaidx, ecidx)
-                                                           .PutYList())
+                self.intensity[ecaidx, ecidx, :] = np.array(self.DAT(ecaidx,
+                                                            ecidx).PutYList())
 
     def get_qemapb(self, intensityb):
         self.DATB = Manyo.ElementContainerMatrix(self.DAT)
         ctp = Manyo.CppToPython()
         for ecaidx in range(0, self.DATB.PutSize()):
             for ecidx in range(0, self.DATB(0).PutSize()):
-                vecy = ctp.ListToDoubleVector(intensityb[ecaidx, ecidx, :].tolist())
-                vece = ctp.ListToDoubleVector((intensityb[ecaidx, ecidx, :]**0.5).tolist())
+                vecy = ctp.ListToDoubleVector(intensityb[ecaidx, ecidx, :]
+                                              .tolist())
+                vece = ctp.ListToDoubleVector((intensityb[ecaidx,
+                                               ecidx, :]**0.5).tolist())
                 self.DATB(ecaidx, ecidx).Replace("Intensity", vecy)
                 self.DATB(ecaidx, ecidx).Replace("Error", vece)
                 self.DATB(ecaidx, ecidx).SetKeys("EnergyTransfer", "Intensity",
@@ -81,10 +84,13 @@ class Sget_qlist(gq):
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
         self.DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0,
                                      deltaQ=0.05)
+
     def get_all_sdatab(self):
         q = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())))
-        omega = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())))
-        intensity = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())))
+        omega = np.zeros((self.DATBQE.PutSize(), len(self.DATBQE(0).PutYList())
+                          ))
+        intensity = np.zeros((self.DATBQE.PutSize(),
+                              len(self.DATBQE(0).PutYList())))
         ones = np.ones((len(self.DATBQE(0).PutYList())))
         for ecidx in range(0, self.DATBQE.PutSize()):
             omega[ecidx, :] = np.array(self.DATBQE(ecidx).PutXList()[:-1])
@@ -99,7 +105,8 @@ class Sget_qlist(gq):
     def get_all_sdata(self):
         q = np.zeros((self.DATQE.PutSize(), len(self.DATQE(0).PutYList())))
         omega = np.zeros((self.DATQE.PutSize(), len(self.DATQE(0).PutYList())))
-        intensity = np.zeros((self.DATQE.PutSize(), len(self.DATQE(0).PutYList())))
+        intensity = np.zeros((self.DATQE.PutSize(),
+                              len(self.DATQE(0).PutYList())))
         ones = np.ones((len(self.DATQE(0).PutYList())))
         for ecidx in range(0, self.DATQE.PutSize()):
             omega[ecidx, :] = np.array(self.DATQE(ecidx).PutXList()[:-1])
@@ -119,7 +126,11 @@ class Sget_qlist(gq):
         with open(self.pklfile, 'rb') as f:
             self.spectrab = pickle.load(f)
 
-    def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314):
+    def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
+                                       restart=False):
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        psize = comm.Get_size()
         intensity1d = self.intensity.flatten().astype(int)
         nonzeroidx = np.nonzero(intensity1d)[0]
         x = np.array([idx for idx in nonzeroidx for num_repeat in
@@ -127,16 +138,28 @@ class Sget_qlist(gq):
         N = x.shape[0]
         np.random.seed(seed)
         intensityb = np.zeros_like(self.intensity)
+        if restart:
+            if rank == 0:
+                print('restarting with randomstates.pkl')
+            with open('randomstates.pkl', 'rb') as f:
+                randomstates = pickle.load(f)
+            np.random.set_state(randomstates[-1])
+            Nb = np.random.poisson(lam=N)
+            idx = np.random.randint(0, N, Nb)
         randomstates = []
         for inb in range(nbs):
             randomstates.append(np.random.get_state())
             Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
-        with open('randomstates.pkl', 'wb') as f:
-            pickle.dump(randomstates, f, -1)
-        for inb in range(nbs):
+        if rank == 0:
+            print('writing randomstates.pkl')
+            with open('randomstates.pkl', 'wb') as f:
+                pickle.dump(randomstates, f, -1)
+        for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
+        #for inb in range(nbs):
             intensityb *= 0.
             print(inb)
+            np.random.set_state(randomstates[inb])
             #randomstates.append(np.random.get_state())
             Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
@@ -149,14 +172,23 @@ class Sget_qlist(gq):
             self.get_qemapb(intensityb)
             print(datetime.datetime.now(), '1 resampled manyo-data obtained')
             self.get_all_sdatab()
-            print(datetime.datetime.now(), '1 corrected resampled manyo-data obtained')
-            self.spect(qmin, qmax, isplot=True)
-            if inb == 0:
-                print(self.ene.shape)
-                print(self.spectra.shape)
-                self.spectrab = np.zeros((nbs, 2, self.ene.shape[0]))
-            self.spectrab[inb, 0, :] = self.ene
-            self.spectrab[inb, 1, :] = self.spectra
+            print(datetime.datetime.now(), '1 corrected resampled manyo-data\
+                                             obtained')
+            self.spect(qmin, qmax, isplot=False)
+            if inb == rank*(nbs//psize):
+                ener = np.zeros((nbs//psize, self.ene.shape[0]))
+                spectrar = np.zeros((nbs//psize, self.ene.shape[0]))
+            ener[inb - rank*nbs//psize, :] = self.ene[:]
+            spectrar[inb - rank*nbs//psize, :] = self.spectra[:]
+        ene1dt = np.zeros(self.ene.shape[0]*nbs)
+        spectra1dt = np.zeros(self.spectra.shape[0]*nbs)
+        comm.Allgather(ener.flatten(), ene1dt)
+        comm.Allgather(spectrar.flatten(), spectra1dt)
+        self.spectrab = np.zeros((2, nbs, self.ene.shape[0]))
+        self.spectrab[0] = ene1dt.reshape((nbs, self.ene.shape[0]))
+        self.spectrab[1] = spectra1dt.reshape((nbs, self.ene.shape[0]))
+       #     self.spectrab[inb, 0, :] = self.ene
+       #     self.spectrab[inb, 1, :] = self.spectra
         #with open('randomstates2.pkl', 'wb') as f:
         #    pickle.dump(randomstates, f, -1)
 

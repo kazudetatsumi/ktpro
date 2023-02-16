@@ -3,26 +3,33 @@
 # and apply the necessary corrections to deduce resampled QENS data corresponding to dobule differential 
 # cross-sections.
 # Kazuyoshi TATSUMI 2023/02/15
-from get_resampled_data_class import Sget_qlist as sgq
+from get_resampled_data_mpi_class import Sget_qlist as sgq
 import datetime
 import numpy as np
+from mpi4py import MPI
 
 def run():
-    prj = sgq(pklfile="run6202spectrab.pkl")
+    runNo = 6204
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")
     #prj.get_org_data("0.000025")
-    prj.get_org_data("0.00025")
+    prj.get_org_data("0.000025", 6204)
     print(datetime.datetime.now(), 'org_data ended')
     prj.get_org_intensity_array()
     print(datetime.datetime.now(), 'org_intensity_array ended')
-    nbs = 2
+    nbs = 96
+    #nbs = 8
     qmin = 0.55
     qmax = 0.70
-    prj.get_boot_strap_sampled_spectra(nbs, qmin, qmax)
-    print(datetime.datetime.now(), 'boot_strap_sampled_spectra ended')
+    prj.get_boot_strap_sampled_spectra(nbs, qmin, qmax, restart=False)
+    print(datetime.datetime.now(), 'boot_strap_sampled_spectra ended', rank)
+    if rank == 0:
+        prj.save_pkl()
     prj.save_pkl()
-    intensities = np.sort(np.unique(prj.intensity.flatten()))
-    print(intensities[0:5])
-    print(intensities[-5:-1])
+    #intensities = np.sort(np.unique(prj.intensity.flatten()))
+    #print(intensities[0:5])
+    #print(intensities[-5:-1])
 
 
 def run_org():
