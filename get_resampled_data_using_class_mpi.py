@@ -9,7 +9,7 @@ import numpy as np
 from mpi4py import MPI
 
 def run():
-    runNo = 6204
+    runNo = 6202
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")

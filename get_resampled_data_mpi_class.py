@@ -184,9 +184,9 @@ class Sget_qlist(gq):
         spectra1dt = np.zeros(self.spectra.shape[0]*nbs)
         comm.Allgather(ener.flatten(), ene1dt)
         comm.Allgather(spectrar.flatten(), spectra1dt)
-        self.spectrab = np.zeros((2, nbs, self.ene.shape[0]))
-        self.spectrab[0] = ene1dt.reshape((nbs, self.ene.shape[0]))
-        self.spectrab[1] = spectra1dt.reshape((nbs, self.ene.shape[0]))
+        self.spectrab = np.zeros((nbs, 2, self.ene.shape[0]))
+        self.spectrab[:, 0, :] = ene1dt.reshape((nbs, self.ene.shape[0]))
+        self.spectrab[:, 1, :] = spectra1dt.reshape((nbs, self.ene.shape[0]))
        #     self.spectrab[inb, 0, :] = self.ene
        #     self.spectrab[inb, 1, :] = self.spectra
         #with open('randomstates2.pkl', 'wb') as f:

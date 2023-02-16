@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-# This script tries to form a density esimation of qens
-# using the bin width distribution of the adaptive KDE
-# and the usual qens histogram wiht several corections.
+# This script balloon-estimates the re-sampled qens 1D intensity profiles with
+# the already obtained distributions of kernel band widths, and fits the
+# estimated target density with the estimated device density.
+# Kazuyoshi TATSUMI 2023/02/17
 import os
 import numpy as np
 import pickle
@@ -22,6 +23,7 @@ elim = [-0.03, 0.07]
 def getrsspectra(rsfile):
     prj = sgq(pklfile=rsfile)
     prj.load_pkl(ispython2=True)
+    #return prj.spectrab[0, 0, :], prj.spectrab[0, 1, :]
     return prj.spectrab[0, 0, :], prj.spectrab[0, 1, :]
 
 
@@ -98,7 +100,7 @@ def eachrunno(runno, fig):
     sy = getrsspectra(rsfile)
     syb = balloon(ky, sy)
     divy = getdivspectra(kdivf)
-    plotter(sy, syb, ky, divy, elim, runno, fig)
+    #plotter(sy, syb, ky, divy, elim, runno, fig)
     #save_pkl(sy, syb, pklfile)
     return sy[0], syb
 

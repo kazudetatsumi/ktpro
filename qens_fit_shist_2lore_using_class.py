@@ -26,7 +26,7 @@ def sqrun_kde_hist_2lore():
     else:
         print("using default frac \"\"")
         frac = ""
-    head = "/home/kazu/desktop/210108/Tatsumi/srlz/000005s/"
+    head = "/home/kazu/desktop/210108/Tatsumi/srlz/0000025s/"
     devf = head+"run"+runnod+"united"+"_sspectra.pkl"
     tf = head+"run"+runno+"united"+frac+"_sspectra.pkl"
     elim = [-0.03, 0.07]
