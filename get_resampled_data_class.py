@@ -19,9 +19,9 @@ m = 1.674927471*10**(-27)   # [kg]
 h = 6.62607015*10**(-34)    # [J. s]
 meVtoJ = 1.60218*10**(-22)  # [J/meV]
 
-print((meVtoJ * 2*m/(h**2))*10**(-20))
+#print((meVtoJ * 2*m/(h**2))*10**(-20))
 meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
-print(meVtoangsm2)
+#print(meVtoangsm2)
 
 
 class Sget_qlist(gq):

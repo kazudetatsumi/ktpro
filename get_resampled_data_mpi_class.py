@@ -29,16 +29,16 @@ class Sget_qlist(gq):
         self.save_file = save_file
         self.pklfile = pklfile
 
-    def get_org_data(self, binw, runNo):
+    def get_org_data(self, binw, runNo, TimeParam="-1.0/-1.0"):
         self.DAT = Cmm.GetHistogramHW(
                 runNo=runNo, HwParam=binw+"/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
-                useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
+                useT0ModCorr=False, TimeParam=TimeParam, UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
         self.EC = Cmm.GetHistogramMon(
                     runNo=runNo, useEiConv=True, LambdaParam="6.321/4.15",
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
-                    TimeParam="-1.0/-1.0", UseFastChopper=True,
+                    TimeParam=TimeParam, UseFastChopper=True,
                     isHistogram=False)
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
 

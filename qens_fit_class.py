@@ -13,12 +13,12 @@ plt.rcParams.update(params)
 
 
 class qens_fit:
-    def __init__(self, devf, tf, elim, showplot=True, leastsq=True):
+    def __init__(self, devf, tf, elim, showplot=True, leastsq=True, quiet=False):
         self.devf = devf
         self.tf = tf
         self.elim = elim
         self.showplot = showplot
-        self.quiet = False
+        self.quiet = quiet
         self.leastsq = leastsq
 
     def preprocessnoi(self, doicorr=False):
