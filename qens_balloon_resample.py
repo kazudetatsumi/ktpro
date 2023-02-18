@@ -16,8 +16,8 @@ from get_resampled_data_class import Sget_qlist as sgq
 pwd = os.getcwd()
 from qens_fit_class import qens_fit as qf
 elim = [-0.03, 0.07]
-#import matplotlib
-#matplotlib.use('Agg')
+import matplotlib
+matplotlib.use('Agg')
 
 
 def getrsspectra(rsfile, inb=0):

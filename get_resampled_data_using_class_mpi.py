@@ -14,7 +14,7 @@ def run():
     rank = comm.Get_rank()
     prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")
     #prj.get_org_data("0.000025")
-    prj.get_org_data("0.000025", runNo, TimeParam="0.0, 10225.0")
+    prj.get_org_data("0.000025", runNo, TimeParam="0.0, 1460.7")
     print(datetime.datetime.now(), 'org_data ended')
     prj.get_org_intensity_array()
     print(datetime.datetime.now(), 'org_intensity_array ended')
