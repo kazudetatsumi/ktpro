@@ -216,25 +216,11 @@ class get_qlist:
         x = x[area[0]]
         y = y[area[0]]
         z = z[area[0]]
-        #print("CHECK FUCKING ENERGIES", np.max(y), np.min(y))
-        #print("CHECK NUM OF UNIQUE ENERGIES", np.unique(y).shape)
-        #### old ver num of enes are fixed ###
-        #ene = np.linspace(np.min(y), np.max(y), 801)
-        #z1d = np.zeros((801))
-        #for eidx in range(800):
-        #    cond = np.where((y < ene[eidx+1]) & (y >= ene[eidx]))[0]
-        #    z1d[eidx] = np.sum(z[cond])
-        #print("SUM of intensity:", np.sum(z1d))
-        #### recent ver num of enes are taken from self.HwParam ###
-        #hw = self.HwParam.split("/")
-        #ene = np.arange(float(hw[1]), float(hw[2]), float(hw[0]))
-        #ene = np.linspace(float(hw[1]), float(hw[2]), round((float(hw[2])-float(hw[1]))/float(hw[0])))
         ene = np.sort(np.unique(y))
         z1d = np.zeros_like(ene)
-        print(ene.shape)
         for eidx, e in enumerate(ene):
-            if eidx % (ene.shape[0]/50) == 0:
-                print(int(eidx/float(ene.shape[0])*100), " %")
+            #if eidx % (ene.shape[0]/50) == 0:
+            #    print(int(eidx/float(ene.shape[0])*100), " %")
             #cond = np.where((y < e) & (y >= e - float(hw[0])))[0]
             cond = np.where(np.abs(y-e) < 0.0000000001)
             z1d[eidx] = np.sum(z[cond])

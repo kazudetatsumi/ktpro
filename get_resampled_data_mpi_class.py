@@ -17,6 +17,7 @@ from scipy.interpolate import griddata
 import datetime
 from mpi4py import MPI
 from get_qlist_nova_class import get_qlist as gq
+import copy
 
 m = 1.674927471*10**(-27)   # [kg]
 h = 6.62607015*10**(-34)    # [J. s]
@@ -127,7 +128,7 @@ class Sget_qlist(gq):
             self.spectrab = pickle.load(f)
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
-                                       restart=False):
+                                       restart=False, wnocorr=False):
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         psize = comm.Get_size()
@@ -160,7 +161,6 @@ class Sget_qlist(gq):
             intensityb *= 0.
             print(inb)
             np.random.set_state(randomstates[inb])
-            #randomstates.append(np.random.get_state())
             Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
             xb = x[idx]
@@ -180,27 +180,31 @@ class Sget_qlist(gq):
                 spectrar = np.zeros((nbs//psize, self.ene.shape[0]))
             ener[inb - rank*nbs//psize, :] = self.ene[:]
             spectrar[inb - rank*nbs//psize, :] = self.spectra[:]
-        ene1dt = np.zeros(self.ene.shape[0]*nbs)
-        spectra1dt = np.zeros(self.spectra.shape[0]*nbs)
+            if wnocorr:
+                self.dataset = copy.deepcopy(self.datasetnocorr)
+                self.dataset['intensity'] = intensityb
+                self.spect(qmin, qmax, isplot=False)
+                print('energy differences btw corr and nocorr:', np.sum(self.ene - ener[inb - rank*nbs//psize, :])) 
+                if inb == rank*(nbs//psize):
+                    enenocorrr = np.zeros((nbs//psize, self.ene.shape[0]))
+                    spectranocorrr = np.zeros((nbs//psize, self.ene.shape[0]))
+                enenocorrr[inb - rank*nbs//psize, :] = self.ene[:]
+                spectranocorrr[inb - rank*nbs//psize, :] = self.spectra[:]
+        ene1dt = np.zeros(ener.shape[1]*nbs)
+        spectra1dt = np.zeros(spectrar.shape[1]*nbs)
         comm.Allgather(ener.flatten(), ene1dt)
         comm.Allgather(spectrar.flatten(), spectra1dt)
-        self.spectrab = np.zeros((nbs, 2, self.ene.shape[0]))
-        self.spectrab[:, 0, :] = ene1dt.reshape((nbs, self.ene.shape[0]))
-        self.spectrab[:, 1, :] = spectra1dt.reshape((nbs, self.ene.shape[0]))
-       #     self.spectrab[inb, 0, :] = self.ene
-       #     self.spectrab[inb, 1, :] = self.spectra
-        #with open('randomstates2.pkl', 'wb') as f:
-        #    pickle.dump(randomstates, f, -1)
-
-        #with open('tst.pkl', 'wb') as f:
-        #    pickle.dump(intensityb, f, -1)
-        #    print('intensityb has been saved in tst.pkl')
-        ### Add the original data at the end of the 1st index
-        ###self.get_qemapb(self.intensity)
-        ###self.get_all_sdatab()
-        ###self.spect(0.55, 0.70)
-        ###self.spectrab[-1, 0, :] = self.ene
-        ###self.spectrab[-1, 1, :] = self.spectra
+        self.spectrab = np.zeros((nbs, 2, ener.shape[1]))
+        self.spectrab[:, 0, :] = ene1dt.reshape((nbs, -1))
+        self.spectrab[:, 1, :] = spectra1dt.reshape((nbs, -1))
+        if wnocorr:
+            #ene1dt = np.zeros(enenocorrr.shape[1]*nbs)
+            #spectra1dt = np.zeros(spectranocorrr.shape[1]*nbs)
+            #comm.Allgather(enenocorrr.flatten(), ene1dt)
+            #comm.Allgather(spectranocorrr.flatten(), spectra1dt)
+            #self.spectrabnocorr = np.zeros((nbs, 2, enenocorrr.shape[0]))
+            #self.spectrabnocorr[:, 0, :] = ene1dt.reshape((nbs, -1))
+            #self.spectrabnocorr[:, 1, :] = spectra1dt.reshape((nbs, -1))
 
 
 def run():

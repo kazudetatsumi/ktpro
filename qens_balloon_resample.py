@@ -134,7 +134,8 @@ def run():
         proj.correction()
         proj.bg = 0.
         #fig = plt.figure()
-        proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit_resampled.png')
+        #proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit_resampled.png')
+        proj.optimize(variables=[0.655, 0.0129, 0.200, 0.00208], figname='balloon_fit.png')
         gammas[inb, 0] = proj.out[1]
         gammas[inb, 1] = proj.out[3]
     if ishist:
