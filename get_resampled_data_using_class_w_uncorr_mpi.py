@@ -15,22 +15,26 @@ def run():
     rank = comm.Get_rank()
     prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")
     #prj.get_org_data("0.000025")
-    prj.get_org_data("0.00025", runNo, TimeParam="0.0, 1460.7")
-    print(datetime.datetime.now(), 'org_data ended')
+    prj.get_org_data("0.000025", runNo, TimeParam="0.0, 1460.7")
+    if rank == 0:
+        print(datetime.datetime.now(), 'org_data ended')
     #prj.get_org_intensity_array()
     prj.get_all_data()
+    if rank == 0:
+        print("chk dataset['omega'] shape from ecm of self.DAT by prj.get_org_data:", prj.dataset['omega'].shape)
+        print(prj.dataset['omega'][0,0,0:10])
     prj.intensity = np.array(prj.dataset['intensity'])
     prj.datasetnocorr = copy.deepcopy(prj.dataset)
     print(datetime.datetime.now(), 'org_intensity_array ended')
-    nbs = 4
+    nbs = 16
     #nbs = 8
     qmin = 0.55
     qmax = 0.70
     prj.get_boot_strap_sampled_spectra(nbs, qmin, qmax, restart=False, wnocorr=True)
-    print(datetime.datetime.now(), 'boot_strap_sampled_spectra ended', rank)
     if rank == 0:
+        print(datetime.datetime.now(), 'boot_strap_sampling ended')
         prj.save_pkl()
-    prj.save_pkl()
+        print(datetime.datetime.now(), 'boot_strap_sampled_spectra saved')
     #intensities = np.sort(np.unique(prj.intensity.flatten()))
     #print(intensities[0:5])
     #print(intensities[-5:-1])

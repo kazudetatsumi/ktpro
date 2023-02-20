@@ -13,6 +13,7 @@ def testrun():
              "test_mpi_fort_de_0.000025/160_1_0000001io_Boxcar_simu/runtst/tmp/"
     #outfile = prefix + "./outkdewidata_least_squares_alpha1_k3.pkl"
     outfile = prefix + "./outkdewidata_least_squares_alpha0.5_k3.pkl"
+    outfile = prefix + "./outkdewidata_least_squares_alpha0.5_k3_chk.pkl"
     alpha = 0.5
     devf = prefix + "./qens_kde_o_divided_by_i_6204.pkl"
     tf = prefix + "./qens_kde_o_divided_by_i_6202.pkl"

@@ -105,7 +105,7 @@ class runkdenoidata(rhn, qc):
         self.tin = np.arange(self.selected_energy.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
                                     self.selected_energy[-1], num=480)
-        # print('number of tin_real elements=', self.tin_real.shape[0])
+        #print('number of tin_real elements=', self.tin_real.shape[0])
 
         if self.WinFunc == 'Boxcar':
             WinFuncNo = 1

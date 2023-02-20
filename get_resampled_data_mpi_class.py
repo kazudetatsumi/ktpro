@@ -172,6 +172,9 @@ class Sget_qlist(gq):
             self.get_qemapb(intensityb)
             print(datetime.datetime.now(), '1 resampled manyo-data obtained')
             self.get_all_sdatab()
+            if inb == 0 and rank == 0:
+                print("chk dataset['omega'] shape from qemap:", self.dataset['omega'].shape)
+                print(self.dataset['omega'][0,0:10])
             print(datetime.datetime.now(), '1 corrected resampled manyo-data\
                                              obtained')
             self.spect(qmin, qmax, isplot=False)
@@ -186,8 +189,8 @@ class Sget_qlist(gq):
                 self.spect(qmin, qmax, isplot=False)
                 print('energy differences btw corr and nocorr:', np.sum(self.ene - ener[inb - rank*nbs//psize, :])) 
                 if inb == rank*(nbs//psize):
-                    enenocorrr = np.zeros((nbs//psize, self.ene.shape[0]))
-                    spectranocorrr = np.zeros((nbs//psize, self.ene.shape[0]))
+                    enenocorrr = np.zeros_like(ener)
+                    spectranocorrr = np.zeros_like(spectrar)
                 enenocorrr[inb - rank*nbs//psize, :] = self.ene[:]
                 spectranocorrr[inb - rank*nbs//psize, :] = self.spectra[:]
         ene1dt = np.zeros(ener.shape[1]*nbs)
@@ -198,13 +201,10 @@ class Sget_qlist(gq):
         self.spectrab[:, 0, :] = ene1dt.reshape((nbs, -1))
         self.spectrab[:, 1, :] = spectra1dt.reshape((nbs, -1))
         if wnocorr:
-            #ene1dt = np.zeros(enenocorrr.shape[1]*nbs)
-            #spectra1dt = np.zeros(spectranocorrr.shape[1]*nbs)
-            #comm.Allgather(enenocorrr.flatten(), ene1dt)
-            #comm.Allgather(spectranocorrr.flatten(), spectra1dt)
-            #self.spectrabnocorr = np.zeros((nbs, 2, enenocorrr.shape[0]))
-            #self.spectrabnocorr[:, 0, :] = ene1dt.reshape((nbs, -1))
-            #self.spectrabnocorr[:, 1, :] = spectra1dt.reshape((nbs, -1))
+            spectra1dt = np.zeros(spectranocorrr.shape[1]*nbs)
+            comm.Allgather(spectranocorrr.flatten(), spectra1dt)
+            #self.spectrab = np.concatenate((self.spectrab, spectra1dt.reshape(nbs, 1, ener.shape[1])), axis=1)
+            self.spectrab = np.concatenate((self.spectrab, spectra1dt.reshape(nbs, 1, -1)), axis=1)
 
 
 def run():
