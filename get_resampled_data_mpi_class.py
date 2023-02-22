@@ -5,17 +5,19 @@
 # necessary corrections to draw bootstrap sampled QENS data corresponding to
 # double differentia cross-sections.
 # Kazuyoshi TATSUMI 2023/02/15
+from mpi4py import MPI
+rank = MPI.COMM_WORLD.Get_rank()
 try:
     import Cmm
     import Manyo
 except ModuleNotFoundError as err:
-    print(err)
+    if rank == 0:
+        print(err)
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 from scipy.interpolate import griddata
 import datetime
-from mpi4py import MPI
 from get_qlist_nova_class import get_qlist as gq
 import copy
 
@@ -184,6 +186,7 @@ class Sget_qlist(gq):
             ener[inb - rank*nbs//psize, :] = self.ene[:]
             spectrar[inb - rank*nbs//psize, :] = self.spectra[:]
             if wnocorr:
+                # We use self.dataset doubly at present because self.spect specifies this object name.
                 self.dataset = copy.deepcopy(self.datasetnocorr)
                 self.dataset['intensity'] = intensityb
                 self.spect(qmin, qmax, isplot=False)

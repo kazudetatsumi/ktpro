@@ -13,6 +13,7 @@ from qens_kde_results_odata_divided_by_idata_class\
     import odata_divided_by_idata as odbi
 #from get_qlist_nova_class import get_qlist as gq
 from get_resampled_data_class import Sget_qlist as sgq
+from qens_kde_resampled import qens_kde_resampled as qkr
 pwd = os.getcwd()
 from qens_fit_class import qens_fit as qf
 elim = [-0.03, 0.07]
@@ -36,6 +37,13 @@ def getdivspectra(divfile):
 def getbandwidth(kf):
     proj = odbi(kf, 'dummy')
     return proj.read_pkl(kf)['y_ssvk']
+
+
+def GetBandWidthFromKdeOnEachData(rsfile, inb=0):
+    #proj = qkr(inb=inb, pklfile=rsfile)
+    proj = qkr(pklfile=rsfile)
+    proj.kde(proj.spectrab[inb, 0, :], proj.spectrab[inb, 2, :])
+    return proj.y
 
 
 def balloon(ky, sy):
@@ -96,12 +104,22 @@ def eachrunno(runno, fig, inb=0):
     #pklfile = "./qens_runr" + runno + "_balloon.pkl"
     #print(rsfile)
     #print(kf)
+    print("eachrunno")
     ky = getbandwidth(kf)
     sy = getrsspectra(rsfile, inb=inb)
     syb = balloon(ky, sy)
     #divy = getdivspectra(kdivf)
     #plotter(sy, syb, ky, divy, elim, runno, fig)
     #save_pkl(sy, syb, pklfile)
+    return sy[0], syb, sy[1]
+
+
+def eachrunno2(runno, fig, inb=0):
+    rsfile = "./run" + runno + "spectrab.pkl"
+    #kf = "./qens_run" + runno + "united_kde_results_on_data_qsel.pkl"
+    ky = GetBandWidthFromKdeOnEachData(rsfile, inb=inb)
+    sy = getrsspectra(rsfile, inb=inb)
+    syb = balloon(ky, sy)
     return sy[0], syb, sy[1]
 
 
@@ -114,7 +132,7 @@ def run():
     else:
         ishist = False
     fig = plt.figure()
-    Nb = 96
+    Nb = 16
     gammas = np.zeros((Nb, 2))
     np.set_printoptions(threshold=12, linewidth=150, suppress=True)
     print("estimated constants alpha1, gamma1, alpha2, gamma2, delta")

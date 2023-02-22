@@ -89,18 +89,22 @@ def plotter(ax, data, dataname=None, isbottom=False, ymin=None, ymax=None, text=
             c=['pink', 'red', 'lightblue', 'blue'],
             #c=['gray', 'k', 'gray', 'k'],
             loc=None, bbox_to_anchor=None):
-    ax.errorbar(data[:, 0], data[:, 1],
-                yerr=data[:, 2], marker="o", label='kde1',
-                ms=4, elinewidth=1, lw=0, capsize=3, c=c[0], mfc="none")
-    ax.errorbar(data[:, 0], data[:, 3],
-                yerr=data[:, 4], marker="o", label='kde2',
-                ms=4, elinewidth=1, lw=0, capsize=3, c=c[1], mfc="none")
-    ax.errorbar(data[:, 0], data[:, 5],
-                yerr=data[:, 6], marker="x", label='hist1',
-                ms=4, elinewidth=1, lw=0, capsize=3, c=c[2])
-    ax.errorbar(data[:, 0], data[:, 7],
-                yerr=data[:, 8], marker="x", label='hist2',
-                ms=4, elinewidth=1, lw=0, capsize=3, c=c[3])
+    #ax.errorbar(data[:, 0], data[:, 1],
+    #            yerr=data[:, 2], marker="o", label='kde1',
+    #            ms=4, elinewidth=1, lw=0, capsize=3, c=c[0], mfc="none")
+    #ax.errorbar(data[:, 0], data[:, 3],
+    #            yerr=data[:, 4], marker="o", label='kde2',
+    #            ms=4, elinewidth=1, lw=0, capsize=3, c=c[1], mfc="none")
+    #ax.errorbar(data[:, 0], data[:, 5],
+    #            yerr=data[:, 6], marker="x", label='hist1',
+    #            ms=4, elinewidth=1, lw=0, capsize=3, c=c[2])
+    #ax.errorbar(data[:, 0], data[:, 7],
+    #            yerr=data[:, 8], marker="x", label='hist2',
+    #            ms=4, elinewidth=1, lw=0, capsize=3, c=c[3])
+    ax.scatter(data[:, 0], data[:, 1], marker="o", label='kde1', lw=0, c=c[0])
+    ax.scatter(data[:, 0], data[:, 3], marker="o", label='kde2', lw=0, c=c[1])
+    ax.scatter(data[:, 0], data[:, 5], marker="x", label='hist1', lw=1, c=c[2])
+    ax.scatter(data[:, 0], data[:, 7], marker="x", label='hist2', lw=1, c=c[3])
     if text:
         ax.text(0, 0.12, text)
     if ymin is not None and ymax is not None:

@@ -49,15 +49,16 @@ class runkdenoidata(rhn, qc):
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         return xtl, ydlc, ytlc
 
-    def kde(self, x, y):
+    def kde(self, x, y, num=800):
         self.WinFunc = 'Boxcar'
         self.M = 160
-        self.winparam = 3
+        self.winparam = 1
         self.selected_spectra = y
         self.selected_energy = x
         self.de = self.selected_energy[1] - self.selected_energy[0]
         self.get_xvec()
         self.add_shift_de()
+        #self.run_ssvkernel(num=num)
         self.run_ssvkernel()
 
     def kde_baloon(self, x, y):
@@ -101,10 +102,11 @@ class runkdenoidata(rhn, qc):
                                             1.8e+01, 1.4e+01])
             self.check_out(cyidx, _out)
 
-    def run_ssvkernel(self):
+    def run_ssvkernel_notused(self):
         self.tin = np.arange(self.selected_energy.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
-                                    self.selected_energy[-1], num=480)
+                                    #self.selected_energy[-1], num=480)
+                                    self.selected_energy[-1], num=8000)
         #print('number of tin_real elements=', self.tin_real.shape[0])
 
         if self.WinFunc == 'Boxcar':

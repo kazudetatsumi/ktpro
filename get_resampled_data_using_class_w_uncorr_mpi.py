@@ -15,7 +15,8 @@ def run():
     rank = comm.Get_rank()
     prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")
     #prj.get_org_data("0.000025")
-    prj.get_org_data("0.000025", runNo, TimeParam="0.0, 1460.7")
+    #prj.get_org_data("0.000025", runNo, TimeParam="0.0, 1460.7")
+    prj.get_org_data("0.000025", runNo)
     if rank == 0:
         print(datetime.datetime.now(), 'org_data ended')
     #prj.get_org_intensity_array()
@@ -23,11 +24,12 @@ def run():
     if rank == 0:
         print("chk dataset['omega'] shape from ecm of self.DAT by prj.get_org_data:", prj.dataset['omega'].shape)
         print(prj.dataset['omega'][0,0,0:10])
+    # The object name of prj.intensity instead of prj.dataset['intenity'] is needed for  prj.get_boot_strap_sampled_spectra.
     prj.intensity = np.array(prj.dataset['intensity'])
+    # Saving the present prj.dataset as prj.datasetnocorr to use it in the latter half of prj.get_boot_strap_sampled_spectra.
     prj.datasetnocorr = copy.deepcopy(prj.dataset)
     print(datetime.datetime.now(), 'org_intensity_array ended')
     nbs = 16
-    #nbs = 8
     qmin = 0.55
     qmax = 0.70
     prj.get_boot_strap_sampled_spectra(nbs, qmin, qmax, restart=False, wnocorr=True)
@@ -41,8 +43,9 @@ def run():
 
 
 def run_org():
-    prj = sgq(pklfile="run6202spectraorg.pkl")
-    prj.get_org_data("0.000025")
+    runNo = 6202
+    prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")
+    prj.get_org_data("0.000025", runNo)
     prj.get_qemap()
     prj.get_all_sdata()
     prj.spect(0.55, 0.70, isplot=True)
@@ -66,6 +69,6 @@ def check():
     plt.show()
 
 
-run()
+#run()
 #check()
-#run_org()
+run_org()
