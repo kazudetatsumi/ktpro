@@ -3,27 +3,27 @@
 # the kernel band widths optimized on the original data, and fits the estimated
 # target density with the estimated device density.
 # Kazuyoshi TATSUMI 2023/02/23
-import os
+#import os
 import numpy as np
-im port pickle
-import matplotlib.pyplot as plt
 import sys
 sys.path.append("/home/kazu/ktpro")
-from qens_kde_results_odata_divided_by_idata_class\
-    import odata_divided_by_idata as odbi
+#from qens_kde_results_odata_divided_by_idata_class\
+#    import odata_divided_by_idata as odbi
 #from get_qlist_nova_class import get_qlist as gq
 from get_resampled_data_class import Sget_qlist as sgq
 from qens_kde_resampled import qens_kde_resampled as qkr
-pwd = os.getcwd()
+#pwd = os.getcwd()
 from qens_fit_class import qens_fit as qf
-import matplotlib
-matplotlib.use('Agg')
+#import matplotlib
+#matplotlib.use('Agg')
 
-class qens_balloon_resamples(sgq, qkr, qf):
+
+#class qens_balloon_resamples(sgq, qkr, qf):
+class qens_balloon_resamples(qf):
     def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1):
         self.runNos = runNos
         self.Nb = Nb
-        self.gammas = np.zeros((nb, 2))
+        self.gammas = np.zeros((Nb, 2))
         self.DefineFiles()
         self.elim = [-0.03, 0.07]
         #np.set_printoptions(threshold=12, linewidth=150, suppress=True)
@@ -55,8 +55,8 @@ class qens_balloon_resamples(sgq, qkr, qf):
         return y
 
     def eachrunno(self, fidx, inb):
-        sy = getrsspectra(self.rsfiles[fidx], inb)
-        syb = balloon(self.kys[fidx], sy)
+        sy = self.getrsspectra(self.rsfiles[fidx], inb)
+        syb = self.balloon(self.kys[fidx], sy)
         return sy[0], syb, sy[1]
 
     def DefineFiles(self):
@@ -67,7 +67,7 @@ class qens_balloon_resamples(sgq, qkr, qf):
             self.orgfiles.append("./run" + str(runno) + "spectraorg.pkl")
 
     def DoQf(self, inb):
-        self.qf('dummy', 'dummy', self.elim, showplot=False, leastsq=False, quiet=True)
+        qf.__init__(self, 'dummy', 'dummy', self.elim, showplot=False, leastsq=False, quiet=True)
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         self.icorr()
@@ -78,7 +78,7 @@ class qens_balloon_resamples(sgq, qkr, qf):
         self.optimize(variables=[0.655, 0.0129, 0.200, 0.00208])
 
     def run(self):
-        self.kys = [CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles]
+        self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles]
         for inb in range(self.Nb):
             self.DoQf(inb)
             self.gammas[inb, 0] = self.out[1]
@@ -86,12 +86,11 @@ class qens_balloon_resamples(sgq, qkr, qf):
         print(np.mean(self.gammas, axis=0))
         print(np.std(self.gammas, axis=0))
 
-
+ 
 def testrun():
-    ishist = False
     Nb = 4
     elim = [-0.03, 0.07]
-    prj = qens_balloon_resamples(runNos=[6202, 6204], elim=elim, Nb=Nb, ishist=ishist)
+    prj = qens_balloon_resamples(runNos=[6202, 6204], elim=elim, Nb=Nb)
     prj.run()
 
 

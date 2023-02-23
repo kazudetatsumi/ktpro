@@ -207,10 +207,10 @@ class get_qlist:
         self.plot_sub(Y, X, Z, 1, np.max(Z))
         plt.show()
 
-    def spect(self, qmin, qmax, isplot=False):
-        x = np.ravel(self.dataset['q'])
-        y = np.ravel(self.dataset['omega'])
-        z = np.ravel(self.dataset['intensity'])
+    def spect(self, qmin, qmax, dataset, isplot=False):
+        x = np.ravel(dataset['q'])
+        y = np.ravel(dataset['omega'])
+        z = np.ravel(dataset['intensity'])
         _x = x
         area = np.where((_x <= qmax) & (_x > qmin))
         x = x[area[0]]

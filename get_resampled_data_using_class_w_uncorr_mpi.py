@@ -10,7 +10,7 @@ from mpi4py import MPI
 import copy
 
 def run():
-    runNo = 6202
+    runNo = 6204
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")
@@ -29,7 +29,7 @@ def run():
     # Saving the present prj.dataset as prj.datasetnocorr to use it in the latter half of prj.get_boot_strap_sampled_spectra.
     prj.datasetnocorr = copy.deepcopy(prj.dataset)
     print(datetime.datetime.now(), 'org_intensity_array ended')
-    nbs = 16
+    nbs = 4
     qmin = 0.55
     qmax = 0.70
     prj.get_boot_strap_sampled_spectra(nbs, qmin, qmax, restart=False, wnocorr=True)
@@ -69,6 +69,6 @@ def check():
     plt.show()
 
 
-#run()
+run()
 #check()
-run_org()
+#run_org()

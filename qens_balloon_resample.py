@@ -8,17 +8,21 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 import sys
+print('chk')
 sys.path.append("/home/kazu/ktpro")
 from qens_kde_results_odata_divided_by_idata_class\
     import odata_divided_by_idata as odbi
+print('chk2')
 #from get_qlist_nova_class import get_qlist as gq
 from get_resampled_data_class import Sget_qlist as sgq
+print('chk3')
 from qens_kde_resampled import qens_kde_resampled as qkr
 pwd = os.getcwd()
 from qens_fit_class import qens_fit as qf
 elim = [-0.03, 0.07]
 import matplotlib
 matplotlib.use('Agg')
+from mpi4py import MPI
 
 
 def getrsspectra(rsfile, inb=0):
@@ -42,7 +46,7 @@ def getbandwidth(kf):
 def GetBandWidthFromKdeOnEachData(rsfile, inb=0):
     #proj = qkr(inb=inb, pklfile=rsfile)
     proj = qkr(pklfile=rsfile)
-    proj.kde(proj.spectrab[inb, 0, :], proj.spectrab[inb, 2, :])
+    proj.kde(proj.spectrab[inb, 0, :], proj.spectrab[inb, 2, :], num=8000)
     return proj.y
 
 
@@ -116,6 +120,7 @@ def eachrunno(runno, fig, inb=0):
 
 def eachrunno2(runno, fig, inb=0):
     rsfile = "./run" + runno + "spectrab.pkl"
+    #orgfile = "./run" + runno + "spectraorg.pkl"
     #kf = "./qens_run" + runno + "united_kde_results_on_data_qsel.pkl"
     ky = GetBandWidthFromKdeOnEachData(rsfile, inb=inb)
     sy = getrsspectra(rsfile, inb=inb)
@@ -124,6 +129,7 @@ def eachrunno2(runno, fig, inb=0):
 
 
 def run():
+    rank = MPI.COMM_WORLD.Get_rank()
     if len(sys.argv) >= 2:
         if sys.argv[1] == 'hist':
             ishist = True
@@ -132,14 +138,14 @@ def run():
     else:
         ishist = False
     fig = plt.figure()
-    Nb = 16
+    Nb = 4
     gammas = np.zeros((Nb, 2))
     np.set_printoptions(threshold=12, linewidth=150, suppress=True)
     print("estimated constants alpha1, gamma1, alpha2, gamma2, delta")
     for inb in range(Nb):
         #print('entering in #', inb)
-        xt, yt, yth = eachrunno("6202", fig, inb=inb)
-        xd, yd, ydh = eachrunno("6204", fig, inb=inb)
+        xt, yt, yth = eachrunno2("6202", fig, inb=inb)
+        xd, yd, ydh = eachrunno2("6204", fig, inb=inb)
         #plt.savefig('balloon_run.png')
         proj = qf('dummy', 'dummy', elim, showplot=False, leastsq=False, quiet=True)
         proj.icorr()
@@ -152,16 +158,17 @@ def run():
         proj.correction()
         proj.bg = 0.
         #fig = plt.figure()
-        #proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit_resampled.png')
-        proj.optimize(variables=[0.655, 0.0129, 0.200, 0.00208], figname='balloon_fit.png')
+        proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2], figname='balloon_fit_resampled.png')
+        #proj.optimize(variables=[0.655, 0.0129, 0.200, 0.00208], figname='balloon_fit.png')
         gammas[inb, 0] = proj.out[1]
         gammas[inb, 1] = proj.out[3]
-    if ishist:
-        print('fitting on histogram data')
-    else:
-        print('fitting on kde data')
-    print(np.mean(gammas, axis=0))
-    print(np.std(gammas, axis=0))
+    if rank == 0:
+        if ishist:
+            print('fitting on histogram data')
+        else:
+            print('fitting on kde data')
+        print(np.mean(gammas, axis=0))
+        print(np.std(gammas, axis=0))
     #proj.optimize(variables=[0.8, 0.01, 0.24, 0.0002], figname='balloon_fit_4params.png')
 
 

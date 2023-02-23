@@ -58,8 +58,7 @@ class runkdenoidata(rhn, qc):
         self.de = self.selected_energy[1] - self.selected_energy[0]
         self.get_xvec()
         self.add_shift_de()
-        #self.run_ssvkernel(num=num)
-        self.run_ssvkernel()
+        self.run_ssvkernel(num=num)
 
     def kde_baloon(self, x, y):
         self.selected_energy = x

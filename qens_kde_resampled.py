@@ -18,7 +18,7 @@ def testrun():
     inb = 0
     pklfile = 'run6202spectrab.pkl'
     proj = qens_kde_resampled(pklfile)
-    proj.kde(proj.spectrab[inb, 0, :], proj.spectrab[inb, 2, :], num=8000)
+    proj.kde(proj.spectrab[inb, 0, :], proj.spectrab[inb, 2, :], num=800)
     print(len(proj.y[0]))
     print(proj.spectrab[0, 0, :].shape)
     fig, ax1 = plt.subplots(figsize=(10, 6))
@@ -30,4 +30,4 @@ def testrun():
 
     
 
-testrun()
+#testrun()

@@ -179,7 +179,7 @@ class Sget_qlist(gq):
                 print(self.dataset['omega'][0,0:10])
             print(datetime.datetime.now(), '1 corrected resampled manyo-data\
                                              obtained')
-            self.spect(qmin, qmax, isplot=False)
+            self.spect(qmin, qmax, self.dataset, isplot=False)
             if inb == rank*(nbs//psize):
                 ener = np.zeros((nbs//psize, self.ene.shape[0]))
                 spectrar = np.zeros((nbs//psize, self.ene.shape[0]))
@@ -187,9 +187,9 @@ class Sget_qlist(gq):
             spectrar[inb - rank*nbs//psize, :] = self.spectra[:]
             if wnocorr:
                 # We use self.dataset doubly at present because self.spect specifies this object name.
-                self.dataset = copy.deepcopy(self.datasetnocorr)
-                self.dataset['intensity'] = intensityb
-                self.spect(qmin, qmax, isplot=False)
+                #self.dataset = copy.deepcopy(self.datasetnocorr)
+                self.datasetnocorr['intensity'] = intensityb
+                self.spect(qmin, qmax, self.datasetnocorr, isplot=False)
                 print('energy differences btw corr and nocorr:', np.sum(self.ene - ener[inb - rank*nbs//psize, :])) 
                 if inb == rank*(nbs//psize):
                     enenocorrr = np.zeros_like(ener)
