@@ -9,9 +9,9 @@ import sys
 sys.path.append("/home/kazu/ktpro")
 from mpi4py import MPI
 from qens_kde_resampled import qens_kde_resampled as qkr
-#import matplotlib.pyplot as plt
-#import matplotlib
-#matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 
 class qens_balloon_resamples(qkr):
@@ -88,11 +88,12 @@ class qens_balloon_resamples(qkr):
         self.output()
 
 
+
 def testrun():
-    Nb = 8
+    Nb = 48
     elim = [-0.03, 0.07]
     prj = qens_balloon_resamples(runNos=[6202, 6204], elim=elim, Nb=Nb)
-    print(qens_balloon_resamples.__mro__)
+    #print(qens_balloon_resamples.__mro__)
     prj.run()
 
 

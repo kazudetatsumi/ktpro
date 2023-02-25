@@ -19,7 +19,6 @@ import pickle
 from scipy.interpolate import griddata
 import datetime
 from get_qlist_nova_class import get_qlist as gq
-import copy
 
 m = 1.674927471*10**(-27)   # [kg]
 h = 6.62607015*10**(-34)    # [J. s]
@@ -144,7 +143,7 @@ class Sget_qlist(gq):
         if restart:
             if rank == 0:
                 print('restarting with randomstates.pkl')
-            with open('randomstates.pkl', 'rb') as f:
+            with open('randomstates.pkl.48', 'rb') as f:
                 randomstates = pickle.load(f)
             np.random.set_state(randomstates[-1])
             randoffset = len(randomstates)
@@ -180,8 +179,9 @@ class Sget_qlist(gq):
             print(datetime.datetime.now(), '1 resampled manyo-data obtained')
             self.get_all_sdatab()
             if inb == 0 and rank == 0:
-                print("chk dataset['omega'] shape from qemap:", self.dataset['omega'].shape)
-                print(self.dataset['omega'][0,0:10])
+                print("chk dataset['omega'] shape from qemap:",
+                      self.dataset['omega'].shape)
+                print(self.dataset['omega'][0, 0:10])
             print(datetime.datetime.now(), '1 corrected resampled manyo-data\
                                              obtained')
             self.spect(qmin, qmax, self.dataset, isplot=False)
@@ -191,11 +191,15 @@ class Sget_qlist(gq):
             ener[inb - rank*nbs//psize, :] = self.ene[:]
             spectrar[inb - rank*nbs//psize, :] = self.spectra[:]
             if wnocorr:
-                # We use self.dataset doubly at present because self.spect specifies this object name.
-                #self.dataset = copy.deepcopy(self.datasetnocorr)
+                # OLD
+                # We use self.dataset doubly at present because self.spect
+                # specifies this object name.
+                # self.dataset = copy.deepcopy(self.datasetnocorr)
+                # OLD
                 self.datasetnocorr['intensity'] = intensityb
                 self.spect(qmin, qmax, self.datasetnocorr, isplot=False)
-                print('energy differences btw corr and nocorr:', np.sum(self.ene - ener[inb - rank*nbs//psize, :])) 
+                print('energy differences btw corr and nocorr:',
+                      np.sum(self.ene - ener[inb - rank*nbs//psize, :]))
                 if inb == rank*(nbs//psize):
                     enenocorrr = np.zeros_like(ener)
                     spectranocorrr = np.zeros_like(spectrar)
@@ -211,8 +215,9 @@ class Sget_qlist(gq):
         if wnocorr:
             spectra1dt = np.zeros(spectranocorrr.shape[1]*nbs)
             comm.Allgather(spectranocorrr.flatten(), spectra1dt)
-            #self.spectrab = np.concatenate((self.spectrab, spectra1dt.reshape(nbs, 1, ener.shape[1])), axis=1)
-            self.spectrab = np.concatenate((self.spectrab, spectra1dt.reshape(nbs, 1, -1)), axis=1)
+            self.spectrab = np.concatenate((self.spectrab,
+                                            spectra1dt.reshape(nbs, 1, -1)),
+                                           axis=1)
         if restart:
             self.spectrab = np.concatenate((results, self.spectrab), axis=0)
 
