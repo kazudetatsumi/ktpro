@@ -147,9 +147,14 @@ class Sget_qlist(gq):
             with open('randomstates.pkl', 'rb') as f:
                 randomstates = pickle.load(f)
             np.random.set_state(randomstates[-1])
+            randoffset = len(randomstates)
             Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
-        randomstates = []
+            with open(self.pklfile, 'rb') as f:
+                results = pickle.load(f)
+        else:
+            randomstates = []
+            randoffset = 0
         for inb in range(nbs):
             randomstates.append(np.random.get_state())
             Nb = np.random.poisson(lam=N)
@@ -162,7 +167,7 @@ class Sget_qlist(gq):
         #for inb in range(nbs):
             intensityb *= 0.
             print(inb)
-            np.random.set_state(randomstates[inb])
+            np.random.set_state(randomstates[inb+randoffset])
             Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
             xb = x[idx]
@@ -208,6 +213,8 @@ class Sget_qlist(gq):
             comm.Allgather(spectranocorrr.flatten(), spectra1dt)
             #self.spectrab = np.concatenate((self.spectrab, spectra1dt.reshape(nbs, 1, ener.shape[1])), axis=1)
             self.spectrab = np.concatenate((self.spectrab, spectra1dt.reshape(nbs, 1, -1)), axis=1)
+        if restart:
+            self.spectrab = np.concatenate((results, self.spectrab), axis=0)
 
 
 def run():

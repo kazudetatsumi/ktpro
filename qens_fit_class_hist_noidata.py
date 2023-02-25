@@ -95,22 +95,23 @@ class runhistnoidata(qf):
                 print(cyidx, 'optimization is not converged..')
 
     def modify_out(self, cyidx, out):
-        if out[0] < 0 and out[1] < 0:
-            #print("negative-negative")
-            out[0] = out[0]*(-1.)
-            out[1] = out[1]*(-1.)
-        if out[2] < 0 and out[3] < 0:
-            #print("negative-negative")
-            out[2] = out[2]*(-1.)
-            out[3] = out[3]*(-1.)
-        if out[1] < out[3]:
-            #print("exchange")
-            tmpout = out[1]
-            tmpout2 = out[0]
-            out[1] = out[3]
-            out[3] = tmpout
-            out[0] = out[2]
-            out[2] = tmpout2
+        if len(out) >= 5:
+            if out[0] < 0 and out[1] < 0:
+                #print("negative-negative")
+                out[0] = out[0]*(-1.)
+                out[1] = out[1]*(-1.)
+            if out[2] < 0 and out[3] < 0:
+                #print("negative-negative")
+                out[2] = out[2]*(-1.)
+                out[3] = out[3]*(-1.)
+            if out[1] < out[3]:
+                #print("exchange")
+                tmpout = out[1]
+                tmpout2 = out[0]
+                out[1] = out[3]
+                out[3] = tmpout
+                out[0] = out[2]
+                out[2] = tmpout2
         # if self.rank:
         #     if self.rank == 0:
         #         print(cyidx, out)
@@ -120,49 +121,91 @@ class runhistnoidata(qf):
 
     def output(self):
         self.outall = np.array(self.outall)
-        orderidx1 = np.argsort(self.outall[:, 1])
-        print("median of gamma1:", np.median(self.outall[:, 1]))
-        print("average of gamma1:", np.average(self.outall[:, 1]))
-        print("68% CI of gamma1")
-        print(self.outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1])
-        print(self.outall[orderidx1[int(np.floor(orderidx1.shape[0]*.84))], 1])
-        orderidx2 = np.argsort(self.outall[:, 3])
-        print("median of gamma2:", np.median(self.outall[:, 3]))
-        print("average of gamma2:", np.average(self.outall[:, 3]))
-        print("68% CI of gamma2")
-        print(self.outall[orderidx2[int(np.ceil(orderidx2.shape[0]*.16))], 3])
-        print(self.outall[orderidx2[int(np.floor(orderidx2.shape[0]*.84))], 3])
-        ave1 = np.average(self.outall[:, 1])
-        std1 = np.std(self.outall[:, 1])
-        ave2 = np.average(self.outall[:, 3])
-        std2 = np.std(self.outall[:, 3])
-        mask = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
-                        & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
-                        & (self.outall[:, 4] > 0) & (self.outall[:, 5] > 0))
-        outnonneg = self.outall[mask]
-        avenonneg1 = np.average(outnonneg[:, 1])
-        stdnonneg1 = np.std(outnonneg[:, 1])
-        avenonneg2 = np.average(outnonneg[:, 3])
-        stdnonneg2 = np.std(outnonneg[:, 3])
-        maskwobg = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
+        if self.outall.shape[1] == 6:
+            orderidx1 = np.argsort(self.outall[:, 1])
+            print("median of gamma1:", np.median(self.outall[:, 1]))
+            print("average of gamma1:", np.average(self.outall[:, 1]))
+            print("68% CI of gamma1")
+            print(self.outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1])
+            print(self.outall[orderidx1[int(np.floor(orderidx1.shape[0]*.84))], 1])
+            orderidx2 = np.argsort(self.outall[:, 3])
+            print("median of gamma2:", np.median(self.outall[:, 3]))
+            print("average of gamma2:", np.average(self.outall[:, 3]))
+            print("68% CI of gamma2")
+            print(self.outall[orderidx2[int(np.ceil(orderidx2.shape[0]*.16))], 3])
+            print(self.outall[orderidx2[int(np.floor(orderidx2.shape[0]*.84))], 3])
+            ave1 = np.average(self.outall[:, 1])
+            std1 = np.std(self.outall[:, 1])
+            ave2 = np.average(self.outall[:, 3])
+            std2 = np.std(self.outall[:, 3])
+            mask = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
                             & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
-                            & (self.outall[:, 4] > 0))
-        outnonnegwobg = self.outall[maskwobg]
-        avenonnegwobg1 = np.average(outnonnegwobg[:, 1])
-        stdnonnegwobg1 = np.std(outnonnegwobg[:, 1])
-        avenonnegwobg2 = np.average(outnonnegwobg[:, 3])
-        stdnonnegwobg2 = np.std(outnonnegwobg[:, 3])
-        print('ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
-              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
-              'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # ')
-        print('{0:.8e} {1:.8e} {2:.8e} {3:.8e} {4} '
-              '{5:.8e} {6:.8e} {7:.8e} {8:.8e} {9} '
-              '{10:.8e} {11:.8e} {12:.8e} {13:.8e} {14}'
-              .format(avenonneg1, stdnonneg1, avenonneg2, stdnonneg2,
-                      outnonneg.shape[0],
-                      avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
-                      stdnonnegwobg2, outnonnegwobg.shape[0],
-                      ave1, std1, ave2, std2, self.outall.shape[0]))
+                            & (self.outall[:, 4] > 0) & (self.outall[:, 5] > 0))
+            maskwobg = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
+                                & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0)
+                                & (self.outall[:, 4] > 0))
+            outnonneg = self.outall[mask]
+            avenonneg1 = np.average(outnonneg[:, 1])
+            stdnonneg1 = np.std(outnonneg[:, 1])
+            outnonnegwobg = self.outall[maskwobg]
+            avenonnegwobg1 = np.average(outnonnegwobg[:, 1])
+            stdnonnegwobg1 = np.std(outnonnegwobg[:, 1])
+            avenonneg2 = np.average(outnonneg[:, 3])
+            stdnonneg2 = np.std(outnonneg[:, 3])
+            avenonnegwobg2 = np.average(outnonnegwobg[:, 3])
+            stdnonnegwobg2 = np.std(outnonnegwobg[:, 3])
+            print('ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+                  'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # '
+                  'ave_gamma1 std_gamma1 ave_gamma2 std_gamma2 # ')
+            print('{0:.8e} {1:.8e} {2:.8e} {3:.8e} {4} '
+                  '{5:.8e} {6:.8e} {7:.8e} {8:.8e} {9} '
+                  '{10:.8e} {11:.8e} {12:.8e} {13:.8e} {14}'
+                  .format(avenonneg1, stdnonneg1, avenonneg2, stdnonneg2,
+                          outnonneg.shape[0],
+                          avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
+                          stdnonnegwobg2, outnonnegwobg.shape[0],
+                          ave1, std1, ave2, std2, self.outall.shape[0]))
+        elif self.outall.shape[1] == 4:
+            orderidx1 = np.argsort(self.outall[:, 1])
+            print(self.outall)
+            print("median of gamma1:", np.median(self.outall[:, 1]))
+            print("average of gamma1:", np.average(self.outall[:, 1]))
+            print("68% CI of gamma1")
+            print(self.outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1])
+            print(self.outall[orderidx1[int(np.floor(orderidx1.shape[0]*.84))], 1])
+            #orderidx2 = np.argsort(self.outall[:, 3])
+            #print("median of gamma2:", np.median(self.outall[:, 3]))
+            #print("average of gamma2:", np.average(self.outall[:, 3]))
+            #print("68% CI of gamma2")
+            #print(self.outall[orderidx2[int(np.ceil(orderidx2.shape[0]*.16))], 3])
+            #print(self.outall[orderidx2[int(np.floor(orderidx2.shape[0]*.84))], 3])
+            ave1 = np.average(self.outall[:, 1])
+            std1 = np.std(self.outall[:, 1])
+            #ave2 = np.average(self.outall[:, 3])
+            #std2 = np.std(self.outall[:, 3])
+            mask = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
+                            & (self.outall[:, 2] > 0) & (self.outall[:, 3] > 0))
+            maskwobg = np.where((self.outall[:, 0] > 0) & (self.outall[:, 1] > 0)
+                                & (self.outall[:, 2] > 0))
+            outnonneg = self.outall[mask]
+            avenonneg1 = np.average(outnonneg[:, 1])
+            stdnonneg1 = np.std(outnonneg[:, 1])
+            outnonnegwobg = self.outall[maskwobg]
+            avenonnegwobg1 = np.average(outnonnegwobg[:, 1])
+            stdnonnegwobg1 = np.std(outnonnegwobg[:, 1])
+            #avenonneg2 = np.average(outnonneg[:, 3])
+            #stdnonneg2 = np.std(outnonneg[:, 3])
+            #avenonnegwobg2 = np.average(outnonnegwobg[:, 3])
+            #stdnonnegwobg2 = np.std(outnonnegwobg[:, 3])
+            print('ave_gamma1 std_gamma1 # '
+                  'ave_gamma1 std_gamma1 # '
+                  'ave_gamma1 std_gamma1 # ')
+            print('{0:.8e} {1:.8e} {2} '
+                  '{3:.8e} {4:.8e} {5} '
+                  '{6:.8e} {7:.8e} {8}'
+                  .format(avenonneg1, stdnonneg1, outnonneg.shape[0],
+                          avenonnegwobg1, stdnonnegwobg1, outnonnegwobg.shape[0],
+                          ave1, std1, self.outall.shape[0]))
 
     def savefile(self):
         dataset = {}
@@ -224,13 +267,24 @@ class runhistnoidata(qf):
             return [out.x, out.success]
 
     def res(self, coeffs, x, d, t):
-        [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
-        y = alpha1*self.convlore(d, gamma1, x)\
-            + alpha2*self.convlore(d, gamma2, x)\
-            + delta*d + base
-        # A smaller energy range is set for the squre differences,
-        # because y involves convolution and this setting is preferable
-        # to decrease the edge effect.
+        if len(coeffs) == 6:
+            [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + base
+        if len(coeffs) == 5:
+            [alpha1, gamma1, alpha2, gamma2,  delta] = coeffs
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + self.bg
+        if len(coeffs) == 4:
+            [alpha, gamma, delta, base] = coeffs
+            y = alpha*self.convlore(d, gamma, x)\
+                + delta*d + base
+        if len(coeffs) == 3:
+            [alpha, gamma, delta] = coeffs
+            y = alpha*self.convlore(d, gamma, x)\
+                + delta*d + self.bg
         xl, dif = self.limit2(x, t-y, self.elim)
         return dif
 

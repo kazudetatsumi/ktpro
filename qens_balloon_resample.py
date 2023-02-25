@@ -126,6 +126,7 @@ def eachrunno2(runno, fig, inb=0):
     sy = getrsspectra(rsfile, inb=inb)
     syb = balloon(ky, sy)
     return sy[0], syb, sy[1]
+    #return sy[0], sy[1], sy[1]
 
 
 def run():

@@ -9,9 +9,9 @@ import numpy as np
 from mpi4py import MPI
 
 
-def run_org(runNo):
+def run_org(runNo, TimeParam):
     prj = sgq(pklfile="run" + str(runNo) + "spectraorg.pkl")
-    prj.get_org_data("0.000025", runNo)
+    prj.get_org_data("0.000025", runNo, TimeParam=TimeParam)
     prj.get_qemap()
     prj.get_all_sdata()
     prj.spect(0.55, 0.70, prj.dataset, isplot=True)
@@ -24,5 +24,7 @@ def run_org(runNo):
     prj.save_pkl()
 
 
-runNo = 6204
-run_org(runNo)
+runNo = 6202
+TimeParam = "8764.0, 10225.0"
+print("TimeParam=", TimeParam)
+run_org(runNo, TimeParam)

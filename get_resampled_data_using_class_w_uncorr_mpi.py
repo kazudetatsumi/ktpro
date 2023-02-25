@@ -10,13 +10,13 @@ from mpi4py import MPI
 import copy
 
 def run():
-    runNo = 6204
+    runNo = 6202
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     prj = sgq(pklfile="run" + str(runNo) + "spectrab.pkl")
     #prj.get_org_data("0.000025")
-    #prj.get_org_data("0.000025", runNo, TimeParam="0.0, 1460.7")
-    prj.get_org_data("0.000025", runNo)
+    prj.get_org_data("0.000025", runNo, TimeParam="8764.0, 10225.0")
+    #prj.get_org_data("0.000025", runNo)
     if rank == 0:
         print(datetime.datetime.now(), 'org_data ended')
     #prj.get_org_intensity_array()
@@ -32,7 +32,7 @@ def run():
     nbs = 4
     qmin = 0.55
     qmax = 0.70
-    prj.get_boot_strap_sampled_spectra(nbs, qmin, qmax, restart=False, wnocorr=True)
+    prj.get_boot_strap_sampled_spectra(nbs, qmin, qmax, restart=True, wnocorr=True)
     if rank == 0:
         print(datetime.datetime.now(), 'boot_strap_sampling ended')
         prj.save_pkl()
