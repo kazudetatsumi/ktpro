@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import scipy.optimize as so
+import copy
 import sys
 sys.path.append("/home/kazu/ktpro")
 from qens_fit_class import qens_fit as qf
@@ -94,6 +95,32 @@ class runhistnoidata(qf):
             else:
                 print(cyidx, 'optimization is not converged..')
 
+    def modify_out_rev(self, cyidx, org, mod):
+        mod = copy.deepcopy(org)
+        if len(org) >= 5:
+            if org[0] < 0 and org[1] < 0:
+                #print("negative-negative")
+                org[0] = org[0]*(-1.)
+                org[1] = org[1]*(-1.)
+            if org[2] < 0 and org[3] < 0:
+                #print("negative-negative")
+                org[2] = org[2]*(-1.)
+                org[3] = org[3]*(-1.)
+            if org[1] < org[3]:
+                #print("exchange")
+                tmpout = out[1]
+                tmpout2 = out[0]
+                out[1] = out[3]
+                out[3] = tmpout
+                out[0] = out[2]
+                out[2] = tmpout2
+        # if self.rank:
+        #     if self.rank == 0:
+        #         print(cyidx, out)
+        # else:
+        #     print(cyidx, out)
+        self.outall.append(out)
+
     def modify_out(self, cyidx, out):
         if len(out) >= 5:
             if out[0] < 0 and out[1] < 0:
@@ -167,7 +194,7 @@ class runhistnoidata(qf):
                           ave1, std1, ave2, std2, self.outall.shape[0]))
         elif self.outall.shape[1] == 4:
             orderidx1 = np.argsort(self.outall[:, 1])
-            print(self.outall)
+            #print(self.outall)
             print("median of gamma1:", np.median(self.outall[:, 1]))
             print("average of gamma1:", np.average(self.outall[:, 1]))
             print("68% CI of gamma1")
@@ -237,6 +264,19 @@ class runhistnoidata(qf):
         plt.legend()
         plt.show()
 
+    def plot_distribution_single(self, binwidth1):
+        numsumple = self.outall[:, 1].shape[0]
+        numbins1 = int(np.ceil((np.max(self.outall[:, 1]) -
+                               np.min(self.outall[:, 1]))/binwidth1))
+        heights1, bins1 = np.histogram(self.outall[:, 1], bins=numbins1)
+        plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
+                width=binwidth1, label='$\Gamma_1$')
+        plt.xlabel('HWHM (meV)')
+        plt.ylabel('Distribution (1/meV)')
+        plt.xlim(0, 0.02)
+        plt.legend()
+        plt.show()
+
     def correction(self, x, yd, yt):
         x = x + 2.085
         yd = yd / (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
@@ -264,7 +304,7 @@ class runhistnoidata(qf):
             if self.rank == 0:
                 print(out.active_mask, out.success, out.x)
             #out = so.least_squares(self.res, variables, args=(x, yd, yt))
-            return [out.x, out.success]
+            return [out.x, out.success, out.active_mask]
 
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:

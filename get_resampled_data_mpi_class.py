@@ -14,10 +14,10 @@ except ModuleNotFoundError as err:
     if rank == 0:
         print(err)
 import numpy as np
+import datetime
 import matplotlib.pyplot as plt
 import pickle
 from scipy.interpolate import griddata
-import datetime
 from get_qlist_nova_class import get_qlist as gq
 
 m = 1.674927471*10**(-27)   # [kg]
@@ -140,32 +140,35 @@ class Sget_qlist(gq):
         N = x.shape[0]
         np.random.seed(seed)
         intensityb = np.zeros_like(self.intensity)
+        with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb') as f:
+            randomstates = pickle.load(f)
         if restart:
-            if rank == 0:
-                print('restarting with randomstates.pkl')
-            with open('randomstates.pkl.48', 'rb') as f:
-                randomstates = pickle.load(f)
-            np.random.set_state(randomstates[-1])
-            randoffset = len(randomstates)
-            Nb = np.random.poisson(lam=N)
-            idx = np.random.randint(0, N, Nb)
+            #if rank == 0:
+            #    print('restarting with randomstates.pkl')
+            #with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb') as f:
+            #    randomstates = pickle.load(f)
+            #np.random.set_state(randomstates[-1])
+            #randoffset = len(randomstates)
+            #Nb = np.random.poisson(lam=N)
+            #idx = np.random.randint(0, N, Nb)
             with open(self.pklfile, 'rb') as f:
                 results = pickle.load(f)
+            randoffset = results.shape[0]
         else:
-            randomstates = []
+            #randomstates = []
             randoffset = 0
-        for inb in range(nbs):
-            randomstates.append(np.random.get_state())
-            Nb = np.random.poisson(lam=N)
-            idx = np.random.randint(0, N, Nb)
-        if rank == 0:
-            print('writing randomstates.pkl')
-            with open('randomstates.pkl', 'wb') as f:
-                pickle.dump(randomstates, f, -1)
+        #for inb in range(nbs):
+        #    randomstates.append(np.random.get_state())
+        #    Nb = np.random.poisson(lam=N)
+        #    idx = np.random.randint(0, N, Nb)
+        #if rank == 0:
+        #    print('writing randomstates.pkl')
+        #    with open('randomstates.pkl', 'wb') as f:
+        #        pickle.dump(randomstates, f, -1)
         for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
+            print(datetime.datetime.now(), 'chk1', inb)
         #for inb in range(nbs):
             intensityb *= 0.
-            print(inb)
             np.random.set_state(randomstates[inb+randoffset])
             Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
@@ -174,22 +177,23 @@ class Sget_qlist(gq):
             for _idx0, _idx1, _idx2 in zip(test_idxs[0], test_idxs[1],
                                            test_idxs[2]):
                 intensityb[_idx0, _idx1, _idx2] += 1
-            print(datetime.datetime.now(), '1 resampling ended')
+            print(datetime.datetime.now(), 'chk2')
             self.get_qemapb(intensityb)
-            print(datetime.datetime.now(), '1 resampled manyo-data obtained')
+            print(datetime.datetime.now(), 'chk3')
             self.get_all_sdatab()
-            if inb == 0 and rank == 0:
-                print("chk dataset['omega'] shape from qemap:",
-                      self.dataset['omega'].shape)
-                print(self.dataset['omega'][0, 0:10])
-            print(datetime.datetime.now(), '1 corrected resampled manyo-data\
-                                             obtained')
+            #if inb == 0 and rank == 0:
+            #    print("chk dataset['omega'] shape from qemap:",
+            #          self.dataset['omega'].shape)
+            #    print(self.dataset['omega'][0, 0:10])
+            print(datetime.datetime.now(), 'chk4')
             self.spect(qmin, qmax, self.dataset, isplot=False)
+            print(datetime.datetime.now(), 'chk5')
             if inb == rank*(nbs//psize):
                 ener = np.zeros((nbs//psize, self.ene.shape[0]))
                 spectrar = np.zeros((nbs//psize, self.ene.shape[0]))
             ener[inb - rank*nbs//psize, :] = self.ene[:]
             spectrar[inb - rank*nbs//psize, :] = self.spectra[:]
+            print(datetime.datetime.now(), 'chk6')
             if wnocorr:
                 # OLD
                 # We use self.dataset doubly at present because self.spect
@@ -197,7 +201,9 @@ class Sget_qlist(gq):
                 # self.dataset = copy.deepcopy(self.datasetnocorr)
                 # OLD
                 self.datasetnocorr['intensity'] = intensityb
+                print(datetime.datetime.now(), 'chk7')
                 self.spect(qmin, qmax, self.datasetnocorr, isplot=False)
+                print(datetime.datetime.now(), 'chk8')
                 print('energy differences btw corr and nocorr:',
                       np.sum(self.ene - ener[inb - rank*nbs//psize, :]))
                 if inb == rank*(nbs//psize):
@@ -220,6 +226,7 @@ class Sget_qlist(gq):
                                            axis=1)
         if restart:
             self.spectrab = np.concatenate((results, self.spectrab), axis=0)
+        print(datetime.datetime.now(), 'chk9')
 
 
 def run():

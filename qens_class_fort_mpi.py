@@ -17,8 +17,8 @@ import os
 import re
 from ctypes import *
 import pickle
-import matplotlib
-matplotlib.use('agg')
+#import matplotlib
+#matplotlib.use('agg')
 import matplotlib.pylab as plt
 from mpi4py import MPI
 import sys

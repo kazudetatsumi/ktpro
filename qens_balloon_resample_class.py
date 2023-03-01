@@ -10,8 +10,8 @@ sys.path.append("/home/kazu/ktpro")
 from mpi4py import MPI
 from qens_kde_resampled import qens_kde_resampled as qkr
 import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('TkAgg')
+#import matplotlib
+#matplotlib.use('TkAgg')
 
 
 class qens_balloon_resamples(qkr):
@@ -30,7 +30,7 @@ class qens_balloon_resamples(qkr):
 
     def CalcBandW(self, orgfile, inb=0):
         qkr.__init__(self, pklfile=orgfile)
-        self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :], num=6400)
+        self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :], num=400)
         #plt.plot(self.y[1], self.y[0])
         #plt.show()
         return self.y
@@ -56,14 +56,15 @@ class qens_balloon_resamples(qkr):
     def eachrunno(self, fidx, inb):
         sy = self.getrsspectra(self.rsfiles[fidx], inb)
         syb = self.balloon(self.kys[fidx], sy)
-        return sy[0], syb, sy[1]
-        #return sy[0], sy[1], sy[1]
+        #return sy[0], syb, sy[1]
+        return sy[0], sy[1], sy[1]
 
     def DefineFiles(self):
         self.rsfiles = []
         self.orgfiles = []
         for runno in self.runNos:
-            self.rsfiles.append("./run" + str(runno) + "spectrab.pkl")
+            #self.rsfiles.append("./run" + str(runno) + "spectrab.pkl")
+            self.rsfiles.append("./run" + str(runno) + "spectraorg.pkl")
             self.orgfiles.append("./run" + str(runno) + "spectraorg.pkl")
 
     def DoQf(self, inb):
@@ -76,9 +77,10 @@ class qens_balloon_resamples(qkr):
             print(np.sum(xtl - xdl), 'check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         self.bg = 0.
-        #self.optimize(xdl, ydlc, ytlc, variables=[0.655, 0.0129, 0.200, 0.00208])
+        ####self.optimize(xdl, ydlc, ytlc, variables=[0.655, 0.0129, 0.200, 0.00208])
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
-                       variables=[0.655, 0.0129, 0.200, 0.00208]))
+        #               variables=[0.655, 0.0129, 0.200, 0.00208]))
+                       variables=[0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]))
 
     def run(self):
         self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles]
@@ -88,9 +90,9 @@ class qens_balloon_resamples(qkr):
         self.output()
 
 
-
 def testrun():
-    Nb = 48
+    np.set_printoptions(suppress=True)
+    Nb = 1
     elim = [-0.03, 0.07]
     prj = qens_balloon_resamples(runNos=[6202, 6204], elim=elim, Nb=Nb)
     #print(qens_balloon_resamples.__mro__)
