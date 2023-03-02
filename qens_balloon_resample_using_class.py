@@ -10,14 +10,14 @@ from qens_balloon_resample_class import qens_balloon_resamples as qbr
 
 
 def testrun():
-    Nb = 701
+    Nb = 1024
     elim = [-0.03, 0.07]
     #outfile = "outkde_2comps.pkl"
     #outfile = "outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outhist_2comps.pkl"
-    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde_2comps.pkl"
+    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde_2comps.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde.pkl"
-    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outhist.pkl"
+    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outhist.pkl"
     #outfile = "./outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist.pkl"
@@ -25,22 +25,28 @@ def testrun():
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist_2comps.pkl"
     binwidth1 = 0.001
     binwidth2 = 0.001
-    binwidth = 0.0007
-    print(outfile)
+    binwidth = 0.0005
+    if 'outhist' in outfile:
+        ishist = True
+    else:
+        ishist = False
+    #print(outfile)
     if os.path.isfile(outfile):
         prj = qbr(runNos=[6202, 6204], elim=elim, Nb=Nb)
         prj.outfile = outfile
         prj.loadfile()
         prj.output()
-        #prj.plot_distribution_single(binwidth)
-        prj.plot_distribution(binwidth1, binwidth2)
+        if prj.rank == 0:
+            prj.plot_distribution_single(binwidth)
+            #prj.plot_distribution(binwidth1, binwidth2)
     else:
-        prj = qbr(runNos=[6202, 6204], elim=elim, Nb=Nb)
+        prj = qbr(runNos=[6202, 6204], elim=elim, Nb=Nb, ishist=ishist)
         prj.run()
-        #prj.plot_distribution_single(binwidth)
-        prj.plot_distribution(binwidth1, binwidth2)
-        prj.outfile = outfile
-        prj.savefile()
+        if prj.rank == 0:
+            prj.plot_distribution_single(binwidth)
+            #prj.plot_distribution(binwidth1, binwidth2)
+            prj.outfile = outfile
+            prj.savefile()
 
 
 testrun()

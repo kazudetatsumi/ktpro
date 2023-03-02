@@ -17,7 +17,7 @@ from qens_kde_resampled import qens_kde_resampled as qkr
 class qens_balloon_resamples(qkr):
     def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
-                 prefix="", variables=[0.655, 0.0129, 0.200, 0.00208],
+                 prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
                  quiet=False):
         self.runNos = runNos
         self.Nb = Nb
@@ -30,7 +30,9 @@ class qens_balloon_resamples(qkr):
         self.prefix = prefix
         self.variables = variables
         self.quiet = quiet
-        self.rank = MPI.COMM_WORLD.Get_rank()
+        self.comm = MPI.COMM_WORLD
+        self.rank = self.comm.Get_rank()
+        self.size = self.comm.Get_size()
         self.leastsq = False
         self.DefineFiles()
 
@@ -80,9 +82,9 @@ class qens_balloon_resamples(qkr):
         if self.rank == 0:
             if not self.quiet:
                 print(self.prefix)
+            print("")
             print("rsfiles:", [rsf.split(self.prefix)[1] for rsf in self.rsfiles])
             print("orgfiles:", [orgf.split(self.prefix)[1] for orgf in self.orgfiles])
-            print("")
 
     def eachrunno(self, fidx, inb):
         sy = self.getrsspectra(self.rsfiles[fidx], inb)
@@ -113,10 +115,21 @@ class qens_balloon_resamples(qkr):
         self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
                     ]
         self.outall = []
-        for inb in range(self.Nb):
-            self.DoQf(inb)
-        if self.Nb > 1:
-            self.output()
+        #for inb in range(self.Nb):
+        ##MPI Distributing the work to each rank
+        if self.Nb == 1:
+            if self.rank == 0:
+                self.DoQf(0)
+        else:
+            for inb in range(self.rank*self.Nb//self.size,
+                             (self.rank+1)*self.Nb//self.size):
+                self.DoQf(inb)
+            ##MPI Gathering the result from each rank
+            outallt = np.zeros((self.size*np.array(self.outall).size))
+            self.comm.Allgather(np.array(self.outall).flatten(), outallt)
+            self.outall = outallt.reshape((self.Nb, -1))
+            if self.Nb > 1 and self.rank == 0:
+                self.output()
 
 
 def testrun():

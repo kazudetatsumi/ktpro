@@ -27,24 +27,30 @@ def testrun():
     variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
     variables = [0.655, 0.0129, 0.200, 0.00208]
     prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/"
-    print("prefix:", prefix)
-    print("number of bins of tin in kde:", num)
+    #print("prefix:", prefix)
+    #print("number of bins of tin in kde:", num)
     quiet = True
     prj = qbr(runNos=[6202, 6204], elim=elim, Nb=Nb, ishist=ishist, num=num,
               rsmodifier=rsmodifier, orgmodifier=orgmodifier, prefix=prefix,
               variables=variables, quiet=quiet)
-    showkdeorhist(prj.ishist)
+    if prj.rank == 0:
+        print("prefix:", prefix)
+        print("number of bins of tin in kde:", num)
+        showkdeorhist(prj.ishist)
     prj.run()
     prj.ishist = False
-    showkdeorhist(prj.ishist)
+    if prj.rank == 0:
+        showkdeorhist(prj.ishist)
     prj.run()
     prj.variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
     prj.ishist = True
-    showkdeorhist(prj.ishist)
-    prj.DoQf(0)
-    prj.ishist = False
-    showkdeorhist(prj.ishist)
-    prj.DoQf(0)
+    if prj.rank == 0:
+        showkdeorhist(prj.ishist)
+        prj.outall = []
+        prj.DoQf(0)
+        prj.ishist = False
+        showkdeorhist(prj.ishist)
+        prj.DoQf(0)
 
 
 def testruns():
@@ -56,8 +62,9 @@ def testruns():
     variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
     variables = [0.655, 0.0129, 0.200, 0.00208]
     prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/orgs/"
-    print("prefix:", prefix)
-    print("number of bins of tin in kde:", num)
+    #print("")
+    #print("prefix:", prefix)
+    #print("number of bins of tin in kde:", num)
     quiet = True
     for i in range(1,4):
         rsmodifier = "org" + str(i)
@@ -65,18 +72,25 @@ def testruns():
         prj = qbr(runNos=[6202, 6204], elim=elim, Nb=Nb, ishist=ishist, num=num,
                   rsmodifier=rsmodifier, orgmodifier=orgmodifier, prefix=prefix,
                   variables=variables, quiet=quiet)
-        showkdeorhist(prj.ishist)
+        if prj.rank == 0:
+            if i == 1:
+                print("prefix:", prefix)
+                print("number of bins of tin in kde:", num)
+            showkdeorhist(prj.ishist)
         prj.run()
         prj.ishist = False
-        showkdeorhist(prj.ishist)
+        if prj.rank == 0:
+            showkdeorhist(prj.ishist)
         prj.run()
         prj.variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
         prj.ishist = True
-        showkdeorhist(prj.ishist)
-        prj.DoQf(0)
-        prj.ishist = False
-        showkdeorhist(prj.ishist)
-        prj.DoQf(0)
+        if prj.rank == 0:
+            showkdeorhist(prj.ishist)
+            prj.outall = []
+            prj.DoQf(0)
+            prj.ishist = False
+            showkdeorhist(prj.ishist)
+            prj.DoQf(0)
 
 
 testrun()

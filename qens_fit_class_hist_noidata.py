@@ -301,8 +301,8 @@ class runhistnoidata(qf):
             bounds = (0, np.inf)
             out = so.least_squares(self.res, variables, bounds=bounds,
                                    args=(x, yd, yt))
-            if self.rank == 0:
-                print(out.active_mask, out.success, out.x)
+            #if self.rank == 0:
+            print(out.active_mask, out.success, out.x)
             #out = so.least_squares(self.res, variables, args=(x, yd, yt))
             return [out.x, out.success, out.active_mask]
 
