@@ -117,19 +117,29 @@ class qens_balloon_resamples(qkr):
         self.outall = []
         #for inb in range(self.Nb):
         ##MPI Distributing the work to each rank
-        if self.Nb == 1:
-            if self.rank == 0:
-                self.DoQf(0)
-        else:
-            for inb in range(self.rank*self.Nb//self.size,
-                             (self.rank+1)*self.Nb//self.size):
-                self.DoQf(inb)
-            ##MPI Gathering the result from each rank
-            outallt = np.zeros((self.size*np.array(self.outall).size))
-            self.comm.Allgather(np.array(self.outall).flatten(), outallt)
-            self.outall = outallt.reshape((self.Nb, -1))
-            if self.Nb > 1 and self.rank == 0:
-                self.output()
+        ### in the case of Nb=1, we still want self.outall
+        #if self.Nb == 1:
+        #    if self.rank == 0:
+        #        self.DoQf(0)
+        #else:
+        #    for inb in range(self.rank*self.Nb//self.size,
+        #                     (self.rank+1)*self.Nb//self.size):
+        #        self.DoQf(inb)
+        #    ##MPI Gathering the result from each rank
+        #    outallt = np.zeros((self.size*np.array(self.outall).size))
+        #    self.comm.Allgather(np.array(self.outall).flatten(), outallt)
+        #    self.outall = outallt.reshape((self.Nb, -1))
+        #    if self.Nb > 1 and self.rank == 0:
+        #        self.output()
+        for inb in range(self.rank*self.Nb//self.size,
+                         (self.rank+1)*self.Nb//self.size):
+            self.DoQf(inb)
+        ##MPI Gathering the result from each rank
+        outallt = np.zeros((self.size*np.array(self.outall).size))
+        self.comm.Allgather(np.array(self.outall).flatten(), outallt)
+        self.outall = outallt.reshape((self.Nb, -1))
+        if self.Nb > 1 and self.rank == 0:
+            self.output()
 
 
 def testrun():

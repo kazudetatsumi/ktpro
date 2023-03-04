@@ -88,67 +88,69 @@ class runhistnoidata(qf):
             if _out[1] is None:
                 print(cyidx, 'curveture is flat. omitting..')
             else:
-                self.modify_out(cyidx, _out[0])
+                #self.modify_out(cyidx, _out[0])
+                self.modify_out(cyidx, _out)
         else:
             if _out[1]:
-                self.modify_out(cyidx, _out[0])
+                #self.modify_out(cyidx, _out[0])
+                self.modify_out(cyidx, _out)
             else:
                 print(cyidx, 'optimization is not converged..')
 
-    def modify_out_rev(self, cyidx, org, mod):
-        mod = copy.deepcopy(org)
-        if len(org) >= 5:
-            if org[0] < 0 and org[1] < 0:
-                #print("negative-negative")
-                org[0] = org[0]*(-1.)
-                org[1] = org[1]*(-1.)
-            if org[2] < 0 and org[3] < 0:
-                #print("negative-negative")
-                org[2] = org[2]*(-1.)
-                org[3] = org[3]*(-1.)
-            if org[1] < org[3]:
-                #print("exchange")
-                tmpout = out[1]
-                tmpout2 = out[0]
-                out[1] = out[3]
-                out[3] = tmpout
-                out[0] = out[2]
-                out[2] = tmpout2
-        # if self.rank:
-        #     if self.rank == 0:
-        #         print(cyidx, out)
-        # else:
-        #     print(cyidx, out)
-        self.outall.append(out)
-
     def modify_out(self, cyidx, out):
-        if len(out) >= 5:
-            if out[0] < 0 and out[1] < 0:
+        #if len(out) >= 5:
+        if len(out[0]) >= 5:
+            #if out[0] < 0 and out[1] < 0:
+            if out[0][0] < 0 and out[0][1] < 0:
+
                 #print("negative-negative")
-                out[0] = out[0]*(-1.)
-                out[1] = out[1]*(-1.)
-            if out[2] < 0 and out[3] < 0:
+                #out[0] = out[0]*(-1.)
+                #out[1] = out[1]*(-1.)
+                out[0][0] = out[0][0]*(-1.)
+                out[0][1] = out[0][1]*(-1.)
+            #if out[2] < 0 and out[3] < 0:
+            if out[0][2] < 0 and out[0][3] < 0:
                 #print("negative-negative")
-                out[2] = out[2]*(-1.)
-                out[3] = out[3]*(-1.)
-            if out[1] < out[3]:
+                #out[2] = out[2]*(-1.)
+                #out[3] = out[3]*(-1.)
+                out[0][2] = out[0][2]*(-1.)
+                out[0][3] = out[0][3]*(-1.)
+            #if out[1] < out[3]:
+            if out[0][1] < out[0][3]:
                 #print("exchange")
-                tmpout = out[1]
-                tmpout2 = out[0]
-                out[1] = out[3]
-                out[3] = tmpout
-                out[0] = out[2]
-                out[2] = tmpout2
+                #tmpout = out[1]
+                #tmpout2 = out[0]
+                #out[1] = out[3]
+                #out[3] = tmpout
+                #out[0] = out[2]
+                #out[2] = tmpout2
+                tmpout = out[0][1]
+                tmpout2 = out[0][0]
+                out[0][1] = out[0][3]
+                out[0][3] = tmpout
+                out[0][0] = out[0][2]
+                out[0][2] = tmpout2
+                tmpout = out[2][1]
+                tmpout2 = out[2][0]
+                out[2][1] = out[2][3]
+                out[2][3] = tmpout
+                out[2][0] = out[2][2]
+                out[2][2] = tmpout2
         # if self.rank:
         #     if self.rank == 0:
         #         print(cyidx, out)
         # else:
         #     print(cyidx, out)
-        self.outall.append(out)
+        #self.outall.append(out)
+        #conbine the lists of out.x, out.active_mask, out.success
+        print('chk', out[0].tolist() + out[2].tolist())
+        self.outall.append(out[0].tolist() + out[2].tolist())
 
     def output(self):
         self.outall = np.array(self.outall)
-        if self.outall.shape[1] == 6:
+        if self.outall.shape[0] == 1:
+            print(self.outall)
+        elif self.outall.shape[1] == 6 or self.outall.shape[1] == 12:
             orderidx1 = np.argsort(self.outall[:, 1])
             print("median of gamma1:", np.median(self.outall[:, 1]))
             print("average of gamma1:", np.average(self.outall[:, 1]))
@@ -192,7 +194,7 @@ class runhistnoidata(qf):
                           avenonnegwobg1, stdnonnegwobg1, avenonnegwobg2,
                           stdnonnegwobg2, outnonnegwobg.shape[0],
                           ave1, std1, ave2, std2, self.outall.shape[0]))
-        elif self.outall.shape[1] == 4:
+        elif self.outall.shape[1] == 4 or self.outall.shape[1] == 8:
             orderidx1 = np.argsort(self.outall[:, 1])
             #print(self.outall)
             print("median of gamma1:", np.median(self.outall[:, 1]))
@@ -254,6 +256,8 @@ class runhistnoidata(qf):
                                np.min(self.outall[:, 3]))/binwidth2))
         heights1, bins1 = np.histogram(self.outall[:, 1], bins=numbins1)
         heights2, bins2 = np.histogram(self.outall[:, 3], bins=numbins2)
+        #heights1, bins1 = np.histogram(self.outall[np.sum(self.outall[:, 6:], axis=1) > -0.1, 1], bins=numbins1)
+        #heights2, bins2 = np.histogram(self.outall[np.sum(self.outall[:, 6:], axis=1) > -0.1, 3], bins=numbins2)
         plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
                 width=binwidth1, label='$\Gamma_1$')
         plt.bar(bins2[:-1]+binwidth2/2., heights2/binwidth2/numsumple,
