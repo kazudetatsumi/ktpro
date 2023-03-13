@@ -20,7 +20,7 @@ def run():
     variables = [0.4, 0.026, 0.5, 0.0075, 0.22, 0.01]
     variables = [0.4, 0.026, 0.22, 0.01]
     devf = prefix + "qens_kde_o_divided_by_i_6204.pkl"
-    tf = prefix + "qens_kde_o_divided_by_i_6206.pkl"
+    tf = prefix + "qens_kde_o_divided_by_i_6202.pkl"
     fit(devf, tf, variables, elim)
 
 

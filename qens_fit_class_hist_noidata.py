@@ -256,6 +256,7 @@ class runhistnoidata(qf):
                                np.min(self.outall[:, 3]))/binwidth2))
         heights1, bins1 = np.histogram(self.outall[:, 1], bins=numbins1)
         heights2, bins2 = np.histogram(self.outall[:, 3], bins=numbins2)
+        ## plot only the solutions not on the boundaries.
         #heights1, bins1 = np.histogram(self.outall[np.sum(self.outall[:, 6:], axis=1) > -0.1, 1], bins=numbins1)
         #heights2, bins2 = np.histogram(self.outall[np.sum(self.outall[:, 6:], axis=1) > -0.1, 3], bins=numbins2)
         plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
@@ -274,11 +275,15 @@ class runhistnoidata(qf):
                                np.min(self.outall[:, 1]))/binwidth1))
         heights1, bins1 = np.histogram(self.outall[:, 1], bins=numbins1)
         plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
+                #width=binwidth1, label='$\Gamma_1$', color='r')
                 width=binwidth1, label='$\Gamma_1$')
         plt.xlabel('HWHM (meV)')
         plt.ylabel('Distribution (1/meV)')
-        plt.xlim(0, 0.02)
+        plt.xlim(0.000, 0.016)
         plt.legend()
+        plt.tick_params(top=True, right=True, direction='in', which='both',
+                        labelbottom=True, width=1.5)
+
         plt.show()
 
     def correction(self, x, yd, yt):

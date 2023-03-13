@@ -18,12 +18,13 @@ class hpdos(sac.sqwto1dspectrum):
         self.THztomeV = 4.13567
 
     def plotter(self, elow=0, ehigh=400, tx=75, ty=1.4*10**8,
-                noxlabel=False, numoffolds=2, short=False, nr=0):
+                noxlabel=False, numoffolds=2, short=False, nr=0,
+                c='#1f77b4'):
         for iidx, infile in enumerate(self.infiles):
             #print(infile, iidx)
             self.load_pkl(infile)
             ax = self.fig.add_subplot(self.gs[iidx+nr, 0])
-            ax.plot(self.dataset['ene'], self.dataset['spec'])
+            ax.plot(self.dataset['ene'], self.dataset['spec'], c=c)
             tmpylim = ax.get_ylim()
             ax.set_ylim(0, tmpylim[1])
             if short:
