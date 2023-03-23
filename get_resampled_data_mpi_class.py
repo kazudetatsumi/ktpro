@@ -31,18 +31,25 @@ class Sget_qlist(gq):
         self.save_file = save_file
         self.pklfile = pklfile
 
-    def get_org_data(self, binw, runNo, TimeParam="-1.0/-1.0"):
+    def get_org_data(self, binw, runNo, TimeParam="-1.0/-1.0", frac=None):
         self.DAT = Cmm.GetHistogramHW(
                 runNo=runNo, HwParam=binw+"/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
                 useT0ModCorr=False, TimeParam=TimeParam, UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
+        if frac:
+            TimeParam = self.get_frac_TimeParam(TimeParam, frac)
         self.EC = Cmm.GetHistogramMon(
                     runNo=runNo, useEiConv=True, LambdaParam="6.321/4.15",
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
                     TimeParam=TimeParam, UseFastChopper=True,
                     isHistogram=False)
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
+
+    def get_frac_TimeParam(self, TimeParam, frac):
+        it = float(TimeParam.split(",")[0])
+        ft = float(TimeParam.split(",")[1])
+        return str(np.round(ft - (ft-it)*frac)) + "," + str(ft)
 
     def get_org_intensity_array(self):
         self.intensity = np.zeros((self.DAT.PutSize(),
@@ -129,7 +136,8 @@ class Sget_qlist(gq):
             self.spectrab = pickle.load(f)
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
-                                       restart=False, wnocorr=False):
+                                       restart=False, wnocorr=False,
+                                       frac=None):
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         psize = comm.Get_size()
@@ -170,7 +178,10 @@ class Sget_qlist(gq):
         #for inb in range(nbs):
             intensityb *= 0.
             np.random.set_state(randomstates[inb+randoffset])
-            Nb = np.random.poisson(lam=N)
+            if frac:
+                Nb = np.random.poisson(lam=int(N*frac))
+            else:
+                Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
             xb = x[idx]
             test_idxs = np.unravel_index(xb, self.intensity.shape)

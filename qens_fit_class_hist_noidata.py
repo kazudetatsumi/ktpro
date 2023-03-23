@@ -269,22 +269,22 @@ class runhistnoidata(qf):
         plt.legend()
         plt.show()
 
-    def plot_distribution_single(self, binwidth1):
+    def plot_distribution_single(self, binwidth1, show=True):
         numsumple = self.outall[:, 1].shape[0]
         numbins1 = int(np.ceil((np.max(self.outall[:, 1]) -
                                np.min(self.outall[:, 1]))/binwidth1))
         heights1, bins1 = np.histogram(self.outall[:, 1], bins=numbins1)
         plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
                 #width=binwidth1, label='$\Gamma_1$', color='r')
-                width=binwidth1, label='$\Gamma_1$')
+                width=binwidth1, label='$\Gamma_1$', alpha=0.5, ec=None)
         plt.xlabel('HWHM (meV)')
         plt.ylabel('Distribution (1/meV)')
         plt.xlim(0.000, 0.016)
         plt.legend()
         plt.tick_params(top=True, right=True, direction='in', which='both',
                         labelbottom=True, width=1.5)
-
-        plt.show()
+        if show:
+            plt.show()
 
     def correction(self, x, yd, yt):
         x = x + 2.085
