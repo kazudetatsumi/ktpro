@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# This script read the raw neutron count data of DNA without any corrections and resample the count data
-# and apply the necessary corrections to deduce resampled QENS data corresponding to dobule differential 
-# cross-sections.
+# This script read the raw neutron count data of DNA without any corrections
+# and resample the count data and apply the necessary corrections to deduce
+# resampled QENS data corresponding to dobule differential cross-sections.
 # Kazuyoshi TATSUMI 2023/02/15
 from get_resampled_data_mpi_class import Sget_qlist as sgq
 import datetime
@@ -23,10 +23,12 @@ def run():
     prj.get_all_data()
     if rank == 0:
         print("chk dataset['omega'] shape from ecm of self.DAT by prj.get_org_data:", prj.dataset['omega'].shape)
-        print(prj.dataset['omega'][0,0,0:10])
-    # The object name of prj.intensity instead of prj.dataset['intenity'] is needed for  prj.get_boot_strap_sampled_spectra.
+        print(prj.dataset['omega'][0, 0, 0:10])
+    # The object name of prj.intensity instead of prj.dataset['intenity'] is
+    # needed for  prj.get_boot_strap_sampled_spectra.
     prj.intensity = np.array(prj.dataset['intensity'])
-    # Saving the present prj.dataset as prj.datasetnocorr to use it in the latter half of prj.get_boot_strap_sampled_spectra.
+    # Saving the present prj.dataset as prj.datasetnocorr to use it in the
+    # latter half of prj.get_boot_strap_sampled_spectra.
     prj.datasetnocorr = copy.deepcopy(prj.dataset)
     print(datetime.datetime.now(), 'org_intensity_array ended')
     nbs = 4
