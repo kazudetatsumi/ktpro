@@ -721,20 +721,17 @@ class change_hpos():
             f.write(out)
 
     def GetTransitionMatrix(self, q, Isplot=True, label=None, istate=0,
-                            Iscalledbyigos=False):
+                            Iscalledbyigos=False, nebin=3000):
         nmesh = self.nx*2
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
                                                        ).reshape(3, -1)
         arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh
                ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
-        #mat = np.conj(self.wavefuncs)*self.wavefuncs[0]*np.exp(np.repeat(np.expand_dims(arg, 1), self.wavefuncs.shape[0], axis=1))
         mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
-        #mat2 = (mat.transpose((1, 2, 3, 4, 0))*domegas).transpose((0, 4, 1, 2, 3))
         self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
-        #self.sqw = (np.abs(mat.reshape(mat2.shape[0], mat2.shape[1], -1).sum(axis=1))**2).sum(axis=1)
-        ene = np.arange(0, 3000, 1)
-        spec = np.zeros(3000)
+        ene = np.arange(0, nebin, 1)
+        spec = np.zeros(nebin)
         if not Iscalledbyigos:
             for iw, s in enumerate(self.sqw[1:]):
                 dE = (self.E[iw+1] - self.E[istate])
@@ -749,6 +746,28 @@ class change_hpos():
                     pickle.dump(self.dataset, f, 4)
         if Isplot:
             self.Plotter(label=label)
+
+    def GetSJQ(self):
+        qmesh = 10
+        self.sjq = np.zeros((qmesh, qmesh, qmesh))
+        qlen = 1.
+        nmesh = self.nx*2
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape(3, -1)
+        for iqx, qx in enumerate(np.linspace(qlen*-1, qlen, qmesh)):
+            for iqy, qy in enumerate(np.linspace(qlen*-1, qlen, qmesh)):
+                for iqz, qz in enumerate(np.linspace(qlen*-1, qlen, qmesh)):
+                    q = np.array([qx, qy, qz])
+                    arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh
+                           ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+                    mat = np.conj(self.wavefuncs[1:2]
+                                  )*self.wavefuncs[0]*np.exp(arg)
+                    self.sjq[iqx, iqy, iqz] = np.abs(mat.reshape(mat.shape[0],
+                                                     -1).sum(axis=1))**2
+        #print(mat.shape)
+        #t = np.abs(mat.reshape(mat.shape[0],-1).sum(axis=1))**2
+        #print(t.shape)
 
     def PlotSavedData(self, infile, label):
         self.LoadData(infile)

@@ -184,7 +184,9 @@ def testrun():
     variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
     variables = [0.655, 0.0129, 0.200, 0.00208]
     #prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/"
-    prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/6208/whole/"
+    #prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/6208/nonmpi_test/"
+    #prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/6208/whole/"
+    prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/6208/nonmpi_test/dnapca03/"
     #prj = qens_balloon_resamples(runNos=[6202, 6204], elim=elim, Nb=Nb,
     prj = qens_balloon_resamples(runNos=[6207, 6204], elim=elim, Nb=Nb,
                                  ishist=ishist, num=num, rsmodifier=rsmodifier,
@@ -195,4 +197,4 @@ def testrun():
     prj.run()
 
 
-testrun()
+#testrun()
