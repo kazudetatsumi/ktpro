@@ -702,6 +702,36 @@ class change_hpos():
         with open(outfile, 'w') as f:
             f.write(out)
 
+    def GetSJQFile(self, no):
+        outfile = 'sjqtst' + str(no+3) + '.out'
+        sjq = self.sjq[:, :, :, no].flatten(order='F')
+        out = ""
+        for irow in range(sjq.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    sjq[irow*5], sjq[irow*5+1], sjq[irow*5+2], sjq[irow*5+3],
+                    sjq[irow*5+4])
+        last = ""
+        for il in range(sjq.shape[0] % 5):
+            last += "{:.11e} ".format(sjq[il+(sjq.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
+    def GetSJQTOTFile(self):
+        outfile = 'sjqtsttot345.out'
+        sjq = self.sjq.sum(axis=3).flatten(order='F')
+        out = ""
+        for irow in range(sjq.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    sjq[irow*5], sjq[irow*5+1], sjq[irow*5+2], sjq[irow*5+3],
+                    sjq[irow*5+4])
+        last = ""
+        for il in range(sjq.shape[0] % 5):
+            last += "{:.11e} ".format(sjq[il+(sjq.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
     def GetPotFile(self):
         outfile = 'potential.out'
         den = (self.potential-np.min(self.potential)).flatten(order='F')
@@ -748,9 +778,9 @@ class change_hpos():
             self.Plotter(label=label)
 
     def GetSJQ(self):
-        qmesh = 10
-        self.sjq = np.zeros((qmesh, qmesh, qmesh))
-        qlen = 1.
+        qmesh = 30
+        self.sjq = np.zeros((qmesh, qmesh, qmesh, 3))
+        qlen = 6.
         nmesh = self.nx*2
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
@@ -761,10 +791,13 @@ class change_hpos():
                     q = np.array([qx, qy, qz])
                     arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh
                            ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
-                    mat = np.conj(self.wavefuncs[1:2]
+                    mat = np.conj(self.wavefuncs[4:7]
                                   )*self.wavefuncs[0]*np.exp(arg)
-                    self.sjq[iqx, iqy, iqz] = np.abs(mat.reshape(mat.shape[0],
-                                                     -1).sum(axis=1))**2
+                    #self.sjq[iqx, iqy, iqz] = np.abs(mat.reshape(mat.shape[0],
+                    #                                 -1).sum(axis=1))**2
+                    self.sjq[iqx, iqy, iqz, :] = np.abs(mat.reshape(mat.shape[0],
+                                                        -1).sum(axis=1))**2
+                 
         #print(mat.shape)
         #t = np.abs(mat.reshape(mat.shape[0],-1).sum(axis=1))**2
         #print(t.shape)
