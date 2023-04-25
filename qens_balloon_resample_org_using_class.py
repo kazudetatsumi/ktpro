@@ -27,8 +27,8 @@ def testrun():
     variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
     variables = [0.655, 0.0129, 0.200, 0.00208]
     prefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/"
-    #print("prefix:", prefix)
-    #print("number of bins of tin in kde:", num)
+    print("prefix:", prefix)
+    print("number of bins of tin in kde:", num)
     quiet = True
     prj = qbr(runNos=[6202, 6204], elim=elim, Nb=Nb, ishist=ishist, num=num,
               rsmodifier=rsmodifier, orgmodifier=orgmodifier, prefix=prefix,
@@ -37,11 +37,11 @@ def testrun():
         print("prefix:", prefix)
         print("number of bins of tin in kde:", num)
         showkdeorhist(prj.ishist)
-    prj.run()
+    prj.run_eachkde()
     prj.ishist = False
     if prj.rank == 0:
         showkdeorhist(prj.ishist)
-    prj.run()
+    prj.run_eachkde()
     prj.variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
     prj.ishist = True
     if prj.rank == 0:
@@ -94,4 +94,4 @@ def testruns():
 
 
 testrun()
-testruns()
+#testruns()

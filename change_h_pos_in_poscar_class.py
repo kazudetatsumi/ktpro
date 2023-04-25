@@ -141,9 +141,9 @@ class change_hpos():
         rcell = (self.lattice, rpositions, rnumbers)
         # print(spglib.get_spacegroup(rcell, symprec=1e-5))
         self.sym = spglib.get_symmetry(rcell, symprec=1e-5)
-        # print(self.sym['rotations'].shape)
-        # for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
-        #         print(rot, trans)
+        #print(self.sym['rotations'].shape)
+        #for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
+        #    print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
 
     def GetAllHpos(self, cart=False, rot=np.array([[1, 0, 0], [0, 1, 0],
@@ -175,9 +175,12 @@ class change_hpos():
                 #for iy in range(self.nx // 2, self.nx // 2 + 1):
                     for iz in range(0, self.nx):
                     #for iz in range(self.nx // 2, self.nx // 2 + 1):
-                        hpos.append([- self.edgelength/2 + ix*self.dx,
-                                     - self.edgelength/2 + iy*self.dx,
-                                     - self.edgelength/2 + iz*self.dx])
+                        hpos.append([- self.edgelength/2 +
+                                     (ix+self.hshift[0])*self.dx,
+                                     - self.edgelength/2 +
+                                     (iy+self.hshift[1])*self.dx,
+                                     - self.edgelength/2 +
+                                     (iz+self.hshift[2])*self.dx])
             hpos = np.matmul(np.array(hpos), rot)
             self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))
                          + self.std) % 1.0
@@ -514,7 +517,8 @@ class change_hpos():
         #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
         #plt.colorbar()
         print(self.nx // 2)
-        plt.plot(self.potential[self.nx // 2, self.nx // 2, :]
+        #plt.plot(self.potential[self.nx // 2, self.nx // 2, :]
+        plt.plot(self.potential[:, self.nx // 2, self.nx // 2]
                  - np.min(self.potential))
         plt.ylim((0, 1.))
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
@@ -564,8 +568,8 @@ class change_hpos():
     def GetVG(self):
         if 'hlat' in dir(self):
             edgelength = ((self.hlat**2).sum(axis=0))**0.5
-            print('FUCK', np.prod(edgelength))
-            print('FUCK', np.linalg.det(self.hlat))
+            #print('FUCK', np.prod(edgelength))
+            #print('FUCK', np.linalg.det(self.hlat))
 
             #self.z = np.prod(edgelength)/np.linalg.det(self.hlat) *\
             #    np.fft.fftn((self.potential-np.min(self.potential))

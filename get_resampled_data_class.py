@@ -40,6 +40,8 @@ class Sget_qlist(gq):
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
                     TimeParam=TimeParam, UseFastChopper=True,
                     isHistogram=False)
+        ###iii = self.EC.PutYList()
+        ###print(iii)
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
 
     def get_frac_TimeParam(self, TimeParam, frac):

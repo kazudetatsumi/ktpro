@@ -275,8 +275,8 @@ class runhistnoidata(qf):
                                np.min(self.outall[:, 1]))/binwidth1))
         heights1, bins1 = np.histogram(self.outall[:, 1], bins=numbins1)
         plt.bar(bins1[:-1]+binwidth1/2., heights1/binwidth1/numsumple,
-                #width=binwidth1, label='$\Gamma_1$', color='r')
-                width=binwidth1, label='$\Gamma_1$', alpha=0.5, ec=None)
+                width=binwidth1, label='$\Gamma_1$', color='r')
+                #width=binwidth1, label='$\Gamma_1$', alpha=0.5, ec=None)
         plt.xlabel('HWHM (meV)')
         plt.ylabel('Distribution (1/meV)')
         plt.xlim(0.000, 0.016)

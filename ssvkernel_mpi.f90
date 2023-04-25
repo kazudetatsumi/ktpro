@@ -16,6 +16,7 @@ module ssvkernel
 contains
 
   subroutine ssvk(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, nb0, xdat, tin, optw, yopt, yb) bind(C, name="ssvk")
+  !subroutine ssvk(comm0, M0, winparam, xsize0, tinsize0, WinFuncNo, nb0, xdat, tin, optw, yopt) bind(C, name="ssvk")
     integer, intent(in) :: comm0, M0, xsize0, tinsize0, WinFuncNo, nb0
     double precision, intent(in) :: winparam, xdat(xsize0), tin(tinsize0)
     double precision, intent(out) :: optw(tinsize0), yopt(tinsize0)
@@ -27,6 +28,7 @@ contains
     comm = comm0
     call MPI_Comm_size(comm, psize, ierr)
     call MPI_Comm_rank(comm, rank, ierr)
+    !print *, 'KDE'
     !write(10,*) rank
     if (WinFuncNo==1) then
         WinFunc='Boxcar'
@@ -102,7 +104,7 @@ contains
     double precision, allocatable :: rcfxw(:,:)
     double precision, allocatable :: yh(:)
     integer kbwidx
-    cfxwf=0.
+    !cfxwf=0.
     allocate(cfxwf(tinsize, M))
     allocate(rcfxw(tinsize, M/psize))
     allocate(yh(tinsize))

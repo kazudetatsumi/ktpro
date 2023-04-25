@@ -11,7 +11,7 @@ from qens_balloon_resample_class import qens_balloon_resamples as qbr
 
 def testrun():
     Nb = 2800
-    Nb = 35
+    Nb = 635
     elim = [-0.03, 0.07]
     #outfile = "outkde_2comps.pkl"
     #outfile = "outkde.pkl"
@@ -22,17 +22,17 @@ def testrun():
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkdetmp_2comps.pkl"
     #outfile = "./outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde.pkl"
-    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist.pkl"
+    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhisttmp.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkdetmp.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde_2comps.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist_2comps.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/latterhalf_boot/div10/outhist.pkl"
-    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/latterhalf_boot/div10/outhkde.pkl"
+    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/latterhalf_boot/div10/outhkde.pkl"
     binwidth1 = 0.0005
     binwidth2 = 0.0005
     binwidth = 0.000375
-    binwidth = 0.002
+    #binwidth = 0.002
     print(outfile)
     if "2comps" in outfile:
         variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
