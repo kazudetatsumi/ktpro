@@ -6,16 +6,8 @@
 # Note that the Cmm and Manyo library should be loaded on the computer which serves a DNA4 environment.
 #
 ### We just read pklfiles containing numpy arrays. If you use this script on dna, uncomment the following two lines.
-try:
-    import Cmm
-except ModuleNotFoundError:
-    pass
-try:
-    import Manyo
-except ModuleNotFoundError:
-    pass
-#import Cmm
-#import Manyo
+import Cmm
+import Manyo
 ###
 import numpy as np
 import os
@@ -28,9 +20,9 @@ m = 1.674927471*10**(-27)   # [kg]
 h = 6.62607015*10**(-34)    # [J. s]
 meVtoJ = 1.60218*10**(-22)  # [J/meV]
 
-#print((meVtoJ * 2*m/(h**2))*10**(-20))
+print((meVtoJ * 2*m/(h**2))*10**(-20))
 meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
-#print(meVtoangsm2)
+print(meVtoangsm2)
 
 
 class get_qlist:
@@ -55,33 +47,27 @@ class get_qlist:
         w.Save(self.DAT)
 
     def get_data(self):
-        self.HwParam = "0.00025/-0.05/0.15"
         EC = Cmm.GetHistogramMon(
-                runNo=6204, useEiConv=True, LambdaParam="6.321/4.15",
+                runNo=6202, useEiConv=True, LambdaParam="6.321/4.15",
                 t0_offset=12325.0, background=0.0, useT0ModCorr=False,
-                #TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
-                TimeParam="0.0,5843.0", UseFastChopper=True, isHistogram=False)
+                TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
         Cmm.MutiplyConstant(dat=EC, factor=1e-09)
         self.DAT = Cmm.GetHistogramHW(
-                runNo=6204, HwParam="0.00025/-0.05/0.15",
+                runNo=6202, HwParam="0.00025/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
-                #useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
-                useT0ModCorr=False, TimeParam="0.0, 5843.0", UseFastChopper=True,
+                useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
 
     def get_sdata(self):
-        self.HwParam = "0.00025/-0.05/0.15"
         EC = Cmm.GetHistogramMon(
-                runNo=6204, useEiConv=True, LambdaParam="6.321/4.15",
+                runNo=6202, useEiConv=True, LambdaParam="6.321/4.15",
                 t0_offset=12325.0, background=0.0, useT0ModCorr=False,
-                #TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
-                TimeParam="0.0, 5843.0", UseFastChopper=True, isHistogram=False)
+                TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
         Cmm.MutiplyConstant(dat=EC, factor=1e-09)
         DAT = Cmm.GetHistogramHW(
-                runNo=6204, HwParam="0.00025/-0.05/0.15",
+                runNo=6202, HwParam="0.000025/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
-                #useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
-                useT0ModCorr=False, TimeParam="0.0, 5843.0", UseFastChopper=True,
+                useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
         Cmm.DoMask(dat=DAT, filename="maskTY.txt")
         ECM = Cmm.ILambdaCorrDNA(dat=DAT, ec=EC, useMonEff=True)
@@ -93,9 +79,7 @@ class get_qlist:
         self.DAT = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
 
     def init_ecm(self):
-        print("get_data is starting")
         self.get_data()
-        print("get_data is finished")
         self.saveDAT()
         print("Done!")
 
@@ -159,14 +143,8 @@ class get_qlist:
 
     def read_pkl(self):
         with open(self.pklfile, 'rb') as f:
-            self.dataset = pickle.load(f, encoding='latin1')
-            #self.dataset = pickle.load(f)
-            
-    def save_hdf5(self):
-        with open(self.hdf5file, 'wb') as hf:
-            hf.create_dataset('omega', data=self.dataset['omega'])
-            hf.create_dataset('q', data=self.dataset['q'])
-            hf.create_dataset('intensity', data=self.dataset['intensity'])
+            #self.dataset = pickle.load(f, encoding='latin1')
+            self.dataset = pickle.load(f)
 
     def create_fig(self):
         self.fig = plt.figure(figsize=(10, 8))
@@ -207,47 +185,41 @@ class get_qlist:
         self.plot_sub(Y, X, Z, 1, np.max(Z))
         plt.show()
 
-    def spect(self, qmin, qmax, dataset, isplot=False):
-        x = np.ravel(dataset['q'])
-        y = np.ravel(dataset['omega'])
-        z = np.ravel(dataset['intensity'])
-        #print("CHECK SPECT:, total intennsity:", np.sum(z[z < 1.0e+99]))
+    def spectra(self, qmin, qmax):
+        x = np.ravel(self.dataset['q'])
+        y = np.ravel(self.dataset['omega'])
+        z = np.ravel(self.dataset['intensity'])
+        print("CHCK", np.sort(np.unique(y)[0]))
+        print("CHCK", np.sort(np.unique(y)[-1]))
         _x = x
-        area = np.where((_x <= qmax - 0.000001) & (_x > qmin - 0.000001))
-        #print(np.unique(x[area[0]]))
+        area = np.where((_x <= qmax) & (_x >= qmin))
         x = x[area[0]]
         y = y[area[0]]
         z = z[area[0]]
-        ene = np.sort(np.unique(y))
-        z1d = np.zeros_like(ene)
-        for eidx, e in enumerate(ene):
-            #if eidx % (ene.shape[0]/50) == 0:
-            #    print(int(eidx/float(ene.shape[0])*100), " %")
-            #cond = np.where((y < e) & (y >= e - float(hw[0])))[0]
-            cond = np.where(np.abs(y-e) < 0.0000000001)
+        ene = np.linspace(np.min(y), np.max(y), 801)
+        z1d = np.zeros((801))
+        for eidx in range(800):
+            cond = np.where((y < ene[eidx+1]) & (y >= ene[eidx]))[0]
             z1d[eidx] = np.sum(z[cond])
         self.ene = ene
         self.spectra = z1d
-        #print("CHECK SPECT:, total intensity with q of", np.unique(x), ":", np.sum(self.spectra))
-        if isplot:
-            self.create_fig()
-            plt.plot(ene, z1d)
-            #plt.yscale('log')
-            plt.show()
+        self.create_fig()
+        plt.plot(ene, z1d)
+        plt.yscale('log')
+        plt.show()
 
-    def save_spectra(self, spectrafile, old=False):
+    def save_spectra(self, spectrafile):
         dataset = {}
         dataset['spectra'] = self.spectra
-        if not old:
-            dataset['energy'] = self.ene
+        dataset['energy'] = self.ene
         with open(spectrafile, 'wb') as f:
             pickle.dump(dataset, f, -1)
 
 
 def samplerun_after_dna():
-    save_file = "./srlz/run6204_half.srlz"
-    pklfile = "./srlz/run6204_half.pkl"
-    spectrafile = "./srlz/run6204spectra_half.pkl"
+    save_file = "./srlz/run6202.srlz"
+    pklfile = "./srlz/run6202.pkl"
+    spectrafile = "./srlz/run6202spectra.pkl"
     qmin = 0.55
     qmax = 0.70
     prj = get_qlist(save_file, pklfile=pklfile)
@@ -257,9 +229,9 @@ def samplerun_after_dna():
 
 
 def samplerun_after_sdna():
-    save_file = "./srlz/run6204s_half.srlz"
-    pklfile = "./srlz/run6204s_half.pkl"
-    spectrafile = "./srlz/run6204sspectra_half.pkl"
+    save_file = "./srlz/run6202s.srlz"
+    pklfile = "./srlz/run6202s.pkl"
+    spectrafile = "./srlz/run6202sspectra.pkl"
     qmin = 0.55
     qmax = 0.70
     prj = get_qlist(save_file, pklfile=pklfile)
@@ -269,8 +241,8 @@ def samplerun_after_sdna():
 
 
 def samplerun_on_dna():
-    save_file = "./srlz/run6204_half.srlz"
-    pklfile = "./srlz/run6204_half.pkl"
+    save_file = "./srlz/run6202.srlz"
+    pklfile = "./srlz/run6202.pkl"
     prj = get_qlist(save_file, pklfile=pklfile)
     prj.init_ecm()
     #prj.loadDAT()
@@ -279,8 +251,8 @@ def samplerun_on_dna():
 
 
 def samplerun_on_dna_sdata():
-    save_file = "./srlz/run6204s_half.srlz"
-    pklfile = "./srlz/run6204s_half.pkl"
+    save_file = "./srlz/0000025/run6202s.srlz"
+    pklfile = "./srlz/0000025/run6202s.pkl"
     prj = get_qlist(save_file=save_file, pklfile=pklfile)
     prj.init_eca()
     #prj.loadsDAT()
@@ -288,8 +260,21 @@ def samplerun_on_dna_sdata():
     prj.save_pkl()
 
 
+def check():
+    save_file = "./srlz/run6202_half.srlz"
+    pklfile = "./srlz/run6202_half.pkl"
+    spectrafile = "./srlz/run6202spectra.pkl"
+    qmin = 0.55
+    qmax = 0.70
+    prj = get_qlist(save_file, pklfile=pklfile)
+    prj.read_pkl()
+    prj.spectra(qmin, qmax)
+
+
 #samplerun_on_dna()
-#samplerun_on_dna_sdata()
+samplerun_on_dna_sdata()
+
+#check()
 
 #samplerun_after_dna()
 #samplerun_after_sdna()
