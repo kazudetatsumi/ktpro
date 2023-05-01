@@ -214,7 +214,8 @@ class get_qlist:
         #print("CHECK SPECT:, total intennsity:", np.sum(z[z < 1.0e+99]))
         _x = x
         area = np.where((_x <= qmax - 0.000001) & (_x > qmin - 0.000001))
-        #print(np.unique(x[area[0]]))
+        #area = np.where((_x <= qmax) & (_x > qmin))
+        print(np.unique(x[area[0]]))
         x = x[area[0]]
         y = y[area[0]]
         z = z[area[0]]

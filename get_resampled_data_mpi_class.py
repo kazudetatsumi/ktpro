@@ -122,6 +122,7 @@ class Sget_qlist(gq):
             q[ecidx, :] = ones*self.DATQE(ecidx).PutHeader().\
                 PutDoubleVector('XRANGE')[0]
             intensity[ecidx, :] = np.array(self.DATQE(ecidx).PutYList())
+            
         self.dataset = {}
         self.dataset['omega'] = omega
         self.dataset['q'] = q
