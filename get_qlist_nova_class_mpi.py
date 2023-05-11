@@ -202,7 +202,9 @@ class get_qlist:
         y = np.ravel(self.dataset['omega'])
         z = np.ravel(self.dataset['intensity'])
         _x = x
-        area = np.where((_x <= qmax) & (_x > qmin))
+        #area = np.where((_x <= qmax) & (_x > qmin))
+        area = np.where((_x <= qmax - 0.000001) & (_x > qmin - 0.000001))
+        print(np.unique(x[area[0]]))
         x = x[area[0]]
         y = y[area[0]]
         z = z[area[0]]

@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import numpy as np
 import sys
-import pickle
 import matplotlib.pyplot as plt
 sys.path.append("/home/kazu/ktpro")
 from qens_fit_class import qens_fit as qf
 from get_qlist_nova_class_mpi import get_qlist as gq
 from mpi4py import MPI
-
 
 
 def eachdata(sfile, qmin, qmax, fig):

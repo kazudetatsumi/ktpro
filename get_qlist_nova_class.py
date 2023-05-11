@@ -213,7 +213,7 @@ class get_qlist:
         z = np.ravel(dataset['intensity'])
         #print("CHECK SPECT:, total intennsity:", np.sum(z[z < 1.0e+99]))
         _x = x
-        area = np.where((_x <= qmax - 0.000001) & (_x > qmin - 0.000001))
+        area = np.where((_x <= qmax - 1.0e-14) & (_x > qmin - 1.0e-14))
         #area = np.where((_x <= qmax) & (_x > qmin))
         print(np.unique(x[area[0]]))
         x = x[area[0]]

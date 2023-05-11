@@ -22,7 +22,7 @@ elim = [-0.08, 0.20]
 def getsspectra(sfile, qmin, qmax):
     prj = gq(pklfile=sfile)
     prj.read_pkl()
-    prj.spect(qmin, qmax)
+    prj.spect(qmin, qmax, prj.dataset)
     return prj.ene, prj.spectra
 
 

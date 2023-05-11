@@ -26,9 +26,10 @@ print(meVtoangsm2)
 
 
 class get_qlist:
-    def __init__(self, save_file=None, pklfile=None):
+    def __init__(self, runno, save_file=None, pklfile=None):
         self.save_file = save_file
         self.pklfile = pklfile
+        self.runno = runno
 
     def loadDAT(self):
             self.DAT = Manyo.ElementContainerMatrix()
@@ -48,24 +49,24 @@ class get_qlist:
 
     def get_data(self):
         EC = Cmm.GetHistogramMon(
-                runNo=6202, useEiConv=True, LambdaParam="6.321/4.15",
+                runNo=self.runno, useEiConv=True, LambdaParam="6.321/4.15",
                 t0_offset=12325.0, background=0.0, useT0ModCorr=False,
                 TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
         Cmm.MutiplyConstant(dat=EC, factor=1e-09)
         self.DAT = Cmm.GetHistogramHW(
-                runNo=6202, HwParam="0.00025/-0.05/0.15",
+                runNo=self.runno, HwParam="0.000025/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
                 useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
 
     def get_sdata(self):
         EC = Cmm.GetHistogramMon(
-                runNo=6202, useEiConv=True, LambdaParam="6.321/4.15",
+                runNo=self.runno, useEiConv=True, LambdaParam="6.321/4.15",
                 t0_offset=12325.0, background=0.0, useT0ModCorr=False,
                 TimeParam="-1.0/-1.0", UseFastChopper=True, isHistogram=False)
         Cmm.MutiplyConstant(dat=EC, factor=1e-09)
         DAT = Cmm.GetHistogramHW(
-                runNo=6202, HwParam="0.000025/-0.05/0.15",
+                runNo=self.runno, HwParam="0.000025/-0.05/0.15",
                 LambdaParam="6.321/4.15", t0_offset=12325.0,
                 useT0ModCorr=False, TimeParam="-1.0/-1.0", UseFastChopper=True,
                 tofOffsetFile="none", isHistogram=False)
@@ -217,9 +218,9 @@ class get_qlist:
 
 
 def samplerun_after_dna():
-    save_file = "./srlz/run6202.srlz"
-    pklfile = "./srlz/run6202.pkl"
-    spectrafile = "./srlz/run6202spectra.pkl"
+    save_file = "./srlz/run6206.srlz"
+    pklfile = "./srlz/run6206.pkl"
+    spectrafile = "./srlz/run6206spectra.pkl"
     qmin = 0.55
     qmax = 0.70
     prj = get_qlist(save_file, pklfile=pklfile)
@@ -229,9 +230,9 @@ def samplerun_after_dna():
 
 
 def samplerun_after_sdna():
-    save_file = "./srlz/run6202s.srlz"
-    pklfile = "./srlz/run6202s.pkl"
-    spectrafile = "./srlz/run6202sspectra.pkl"
+    save_file = "./srlz/run6206s.srlz"
+    pklfile = "./srlz/run6206s.pkl"
+    spectrafile = "./srlz/run6206sspectra.pkl"
     qmin = 0.55
     qmax = 0.70
     prj = get_qlist(save_file, pklfile=pklfile)
@@ -241,18 +242,20 @@ def samplerun_after_sdna():
 
 
 def samplerun_on_dna():
-    save_file = "./srlz/run6202.srlz"
-    pklfile = "./srlz/run6202.pkl"
-    prj = get_qlist(save_file, pklfile=pklfile)
-    prj.init_ecm()
-    #prj.loadDAT()
-    prj.get_all_data()
-    prj.save_pkl()
+    runnos = [6202, 6203, 6204, 6205, 6206, 6207]
+    for runno in runnos:
+        save_file = "./srlz/0000025/run" + str(runno) + ".srlz"
+        pklfile = "./srlz/0000025/run" + str(runno) + ".pkl"
+        prj = get_qlist(runno, save_file, pklfile=pklfile)
+        prj.init_ecm()
+        #prj.loadDAT()
+        prj.get_all_data()
+        prj.save_pkl()
 
 
 def samplerun_on_dna_sdata():
-    save_file = "./srlz/0000025/run6202s.srlz"
-    pklfile = "./srlz/0000025/run6202s.pkl"
+    save_file = "./srlz/0000025/run6206s.srlz"
+    pklfile = "./srlz/0000025/run6206s.pkl"
     prj = get_qlist(save_file=save_file, pklfile=pklfile)
     prj.init_eca()
     #prj.loadsDAT()
@@ -261,9 +264,9 @@ def samplerun_on_dna_sdata():
 
 
 def check():
-    save_file = "./srlz/run6202_half.srlz"
-    pklfile = "./srlz/run6202_half.pkl"
-    spectrafile = "./srlz/run6202spectra.pkl"
+    save_file = "./srlz/run6206_half.srlz"
+    pklfile = "./srlz/run6206_half.pkl"
+    spectrafile = "./srlz/run6206spectra.pkl"
     qmin = 0.55
     qmax = 0.70
     prj = get_qlist(save_file, pklfile=pklfile)
@@ -271,8 +274,8 @@ def check():
     prj.spectra(qmin, qmax)
 
 
-#samplerun_on_dna()
-samplerun_on_dna_sdata()
+samplerun_on_dna()
+#samplerun_on_dna_sdata()
 
 #check()
 

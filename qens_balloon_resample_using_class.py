@@ -11,18 +11,18 @@ from qens_balloon_resample_class import qens_balloon_resamples as qbr
 
 def testrun():
     Nb = 2800
-    Nb = 635
+    Nb = 100
     elim = [-0.03, 0.07]
     #outfile = "outkde_2comps.pkl"
     #outfile = "outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outhist_2comps.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde_2comps.pkl"
-    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde.pkl"
+    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkdetmp_2comps.pkl"
     #outfile = "./outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde.pkl"
-    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist.pkl"
+    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhisttmp.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkdetmp.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde_2comps.pkl"

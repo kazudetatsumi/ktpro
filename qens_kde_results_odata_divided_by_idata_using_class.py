@@ -28,8 +28,8 @@ def run():
     rfile = head + "qens_kde_o_divided_by_i_"+runno+frac+".pkl"
     proj = qkrodic.odata_divided_by_idata(ofile, ifile)
     proj.get_data()
-    proj.plot_data()
-    #proj.save_data(rfile)
+    #proj.plot_data()
+    proj.save_data(rfile)
 
 
 run()

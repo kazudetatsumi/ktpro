@@ -2,6 +2,7 @@
 # example command: qens_qselected_using_class.py  6204 000025io 80 1 Boxcar 0875
 import os
 import sys
+from mpi4py import MPI
 sys.path.append("/home/kazu/ktpro")
 import qens_class_fort_mpi as qc
 home=os.path.expanduser("~")
@@ -54,7 +55,9 @@ def run():
     qrange = pwd.split('q')[1]
     datadir = home + "/desktop/210108/Tatsumi/srlz/"+dirname+"/"
     save_file = datadir + "/run"+runno+"__"+qrange+"_spectra.pkl"
-    print('reading ', save_file)
+    rank = MPI.COMM_WORLD.Get_rank()
+    if rank == 0:
+        print('reading ', save_file)
     #output_file = "./qens_run"+runno+frac+"__"+qrange+"_kde_results_on_data_qsel.pkl"
     #figname = "qens_out_"+runno+frac+"_"+dirname+"_"+str(M)+"_"+str(winparam)+"_"+WinFunc+qrange+".png"
     output_file = "./qens_run"+runno+frac+"united_kde_results_on_data_qsel.pkl"
@@ -64,8 +67,9 @@ def run():
     proj.select_spectra()
     proj.add_shift_de()
     proj.run_ssvkernel(num=num)
-    proj.plotter()
-    proj.save_output(output_file)
+    if rank == 0:
+        proj.plotter()
+        proj.save_output(output_file)
 
 
 run()
