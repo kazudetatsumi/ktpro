@@ -17,6 +17,7 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 import pickle
+import os
 from scipy.interpolate import griddata
 from get_qlist_nova_class import get_qlist as gq
 
@@ -137,7 +138,8 @@ class Sget_qlist(gq):
             self.spectrab = pickle.load(f)
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
-                                       restart=False, wnocorr=False,
+                                       #restart=False, wnocorr=False,
+                                       wnocorr=False,
                                        frac=None):
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -151,7 +153,8 @@ class Sget_qlist(gq):
         intensityb = np.zeros_like(self.intensity)
         with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb') as f:
             randomstates = pickle.load(f)
-        if restart:
+        #if restart:
+        if os.path.isfile(self.pklfile):
             #if rank == 0:
             #    print('restarting with randomstates.pkl')
             #with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb') as f:
@@ -236,7 +239,8 @@ class Sget_qlist(gq):
             self.spectrab = np.concatenate((self.spectrab,
                                             spectra1dt.reshape(nbs, 1, -1)),
                                            axis=1)
-        if restart:
+        #if restart:
+        if os.path.isfile(self.pklfile):
             self.spectrab = np.concatenate((results, self.spectrab), axis=0)
         print(datetime.datetime.now(), 'chk9')
 

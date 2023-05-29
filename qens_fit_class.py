@@ -198,7 +198,8 @@ class qens_fit:
             #bounds = ([0.,0.,0.,0.,0.,0.], np.inf)
             out = so.least_squares(self.res, variables, bounds=bounds,
                                    args=(self.x_tf, self.y_df, self.y_tf))
-            #print(out.active_mask, out.success, out.x)
+            print("check", out)
+            print(out.active_mask, out.success, out.x)
             out = [out.x, np.linalg.inv(np.dot(out.jac.T, out.jac))]
 
 

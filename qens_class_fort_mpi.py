@@ -26,8 +26,8 @@ home=os.path.expanduser("~")
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 ## ssvkernel compatibility between python and fortran versions is now destroyed.
 ## This class has an alternative method using mpi.
-lib = CDLL(home + "/ktpro/ssvkernel_f90_mpi.so")
-libssk = CDLL(home + "/ktpro/sskernel_f90.so")
+## lib = CDLL(home + "/ktpro/ssvkernel_f90_mpi.so")
+## libssk = CDLL(home + "/ktpro/sskernel_f90.so")
 ## Either of sskernel_fort (fortran ver.) or sskernel (python ver.) can be set by
 ## uncommenting the corresponding line below.
 ##import sskernel_fort as sskernel 
@@ -139,6 +139,7 @@ class qens:
         self.y_ = self.calc_sskernel_f90()#sskernel.sskernel(self.xvec_real, self.tin_real)
 
     def calc_ssvkernel_f90(self, WinFuncNo):
+        lib = CDLL(home + "/ktpro/ssvkernel_f90_mpi.so")
         lib.ssvk.restype = c_void_p
         lib.ssvk.argtypes = [ 
                             POINTER(c_int32),
@@ -181,6 +182,7 @@ class qens:
         return yopt, self.tin_real, optw, yb
 
     def calc_sskernel_f90(self):
+        libssk = CDLL(home + "/ktpro/sskernel_f90.so")
         libssk.ssk.restype = c_void_p
         libssk.ssk.argtypes = [ 
                             POINTER(c_double),

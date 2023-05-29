@@ -1,0 +1,5 @@
+digraph "classes" {
+charset="utf-8"
+rankdir=BT
+"0" [label="{qens_balloon_resamples|Nb : int\lbg : float\lcomm\lelim : list\lgammas : ndarray\lishist : bool\lkys\lleastsq : bool\lnum : int\lorgfiles : list\lorgmodifier : str\loutall : ndarray, list\lprefix : str\lquiet : bool\lrank\lrsfiles : list\lrsmodifier : str\lrunNos : list\lsize\lvariables : list\ly : str\l|CalcBandW(orgfile, inb)\lDefineFiles()\lDoQf(inb)\lGauss(x, w)\lballoon(ky, sy)\leachrunno(fidx, inb)\lgetrsspectra(rsfile, inb)\lrun()\lrun_eachkde()\l}", shape="record"];
+}

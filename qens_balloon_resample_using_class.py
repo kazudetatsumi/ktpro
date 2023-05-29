@@ -11,18 +11,22 @@ from qens_balloon_resample_class import qens_balloon_resamples as qbr
 
 def testrun():
     Nb = 2800
-    Nb = 100
+    Nb = 96*32
+    Nb = 32*105
+    Nb = 32*10
     elim = [-0.03, 0.07]
     #outfile = "outkde_2comps.pkl"
     #outfile = "outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outhist_2comps.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde_2comps.pkl"
-    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde.pkl"
+    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkdetmp_2comps.pkl"
     #outfile = "./outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde.pkl"
-    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhist.pkl"
+    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/q0.7-0.8/outkde.pkl"
+    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/qrange0.5/outhist.pkl"
+    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/qrange0.5/outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhisttmp.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkdetmp.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde_2comps.pkl"
@@ -32,7 +36,7 @@ def testrun():
     binwidth1 = 0.0005
     binwidth2 = 0.0005
     binwidth = 0.000375
-    #binwidth = 0.002
+    binwidth = 0.00025
     print(outfile)
     if "2comps" in outfile:
         variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
@@ -59,10 +63,10 @@ def testrun():
         prj = qbr(runNos=[6202, 6204], elim=elim, Nb=Nb, ishist=ishist, variables=variables)
         prj.run()
         if prj.rank == 0:
-            if len(variables) == 4:
-                prj.plot_distribution_single(binwidth)
-            else:
-                prj.plot_distribution(binwidth1, binwidth2)
+            #if len(variables) == 4:
+            #    prj.plot_distribution_single(binwidth)
+            #else:
+            #    prj.plot_distribution(binwidth1, binwidth2)
             prj.outfile = outfile
             prj.savefile()
 
