@@ -236,6 +236,37 @@ class get_qlist:
             #plt.yscale('log')
             plt.show()
 
+    def spect2(self, qmin, qmax, dataset, isplot=False):
+        x = np.ravel(dataset['q'])
+        y = np.ravel(dataset['omega'])
+        z = np.ravel(dataset['intensity'])
+        #print("CHECK SPECT:, total intennsity:", np.sum(z[z < 1.0e+99]))
+        _x = x
+        area = np.where((_x <= qmax - 1.0e-14) & (_x > qmin - 1.0e-14))
+        #area = np.where((_x <= qmax) & (_x > qmin))
+        print(np.unique(x[area[0]]))
+        x = x[area[0]]
+        y = y[area[0]]
+        z = z[area[0]]
+        #ene = np.sort(np.unique(y))
+        #z1d = np.zeros_like(ene)
+        _z = z[np.argsort(y)]
+        _y = np.sort(y)
+        ene, mult = np.unique(_y, return_counts=True)
+        z1d = np.zeros_like(ene)
+        for eidx, e in enumerate(ene):
+            lb = np.sum(mult[:eidx])
+            ub = lb + mult[eidx]
+            z1d[eidx] = np.sum(_z[lb:ub])
+        self.ene = ene
+        self.spectra = z1d
+        #print("CHECK SPECT:, total intensity with q of", np.unique(x), ":", np.sum(self.spectra))
+        if isplot:
+            self.create_fig()
+            plt.plot(ene, z1d)
+            #plt.yscale('log')
+            plt.show()
+
     def save_spectra(self, spectrafile, old=False):
         dataset = {}
         dataset['spectra'] = self.spectra
