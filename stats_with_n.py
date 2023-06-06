@@ -35,16 +35,17 @@ def stats(outpklfile):
 
 
 def run():
-    lbsh, ubsh, avesh, stdsh = stats(prefix + '/outhist.pkl')
-    lbsk, ubsk, avesk, stdsk = stats(prefix + '/outkde.pkl')
-    plt.plot(ubsh - lbsh, label='ubsh-lbsh')
-    plt.plot(2.*stdsh, label='2stdh')
-    plt.plot(ubsk - lbsk, label='ubsk-lbsk')
-    plt.plot(2.*stdsk, label='2stdk')
-    plt.xlabel('Number of resampled spectra')
-    plt.ylabel('Uncertainties, 67% ub-lb or 2sigma (meV)')
-    plt.legend()
-    plt.show()
+    lbsh, ubsh, avesh, stdsh = stats(prefix + '/outkde.pkl')
+    print(lbsh[2989], ubsh[2989])
+    #lbsk, ubsk, avesk, stdsk = stats(prefix + '/outkde.pkl')
+    #plt.plot(ubsh - lbsh, label='ubsh-lbsh')
+    #plt.plot(2.*stdsh, label='2stdh')
+    #plt.plot(ubsk - lbsk, label='ubsk-lbsk')
+    #plt.plot(2.*stdsk, label='2stdk')
+    #plt.xlabel('Number of resampled spectra')
+    #plt.ylabel('Uncertainties, 67% ub-lb or 2sigma (meV)')
+    #plt.legend()
+    #plt.show()
 
 
 run()

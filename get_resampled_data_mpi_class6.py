@@ -21,10 +21,10 @@ import os
 #from scipy.interpolate import griddata
 from get_qlist_nova_class import get_qlist as gq
 
-m = 1.674927471*10**(-27)   # [kg]
-h = 6.62607015*10**(-34)    # [J. s]
-meVtoJ = 1.60218*10**(-22)  # [J/meV]
-meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
+#m = 1.674927471*10**(-27)   # [kg]
+#h = 6.62607015*10**(-34)    # [J. s]
+#meVtoJ = 1.60218*10**(-22)  # [J/meV]
+#meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
 
 
 class Sget_qlist(gq):
@@ -53,20 +53,21 @@ class Sget_qlist(gq):
         return str(np.round(ft - (ft-it)*frac)) + "," + str(ft)
 
     def get_qemapb(self, intensityb, qmin, qmax):
-        DATB = Manyo.ElementContainerMatrix(self.DAT)
+        #DATB = Manyo.ElementContainerMatrix(self.DAT) 
+        # To reduce memory usage, self.DAT is overwritten.
         ctp = Manyo.CppToPython()
-        for ecaidx in range(0, DATB.PutSize()):
-            for ecidx in range(0, DATB(0).PutSize()):
+        for ecaidx in range(0, self.DAT.PutSize()):
+            for ecidx in range(0, self.DAT(0).PutSize()):
                 vecy = ctp.ListToDoubleVector(intensityb[ecaidx, ecidx, :]
                                               .tolist())
                 vece = ctp.ListToDoubleVector((intensityb[ecaidx,
                                                ecidx, :]**0.5).tolist())
-                DATB(ecaidx, ecidx).Replace("Intensity", vecy)
-                DATB(ecaidx, ecidx).Replace("Error", vece)
-                DATB(ecaidx, ecidx).SetKeys("EnergyTransfer", "Intensity",
-                                            "Error")
-        Cmm.DoMask(dat=DATB, filename="maskTY.txt")
-        ECM = Cmm.ILambdaCorrDNA(dat=DATB, ec=self.EC, useMonEff=True)
+                self.DAT(ecaidx, ecidx).Replace("Intensity", vecy)
+                self.DAT(ecaidx, ecidx).Replace("Error", vece)
+                self.DAT(ecaidx, ecidx).SetKeys("EnergyTransfer", "Intensity",
+                                                "Error")
+        Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
+        ECM = Cmm.ILambdaCorrDNA(dat=self.DAT, ec=self.EC, useMonEff=True)
         ECM2 = Cmm.SolidAngleCorrDNA(
                 dat=ECM, useDetEff=True, useAbsoCorr=False, useEffCorr=False,
                 sampletype="sample", sampleDataPath="test_sample_data.dat",
@@ -90,7 +91,7 @@ class Sget_qlist(gq):
             intensity[ecidx, :] = np.array(DATBQE(ecidx).PutYList())
         dataset = {}
         dataset['omega'] = omega
-        dataset['q'] = q
+        dataset['q'] = np.array(q, dtype='float32')
         dataset['intensity'] = intensity
         return dataset
 
@@ -107,13 +108,14 @@ class Sget_qlist(gq):
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         psize = comm.Get_size()
-        intensity1d = self.orgintensity.flatten().astype(int)
-        nonzeroidx = np.nonzero(intensity1d)[0]
+        #intensity1d = self.orgintensity.flatten().astype(int)
+        nonzeroidx = np.nonzero(self.orgintensity1d)[0]
+        intdtype = self.orgintensity1d.dtype
         x = np.array([idx for idx in nonzeroidx for num_repeat in
-                     range(intensity1d[idx])], dtype=int)
+                     range(self.orgintensity1d[idx])])
         N = x.shape[0]
         np.random.seed(seed)
-        intensityb = np.zeros_like(self.orgintensity)
+        intensityb = np.zeros(self.orgintensityshape, dtype=intdtype)
         with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb'
                   ) as f:
             randomstates = pickle.load(f)
@@ -132,7 +134,7 @@ class Sget_qlist(gq):
             randoffset = 0
         for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
             #print(datetime.datetime.now(), 'chk1', inb)
-            intensityb *= 0.
+            intensityb *= 0
             np.random.set_state(randomstates[inb+randoffset])
             if frac:
                 Nb = np.random.poisson(lam=int(N*frac))
@@ -140,7 +142,7 @@ class Sget_qlist(gq):
                 Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
             xb = x[idx]
-            test_idxs = np.unravel_index(xb, self.orgintensity.shape)
+            test_idxs = np.unravel_index(xb, self.orgintensityshape)
             for _idx0, _idx1, _idx2 in zip(test_idxs[0], test_idxs[1],
                                            test_idxs[2]):
                 intensityb[_idx0, _idx1, _idx2] += 1

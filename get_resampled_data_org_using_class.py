@@ -26,11 +26,11 @@ def run_org(runNo, TimeParam, qmin, qmax):
     prj.save_pkl()
 
 #qmin=0.55
-qmin=0.3
-qmax=0.4
-runNo = 6204
+qmin=0.9
+qmax=1.0
+#runNo = 6204
 #TimeParam = "10225.0, 12445.0"
-#runNo = 6202
+runNo = 6202
 #TimeParam = "8764.0, 10225.0"
 TimeParam = "-1.0/-1.0"
 print("TimeParam=", TimeParam)

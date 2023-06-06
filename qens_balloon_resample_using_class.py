@@ -14,6 +14,7 @@ def testrun():
     Nb = 96*32
     Nb = 32*105
     Nb = 32*10
+    Nb = 3000
     elim = [-0.03, 0.07]
     #outfile = "outkde_2comps.pkl"
     #outfile = "outkde.pkl"
@@ -24,7 +25,8 @@ def testrun():
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/0125/back/test5/outkdetmp_2comps.pkl"
     #outfile = "./outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outkde.pkl"
-    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/q0.7-0.8/outkde.pkl"
+    outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/q0.3-0.4/outkde.pkl"
+    #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/q0.9-1.0/outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/qrange0.5/outhist.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/qrange0.5/outkde.pkl"
     #outfile = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/test/100/outhisttmp.pkl"

@@ -7,7 +7,7 @@
 # Kazuyoshi TATSUMI 2023/05/30
 import sys
 sys.path.append("/home/kazu/ktpro")
-from get_resampled_data_mpi_class2 import Sget_qlist as sgq
+from get_resampled_data_mpi_class3 import Sget_qlist as sgq
 import numpy as np
 #from mpi4py import MPI
 #import datetime
@@ -18,7 +18,8 @@ class SSget_qlist(sgq):
         super().__init__(pklfile="run" + str(runNo) + "spectrab.pkl")
         self.get_org_data("0.000025", runNo, TimeParam=TimeParam)
         self.get_all_data()
-        self.orgintensity = np.array(self.dataset['intensity'])
+        self.orgintensityshape = self.dataset['intensity'].shape
+        self.orgintensity1d = np.array(self.dataset['intensity'].flatten()).astype('uint32')
         self.get_boot_strap_sampled_spectra(nbs, qmin, qmax, wnocorr=True)
 
 

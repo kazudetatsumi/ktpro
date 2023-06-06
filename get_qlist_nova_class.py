@@ -138,6 +138,101 @@ class get_qlist:
         self.dataset['q'] = q
         self.dataset['intensity'] = intensity
 
+    def get_intdtype(self, maxnumber):
+        if maxnumber <= 255 - 15:
+            intdtype = 'uint8'
+        elif maxnumber <= 65535 - 510:
+            intdtype = 'uint16'
+        elif maxnumber <= 4294967295 - 131070:
+            intdtype = 'uint32'
+        else:
+            intdtype = 'uint64'
+        return intdtype
+
+    def get_all_data2(self):
+        Ef = np.zeros((self.DAT.PutSize(),
+                       self.DAT(0).PutSize(),
+                       len(self.DAT(0)(0).PutYList())))
+        theta = np.zeros((self.DAT.PutSize(),
+                          self.DAT(0).PutSize(),
+                          len(self.DAT(0)(0).PutYList())))
+        omega = np.zeros((self.DAT.PutSize(),
+                          self.DAT(0).PutSize(),
+                          len(self.DAT(0)(0).PutYList())))
+        intensity = np.zeros((self.DAT.PutSize(),
+                              self.DAT(0).PutSize(),
+                              len(self.DAT(0)(0).PutYList())))
+        ones = np.ones((len(self.DAT(0)(0).PutYList())))
+        for ecaidx in range(0, self.DAT.PutSize()):
+            for ecidx in range(0, self.DAT(0).PutSize()):
+                Ef[ecaidx, ecidx, :] = ones*self.DAT(ecaidx, ecidx)\
+                                                   .PutHeader()\
+                                                   .PutDouble('Ef')
+                theta[ecaidx, ecidx, :] = ones*self.DAT(ecaidx, ecidx)\
+                                                   .PutHeader()\
+                                                   .PutDouble('PolarAngle')
+                # We get omega as the same manner as in the Matsuura's script
+                omega[ecaidx, ecidx, :] = np.array(self.DAT(ecaidx, ecidx)
+                                                   .PutXList()[:-1])
+                intensity[ecaidx, ecidx, :] = np.array(self.DAT(ecaidx, ecidx)
+                                                       .PutYList())
+        q = ((2.*Ef + omega - 2.*np.cos(theta)
+             * (Ef*(Ef+omega))**0.5)*meVtoangsm2)**0.5*2*np.pi
+        self.dataset = {}
+        self.dataset['omega'] = omega
+        self.dataset['q'] = q
+        if np.max(intensity) <= 255 - 15:
+            intdtype = 'uint8'
+        elif np.max(intensity) <= 65535 - 510:
+            intdtype = 'uint16'
+        elif np.max(intensity) <= 4294967295 - 131070:
+            intdtype = 'uint32'
+        else:
+            intdtype = 'uint64'
+        self.dataset['intensity'] = np.array(intensity, dtype=intdtype)
+
+    def get_all_data3(self):
+        Ef = np.zeros((self.DAT.PutSize(),
+                       self.DAT(0).PutSize(),
+                       len(self.DAT(0)(0).PutYList())))
+        theta = np.zeros((self.DAT.PutSize(),
+                          self.DAT(0).PutSize(),
+                          len(self.DAT(0)(0).PutYList())))
+        omega = np.zeros((self.DAT.PutSize(),
+                          self.DAT(0).PutSize(),
+                          len(self.DAT(0)(0).PutYList())))
+        intensity = np.zeros((self.DAT.PutSize(),
+                              self.DAT(0).PutSize(),
+                              len(self.DAT(0)(0).PutYList())))
+        ones = np.ones((len(self.DAT(0)(0).PutYList())))
+        for ecaidx in range(0, self.DAT.PutSize()):
+            for ecidx in range(0, self.DAT(0).PutSize()):
+                Ef[ecaidx, ecidx, :] = ones*self.DAT(ecaidx, ecidx)\
+                                                   .PutHeader()\
+                                                   .PutDouble('Ef')
+                theta[ecaidx, ecidx, :] = ones*self.DAT(ecaidx, ecidx)\
+                                                   .PutHeader()\
+                                                   .PutDouble('PolarAngle')
+                # We get omega as the same manner as in the Matsuura's script
+                omega[ecaidx, ecidx, :] = np.array(self.DAT(ecaidx, ecidx)
+                                                   .PutXList()[:-1])
+                intensity[ecaidx, ecidx, :] = np.array(self.DAT(ecaidx, ecidx)
+                                                       .PutYList())
+        q = ((2.*Ef + omega - 2.*np.cos(theta)
+             * (Ef*(Ef+omega))**0.5)*meVtoangsm2)**0.5*2*np.pi
+        self.dataset = {}
+        self.dataset['omega'] = np.array(omega, dtype='float32')
+        self.dataset['q'] = np.array(q, dtype='float32')
+        if np.max(intensity) <= 255 - 15:
+            intdtype = 'uint8'
+        elif np.max(intensity) <= 65535 - 510:
+            intdtype = 'uint16'
+        elif np.max(intensity) <= 4294967295 - 131070:
+            intdtype = 'uint32'
+        else:
+            intdtype = 'uint64'
+        self.dataset['intensity'] = np.array(intensity, dtype=intdtype)
+
     def get_all_sdata(self):
         q = np.zeros((self.DAT.PutSize(), len(self.DAT(0).PutYList())))
         omega = np.zeros((self.DAT.PutSize(), len(self.DAT(0).PutYList())))
@@ -243,6 +338,37 @@ class get_qlist:
         #print("CHECK SPECT:, total intennsity:", np.sum(z[z < 1.0e+99]))
         _x = x
         area = np.where((_x <= qmax - 1.0e-14) & (_x > qmin - 1.0e-14))
+        #area = np.where((_x <= qmax) & (_x > qmin))
+        print(np.unique(x[area[0]]))
+        x = x[area[0]]
+        y = y[area[0]]
+        z = z[area[0]]
+        #ene = np.sort(np.unique(y))
+        #z1d = np.zeros_like(ene)
+        _z = z[np.argsort(y)]
+        _y = np.sort(y)
+        ene, mult = np.unique(_y, return_counts=True)
+        z1d = np.zeros_like(ene)
+        for eidx, e in enumerate(ene):
+            lb = np.sum(mult[:eidx])
+            ub = lb + mult[eidx]
+            z1d[eidx] = np.sum(_z[lb:ub])
+        self.ene = ene
+        self.spectra = z1d
+        #print("CHECK SPECT:, total intensity with q of", np.unique(x), ":", np.sum(self.spectra))
+        if isplot:
+            self.create_fig()
+            plt.plot(ene, z1d)
+            #plt.yscale('log')
+            plt.show()
+
+    def spect3(self, qmin, qmax, dataset, isplot=False):
+        x = np.ravel(dataset['q'])
+        y = np.ravel(dataset['omega'])
+        z = np.ravel(dataset['intensity'])
+        #print("CHECK SPECT:, total intennsity:", np.sum(z[z < 1.0e+99]))
+        _x = x
+        area = np.where((_x <= qmax - 1.0e-7) & (_x > qmin - 1.0e-7))
         #area = np.where((_x <= qmax) & (_x > qmin))
         print(np.unique(x[area[0]]))
         x = x[area[0]]

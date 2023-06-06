@@ -107,13 +107,13 @@ class Sget_qlist(gq):
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         psize = comm.Get_size()
-        intensity1d = self.orgintensity.flatten().astype(int)
-        nonzeroidx = np.nonzero(intensity1d)[0]
+        #intensity1d = self.orgintensity.flatten().astype(int)
+        nonzeroidx = np.nonzero(self.orgintensity1d)[0]
         x = np.array([idx for idx in nonzeroidx for num_repeat in
-                     range(intensity1d[idx])], dtype=int)
+                     range(self.orgintensity1d[idx])], dtype='uint32')
         N = x.shape[0]
         np.random.seed(seed)
-        intensityb = np.zeros_like(self.orgintensity)
+        intensityb = np.zeros(self.orgintensityshape, dtype='uint32')
         with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb'
                   ) as f:
             randomstates = pickle.load(f)
@@ -132,7 +132,7 @@ class Sget_qlist(gq):
             randoffset = 0
         for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
             #print(datetime.datetime.now(), 'chk1', inb)
-            intensityb *= 0.
+            intensityb *= 0
             np.random.set_state(randomstates[inb+randoffset])
             if frac:
                 Nb = np.random.poisson(lam=int(N*frac))
@@ -140,7 +140,7 @@ class Sget_qlist(gq):
                 Nb = np.random.poisson(lam=N)
             idx = np.random.randint(0, N, Nb)
             xb = x[idx]
-            test_idxs = np.unravel_index(xb, self.orgintensity.shape)
+            test_idxs = np.unravel_index(xb, self.orgintensityshape)
             for _idx0, _idx1, _idx2 in zip(test_idxs[0], test_idxs[1],
                                            test_idxs[2]):
                 intensityb[_idx0, _idx1, _idx2] += 1
