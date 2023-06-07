@@ -5,10 +5,9 @@
 # Kazuyoshi TATSUMI 2023/02/15
 import sys
 sys.path.append("/home/kazu/ktpro")
-from get_resampled_data_mpi_class import Sget_qlist as sgq
-import datetime
+#from get_resampled_data_mpi_class import Sget_qlist as sgq
+from get_resampled_data_org_class import Sget_qlist as sgq
 import numpy as np
-from mpi4py import MPI
 
 
 def run_org(runNo, TimeParam, qmin, qmax):
