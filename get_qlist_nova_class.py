@@ -393,6 +393,17 @@ class get_qlist:
             #plt.yscale('log')
             plt.show()
 
+    def spectm(self, qmin, qmax, dataset):
+        for iq, (qmi, qma) in enumerate(zip(qmin, qmax)):
+            self.spect3(qmi, qma, dataset)
+            if iq == 0:
+                _spectra = np.zeros((len(qmin), self.spectra.shape[0]))
+                _ene = np.zeros((len(qmin), self.ene.shape[0]))
+            _spectra[iq, :] = self.spectra
+            _ene[iq, :] = self.ene
+        self.spectra = _spectra.flatten()
+        self.ene = _ene.flatten()
+
     def save_spectra(self, spectrafile, old=False):
         dataset = {}
         dataset['spectra'] = self.spectra

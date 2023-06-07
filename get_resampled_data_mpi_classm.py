@@ -75,7 +75,7 @@ class Sget_qlist(gq):
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
         DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
         dataset = self.get_all_sdatab(DATBQE)
-        self.spect3(qmin, qmax, dataset, isplot=False)
+        self.spectm(qmin, qmax, dataset)
 
     def get_all_sdatab(self, DATBQE):
         q = np.zeros((DATBQE.PutSize(), len(DATBQE(0).PutYList())))
@@ -130,6 +130,7 @@ class Sget_qlist(gq):
             with open(self.pklfile, 'rb') as f:
                 results = pickle.load(f)
                 randoffset = results.shape[0]
+            results = None
         else:
             randoffset = 0
         for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
@@ -158,7 +159,7 @@ class Sget_qlist(gq):
             if wnocorr:
                 self.dataset['intensity'] = intensityb
                 print(datetime.datetime.now(), 'chk7')
-                self.spect3(qmin, qmax, self.dataset, isplot=False)
+                self.spectm(qmin, qmax, self.dataset)
                 print(datetime.datetime.now(), 'chk8')
                 #print('energy differences btw corr and nocorr:',
                 #      np.sum(self.ene - ener[inb - rank*nbs//psize, :]))
@@ -182,7 +183,13 @@ class Sget_qlist(gq):
                                                 np.array(spectra1dt).
                                                 reshape(nbs, 1, -1)),
                                                axis=1)
-        if rank == 0 and 'results' in locals():
-            self.spectrab = np.concatenate((results, self.spectrab), axis=0)
+        if rank == 0:
+            _sh = self.spectrab.shape
+            self.spectrab = self.spectrab.reshape((_sh[0], _sh[1], len(qmin), -1))
+        if randoffset > 0:
+            with open(self.pklfile, 'rb') as f:
+                results = pickle.load(f)
+            if rank == 0:
+                self.spectrab = np.concatenate((results, self.spectrab), axis=0)
         #print(datetime.datetime.now(), 'chk9')
 
