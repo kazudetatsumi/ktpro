@@ -105,6 +105,7 @@ class Sget_qlist(gq):
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
                                        wnocorr=False, frac=None):
+        import gc
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         psize = comm.Get_size()
@@ -131,6 +132,8 @@ class Sget_qlist(gq):
                 results = pickle.load(f)
                 randoffset = results.shape[0]
             results = None
+            del results
+            gc.collect()
         else:
             randoffset = 0
         for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
@@ -168,10 +171,16 @@ class Sget_qlist(gq):
                     spectranocorrr = np.zeros_like(spectrar)
                 #enenocorrr[inb - rank*nbs//psize, :] = self.ene[:]
                 spectranocorrr[inb - rank*nbs//psize, :] = self.spectra[:]
+        print(datetime.datetime.now(), 'chk9')
+        del x, self.dataset, intensityb
+        print(datetime.datetime.now(), 'chk10')
+        gc.collect()
+        print(datetime.datetime.now(), 'chk11')
         ene1dt = np.zeros(ener.shape[1]*nbs)
         spectra1dt = np.zeros(spectrar.shape[1]*nbs)
         ene1dt = comm.gather(ener.flatten(), root=0)
         spectra1dt = comm.gather(spectrar.flatten(), root=0)
+        print(datetime.datetime.now(), 'chk12')
         if rank == 0:
             self.spectrab = np.zeros((nbs, 2, ener.shape[1]))
             self.spectrab[:, 0, :] = np.array(ene1dt).reshape((nbs, -1))
@@ -183,6 +192,7 @@ class Sget_qlist(gq):
                                                 np.array(spectra1dt).
                                                 reshape(nbs, 1, -1)),
                                                axis=1)
+        print(datetime.datetime.now(), 'chk13')
         if rank == 0:
             _sh = self.spectrab.shape
             self.spectrab = self.spectrab.reshape((_sh[0], _sh[1], len(qmin), -1))
@@ -191,5 +201,6 @@ class Sget_qlist(gq):
                 results = pickle.load(f)
             if rank == 0:
                 self.spectrab = np.concatenate((results, self.spectrab), axis=0)
+        print(datetime.datetime.now(), 'chk14')
         #print(datetime.datetime.now(), 'chk9')
 

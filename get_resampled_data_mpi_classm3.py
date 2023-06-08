@@ -116,7 +116,7 @@ class Sget_qlist(gq):
         N = x.shape[0]
         np.random.seed(seed)
         intensityb = np.zeros(self.orgintensityshape, dtype=intdtype)
-        with open('randomstates.pkl.' + self.pklfile[8:12] + '.30000', 'rb'
+        with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb'
                   ) as f:
             randomstates = pickle.load(f)
         #if os.path.isfile(self.pklfile):
@@ -126,13 +126,15 @@ class Sget_qlist(gq):
         #        randoffset = results.shape[0]
         #        comm.Barrier()
         #        comm.bcast(randoffset, root=0)
-        if os.path.isfile(self.pklfile):
-            with open(self.pklfile, 'rb') as f:
-                results = pickle.load(f)
-                randoffset = results.shape[0]
-            results = None
-        else:
-            randoffset = 0
+        #if os.path.isfile(self.pklfile):
+        #    with open(self.pklfile, 'rb') as f:
+        #        results = pickle.load(f)
+        #        randoffset = results.shape[0]
+        #    results = None
+        #else:
+        #    randoffset = 0
+        with open('randoffset', 'r') as f:
+            randoffset = int(f.readline()[-1])
         for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
             #print(datetime.datetime.now(), 'chk1', inb)
             intensityb *= 0

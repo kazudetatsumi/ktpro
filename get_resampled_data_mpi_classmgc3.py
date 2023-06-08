@@ -105,6 +105,7 @@ class Sget_qlist(gq):
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
                                        wnocorr=False, frac=None):
+        import gc
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         psize = comm.Get_size()
@@ -112,25 +113,26 @@ class Sget_qlist(gq):
         nonzeroidx = np.nonzero(self.orgintensity1d)[0]
         intdtype = self.orgintensity1d.dtype
         x = np.array([idx for idx in nonzeroidx for num_repeat in
-                     range(self.orgintensity1d[idx])], dtype=self.get_intdtype(np.max(nonzeroidx)))
+                     range(self.orgintensity1d[idx])],
+                     dtype=self.get_intdtype(np.max(nonzeroidx)))
         N = x.shape[0]
         np.random.seed(seed)
         intensityb = np.zeros(self.orgintensityshape, dtype=intdtype)
-        with open('randomstates.pkl.' + self.pklfile[8:12] + '.30000', 'rb'
+        with open('randomstates.pkl.' + self.pklfile[3:7] + '.30000', 'rb'
                   ) as f:
             randomstates = pickle.load(f)
-        #if os.path.isfile(self.pklfile):
-        #    if rank == 0:
-        #        with open(self.pklfile, 'rb') as f:
-        #            results = pickle.load(f)
-        #        randoffset = results.shape[0]
-        #        comm.Barrier()
-        #        comm.bcast(randoffset, root=0)
         if os.path.isfile(self.pklfile):
-            with open(self.pklfile, 'rb') as f:
-                results = pickle.load(f)
-                randoffset = results.shape[0]
-            results = None
+            if rank == 0:
+                with open(self.pklfile, 'rb') as f:
+                    results = pickle.load(f)
+                    randoffset = results.shape[0]
+                results = None
+                del results
+                gc.collect()
+            else:
+                randoffset = None
+            comm.barrier()
+            randoffset = comm.bcast(randoffset, root=0)
         else:
             randoffset = 0
         for inb in range(rank*(nbs//psize), (rank+1)*(nbs//psize)):
@@ -158,9 +160,9 @@ class Sget_qlist(gq):
             #print(datetime.datetime.now(), 'chk6')
             if wnocorr:
                 self.dataset['intensity'] = intensityb
-                print(datetime.datetime.now(), 'chk7')
+                print(datetime.datetime.now(), 'chk7', rank)
                 self.spectm(qmin, qmax, self.dataset)
-                print(datetime.datetime.now(), 'chk8')
+                print(datetime.datetime.now(), 'chk8', rank)
                 #print('energy differences btw corr and nocorr:',
                 #      np.sum(self.ene - ener[inb - rank*nbs//psize, :]))
                 if inb == rank*(nbs//psize):
@@ -168,6 +170,8 @@ class Sget_qlist(gq):
                     spectranocorrr = np.zeros_like(spectrar)
                 #enenocorrr[inb - rank*nbs//psize, :] = self.ene[:]
                 spectranocorrr[inb - rank*nbs//psize, :] = self.spectra[:]
+        del x, self.dataset, intensityb
+        gc.collect()
         ene1dt = np.zeros(ener.shape[1]*nbs)
         spectra1dt = np.zeros(spectrar.shape[1]*nbs)
         ene1dt = comm.gather(ener.flatten(), root=0)
@@ -185,11 +189,15 @@ class Sget_qlist(gq):
                                                axis=1)
         if rank == 0:
             _sh = self.spectrab.shape
-            self.spectrab = self.spectrab.reshape((_sh[0], _sh[1], len(qmin), -1))
+            self.spectrab = self.spectrab.reshape((_sh[0], _sh[1], len(qmin),
+                                                  -1))
         if randoffset > 0:
-            with open(self.pklfile, 'rb') as f:
-                results = pickle.load(f)
             if rank == 0:
-                self.spectrab = np.concatenate((results, self.spectrab), axis=0)
-        #print(datetime.datetime.now(), 'chk9')
+                with open(self.pklfile, 'rb') as f:
+                    results = pickle.load(f)
+                self.spectrab = np.concatenate((results, self.spectrab),
+                                               axis=0)
+                del results
+                gc.collect()
+        print(datetime.datetime.now(), 'chk9', rank)
 
