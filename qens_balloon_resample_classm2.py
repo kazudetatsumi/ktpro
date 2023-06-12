@@ -11,10 +11,11 @@ from qens_kde_resampled import qens_kde_resampled as qkr
 
 
 class qens_balloon_resamples(qkr):
-    def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
+    def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
                  quiet=False):
+        self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
         self.gammas = np.zeros((Nb, 2))
@@ -67,9 +68,9 @@ class qens_balloon_resamples(qkr):
         self.orgfiles = []
         for runno in self.runNos:
             self.rsfiles.append(self.prefix + "run" + str(runno) + "spectra" +
-                                self.rsmodifier + ".pkl")
+                                self.rsmodifier + ".pkl." + str(self.qidx))
             self.orgfiles.append(self.prefix + "run" + str(runno) + "spectra" +
-                                 self.orgmodifier + ".pkl")
+                                 self.orgmodifier + ".pkl." + str(self.qidx))
         if self.rank == 0:
             if not self.quiet:
                 print(self.prefix)

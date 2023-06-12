@@ -6,13 +6,13 @@
 import sys
 sys.path.append("/home/kazu/ktpro")
 #from get_resampled_data_mpi_class import Sget_qlist as sgq
-from get_resampled_data_org_class import Sget_qlist as sgq
+from get_resampled_data_org_classm import Sget_qlist as sgq
 
 
 class SSget_qlist(sgq):
     def __init__(self, runNo, TimeParam, qmin, qmax):
         super().__init__(pklfile="run" + str(runNo) + "spectraorg.pkl")
-        self.get_org_data("0.0025", runNo, TimeParam=TimeParam)
+        self.get_org_data("0.000025", runNo, TimeParam=TimeParam)
         self.get_org_spectra(qmin, qmax)
 
 

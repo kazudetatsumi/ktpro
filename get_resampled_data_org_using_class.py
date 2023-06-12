@@ -12,7 +12,7 @@ import numpy as np
 
 def run_org(runNo, TimeParam, qmin, qmax):
     prj = sgq(pklfile="run" + str(runNo) + "spectraorgtest.pkl")
-    prj.get_org_data("0.000025", runNo, TimeParam=TimeParam)
+    prj.get_org_data("0.0025", runNo, TimeParam=TimeParam)
     prj.get_qemap()
     prj.get_all_sdata()
     prj.spect(qmin, qmax, prj.dataset, isplot=False)

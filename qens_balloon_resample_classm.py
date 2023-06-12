@@ -11,10 +11,11 @@ from qens_kde_resampled import qens_kde_resampled as qkr
 
 
 class qens_balloon_resamples(qkr):
-    def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
+    def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
                  quiet=False):
+        self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
         self.gammas = np.zeros((Nb, 2))
@@ -34,7 +35,9 @@ class qens_balloon_resamples(qkr):
 
     def getrsspectra(self, rsfile, inb=0):
         qkr.__init__(self, pklfile=rsfile)
-        return self.spectrab[inb, 0, :], self.spectrab[inb, 1, :]
+        print("getrsspectra: chkm slicing spectrab at qidx")
+        return self.spectrab[
+                inb, 0, self.qidx], self.spectrab[inb, 1, self.qidx]
 
     def CalcBandW(self, orgfile, inb=0):
         if self.ishist:
@@ -43,6 +46,8 @@ class qens_balloon_resamples(qkr):
             self.y = "dummy"
         else:
             qkr.__init__(self, pklfile=orgfile)
+            print("CalcBandW: chkm slicing spectrab at qidx")
+            self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
                      num=self.num)
         return self.y
