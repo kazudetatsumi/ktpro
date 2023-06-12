@@ -5,6 +5,10 @@
 # necessary corrections to draw bootstrap sampled QENS data corresponding to
 # double differentia cross-sections.
 # Kazuyoshi TATSUMI 2023/02/15
+import pickle
+import numpy as np
+import datetime
+import os
 from mpi4py import MPI
 rank = MPI.COMM_WORLD.Get_rank()
 try:
@@ -13,18 +17,7 @@ try:
 except ModuleNotFoundError as err:
     if rank == 0:
         print(err)
-import numpy as np
-import datetime
-#import matplotlib.pyplot as plt
-import pickle
-import os
-#from scipy.interpolate import griddata
-from get_qlist_nova_class import get_qlist as gq
-
-#m = 1.674927471*10**(-27)   # [kg]
-#h = 6.62607015*10**(-34)    # [J. s]
-#meVtoJ = 1.60218*10**(-22)  # [J/meV]
-#meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
+from get_resampled_data_class import Sget_qlist as gq
 
 
 class Sget_qlist(gq):
@@ -32,28 +25,8 @@ class Sget_qlist(gq):
         self.save_file = save_file
         self.pklfile = pklfile
 
-    def get_org_data(self, binw, runNo, TimeParam="-1.0/-1.0", frac=None):
-        self.DAT = Cmm.GetHistogramHW(
-                runNo=runNo, HwParam=binw+"/-0.05/0.15",
-                LambdaParam="6.321/4.15", t0_offset=12325.0,
-                useT0ModCorr=False, TimeParam=TimeParam, UseFastChopper=True,
-                tofOffsetFile="none", isHistogram=False)
-        if frac:
-            TimeParam = self.get_frac_TimeParam(TimeParam, frac)
-        self.EC = Cmm.GetHistogramMon(
-                    runNo=runNo, useEiConv=True, LambdaParam="6.321/4.15",
-                    t0_offset=12325.0, background=0.0, useT0ModCorr=False,
-                    TimeParam=TimeParam, UseFastChopper=True,
-                    isHistogram=False)
-        Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
-
-    def get_frac_TimeParam(self, TimeParam, frac):
-        it = float(TimeParam.split(",")[0])
-        ft = float(TimeParam.split(",")[1])
-        return str(np.round(ft - (ft-it)*frac)) + "," + str(ft)
-
     def get_qemapb(self, intensityb, qmin, qmax):
-        #DATB = Manyo.ElementContainerMatrix(self.DAT) 
+        #DATB = Manyo.ElementContainerMatrix(self.DAT)
         # To reduce memory usage, self.DAT is overwritten.
         ctp = Manyo.CppToPython()
         for ecaidx in range(0, self.DAT.PutSize()):
@@ -74,8 +47,7 @@ class Sget_qlist(gq):
                 DetEffDataPath="none")
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
         DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
-        dataset = self.get_all_sdatab(DATBQE)
-        self.spect3(qmin, qmax, dataset, isplot=False)
+        return self.get_all_sdatab(DATBQE)
 
     def get_all_sdatab(self, DATBQE):
         q = np.zeros((DATBQE.PutSize(), len(DATBQE(0).PutYList())))
@@ -95,14 +67,6 @@ class Sget_qlist(gq):
         dataset['intensity'] = intensity
         return dataset
 
-    def save_pkl(self):
-        with open(self.pklfile, 'wb') as f:
-            pickle.dump(self.spectrab, f, -1)
-
-    def load_pkl(self):
-        with open(self.pklfile, 'rb') as f:
-            self.spectrab = pickle.load(f)
-
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
                                        wnocorr=False, frac=None):
         comm = MPI.COMM_WORLD
@@ -112,7 +76,8 @@ class Sget_qlist(gq):
         nonzeroidx = np.nonzero(self.orgintensity1d)[0]
         intdtype = self.orgintensity1d.dtype
         x = np.array([idx for idx in nonzeroidx for num_repeat in
-                     range(self.orgintensity1d[idx])], dtype=self.get_intdtype(np.max(nonzeroidx)))
+                     range(self.orgintensity1d[idx])],
+                     dtype=self.get_intdtype(np.max(nonzeroidx)))
         N = x.shape[0]
         np.random.seed(seed)
         intensityb = np.zeros(self.orgintensityshape, dtype=intdtype)
@@ -147,7 +112,7 @@ class Sget_qlist(gq):
                                            test_idxs[2]):
                 intensityb[_idx0, _idx1, _idx2] += 1
             #print(datetime.datetime.now(), 'chk2')
-            self.get_qemapb(intensityb, qmin, qmax)
+            self.spect3(qmin, qmax, self.get_qemapb(intensityb, qmin, qmax))
             #print(datetime.datetime.now(), 'chk345')
             if inb == rank*(nbs//psize):
                 ener = np.zeros((nbs//psize, self.ene.shape[0]))
@@ -158,7 +123,7 @@ class Sget_qlist(gq):
             if wnocorr:
                 self.dataset['intensity'] = intensityb
                 print(datetime.datetime.now(), 'chk7')
-                self.spect3(qmin, qmax, self.dataset, isplot=False)
+                self.spect3(qmin, qmax, self.dataset)
                 print(datetime.datetime.now(), 'chk8')
                 #print('energy differences btw corr and nocorr:',
                 #      np.sum(self.ene - ener[inb - rank*nbs//psize, :]))

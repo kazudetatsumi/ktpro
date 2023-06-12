@@ -11,7 +11,7 @@ import numpy as np
 import pickle
 import sys
 sys.path.append("/home/kazu/ktpro")
-from get_resampled_data_mpi_class import Sget_qlist as sq
+from get_resampled_data_org_class import Sget_qlist as sq
 
 
 class Get_rand(sq):

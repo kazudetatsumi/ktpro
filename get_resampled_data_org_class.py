@@ -86,14 +86,14 @@ class Sget_qlist(gq):
     def load_pkl(self):
         with open(self.pklfile, 'rb') as f:
             self.spectrab = pickle.load(f)
-   
+
     def get_org_spectra(self, qmin, qmax):
         self.get_qemap(qmin, qmax)
         self.spectrab = np.zeros((1, 2, self.ene.shape[0]))
         self.spectrab[0, 0, :] = self.ene
         self.spectrab[0, 1, :] = self.spectra
         self.get_all_data()
-        self.spect(qmin, qmax, self.dataset, isplot=False)
+        self.spect(qmin, qmax, self.dataset)
         self.spectrab = np.concatenate((self.spectrab,
                                         self.spectra.reshape(1, 1, -1)),
                                        axis=1)
