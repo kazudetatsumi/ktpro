@@ -6,7 +6,7 @@
 import os
 import sys
 sys.path.append("/home/kazu/ktpro")
-from qens_balloon_resample_classm2 import qens_balloon_resamples as qbr
+from qens_balloon_resample_classm2 import Sqens_balloon_resamples as qbr
 
 
 class Sqbr(qbr):

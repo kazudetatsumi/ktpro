@@ -32,18 +32,6 @@ def run():
     #print(intensities[-5:-1])
 
 
-def run_org():
-    prj = sgq(pklfile="run6202spectraorg.pkl")
-    prj.get_org_data("0.000025")
-    prj.get_qemap()
-    prj.get_all_sdata()
-    prj.spect(0.55, 0.70, isplot=True)
-    prj.spectrab = np.zeros((1, 2, prj.ene.shape[0]))
-    prj.spectrab[0, 0, :] = prj.ene
-    prj.spectrab[0, 1, :] = prj.spectra
-    prj.save_pkl()
-
-
 def check():
     prj = sgq(pklfile="run6202spectraorg.pkl")
     prj.load_pkl()
@@ -60,4 +48,3 @@ def check():
 
 run()
 #check()
-#run_org()

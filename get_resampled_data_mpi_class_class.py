@@ -18,7 +18,7 @@ class SSget_qlist(sgq):
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         super().__init__(pklfile="run" + str(runNo) + "spectrab.pkl")
-        self.get_org_data("0.000025", runNo, TimeParam=TimeParam)
+        self.get_org_data("0.0025", runNo, TimeParam=TimeParam)
         self.get_all_data()
         self.intensity = np.array(self.dataset['intensity'])
         self.datasetnocorr = copy.deepcopy(self.dataset)
@@ -31,5 +31,5 @@ def sample_run(runNo, nbs, TimeParam, qmin, qmax):
     prj = SSget_qlist(runNo, nbs, TimeParam, qmin, qmax)
 
 
-#sample_run(6202, 2,  "-1.0/-1.0", 0.7, 0.8)
-sample_run(6202, 1,  "8764.0, 9000.0", 0.7, 0.8)
+sample_run(6202, 8,  "-1.0/-1.0", 0.7, 0.8)
+#sample_run(6202, 1,  "8764.0, 9000.0", 0.7, 0.8)

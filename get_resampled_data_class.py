@@ -16,11 +16,6 @@ import matplotlib.pyplot as plt
 import pickle
 from get_qlist_nova_class import get_qlist as gq
 
-m = 1.674927471*10**(-27)   # [kg]
-h = 6.62607015*10**(-34)    # [J. s]
-meVtoJ = 1.60218*10**(-22)  # [J/meV]
-meVtoangsm2 = (1./0.81787)*0.01  # [Angs-2/meV]
-
 
 class Sget_qlist(gq):
     def __init__(self, save_file=None, pklfile=None):
@@ -40,8 +35,6 @@ class Sget_qlist(gq):
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
                     TimeParam=TimeParam, UseFastChopper=True,
                     isHistogram=False)
-        ###iii = self.EC.PutYList()
-        ###print(iii)
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
 
     def get_frac_TimeParam(self, TimeParam, frac):
