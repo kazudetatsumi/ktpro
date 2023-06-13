@@ -215,7 +215,6 @@ class qens_fit:
                 print("estimated constants alpha1, gamma1, alpha2, gamma2, delta")
             #if len(variables) == 6:
                 #print("estimated constants alpha1, gamma1, alpha2, gamma2, delta, base")
-        print(out[0])
         self.afteroptimize(out, s_sq, variables, figname)
 
     def afteroptimize(self, out, s_sq, variables, figname):

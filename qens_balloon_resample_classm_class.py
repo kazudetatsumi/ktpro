@@ -10,8 +10,9 @@ from qens_balloon_resample_classm import qens_balloon_resamples as qbr
 
 
 class Sqbr(qbr):
-    def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204], elim=[-0.03, 0.07],
-                 binwidth1=0.0005, binwidth2=0.0005, binwidth=0.00025):
+    def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
+                 elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
+                 binwidth=0.00025, rsmodifier="b"):
         if "2comps" in outfile:
             variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
         else:
@@ -21,7 +22,8 @@ class Sqbr(qbr):
         else:
             ishist = False
         if os.path.isfile(outfile):
-            super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb)
+            super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
+                             rsmodifier=rsmodifier)
             self.outfile = outfile
             self.loadfile()
             self.output()

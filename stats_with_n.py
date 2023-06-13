@@ -34,9 +34,9 @@ def stats(outpklfile):
     #plt.show()
 
 
-def run():
-    lbsh, ubsh, avesh, stdsh = stats(prefix + '/outkde.pkl')
-    print(lbsh[2989], ubsh[2989])
+def run(outfile):
+    lbsh, ubsh, avesh, stdsh = stats(prefix + "/" + outfile)
+    print((ubsh[2989]-lbsh[2989])/2., stdsh[2989])
     #lbsk, ubsk, avesk, stdsk = stats(prefix + '/outkde.pkl')
     #plt.plot(ubsh - lbsh, label='ubsh-lbsh')
     #plt.plot(2.*stdsh, label='2stdh')
@@ -48,4 +48,13 @@ def run():
     #plt.show()
 
 
-run()
+def mstats():
+    print("68%_ci/2 std")
+    for qidx in range(0, 11):
+        outfile = "outhist.pkl." + str(qidx)
+        run(outfile)
+
+#outfile = "outhist.pkl.1"
+#run(outfile)
+
+mstats()

@@ -10,7 +10,7 @@ from mpi4py import MPI
 from qens_kde_resampled import qens_kde_resampled as qkr
 
 
-class qens_balloon_resamples(qkr):
+class Sqens_balloon_resamples(qkr):
     def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],

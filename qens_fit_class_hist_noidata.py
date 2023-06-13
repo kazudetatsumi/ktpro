@@ -143,7 +143,7 @@ class runhistnoidata(qf):
         #     print(cyidx, out)
         #self.outall.append(out)
         #conbine the lists of out.x, out.active_mask, out.success
-        print('chk', out[0].tolist() + out[2].tolist())
+        print('chk2', out[0].tolist() + out[2].tolist())
         self.outall.append(out[0].tolist() + out[2].tolist())
 
     def output(self):

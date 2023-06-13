@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import sys
 sys.path.append("/home/kazu/ktpro")
-from get_resampled_data_mpi_classm import Sget_qlist as sgq
+#from get_resampled_data_mpi_classm import Sget_qlist as sgq
+from get_resampled_data_org_class import Sget_qlist as sgq
 
 
 class SSdivide(sgq):
@@ -20,7 +21,7 @@ class SSdivide(sgq):
 
 
 def samplerun():
-    runNo = 6203
+    runNo = 6202
     pklfile = "run" + str(runNo) + "spectraorg.pkl"
     SSdivide(pklfile)
     pklfile = "run" + str(runNo) + "spectrab.pkl"
