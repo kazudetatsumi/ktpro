@@ -74,16 +74,17 @@ class qens_model_fit(qbr):
         ax.errorbar(x[mask], t[mask], yerr=e[mask], marker="x", ms=2, elinewidth=1, lw=0, capsize=3)
         ax.errorbar(x[heavymask], t[heavymask], yerr=e[heavymask], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
         ax.text(0.1, 0.017, title+"_"+str(runNo))
-        ax.set_ylim(0., 0.02)
+        ax.set_ylim(0., 0.022)
         ax.set_xlim(0., 1.6)
+        ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
         ax.plot(x, y)
-        if nr == pnr:
-            ax.tick_params(direction='in', top=True, right=True)
+        if pnr >= (nr-1)*len(self.runNos)+1:
+            ax.tick_params(direction='in', top=True, right=True, labelbottom=True)
         else:
             ax.tick_params(direction='in', top=True, right=True, labelbottom=False)
 
     def run(self):
-        fig = plt.figure(figsize=(15.5, 12))
+        fig = plt.figure(figsize=(10, 10))
         for cidx, runNo in enumerate(self.runNos):
             if runNo == 6202:
                 mask = np.array([False, True, True, True, True, True, True, True, False, False, False])
@@ -119,7 +120,8 @@ class qens_model_fit(qbr):
 
 
 def testrun():
-    runNos = [6202, 6205, 6203, 6206, 6207]
+    #runNos = [6202, 6205, 6203, 6206, 6207]
+    runNos = [6202, 6205]
     qsize = 11
     prj = qens_model_fit(runNos, qsize)
     prj.run()
