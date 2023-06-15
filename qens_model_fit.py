@@ -8,10 +8,12 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as qbr
 
 
 class qens_model_fit(qbr):
-    def __init__(self, runNos, qsize):
+    def __init__(self, runNos, temps, qsize):
         self.runNos = runNos
+        self.temps = np.array(temps)
         self.qsize = qsize
         self.q2 = (np.arange(self.qsize)*0.1 + 0.2 + 0.05)**2.
+        self.D = np.zeros((3, len(runNos)))
 
     def getdata(self, runNo):
         # preprefix = "/home/kazu/desktop/210108/Tatsumi/"
@@ -85,7 +87,7 @@ class qens_model_fit(qbr):
                                 args=(self.q2, gamma, error, mask))
 
     def plotter(self, fig, nr, pnr,  x, y, t, e, mask, title, runNo):
-        heavymask = ~mask
+        #heavymask = ~mask
         #xerr = 2.*(np.arange(self.qsize)*0.1 + 0.05)*0.05
         ax = fig.add_subplot(nr, len(self.runNos), pnr)
         ax.errorbar(x[mask], t[mask], yerr=e[mask], marker="x", ms=2,
@@ -117,6 +119,26 @@ class qens_model_fit(qbr):
 
         plt.subplots_adjust(wspace=0.2, hspace=0.0)
         plt.show()
+        plt.scatter(1/self.temps, np.log(self.D[0]), label='hist')
+        plt.scatter(1/self.temps, np.log(self.D[1]), label='kb')
+        plt.scatter(1/self.temps, np.log(self.D[2]), label='k')
+        plt.legend()
+        plt.show()
+
+    def eachsolution(self, fig, sidx, cidx, runNo, gamma, error, mask, label):
+        out = self.optimize([0.05, 52], gamma, error, mask)
+        D = out.x[0]
+        self.D[sidx, cidx] = D
+        tau = out.x[1]
+        y = D*self.q2/(1. + D*tau*self.q2)
+        s_sq = (self.res(out.x, self.q2, gamma, error, mask)**2).sum() /\
+               (len(gamma)-len(out.x))
+        cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
+        stdD = (cov**0.5)[0, 0]
+        print(stdD, label, runNo)
+
+        self.plotter(fig, 3, 1+len(self.runNos)*sidx+cidx, self.q2, y, gamma,
+                     error, mask, label, runNo)
 
     def eachrun(self, cidx, runNo, mask, fig):
         maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errork, stdhes\
@@ -129,34 +151,20 @@ class qens_model_fit(qbr):
             maskhh = np.array([False, False, True, True, True, True, True,
                                True, True, True, True])
 
-        out = self.optimize([0.05, 52], gammah, errorh[0], mask*~maskh*maskhh)
-        #out = self.optimize([0.05, 52], gammah, stdhes, mask*~maskh)
-        D = out.x[0]
-        tau = out.x[1]
-        y = D*self.q2/(1. + D*tau*self.q2)
-        self.plotter(fig, 3, 1+cidx, self.q2, y, gammah, errorh[0],
-        #self.plotter(fig, 3, 1+cidx, self.q2, y, gammah, stdhes,
-                     mask*~maskh*maskhh, 'hist', runNo)
-
-        out = self.optimize([0.05, 40], gammakb, errork[0], mask*~maskkb)
-        D = out.x[0]
-        tau = out.x[1]
-        y = D*self.q2/(1. + D*tau*self.q2)
-        self.plotter(fig, 3, 1+len(self.runNos)+cidx, self.q2, y, gammakb,
-                     errork[0], mask*~maskkb, 'kde_balloon', runNo)
-
-        out = self.optimize([0.05, 40], gammak, errork[0], mask*~maskk)
-        D = out.x[0]
-        tau = out.x[1]
-        y = D*self.q2/(1. + D*tau*self.q2)
-        self.plotter(fig, 3, 1+len(self.runNos)*2+cidx, self.q2, y, gammak,
-                     errork[0], mask*~maskk, 'kde', runNo)
+        self.eachsolution(fig, 0, cidx, runNo, gammah, errorh[0],
+        # self.eachsolution(fig, 0, cidx, runNo, gammah, stdhes,
+                          mask*~maskh*maskhh, 'hist')
+        self.eachsolution(fig, 1, cidx, runNo, gammakb, errork[0],
+                          mask*~maskkb, 'kdeb')
+        self.eachsolution(fig, 2, cidx, runNo, gammak, errork[0],
+                          mask*~maskk, 'kde')
 
 
 def testrun():
     runNos = [6202, 6205, 6203, 6206, 6207]
+    temps = [303., 288., 275., 263., 253.]
     qsize = 11
-    prj = qens_model_fit(runNos, qsize)
+    prj = qens_model_fit(runNos, temps, qsize)
     prj.run()
 
 
