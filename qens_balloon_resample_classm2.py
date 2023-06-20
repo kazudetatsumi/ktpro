@@ -10,7 +10,7 @@ import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
 from mpi4py import MPI
-from qens_balloon_resample_class import qens_balloon_resamples as qkr
+from qens_balloon_resample_class import Sqens_balloon_resamples as qkr
 
 
 class Sqens_balloon_resamples(qkr):

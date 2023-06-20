@@ -14,10 +14,11 @@ class qens_model_fit(qbr):
         self.qsize = qsize
         self.q2 = (np.arange(self.qsize)*0.1 + 0.2 + 0.05)**2.
         self.D = np.zeros((3, len(runNos)))
+        self.stdD = np.zeros((3, len(runNos)))
 
     def getdata(self, runNo):
-        # preprefix = "/home/kazu/desktop/210108/Tatsumi/"
-        preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
+        preprefix = "/home/kazu/desktop/210108/Tatsumi/"
+        # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
         self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/"
         self.stdprefix = preprefix + "from_pca03/wcorr/test/100/qs/"
         self.kdeprefix = preprefix + "winparam_exam_" + str(runNo) + \
@@ -81,48 +82,90 @@ class qens_model_fit(qbr):
         [D, tau] = coeffs
         y = D*x[mask]/(1. + D*tau*x[mask])
         return ((t[mask] - y)/error[mask])
+        #return t[mask] - y
+
+    def res_arrhenius(self, coeffs, x, t, error):
+        [a, b] = coeffs
+        y = a*x + b
+        return ((t - y)/error)
+        #return t - y
 
     def optimize(self, variables, gamma, error, mask):
         return so.least_squares(self.res, variables, bounds=(0, np.inf),
                                 args=(self.q2, gamma, error, mask))
 
-    def plotter(self, fig, nr, pnr,  x, y, t, e, mask, title, runNo):
-        #heavymask = ~mask
+    def optimize_arrhenius(self, variables, x, t, error):
+        out = so.least_squares(self.res_arrhenius, variables,
+                               args=(x, t, error))
+        s_sq = (self.res_arrhenius(out.x, x, t, error)**2).sum() /\
+               (len(t)-len(out.x))
+        cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
+        return out.x, cov
+
+    def plotter(self, fig, nr, x, y, t, e, mask, title, sidx, cidx):
         #xerr = 2.*(np.arange(self.qsize)*0.1 + 0.05)*0.05
+        pnr = 1+len(self.runNos)*sidx+cidx
         ax = fig.add_subplot(nr, len(self.runNos), pnr)
-        ax.errorbar(x[mask], t[mask], yerr=e[mask], marker="x", ms=2,
-                    elinewidth=1, lw=0, capsize=3)
-        #ax.errorbar(x[heavymask], t[heavymask], yerr=e[heavymask], marker="x",
-        #            ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
-        ax.text(0.1, 0.017, title+"_"+str(runNo))
-        ax.set_ylim(0., 0.022)
+        ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
+                    ms=2, elinewidth=1, lw=0, capsize=3)
+        ax.errorbar(x[~mask], t[~mask]*1000., yerr=e[~mask]*1000., marker="x",
+                    ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
+        ax.text(0.1, 0.017*1000., title+"_"+str(self.runNos[cidx]))
+        ax.text(0.1, 0.015*1000., '{:.0f} +/- {:.0f}'.format(self.D[sidx, cidx]*1000., self.stdD[sidx, cidx]*1000.))
+        ax.set_ylim(0., 0.022*1000.)
         ax.set_xlim(0., 1.6)
-        ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
-        ax.plot(x, y)
+        #ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
+        ax.set_yticks([0., 5, 10, 15, 20])
+        ax.set_xticks([0., 0.4, 0.8, 1.2, 1.6])
+        ax.plot(x, y*1000.)
         if pnr >= (nr-1)*len(self.runNos)+1:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=True)
         else:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=False)
+        if pnr == 13:
+            ax.set_xlabel(r'$Q^2 \ (\AA^{-2})$ ')
+        if pnr == 6:
+            ax.set_ylabel(r'$\Gamma\ (\mu eV)$')
+
+    def plotters(self, x,  ys, es, titles):
+        for sidx, title in enumerate(titles):
+            plt.errorbar(x, ys[sidx], yerr=es[sidx], marker="x", ms=1,
+                         elinewidth=1, lw=0, capsize=3, label=title)
+        plt.legend()
+        plt.xlim(0.0032, 0.004)
+        plt.xlabel('1/T (K)')
+        plt.ylabel('lnD')
 
     def run(self):
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(12, 6))
         for cidx, runNo in enumerate(self.runNos):
             if runNo == 6202:
                 mask = np.array([False, True, True, True, True, True, True,
                                  True, False, False, False])
-            else:
+            elif runNo == 6206:
                 mask = np.array([False, True, True, True, True, True, True,
+                                 True, True, True, True])
+            else:
+                mask = np.array([True, True, True, True, True, True, True,
                                  True, True, True, True])
             self.eachrun(cidx, runNo, mask, fig)
 
         plt.subplots_adjust(wspace=0.2, hspace=0.0)
         plt.show()
-        plt.scatter(1/self.temps, np.log(self.D[0]), label='hist')
-        plt.scatter(1/self.temps, np.log(self.D[1]), label='kb')
-        plt.scatter(1/self.temps, np.log(self.D[2]), label='k')
-        plt.legend()
+        fig2 = plt.figure(figsize=(10, 10))
+        self.plotters(1./self.temps, np.log(self.D), self.stdD/self.D,
+                      ['hist', 'kdeb', 'kde'])
+        for sidx, color in enumerate(['blue', 'orange', 'green']):
+            out_arrhenius, cov = self.optimize_arrhenius([-1., 1.],
+                                                         1./self.temps,
+                                                         np.log(self.D[sidx]),
+                                                         self.stdD[sidx] /
+                                                         self.D[sidx])
+            print(out_arrhenius[0], "+-", (cov**0.5)[0, 0])
+            plt.plot(1./self.temps, out_arrhenius[0]/self.temps +
+                     out_arrhenius[1], c=color)
         plt.show()
 
     def eachsolution(self, fig, sidx, cidx, runNo, gamma, error, mask, label):
@@ -134,11 +177,10 @@ class qens_model_fit(qbr):
         s_sq = (self.res(out.x, self.q2, gamma, error, mask)**2).sum() /\
                (len(gamma)-len(out.x))
         cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
-        stdD = (cov**0.5)[0, 0]
-        print(stdD, label, runNo)
+        self.stdD[sidx, cidx] = (cov**0.5)[0, 0]
 
-        self.plotter(fig, 3, 1+len(self.runNos)*sidx+cidx, self.q2, y, gamma,
-                     error, mask, label, runNo)
+        self.plotter(fig, 3, self.q2, y, gamma,
+                     error, mask, label, sidx, cidx)
 
     def eachrun(self, cidx, runNo, mask, fig):
         maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errork, stdhes\
@@ -151,8 +193,8 @@ class qens_model_fit(qbr):
             maskhh = np.array([False, False, True, True, True, True, True,
                                True, True, True, True])
 
-        self.eachsolution(fig, 0, cidx, runNo, gammah, errorh[0],
-        # self.eachsolution(fig, 0, cidx, runNo, gammah, stdhes,
+        # self.eachsolution(fig, 0, cidx, runNo, gammah, errorh[0],
+        self.eachsolution(fig, 0, cidx, runNo, gammah, stdhes,
                           mask*~maskh*maskhh, 'hist')
         self.eachsolution(fig, 1, cidx, runNo, gammakb, errork[0],
                           mask*~maskkb, 'kdeb')

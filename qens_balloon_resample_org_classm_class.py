@@ -25,7 +25,7 @@ class qens_org_classm(qbr):
                      variables=variables, quiet=quiet)
 
     def run_for_mqs(self):
-        for qidx in range(0, 11):
+        for qidx in range(0, 6):
             self.qidx = qidx
             self.run_eachkde()
             if qidx == 0:
