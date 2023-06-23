@@ -56,7 +56,7 @@ class Sqens_balloon_resamples(qkr):
         dt = min(np.diff(sy[0]))
         for k in range(yv.shape[0]):
             yv[k] = np.sum(sy_nz * dt * self.Gauss(sy[0][k]-t_nz, bw[k]))
-        yv = yv * np.max(ky[0]) / np.max(yv)
+        ##yv = yv * np.max(ky[0]) / np.max(yv)
         return yv
 
     def Gauss(self, x, w):
