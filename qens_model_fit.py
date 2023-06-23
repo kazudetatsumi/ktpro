@@ -17,9 +17,9 @@ class qens_model_fit(qbr):
         self.stdD = np.zeros((3, len(runNos)))
 
     def getdata(self, runNo):
-        preprefix = "/home/kazu/desktop/210108/Tatsumi/"
-        # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/test_analysis/"
+        # preprefix = "/home/kazu/desktop/210108/Tatsumi/"
+        preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
+        self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/test_analysis_elim/"
         self.stdprefix = preprefix + "from_pca03/wcorr/test/100/qs/"
         self.kdeprefix = preprefix + "winparam_exam_" + str(runNo) + \
             "/160_1_0000025io_Boxcar/n8000/"
@@ -110,8 +110,8 @@ class qens_model_fit(qbr):
         #mask *= t > 0.00001
         pnr = 1+len(self.runNos)*sidx+cidx
         ax = fig.add_subplot(nr, len(self.runNos), pnr)
-        ax.scatter(x, np.log(t))
-        ax.set_ylim(-4., 0.)
+        ax.scatter(x, np.log10(t))
+        ax.set_ylim(-2., 0.)
         ##ax.plot(x, y*1000.)
         ##ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
         ##            ms=2, elinewidth=1, lw=0, capsize=3)
@@ -186,7 +186,7 @@ class qens_model_fit(qbr):
             print(out_arrhenius[0], "+-", (cov**0.5)[0, 0])
             plt.plot(1./self.temps, out_arrhenius[0]/self.temps +
                      out_arrhenius[1], c=color)
-        plt.show()
+        #plt.show()
 
     def eachsolution(self, fig, sidx, cidx, runNo, gamma, error, mask, label):
         mask *= error > 0.00005
@@ -201,8 +201,8 @@ class qens_model_fit(qbr):
         cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
         self.stdD[sidx, cidx] = (cov**0.5)[0, 0]
 
-        #self.plotter(fig, 3, self.q2, y, gamma,
-        #             error, mask, label, sidx, cidx)
+        self.plotter(fig, 3, self.q2, y, gamma,
+                     error, mask, label, sidx, cidx)
 
     def eachrun(self, cidx, runNo, mask, fig):
         maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errork, stdhes\
