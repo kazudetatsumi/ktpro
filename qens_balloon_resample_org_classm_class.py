@@ -25,7 +25,7 @@ class qens_org_classm(qbr):
                      variables=variables, quiet=quiet)
 
     def run_for_mqs(self):
-        for qidx in range(0, 6):
+        for qidx in range(0, 17):
             self.qidx = qidx
             self.run_eachkde()
             if qidx == 0:
@@ -35,6 +35,19 @@ class qens_org_classm(qbr):
         if self.rank == 0:
             self.outall = outall
             self.savefile()
+
+    def combine_qs(self):
+        _out = self.get_out()
+        self.outfile += ".bak"
+        __out = self.get_out()
+        self.outall = np.concatenate((__out, _out), axis=0)
+        self.outfile = self.outfile.split("bak")[0] + "combined"
+        self.savefile()
+
+    def get_out(self):
+        self.loadfile()
+        return np.array(self.outall)
+
 
 
 def samplerun():

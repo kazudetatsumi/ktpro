@@ -31,28 +31,30 @@ class qens_model_fit(qbr):
         orgkout = self.outall
         maskh, gammah = self.readorgout(orghout)
         maskkb, gammakb = self.readorgout(orgkout)
-        errorh = self.readerror('hist', runNo)
-        errork = self.readerror('kde', runNo)
-        self.kdefile = self.kdeprefix + "kde2.log"
+        errorh, aveh = self.readerror('hist', runNo)
+        errork, avekb = self.readerror('kde', runNo)
+        self.kdefile = self.kdeprefix + "kde3.log"
         maskk, gammak = self.readlog()
         stdhes = self.readstdhessfromlog(runNo)
         return maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errork,\
-            stdhes
+            stdhes, aveh, avekb
 
     def stats(self):
-        orderidx1 = np.argsort(self.outall[:, 1])
-        lbs = self.outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
-        ubs = self.outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
-        return (ubs - lbs) / 2., np.std(self.outall[:, 1])
+        outall = self.outall[np.sum(self.outall[:, 4:], axis=1) > -0.5]
+        orderidx1 = np.argsort(outall[:, 1])
+        lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
+        ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
+        return (ubs - lbs) / 2., np.std(outall[:, 1]), np.average(outall[:, 1])
 
     def readerror(self, hork, runNo):
         error = np.zeros((2, self.qsize))
+        ave = np.zeros((self.qsize))
         for qidx in range(0, self.qsize):
             self.outfile = self.stdprefix + "runno" + str(runNo) +\
                            "/out" + hork + ".pkl." + str(qidx)
             self.loadfile()
-            error[0, qidx], error[1, qidx] = self.stats()
-        return error
+            error[0, qidx], error[1, qidx], ave[qidx] = self.stats()
+        return error, ave
 
     def readorgout(self, orgout):
         return np.sum(orgout[:, 4:], axis=1) < -0.5,  orgout[:, 1]
@@ -104,20 +106,22 @@ class qens_model_fit(qbr):
 
     def plotter(self, fig, nr, x, y, t, e, mask, title, sidx, cidx):
         #xerr = 2.*(np.arange(self.qsize)*0.1 + 0.05)*0.05
+        #mask *= e > 0.0001
+        #mask *= t > 0.00001
         pnr = 1+len(self.runNos)*sidx+cidx
         ax = fig.add_subplot(nr, len(self.runNos), pnr)
+        ax.plot(x, y*1000.)
         ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
                     ms=2, elinewidth=1, lw=0, capsize=3)
         ax.errorbar(x[~mask], t[~mask]*1000., yerr=e[~mask]*1000., marker="x",
                     ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
         ax.text(0.1, 0.017*1000., title+"_"+str(self.runNos[cidx]))
-        ax.text(0.1, 0.015*1000., '{:.0f} +/- {:.0f}'.format(self.D[sidx, cidx]*1000., self.stdD[sidx, cidx]*1000.))
-        ax.set_ylim(0., 0.022*1000.)
-        ax.set_xlim(0., 1.6)
+        ax.text(0.1, 0.015*1000., '{:.1f} +/- {:.1f}'.format(self.D[sidx, cidx]*1000., self.stdD[sidx, cidx]*1000.))
+        ax.set_ylim(-1, 0.022*1000.)
+        #ax.set_xlim(0., 1.6)
         #ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
         ax.set_yticks([0., 5, 10, 15, 20])
         ax.set_xticks([0., 0.4, 0.8, 1.2, 1.6])
-        ax.plot(x, y*1000.)
         if pnr >= (nr-1)*len(self.runNos)+1:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=True)
@@ -141,15 +145,29 @@ class qens_model_fit(qbr):
     def run(self):
         fig = plt.figure(figsize=(12, 6))
         for cidx, runNo in enumerate(self.runNos):
-            if runNo == 6202:
-                mask = np.array([False, True, True, True, True, True, True,
-                                 True, False, False, False])
-            elif runNo == 6206:
-                mask = np.array([False, True, True, True, True, True, True,
-                                 True, True, True, True])
-            else:
-                mask = np.array([True, True, True, True, True, True, True,
-                                 True, True, True, True])
+            #if runNo == 6202:
+            #    mask = np.array([False, True, True, True, True, True,True,
+            #                     True, False, False, False, False, False, False,
+            #                     False, False, False])
+            #elif runNo == 6203:
+            #    mask = np.array([True, True, True, True, True, True, True,
+            #                     True, True, True, True, True, True, True,
+            #                     True, False, False])
+            #elif runNo == 6206:
+            #    mask = np.array([False, True, True, True, True, True, True,
+            #                     True, True, True, True, True, True, True,
+            #                     True, True, True])
+            #elif runNo == 6205:
+            #    mask = np.array([True, True, True, True, True, True, True,
+            #                     True, True, False, False, False, False, False,
+            #                     False, False, False])
+            #else:
+            #    mask = np.array([True, True, True, True, True, True, True,
+            #                     True, True, True, True, True, True, True,
+            #                     True, True, True])
+            mask = np.array([True, True, True, True, True, True, True,
+                             True, True, True, True, True, True, True,
+                             True, True, True])
             self.eachrun(cidx, runNo, mask, fig)
 
         plt.subplots_adjust(wspace=0.2, hspace=0.0)
@@ -169,6 +187,8 @@ class qens_model_fit(qbr):
         plt.show()
 
     def eachsolution(self, fig, sidx, cidx, runNo, gamma, error, mask, label):
+        mask *= error > 0.00005
+        mask *= gamma > 0.001
         out = self.optimize([0.05, 52], gamma, error, mask)
         D = out.x[0]
         self.D[sidx, cidx] = D
@@ -184,18 +204,24 @@ class qens_model_fit(qbr):
 
     def eachrun(self, cidx, runNo, mask, fig):
         maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errork, stdhes\
-            = self.getdata(runNo)
+            , aveh, avekb = self.getdata(runNo)
+        print(runNo, len(maskh), len(gammah), len(maskkb), len(gammakb), len(maskk), len(gammak), len(errork), len(stdhes))
 
         if runNo < 6206:
             maskhh = np.array([False, True, True, True, True, True, True,
-                               True, True, True, True])
+                               True, True, True, True, True, True, True, True, True, True])
         else:
+            #maskhh = np.array([False, False, True, True, True, True, True,
+            #                   True, True, True, True])
             maskhh = np.array([False, False, True, True, True, True, True,
-                               True, True, True, True])
+                               True, True, True, True, True, True, True, True, True, True])
 
-        # self.eachsolution(fig, 0, cidx, runNo, gammah, errorh[0],
+        if runNo == 6202:
+            maskhh = np.array([False, True, True, True, True, True, True,
+                               True, False, False, False, True, True, True, True, True, True])
+        #self.eachsolution(fig, 0, cidx, runNo, gammah, errorh[0],
         self.eachsolution(fig, 0, cidx, runNo, gammah, stdhes,
-                          mask*~maskh*maskhh, 'hist')
+                          mask*~maskh, 'hist')
         self.eachsolution(fig, 1, cidx, runNo, gammakb, errork[0],
                           mask*~maskkb, 'kdeb')
         self.eachsolution(fig, 2, cidx, runNo, gammak, errork[0],
@@ -205,7 +231,12 @@ class qens_model_fit(qbr):
 def testrun():
     runNos = [6202, 6205, 6203, 6206, 6207]
     temps = [303., 288., 275., 263., 253.]
-    qsize = 11
+    #qsize = 11
+    #runNos = [6202, 6205, 6203, 6206,  6207]
+    #runNos = [6205, 6203, 6206,  6207]
+    #temps = [303., 288., 275., 263., 253.]
+    #temps = [288., 275., 263., 253.]
+    qsize = 17
     prj = qens_model_fit(runNos, temps, qsize)
     prj.run()
 
