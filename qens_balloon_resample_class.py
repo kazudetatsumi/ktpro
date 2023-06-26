@@ -18,7 +18,7 @@ class Sqens_balloon_resamples(qkr):
         self.runNos = runNos
         self.Nb = Nb
         self.gammas = np.zeros((Nb, 2))
-        self.elim = [-0.03, 0.07]
+        self.elim = elim
         self.ishist = ishist
         self.num = num
         self.rsmodifier = rsmodifier
@@ -91,6 +91,7 @@ class Sqens_balloon_resamples(qkr):
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         self.icorr()
+        print("CHK elim:", self.elim)
         xtl, ytl = self.limit2(xt, yt, self.elim)
         xdl, ydl = self.limit2(xd, yd, self.elim)
         if inb == 0 and self.rank == 0:
@@ -98,7 +99,7 @@ class Sqens_balloon_resamples(qkr):
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         self.bg = 0.
-        self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+        self.check_out(inb, self.optimize(xdl, ydl, ytl,
                                           variables=self.variables))
 
     def run(self):

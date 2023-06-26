@@ -19,7 +19,7 @@ class qens_model_fit(qbr):
     def getdata(self, runNo):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/test_analysis/"
+        self.orgprefix = preprefix + "from_pca03/wcorr/test/0125/orgs/test_analysis_elim/"
         self.stdprefix = preprefix + "from_pca03/wcorr/test/100/qs/"
         self.kdeprefix = preprefix + "winparam_exam_" + str(runNo) + \
             "/160_1_0000025io_Boxcar/n8000/"
@@ -110,7 +110,7 @@ class qens_model_fit(qbr):
         #mask *= t > 0.00001
         pnr = 1+len(self.runNos)*sidx+cidx
         ax = fig.add_subplot(nr, len(self.runNos), pnr)
-        ax.scatter(x, np.log(t))
+        ax.scatter(x, np.log10(t))
         ax.set_ylim(-4., 0.)
         ##ax.plot(x, y*1000.)
         ##ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
@@ -130,10 +130,12 @@ class qens_model_fit(qbr):
         else:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=False)
-        if pnr == 13:
+        #if pnr == 13:
+        if pnr == nr*len(self.runNos)-2:
             ax.set_xlabel(r'$Q^2 \ (\AA^{-2})$ ')
         if pnr == 6:
-            ax.set_ylabel(r'$\Gamma\ (\mu eV)$')
+            #ax.set_ylabel(r'$\Gamma\ (\mu eV)$')
+            ax.set_ylabel(r'$\log_{10}A_{QENS}\ (Arb. Units)$')
 
     def plotters(self, x,  ys, es, titles):
         for sidx, title in enumerate(titles):
@@ -145,7 +147,8 @@ class qens_model_fit(qbr):
         plt.ylabel('lnD')
 
     def run(self):
-        fig = plt.figure(figsize=(12, 6))
+        #fig = plt.figure(figsize=(12, 6))
+        fig = plt.figure(figsize=(12, 4))
         for cidx, runNo in enumerate(self.runNos):
             #if runNo == 6202:
             #    mask = np.array([False, True, True, True, True, True,True,
@@ -174,19 +177,19 @@ class qens_model_fit(qbr):
 
         plt.subplots_adjust(wspace=0.2, hspace=0.0)
         plt.show()
-        fig2 = plt.figure(figsize=(10, 10))
-        self.plotters(1./self.temps, np.log(self.D), self.stdD/self.D,
-                      ['hist', 'kdeb', 'kde'])
-        for sidx, color in enumerate(['blue', 'orange', 'green']):
-            out_arrhenius, cov = self.optimize_arrhenius([-1., 1.],
-                                                         1./self.temps,
-                                                         np.log(self.D[sidx]),
-                                                         self.stdD[sidx] /
-                                                         self.D[sidx])
-            print(out_arrhenius[0], "+-", (cov**0.5)[0, 0])
-            plt.plot(1./self.temps, out_arrhenius[0]/self.temps +
-                     out_arrhenius[1], c=color)
-        plt.show()
+        #fig2 = plt.figure(figsize=(10, 10))
+        #self.plotters(1./self.temps, np.log(self.D), self.stdD/self.D,
+        #              ['hist', 'kdeb', 'kde'])
+        #for sidx, color in enumerate(['blue', 'orange', 'green']):
+        #    out_arrhenius, cov = self.optimize_arrhenius([-1., 1.],
+        #                                                 1./self.temps,
+        #                                                 np.log(self.D[sidx]),
+        #                                                 self.stdD[sidx] /
+        #                                                 self.D[sidx])
+        #    print(out_arrhenius[0], "+-", (cov**0.5)[0, 0])
+        #    plt.plot(1./self.temps, out_arrhenius[0]/self.temps +
+        #             out_arrhenius[1], c=color)
+        #plt.show()
 
     def eachsolution(self, fig, sidx, cidx, runNo, gamma, error, mask, label):
         mask *= error > 0.00005
@@ -203,6 +206,8 @@ class qens_model_fit(qbr):
 
         #self.plotter(fig, 3, self.q2, y, gamma,
         #             error, mask, label, sidx, cidx)
+        self.plotter(fig, 2, self.q2, y, gamma,
+                     error, mask, label, sidx, cidx)
 
     def eachrun(self, cidx, runNo, mask, fig):
         maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errork, stdhes\
@@ -226,8 +231,8 @@ class qens_model_fit(qbr):
                           mask*~maskh, 'hist')
         self.eachsolution(fig, 1, cidx, runNo, gammakb, errork[0],
                           mask*~maskkb, 'kdeb')
-        self.eachsolution(fig, 2, cidx, runNo, gammak, errork[0],
-                          mask*~maskk, 'kde')
+        #self.eachsolution(fig, 2, cidx, runNo, gammak, errork[0],
+        #                  mask*~maskk, 'kde')
 
 
 def testrun():
