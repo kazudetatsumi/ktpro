@@ -17,9 +17,15 @@ class qens_model_fit(qbr):
         self.stdD = np.zeros((3, len(runNos)))
 
     def getdata(self, runNo):
+<<<<<<< HEAD
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
         self.orgprefix = preprefix + "from_pca03/wcorr/test/0125/orgs/test_analysis_elim/"
+=======
+        # preprefix = "/home/kazu/desktop/210108/Tatsumi/"
+        preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
+        self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/test_analysis_elim/"
+>>>>>>> 1bd5a300f1ffb5fcdf046a88ddeb1fdb77f8d1c2
         self.stdprefix = preprefix + "from_pca03/wcorr/test/100/qs/"
         self.kdeprefix = preprefix + "winparam_exam_" + str(runNo) + \
             "/160_1_0000025io_Boxcar/n8000/"
@@ -111,7 +117,11 @@ class qens_model_fit(qbr):
         pnr = 1+len(self.runNos)*sidx+cidx
         ax = fig.add_subplot(nr, len(self.runNos), pnr)
         ax.scatter(x, np.log10(t))
+<<<<<<< HEAD
         ax.set_ylim(-4., 0.)
+=======
+        ax.set_ylim(-2., 0.)
+>>>>>>> 1bd5a300f1ffb5fcdf046a88ddeb1fdb77f8d1c2
         ##ax.plot(x, y*1000.)
         ##ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
         ##            ms=2, elinewidth=1, lw=0, capsize=3)
@@ -177,6 +187,7 @@ class qens_model_fit(qbr):
 
         plt.subplots_adjust(wspace=0.2, hspace=0.0)
         plt.show()
+<<<<<<< HEAD
         #fig2 = plt.figure(figsize=(10, 10))
         #self.plotters(1./self.temps, np.log(self.D), self.stdD/self.D,
         #              ['hist', 'kdeb', 'kde'])
@@ -189,6 +200,20 @@ class qens_model_fit(qbr):
         #    print(out_arrhenius[0], "+-", (cov**0.5)[0, 0])
         #    plt.plot(1./self.temps, out_arrhenius[0]/self.temps +
         #             out_arrhenius[1], c=color)
+=======
+        fig2 = plt.figure(figsize=(10, 10))
+        self.plotters(1./self.temps, np.log(self.D), self.stdD/self.D,
+                      ['hist', 'kdeb', 'kde'])
+        for sidx, color in enumerate(['blue', 'orange', 'green']):
+            out_arrhenius, cov = self.optimize_arrhenius([-1., 1.],
+                                                         1./self.temps,
+                                                         np.log(self.D[sidx]),
+                                                         self.stdD[sidx] /
+                                                         self.D[sidx])
+            print(out_arrhenius[0], "+-", (cov**0.5)[0, 0])
+            plt.plot(1./self.temps, out_arrhenius[0]/self.temps +
+                     out_arrhenius[1], c=color)
+>>>>>>> 1bd5a300f1ffb5fcdf046a88ddeb1fdb77f8d1c2
         #plt.show()
 
     def eachsolution(self, fig, sidx, cidx, runNo, gamma, error, mask, label):
@@ -204,9 +229,13 @@ class qens_model_fit(qbr):
         cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
         self.stdD[sidx, cidx] = (cov**0.5)[0, 0]
 
+<<<<<<< HEAD
         #self.plotter(fig, 3, self.q2, y, gamma,
         #             error, mask, label, sidx, cidx)
         self.plotter(fig, 2, self.q2, y, gamma,
+=======
+        self.plotter(fig, 3, self.q2, y, gamma,
+>>>>>>> 1bd5a300f1ffb5fcdf046a88ddeb1fdb77f8d1c2
                      error, mask, label, sidx, cidx)
 
     def eachrun(self, cidx, runNo, mask, fig):
