@@ -19,7 +19,7 @@ class qens_model_fit(qbr):
     def getdata(self, runNo):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/run4174/bin0001/"
+        self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/run4174/rebin/"
         self.outfile = self.orgprefix + "outhist" + str(runNo) + "m.pkl"
         self.loadfile()
         orghout = self.outall
@@ -95,11 +95,11 @@ class qens_model_fit(qbr):
 
     def run(self):
         #fig = plt.figure(figsize=(16, 4))
-        fig = plt.figure(figsize=(3, 4))
+        fig = plt.figure(figsize=(2.9, 4))
         for cidx, runNo in enumerate(self.runNos):
             self.eachrun(cidx, runNo, fig)
 
-        plt.subplots_adjust(wspace=0.6, hspace=0.0)
+        plt.subplots_adjust(wspace=0.5, hspace=0.0)
         plt.show()
 
     def eachrun(self, cidx, runNo, fig):
@@ -122,10 +122,12 @@ class qens_model_fit(qbr):
         #ax.scatter(self.q2[mask], np.log10(orgout[mask, 2]), marker='x', s=10., ec='gray', lw=1., fc='gray')
         #ax.scatter(self.q2[~mask], np.log10(orgout[~mask, 3]), marker='s', s=8., ec='k', lw=0.5, fc='w')
         ax.set_ylim(-4., 0.)
+        ax.set_yticks([-4, -3, -2, -1, 0])
         ax2 = ax.twinx()
-        ax2.scatter(self.q2[~mask], orgout[~mask, 1]*1000, marker='.', s=10., ec='k', lw=1., fc='k')
-        ax2.scatter(self.q2[mask], orgout[mask, 1]*1000, marker='.', s=10., ec='r', lw=1., fc='r')
-        ax2.set_ylim(0., 25)
+        ax2.scatter(self.q2[~mask], orgout[~mask, 1]*1000, marker='s', s=10., ec='k', lw=1., fc='k')
+        ax2.scatter(self.q2[mask], orgout[mask, 1]*1000, marker='s', s=10., ec='r', lw=1., fc='r')
+        ax2.set_ylim(0., 35)
+        ax2.set_yticks([0, 10, 20, 30])
 
         ##ax.plot(x, y*1000.)
         ##ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",

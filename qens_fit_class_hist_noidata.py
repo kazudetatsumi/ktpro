@@ -332,7 +332,7 @@ class runhistnoidata(qf):
                 + delta*d + self.bg
         if len(coeffs) == 4:
             [alpha, gamma, delta, base] = coeffs
-            y = alpha*self.convlore(d, gamma, x)\
+            y = alpha*self.convloreorg(d, gamma, x)\
                 + delta*d + base
         if len(coeffs) == 3:
             [alpha, gamma, delta] = coeffs

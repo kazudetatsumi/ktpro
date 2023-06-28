@@ -88,8 +88,11 @@ class Sqens_balloon_resamples(qkr):
             return sy[0], syb, sy[1]
 
     def DoQf(self, inb):
+        import matplotlib.pyplot as plt
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
+        xt, yt = self.rebin(xt, yt)
+        xd, yd = self.rebin(xd, yd)
         self.icorr()
         print("CHK elim:", self.elim)
         xtl, ytl = self.limit2(xt, yt, self.elim)
@@ -99,8 +102,38 @@ class Sqens_balloon_resamples(qkr):
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         self.bg = 0.
-        self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+        self.check_out(inb, self.optimize(xdl, ydl, ytl,
                                           variables=self.variables))
+
+        [alpha, gamma, delta, base] = self.outall[-1][0:4]
+        yqens = alpha*self.convloreorg(ydl, gamma, xdl)
+        y = yqens + delta*ydl + base
+        plt.plot(xdl*1000, y, c='k')
+        plt.scatter(xdl*1000, ytl, marker='o', s=18, fc='None', ec='k')
+        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        plt.ylabel('Intensity (Arb. Units)')
+        plt.xlabel(r'$Energy\ (\mu eV)$')
+        plt.show()
+
+    def getbins(self):
+        bins = []
+        for line in open("/home/kazu/Ebin20150709.txt"):
+            bins.append(float(line[:-1].split()[0]))
+        self.bins = np.array(bins)
+
+    def rebin(self, x, y):
+        nbins = self.bins.shape[0]
+        xr = np.zeros((nbins-1))
+        yr = np.zeros((nbins-1))
+        for ibdx in range(nbins-1):
+            xr[ibdx] = (self.bins[ibdx] + self.bins[ibdx+1])/2.
+        for _x, _y in zip(x, y):
+            for ibdx in range(nbins-1):
+                if _x + 0.0000125 >= self.bins[ibdx] and _x < self.bins[ibdx+1]:
+                    yr[ibdx] += _y
+        for ibdx in range(nbins-1):
+            yr[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/0.000025)
+        return xr, yr
 
     def run(self):
         self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
