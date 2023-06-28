@@ -99,7 +99,7 @@ class Sqens_balloon_resamples(qkr):
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         self.bg = 0.
-        self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+        self.check_out(inb, self.optimize(xdl, ydl, ytl,
                                           variables=self.variables))
 
     def run(self):

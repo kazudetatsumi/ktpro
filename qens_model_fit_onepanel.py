@@ -19,7 +19,7 @@ class qens_model_fit(qbr):
     def getdata(self, runNo):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/test/0125/orgs/test_analysis_elim/"
+        self.orgprefix = preprefix + "from_pca03/wcorr/test/100/orgs/run4174/bin0001/"
         self.outfile = self.orgprefix + "outhist" + str(runNo) + "m.pkl"
         self.loadfile()
         orghout = self.outall
@@ -94,7 +94,8 @@ class qens_model_fit(qbr):
         return out.x, cov
 
     def run(self):
-        fig = plt.figure(figsize=(16, 4))
+        #fig = plt.figure(figsize=(16, 4))
+        fig = plt.figure(figsize=(3, 4))
         for cidx, runNo in enumerate(self.runNos):
             self.eachrun(cidx, runNo, fig)
 
@@ -124,7 +125,7 @@ class qens_model_fit(qbr):
         ax2 = ax.twinx()
         ax2.scatter(self.q2[~mask], orgout[~mask, 1]*1000, marker='.', s=10., ec='k', lw=1., fc='k')
         ax2.scatter(self.q2[mask], orgout[mask, 1]*1000, marker='.', s=10., ec='r', lw=1., fc='r')
-        ax2.set_ylim(0., 35)
+        ax2.set_ylim(0., 25)
 
         ##ax.plot(x, y*1000.)
         ##ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
@@ -145,9 +146,11 @@ class qens_model_fit(qbr):
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=False)
         ##if pnr == 13:
-        if pnr == nr*len(self.runNos)-2:
+        if pnr == nr*len(self.runNos):
+        #if pnr == nr*len(self.runNos)-2:
             ax.set_xlabel(r'$Q^2 \ (\AA^{-2})$ ')
-        if pnr == 6:
+        #if pnr == 6:
+        if pnr == 2:
             ax.set_ylabel(r'$\log_{10}A_{QENS}\ (Arb. Units)$')
             ax2.set_ylabel(r'$\Gamma\ (\mu eV)$')
 
@@ -169,6 +172,8 @@ class qens_model_fit(qbr):
 def testrun():
     runNos = [6202, 6205, 6203, 6206, 6207]
     temps = [303., 288., 275., 263., 253.]
+    runNos = [4174]
+    temps = [298.]
     #qsize = 11
     #runNos = [6202, 6205, 6203, 6206,  6207]
     #runNos = [6205, 6203, 6206,  6207]

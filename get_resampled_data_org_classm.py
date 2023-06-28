@@ -26,6 +26,7 @@ class Sget_qlist(gq):
 
     def get_qemap(self, qmin, qmax):
         Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
+        #Cmm.DoMask(dat=self.DAT, filename="maskTY140218ForAfterRun52.txt")
         ECM = Cmm.ILambdaCorrDNA(dat=self.DAT, ec=self.EC, useMonEff=True)
         ECM2 = Cmm.SolidAngleCorrDNA(
                 dat=ECM, useDetEff=True, useAbsoCorr=False, useEffCorr=False,
