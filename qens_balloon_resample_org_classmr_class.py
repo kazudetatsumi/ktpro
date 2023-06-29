@@ -6,7 +6,7 @@
 import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
-from qens_balloon_resample_classm import qens_balloon_resamples as qbr
+from qens_balloon_resample_classmr import qens_balloon_resamples as qbr
 np.set_printoptions(suppress=True)
 
 
@@ -26,6 +26,7 @@ class qens_org_classm(qbr):
 
     def run_for_mqs(self):
         for qidx in range(0, 17):
+            print("CHECK qidx:", qidx)
             self.qidx = qidx
             self.run_eachkde()
             if qidx == 0:
