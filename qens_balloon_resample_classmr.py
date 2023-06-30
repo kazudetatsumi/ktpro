@@ -7,7 +7,7 @@ from mpi4py import MPI
 import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
-from qens_balloon_resample_classr import Sqens_balloon_resamples as sqkr
+from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 
 
 class qens_balloon_resamples(sqkr):
@@ -51,6 +51,81 @@ class qens_balloon_resamples(sqkr):
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
                      num=self.num)
         return self.y
+
+    def DoQf(self, inb):
+        import matplotlib.pyplot as plt
+        xt, yt, yth = self.eachrunno(0, inb)
+        xd, yd, ydh = self.eachrunno(1, inb)
+        xt, yt = self.rebin(xt, yt)
+        xd, yd = self.rebin(xd, yd)
+        self.icorr()
+        print("CHK elim:", self.elim)
+        xtl, ytl = self.limit2(xt, yt, self.elim)
+        xdl, ydl = self.limit2(xd, yd, self.elim)
+        if inb == 0 and self.rank == 0:
+            if np.sum(xtl - xdl) > 0.000001:
+                print('WARNING, check x_tf - x_df')
+        ydlc, ytlc = self.correction(xtl, ydl, ytl)
+        for iz in np.where(ytlc == 0.)[0]:
+            if iz < ytlc.shape[0] - 1:
+                ytlc[iz] = (ytlc[iz+1] + ytlc[iz-1])/2.
+            else:
+                ytlc[iz] = ytlc[iz-1]
+        self.bg = 0.
+        self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+                                          variables=self.variables))
+
+        [alpha, gamma, delta, base] = self.outall[-1][0:4]
+        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+        y = yqens + delta*ydl + base
+        plt.plot(xdl*1000, y, c='k')
+        plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
+        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        plt.ylabel('Intensity (Arb. Units)')
+        plt.xlabel(r'$Energy\ (\mu eV)$')
+        plt.show()
+
+    def getbins(self):
+        bins = []
+        for line in open("/home/kazu/Ebin20150709.txt"):
+            bins.append(float(line[:-1].split()[0]))
+        self.bins = np.array(bins)
+
+    def rebin(self, x, y):
+        nbins = self.bins.shape[0]
+        xr = np.zeros((nbins-1))
+        yr = np.zeros((nbins-1))
+        for ibdx in range(nbins-1):
+            xr[ibdx] = (self.bins[ibdx] + self.bins[ibdx+1])/2.
+        for _x, _y in zip(x, y):
+            for ibdx in range(nbins-1):
+                if _x + 0.0000125 >= self.bins[ibdx] and _x + 0.0000125 < self.bins[ibdx+1]:
+                    yr[ibdx] += _y
+        for ibdx in range(nbins-1):
+            yr[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/0.000025)
+        return xr, yr
+
+    def res(self, coeffs, x, d, t):
+        if len(coeffs) == 6:
+            [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + base
+        if len(coeffs) == 5:
+            [alpha1, gamma1, alpha2, gamma2,  delta] = coeffs
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + self.bg
+        if len(coeffs) == 4:
+            [alpha, gamma, delta, base] = coeffs
+            y = alpha*self.convloreorg(d, gamma, x)\
+                + delta*d + base
+        if len(coeffs) == 3:
+            [alpha, gamma, delta] = coeffs
+            y = alpha*self.convlore(d, gamma, x)\
+                + delta*d + self.bg
+        xl, dif = self.limit2(x, t-y, self.elim)
+        return dif
 
 
 def testrun():
