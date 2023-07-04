@@ -13,33 +13,40 @@ class Sqbr(qbr):
     def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
                  elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
                  binwidth=0.00025):
-        if "2comps" in outfile:
-            variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
-        else:
-            variables = [0.655, 0.0129, 0.200, 0.00208]
-        if 'outhist' in outfile:
-            ishist = True
-        else:
-            ishist = False
-        if os.path.isfile(outfile):
-            super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb)
+        #if "2comps" in outfile:
+        #    variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
+        #else:
+        #    variables = [0.655, 0.0129, 0.200, 0.00208]
+        #if 'outhist' in outfile:
+        #    ishist = True
+        #else:
+        #    ishist = False
+        #if os.path.isfile(outfile):
+        #    super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb)
+        #    self.outfile = outfile
+        #    self.loadfile()
+        #    self.output()
+        #    if self.rank == 0:
+        #        if len(variables) == 4:
+        #            self.plot_distribution_single(binwidth)
+        #            print("energy step:", binwidth)
+        #        else:
+        #            self.plot_distribution(binwidth1, binwidth2)
+        #            print("energy step:", binwidth1, binwidth2)
+        #else:
+        #    super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
+        #                     ishist=ishist, variables=variables)
+        #    self.CI_of_intensities()
+        #    if self.rank == 0:
+        #        self.outfile = outfile
+        #        self.savefile()
+        ishist = False
+        super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
+                         ishist=ishist)
+        self.CI_of_intensities()
+        if self.rank == 0:
             self.outfile = outfile
-            self.loadfile()
-            self.output()
-            if self.rank == 0:
-                if len(variables) == 4:
-                    self.plot_distribution_single(binwidth)
-                    print("energy step:", binwidth)
-                else:
-                    self.plot_distribution(binwidth1, binwidth2)
-                    print("energy step:", binwidth1, binwidth2)
-        else:
-            super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
-                             ishist=ishist, variables=variables)
-            self.CI_of_intensities()
-            if self.rank == 0:
-                self.outfile = outfile
-                self.savefile()
+            self.savefile()
 
 
 def testrun():
