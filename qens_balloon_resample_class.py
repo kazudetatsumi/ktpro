@@ -43,6 +43,7 @@ class Sqens_balloon_resamples(qkr):
             self.y = "dummy"
         else:
             qkr.__init__(self, pklfile=orgfile)
+            print(orgfile)
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
                      num=self.num)
         return self.y
@@ -88,6 +89,7 @@ class Sqens_balloon_resamples(qkr):
             return sy[0], syb, sy[1]
 
     def DoQf(self, inb):
+        #import matplotlib.pyplot as plt
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         self.icorr()
@@ -102,15 +104,40 @@ class Sqens_balloon_resamples(qkr):
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
 
-        [alpha, gamma, delta, base] = self.outall[-1][0:4]
-        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        y = yqens + delta*ydl + base
-        plt.plot(xdl*1000, y, c='k')
-        plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
-        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        plt.ylabel('Intensity (Arb. Units)')
-        plt.xlabel(r'$Energy\ (\mu eV)$')
-        plt.show()
+        #[alpha, gamma, delta, base] = self.outall[-1][0:4]
+        #yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+        #y = yqens + delta*ydl + base
+        #plt.plot(xdl*1000, y, c='k')
+        #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
+        #plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        #plt.ylabel('Intensity (Arb. Units)')
+        #plt.xlabel(r'$Energy\ (\mu eV)$')
+        #plt.show()
+
+    def DobeforeQf(self, inb):
+        #import matplotlib.pyplot as plt
+        xt, yt, yth = self.eachrunno(0, inb)
+        self.icorr()
+        print("CHK elim:", self.elim)
+        xtl, ytl = self.limit2(xt, yt, self.elim)
+        dummy, ytlc = self.correction(xtl, ytl, ytl)
+        self.outall.append(ytlc)
+
+    def CI_of_intensities(self):
+        self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
+        self.outall = []
+        for inb in range(self.rank*self.Nb//self.size,
+                         (self.rank+1)*self.Nb//self.size):
+            xt, yt, yth = self.eachrunno(0, inb)
+            self.icorr()
+            xtl, ytl = self.limit2(xt, yt, self.elim)
+            dummy, ytlc = self.correction(xtl, ytl, ytl)
+            self.outall.append(ytlc)
+        outallt = np.array(self.comm.gather(np.array(self.outall).flatten(), root=0))
+        if self.rank == 0:
+            print("FUCK2", outallt)
+            self.outall = outallt.reshape((self.Nb, -1))
+            print(self.outall.shape)
 
     def run(self):
         self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
