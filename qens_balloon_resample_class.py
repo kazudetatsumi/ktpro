@@ -90,6 +90,7 @@ class Sqens_balloon_resamples(qkr):
 
     def DoQf(self, inb):
         #import matplotlib.pyplot as plt
+        print("FUCKKK")
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         self.icorr()
