@@ -114,15 +114,6 @@ class Sqens_balloon_resamples(qkr):
         #    plt.xlabel(r'$Energy\ (\mu eV)$')
         #    plt.show()
 
-    def DobeforeQf(self, inb):
-        #import matplotlib.pyplot as plt
-        xt, yt, yth = self.eachrunno(0, inb)
-        self.icorr()
-        print("CHK elim:", self.elim)
-        xtl, ytl = self.limit2(xt, yt, self.elim)
-        dummy, ytlc = self.correction(xtl, ytl, ytl)
-        self.outall.append(ytlc)
-
     def CI_of_intensities(self):
         self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
         self.outall = []
@@ -136,6 +127,22 @@ class Sqens_balloon_resamples(qkr):
         outallt = np.array(self.comm.gather(np.array(self.outall).flatten(), root=0))
         if self.rank == 0:
             self.outall = outallt.reshape((self.Nb, -1))
+
+    def check_idata(self):
+        self.odata = False
+        self.WinFunc = 'Boxcar'
+        self.M = 160
+        self.winparam = 1
+        self.showplot = True
+        self.figname = "tmp.png"
+        print("CHECK IDATA")
+        for rsfile in self.rsfiles:
+            self.pklfile = rsfile + ".moni"
+            self.read_pkl()
+            self.select_spectra()
+            self.add_shift_de()
+            self.run_ssvkernel()
+            self.plotter()
 
     def run(self):
         self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles

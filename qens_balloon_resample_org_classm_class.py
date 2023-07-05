@@ -28,6 +28,7 @@ class qens_org_classm(qbr):
 
     def run_for_mqs(self):
         #for qidx in range(0, 17):
+        self.check_idata()
         for qidx in range(self.qsize):
             print("CHECK qidx:", qidx)
             self.qidx = qidx
