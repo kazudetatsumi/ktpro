@@ -89,12 +89,9 @@ class Sqens_balloon_resamples(qkr):
             return sy[0], syb, sy[1]
 
     def DoQf(self, inb):
-        #import matplotlib.pyplot as plt
-        print("FUCKKK")
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         self.icorr()
-        print("CHK elim:", self.elim)
         xtl, ytl = self.limit2(xt, yt, self.elim)
         xdl, ydl = self.limit2(xd, yd, self.elim)
         if inb == 0 and self.rank == 0:
@@ -104,16 +101,18 @@ class Sqens_balloon_resamples(qkr):
         self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
-
-        #[alpha, gamma, delta, base] = self.outall[-1][0:4]
-        #yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        #y = yqens + delta*ydl + base
-        #plt.plot(xdl*1000, y, c='k')
-        #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
-        #plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        #plt.ylabel('Intensity (Arb. Units)')
-        #plt.xlabel(r'$Energy\ (\mu eV)$')
-        #plt.show()
+        #if self.rank == 0:
+        #    import matplotlib.pyplot as plt
+        #    [alpha, gamma, delta, base] = self.outall[-1][0:4]
+        #    yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+        #    y = yqens + delta*ydl + base
+        #    plt.plot(xdl*1000, y, c='k')
+        #    #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
+        #    plt.plot(xdl*1000, ytlc, c='b')
+        #    plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        #    plt.ylabel('Intensity (Arb. Units)')
+        #    plt.xlabel(r'$Energy\ (\mu eV)$')
+        #    plt.show()
 
     def DobeforeQf(self, inb):
         #import matplotlib.pyplot as plt
@@ -136,9 +135,7 @@ class Sqens_balloon_resamples(qkr):
             self.outall.append(ytlc)
         outallt = np.array(self.comm.gather(np.array(self.outall).flatten(), root=0))
         if self.rank == 0:
-            print("FUCK2", outallt)
             self.outall = outallt.reshape((self.Nb, -1))
-            print(self.outall.shape)
 
     def run(self):
         self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles

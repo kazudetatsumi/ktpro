@@ -412,6 +412,16 @@ class get_qlist:
         with open(spectrafile, 'wb') as f:
             pickle.dump(dataset, f, -1)
 
+    def get_all_monidata(self):
+        self.spectra = np.zeros((1, 3, len(self.EC.PutYList())))
+        self.spectra[0, 0, :] = self.EC.PutXList()[:-1]
+        self.spectra[0, 1, :] = self.EC.PutYList()
+        self.spectra[0, 2, :] = self.EC.PutEList()
+
+    def run_moni(self):
+        self.get_all_monidata()
+        self.save_spectra(self.pklfile + ".moni", old=True)
+
 
 def samplerun_after_dna():
     save_file = "./srlz/run6204_half.srlz"

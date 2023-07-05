@@ -22,7 +22,7 @@ class Sqens_balloon_resamples(qkr):
         self.runNos = runNos
         self.Nb = Nb
         self.gammas = np.zeros((Nb, 2))
-        self.elim = [-0.03, 0.07]
+        self.elim = elim
         self.ishist = ishist
         self.num = num
         self.rsmodifier = rsmodifier

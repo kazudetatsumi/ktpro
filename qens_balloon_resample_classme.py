@@ -69,7 +69,6 @@ class qens_balloon_resamples(sqkr):
         return np.std(dat, axis=0)
 
     def DoQf(self, inb):
-        import matplotlib.pyplot as plt
         xt, yt, et = self.eachrunno(0, inb)
         xd, yd, ed = self.eachrunno(1, inb)
         self.icorr()
@@ -81,19 +80,20 @@ class qens_balloon_resamples(sqkr):
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         self.bg = 0.
-        self.check_out(inb, self.optimize(xdl, ydlc, ytlc, self.geterrorbars,
+        etl = self.geterrorbars()
+        self.check_out(inb, self.optimize(xdl, ydlc, ytlc, etl,
                                           variables=self.variables))
-
-        [alpha, gamma, delta, base] = self.outall[-1][0:4]
-        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        y = yqens + delta*ydl + base
-        plt.plot(xdl*1000, y, c='k')
-        #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
-        plt.errorbar(xdl*1000, ytl, yerr=etl, marker='o', ms=3., lw=0, elinewidth=1, mfc='None' )
-        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        plt.ylabel('Intensity (Arb. Units)')
-        plt.xlabel(r'$Energy\ (\mu eV)$')
-        #plt.show()
+        if self.rank == 0:
+            import matplotlib.pyplot as plt
+            [alpha, gamma, delta, base] = self.outall[-1][0:4]
+            yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+            y = yqens + delta*ydl + base
+            plt.plot(xdl*1000, y, c='k')
+            plt.plot(xdl*1000, ytlc, c='b')
+            plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+            plt.ylabel('Intensity (Arb. Units)')
+            plt.xlabel(r'$Energy\ (\mu eV)$')
+            plt.show()
 
     def res(self, coeffs, x, d, t, e):
         if len(coeffs) == 6:
@@ -115,6 +115,7 @@ class qens_balloon_resamples(sqkr):
             y = alpha*self.convlore(d, gamma, x)\
                 + delta*d + self.bg
         xl, dif = self.limit2(x, (t-y)/e, self.elim)
+        #xl, dif = self.limit2(x, t-y, self.elim)
         return dif
 
     def optimize(self, x, yd, yt, et, variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):

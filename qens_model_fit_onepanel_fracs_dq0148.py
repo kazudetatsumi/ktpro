@@ -8,23 +8,26 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as qbr
 
 
 class qens_model_fit(qbr):
-    def __init__(self, runNos, temps, qsize):
-        self.runNos = runNos
-        self.temps = np.array(temps)
+    def __init__(self, runNo, fracs, qsize, resful):
+        self.runNo = runNo
+        self.fracs = np.array(fracs)
         self.qsize = qsize
         self.q2 = (np.arange(self.qsize)*0.1 + 0.2 + 0.05)**2.
         self.q2 = (np.arange(self.qsize)*0.148 + 0.148)**2.
-        self.D = np.zeros((3, len(runNos)))
-        self.stdD = np.zeros((3, len(runNos)))
+        self.resful = resful
 
-    def getdata(self, runNo):
+    def getdata(self, frac):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
-        # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/run4174/025/dq0148/"
-        self.outfile = self.orgprefix + "outhist" + str(runNo) + "m.pkl"
+        if self.resful:
+            self.orgprefix = preprefix + "from_pca03/wcorr/run" + self.runNo +\
+                "/" + frac + "/3540_full/"
+        else:
+            self.orgprefix = preprefix + "from_pca03/wcorr/run" + self.runNo +\
+                "/" + frac + "/dq0148/"
+        self.outfile = self.orgprefix + "outhist" + str(self.runNo) + "m.pkl"
         self.loadfile()
         orghout = self.outall
-        self.outfile = self.orgprefix + "outkde" + str(runNo) + "m.pkl"
+        self.outfile = self.orgprefix + "outkde" + str(self.runNo) + "m.pkl"
         self.loadfile()
         orgkout = self.outall
         return orghout, orgkout
@@ -96,95 +99,77 @@ class qens_model_fit(qbr):
 
     def run(self):
         #fig = plt.figure(figsize=(16, 4))
-        fig = plt.figure(figsize=(2.9, 4))
-        for cidx, runNo in enumerate(self.runNos):
-            self.eachrun(cidx, runNo, fig)
+        fig = plt.figure(figsize=(6.0, 4))
+        for fidx, frac in enumerate(self.fracs):
+            self.eachrun(fidx, frac, fig)
 
         plt.subplots_adjust(wspace=0.5, hspace=0.0)
         plt.show()
 
-    def eachrun(self, cidx, runNo, fig):
-        orghout, orgkout = self.getdata(runNo)
-        self.plotter(fig, 2,  0, cidx, runNo, orghout, 'hist')
-        self.plotter(fig, 2,  1, cidx, runNo, orgkout, 'kdeb')
+    def eachrun(self, cidx, frac, fig):
+        orghout, orgkout = self.getdata(frac)
+        self.plotter(fig, 2,  0, cidx, frac, orghout, 'hist')
+        self.plotter(fig, 2,  1, cidx, frac, orgkout, 'kdeb')
 
-    def plotter(self, fig, nr, sidx, cidx, runNo, orgout, title):
-        #xerr = 2.*(np.arange(self.qsize)*0.1 + 0.05)*0.05
-        #mask *= e > 0.0001
-        #mask *= t > 0.00001
+    def plotter(self, fig, nr, sidx, cidx, frac, orgout, title):
         mask = np.sum(orgout[:, 4:], axis=1) < -0.5
-        pnr = 1+len(self.runNos)*sidx+cidx
-        ax = fig.add_subplot(nr, len(self.runNos), pnr)
-        ax.scatter(self.q2[~mask], np.log10(orgout[~mask, 0]), marker='o', s=10., ec='k', lw=1., fc='k')
-        ax.scatter(self.q2[~mask], np.log10(orgout[~mask, 2]), marker='x', s=10., ec='k', lw=1., fc='k')
-        ax.scatter(self.q2[mask], np.log10(orgout[mask, 0]), marker='o', s=10., ec='r', lw=1., fc='r')
-        ax.scatter(self.q2[mask], np.log10(orgout[mask, 2]), marker='x', s=10., ec='r', lw=1., fc='r')
-        #ax.scatter(self.q2[mask], np.log10(orgout[mask, 0]), marker='o', s=10., ec='gray', lw=1., fc='gray')
-        #ax.scatter(self.q2[mask], np.log10(orgout[mask, 2]), marker='x', s=10., ec='gray', lw=1., fc='gray')
-        #ax.scatter(self.q2[~mask], np.log10(orgout[~mask, 3]), marker='s', s=8., ec='k', lw=0.5, fc='w')
+        pnr = 1+len(self.fracs)*sidx+cidx
+        ax = fig.add_subplot(nr, len(self.fracs), pnr)
+        ax.scatter(self.q2[~mask], np.log10(orgout[~mask, 0]), marker='o',
+        #ax.scatter(self.q2[~mask], orgout[~mask, 0], marker='o',
+                   s=10., ec='k', lw=1., fc='k')
+        ax.scatter(self.q2[~mask], np.log10(orgout[~mask, 2]), marker='x',
+        #ax.scatter(self.q2[~mask], orgout[~mask, 2], marker='x',
+                   s=10., ec='k', lw=1., fc='k')
+        ax.scatter(self.q2[mask], np.log10(orgout[mask, 0]), marker='o',
+        #ax.scatter(self.q2[mask], orgout[mask, 0], marker='o',
+                   s=10., ec='r', lw=1., fc='r')
+        ax.scatter(self.q2[mask], np.log10(orgout[mask, 2]), marker='x',
+        #ax.scatter(self.q2[mask], orgout[mask, 2], marker='x',
+                   s=10., ec='r', lw=1., fc='r')
         ax.set_ylim(-4., 0.)
+        #ax.set_ylim(0., 0.2)
         ax.set_yticks([-4, -3, -2, -1, 0])
         ax2 = ax.twinx()
-        ax2.scatter(self.q2[~mask], orgout[~mask, 1]*1000, marker='s', s=10., ec='k', lw=1., fc='k')
-        ax2.scatter(self.q2[mask], orgout[mask, 1]*1000, marker='s', s=10., ec='r', lw=1., fc='r')
+        ax2.scatter(self.q2[~mask], orgout[~mask, 1]*1000, marker='s', s=10.,
+                    ec='k', lw=1., fc='k')
+        ax2.scatter(self.q2[mask], orgout[mask, 1]*1000, marker='s', s=10.,
+                    ec='r', lw=1., fc='r')
         ax2.set_ylim(0., 35)
         ax2.set_yticks([0, 10, 20, 30])
 
-        ##ax.plot(x, y*1000.)
-        ##ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
-        ##            ms=2, elinewidth=1, lw=0, capsize=3)
-        ##ax.errorbar(x[~mask], t[~mask]*1000., yerr=e[~mask]*1000., marker="x",
-        ##            ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
-        #ax2.text(0.1, 0.017*1000., title+"_"+str(self.runNos[cidx]))
-        ##ax.text(0.1, 0.015*1000., '{:.1f} +/- {:.1f}'.format(self.D[sidx, cidx]*1000., self.stdD[sidx, cidx]*1000.))
-        ##ax.set_ylim(-1, 0.022*1000.)
-        #ax.set_xlim(0., 1.6)
-        #ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
-        ##ax.set_yticks([0., 5, 10, 15, 20])
-        ##ax.set_xticks([0., 0.4, 0.8, 1.2, 1.6])
-        if pnr >= (nr-1)*len(self.runNos)+1:
+        ax2.text(2.1, 1., title+"_"+frac)
+        if pnr >= (nr-1)*len(self.fracs)+1:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=True)
         else:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=False)
-        ##if pnr == 13:
-        if pnr == nr*len(self.runNos):
-        #if pnr == nr*len(self.runNos)-2:
+        if pnr == nr*len(self.fracs):
             ax.set_xlabel(r'$Q^2 \ (\AA^{-2})$ ')
-        #if pnr == 6:
         if pnr == 2:
             ax.set_ylabel(r'$\log_{10}A_{QENS}\ (Arb. Units)$')
             ax2.set_ylabel(r'$\Gamma\ (\mu eV)$')
 
-    #def eachsolution(self, fig, sidx, cidx, runNo, orgout, label):
-        #out = self.optimize([0.05, 52], gamma, error, mask)
-        #D = out.x[0]
-        #self.D[sidx, cidx] = D
-        #tau = out.x[1]
-        #y = D*self.q2/(1. + D*tau*self.q2)
-        #s_sq = (self.res(out.x, self.q2, gamma, error, mask)**2).sum() /\
-        #       (len(gamma)-len(out.x))
-        #cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
-        #self.stdD[sidx, cidx] = (cov**0.5)[0, 0]
-
-        #self.plotter(fig, 3, self.q2, y, gamma,
-        #             error, mask, label, sidx, cidx)
 
 
 def testrun():
-    runNos = [6202, 6205, 6203, 6206, 6207]
-    temps = [303., 288., 275., 263., 253.]
-    runNos = [4174]
-    temps = [298.]
+    frac = "0125"
+    resful = False
+    if len(sys.argv) >= 2:
+        frac = sys.argv[1]
+    if len(sys.argv) >= 3:
+        if sys.argv[2] == "resful":
+            resful = True
+    runNo = "4174"
+    fracs = ["100", frac]
     #qsize = 11
     #runNos = [6202, 6205, 6203, 6206,  6207]
     #runNos = [6205, 6203, 6206,  6207]
     #temps = [303., 288., 275., 263., 253.]
     #temps = [288., 275., 263., 253.]
-    #qsize = 17
     qsize = 12
-    prj = qens_model_fit(runNos, temps, qsize)
+    prj = qens_model_fit(runNo, fracs, qsize, resful)
     prj.run()
 
 

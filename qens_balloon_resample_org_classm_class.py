@@ -11,9 +11,11 @@ np.set_printoptions(suppress=True)
 
 
 class qens_org_classm(qbr):
-    def __init__(self, qidx, elim=[-0.03, 0.07], rsmodifier="org", ishist=True,
-                 orgmodifier="org", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 prefix="./", num=6400, quiet=True, runNos=[6206, 6204]):
+    def __init__(self, qidx, qsize, elim=[-0.03, 0.07], rsmodifier="org",
+                 ishist=True, orgmodifier="org", variables=[0.655, 0.0129,
+                 0.200, 0.00208], prefix="./", num=6400, quiet=True,
+                 runNos=[6206, 6204]):
+        self.qsize = qsize
         Nb = 1
         if ishist:
             self.outfile = "outhist" + str(runNos[0]) + "m.pkl"
@@ -25,7 +27,8 @@ class qens_org_classm(qbr):
                      variables=variables, quiet=quiet)
 
     def run_for_mqs(self):
-        for qidx in range(0, 17):
+        #for qidx in range(0, 17):
+        for qidx in range(self.qsize):
             print("CHECK qidx:", qidx)
             self.qidx = qidx
             self.run_eachkde()

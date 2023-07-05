@@ -25,8 +25,8 @@ class Sget_qlist(gq):
         self.pklfile = pklfile
 
     def get_qemap(self, qmin, qmax):
-        Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
-        #Cmm.DoMask(dat=self.DAT, filename="maskTY140218ForAfterRun52.txt")
+        #Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
+        Cmm.DoMask(dat=self.DAT, filename="maskTY140218ForAfterRun52.txt")
         ECM = Cmm.ILambdaCorrDNA(dat=self.DAT, ec=self.EC, useMonEff=True)
         ECM2 = Cmm.SolidAngleCorrDNA(
                 dat=ECM, useDetEff=True, useAbsoCorr=False, useEffCorr=False,
@@ -34,6 +34,7 @@ class Sget_qlist(gq):
                 DetEffDataPath="none")
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
         DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
+        #DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85, deltaQ=0.148)
         dataset = self.get_all_sdata(DATQE)
         self.spectm(qmin, qmax, dataset)
 

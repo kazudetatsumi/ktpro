@@ -93,7 +93,7 @@ class qens_balloon_resamples(sqkr):
         plt.plot(xdl*1000, yqens, ls='dotted', c='k')
         plt.ylabel('Intensity (Arb. Units)')
         plt.xlabel(r'$Energy\ (\mu eV)$')
-        #plt.show()
+        plt.show()
 
     def getbins(self):
         bins = []
