@@ -13,14 +13,17 @@ np.set_printoptions(suppress=True)
 class qens_org_classm(qbr):
     def __init__(self, qidx, qsize, elim=[-0.03, 0.07], rsmodifier="org",
                  ishist=True, orgmodifier="org", variables=[0.655, 0.0129,
-                 0.200, 0.00208], prefix="./", num=6400, quiet=True,
+                 0.200, 0.00208], prefix="./", num=6400, quiet=True, io=False,
                  runNos=[6206, 6204]):
         self.qsize = qsize
         Nb = 1
         if ishist:
             self.outfile = "outhist" + str(runNos[0]) + "m.pkl"
         else:
-            self.outfile = "outkde" + str(runNos[0]) + "m.pkl"
+            if io:
+                self.outfile = "outkdeio" + str(runNos[0]) + "m.pkl"
+            else:
+                self.outfile = "outkde" + str(runNos[0]) + "m.pkl"
         qbr.__init__(self, qidx, runNos=runNos, elim=elim, Nb=Nb, ishist=ishist,
                      num=num, rsmodifier=rsmodifier,
                      orgmodifier=orgmodifier, prefix=prefix,
@@ -28,11 +31,13 @@ class qens_org_classm(qbr):
 
     def run_for_mqs(self):
         #for qidx in range(0, 17):
-        self.check_idata()
         for qidx in range(self.qsize):
             print("CHECK qidx:", qidx)
             self.qidx = qidx
-            self.run_eachkde()
+            if "kdeio" in self.outfile:
+                self.run_eachkde_io()
+            else:
+                self.run_eachkde()
             if qidx == 0:
                 outall = self.outall
             else:

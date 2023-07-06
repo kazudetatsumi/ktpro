@@ -254,7 +254,8 @@ contains
          c1=(phi-1)*a + (2-phi)*b
          f2=f1
          call costfunction(f1, yv1, optwp1, y_hist, tin, optws, Wins, c1)
-         yopt=yv1/sum(yv1*dt)
+         !yopt=yv1/sum(yv1*dt)
+         yopt=yv1
          optw=optwp1
       else
          a=c1
@@ -262,7 +263,8 @@ contains
          c2=(2-phi)*a + (phi-1)*b
          f1=f2
          call costfunction(f2, yv2, optwp2, y_hist, tin, optws, Wins, c2)
-         yopt=yv2/sum(yv2*dt)
+         !yopt=yv2/sum(yv2*dt)
+         yopt=yv2
          optw=optwp2
       endif
       gs(kiter)=c1

@@ -114,6 +114,17 @@ class Sqens_balloon_resamples(qkr):
         #    plt.xlabel(r'$Energy\ (\mu eV)$')
         #    plt.show()
 
+    def DoQfio(self, inb):
+        self.icorr()
+        xtl, ytl = self.limit2(self.kyos[0][1], self.kyios[0], self.elim)
+        xdl, ydl = self.limit2(self.kyos[1][1], self.kyios[1], self.elim)
+        if inb == 0 and self.rank == 0:
+            if np.sum(xtl - xdl) > 0.000001:
+                print('WARNING, check x_tf - x_df')
+        ydlc, ytlc = self.correction(xtl, ydl, ytl)
+        self.bg = 0.
+        self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+                                          variables=self.variables))
     def CI_of_intensities(self):
         self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
         self.outall = []
@@ -129,20 +140,18 @@ class Sqens_balloon_resamples(qkr):
             self.outall = outallt.reshape((self.Nb, -1))
 
     def check_idata(self):
+        print("chek_idata")
         self.odata = False
-        self.WinFunc = 'Boxcar'
-        self.M = 160
-        self.winparam = 1
-        self.showplot = True
-        self.figname = "tmp.png"
-        print("CHECK IDATA")
+        self.kyis = []
         for rsfile in self.rsfiles:
             self.pklfile = rsfile + ".moni"
             self.read_pkl()
             self.select_spectra()
-            self.add_shift_de()
-            self.run_ssvkernel()
-            self.plotter()
+            self.kde(self.selected_energy, self.selected_spectra, num=self.num)
+            self.kyis.append(self.y)
+
+    def io(self, kyo, kyi):
+        return kyo[0]/np.interp(kyo[1], kyi[1], kyi[0])
 
     def run(self):
         self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
@@ -164,6 +173,18 @@ class Sqens_balloon_resamples(qkr):
             self.kys = [self.CalcBandW(orgfile, inb=inb) for orgfile in
                         self.orgfiles]
             self.DoQf(inb)
+        self.outall = np.array(self.outall)
+        if self.Nb > 1 and self.rank == 0:
+            self.output()
+
+    def run_eachkde_io(self):
+        self.outall = []
+        self.kyos = [self.CalcBandW(orgfile, inb=0) for orgfile in
+                     self.orgfiles]
+        self.check_idata()
+        self.kyios = [self.io(kyo, kyi) for kyo, kyi in
+                      zip(self.kyos, self.kyis)]
+        self.DoQfio(0)
         self.outall = np.array(self.outall)
         if self.Nb > 1 and self.rank == 0:
             self.output()
