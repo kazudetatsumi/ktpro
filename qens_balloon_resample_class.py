@@ -34,7 +34,8 @@ class Sqens_balloon_resamples(qkr):
 
     def getrsspectra(self, rsfile, inb=0):
         qkr.__init__(self, pklfile=rsfile)
-        return self.spectrab[inb, 0, :], self.spectrab[inb, 1, :]
+        return self.spectrab[inb, 0, :], self.spectrab[inb, 1, :],\
+            self.spectrab[inb, 2, :]
 
     def CalcBandW(self, orgfile, inb=0):
         if self.ishist:
@@ -88,6 +89,11 @@ class Sqens_balloon_resamples(qkr):
             syb = self.balloon(self.kys[fidx], sy)
             return sy[0], syb, sy[1]
 
+    def eachrunno_io(self, fidx, inb):
+        sy = self.getrsspectra(self.rsfiles[fidx], inb)
+        syb = self.balloon(self.kys[fidx], [sy[0], sy[2], sy[1]])
+        return syb, sy[0]
+
     def DoQf(self, inb):
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
@@ -122,9 +128,12 @@ class Sqens_balloon_resamples(qkr):
             if np.sum(xtl - xdl) > 0.000001:
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
+        ydlc *= 100000.
+        ytlc *= 100000.
         self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
+
     def CI_of_intensities(self):
         self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
         self.outall = []
@@ -144,7 +153,12 @@ class Sqens_balloon_resamples(qkr):
         self.odata = False
         self.kyis = []
         for rsfile in self.rsfiles:
-            self.pklfile = rsfile + ".moni"
+            print(rsfile)
+            if ".pkl." in rsfile:
+                self.pklfile = rsfile.split(".pkl.")[0]+".pkl.moni"
+            else:
+                self.pklfile = rsfile + ".moni"
+            print(self.pklfile)
             self.read_pkl()
             self.select_spectra()
             self.kde(self.selected_energy, self.selected_spectra, num=self.num)
@@ -160,6 +174,24 @@ class Sqens_balloon_resamples(qkr):
         for inb in range(self.rank*self.Nb//self.size,
                          (self.rank+1)*self.Nb//self.size):
             self.DoQf(inb)
+        ##MPI Gathering the result from each rank
+        outallt = np.zeros((self.size*np.array(self.outall).size))
+        self.comm.Allgather(np.array(self.outall).flatten(), outallt)
+        self.outall = outallt.reshape((self.Nb, -1))
+        if self.Nb > 1 and self.rank == 0:
+            self.output()
+
+    def run_io(self):
+        self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
+                    ]
+        self.check_idata()
+        self.outall = []
+        for inb in range(self.rank*self.Nb//self.size,
+                         (self.rank+1)*self.Nb//self.size):
+            self.kyos = [self.eachrunno_io(fidx, inb) for fidx in range(2)]
+            self.kyios = [self.io(kyo, kyi) for kyo, kyi in
+                          zip(self.kyos, self.kyis)]
+            self.DoQfio(inb)
         ##MPI Gathering the result from each rank
         outallt = np.zeros((self.size*np.array(self.outall).size))
         self.comm.Allgather(np.array(self.outall).flatten(), outallt)

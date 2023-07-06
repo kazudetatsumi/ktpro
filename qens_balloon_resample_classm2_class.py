@@ -12,7 +12,7 @@ from qens_balloon_resample_classm2 import Sqens_balloon_resamples as qbr
 class Sqbr(qbr):
     def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
                  elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
-                 binwidth=0.00025):
+                 binwidth=0.00025, io=False):
         if "2comps" in outfile:
             variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
         else:
@@ -33,7 +33,15 @@ class Sqbr(qbr):
                 else:
                     self.plot_distribution(binwidth1, binwidth2)
                     print("energy step:", binwidth1, binwidth2)
-        else:
+        elif io:
+            super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
+                             ishist=ishist, variables=variables)
+            print("IO")
+            self.run_io()
+            if self.rank == 0:
+                self.outfile = outfile
+                self.savefile()
+        elif not io:
             super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
                              ishist=ishist, variables=variables)
             self.run()

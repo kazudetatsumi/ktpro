@@ -8,12 +8,13 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as qbr
 
 
 class qens_model_fit(qbr):
-    def __init__(self, runNo, fracs, qsize, resful):
+    def __init__(self, runNo, fracs, qsize, resful, io):
         self.runNo = runNo
         self.fracs = np.array(fracs)
         self.qsize = qsize
         self.q2 = (np.arange(self.qsize)*0.1 + 0.2 + 0.05)**2.
         self.resful = resful
+        self.io = io
 
     def getdata(self, frac):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
@@ -26,7 +27,12 @@ class qens_model_fit(qbr):
         self.outfile = self.orgprefix + "outhist" + str(self.runNo) + "m.pkl"
         self.loadfile()
         orghout = self.outall
-        self.outfile = self.orgprefix + "outkde" + str(self.runNo) + "m.pkl"
+        if self.io:
+            self.outfile = self.orgprefix + "outkdeio" + str(self.runNo) +\
+                           "m.pkl"
+        else:
+            self.outfile = self.orgprefix + "outkde" + str(self.runNo) +\
+                           "m.pkl"
         self.loadfile()
         orgkout = self.outall
         return orghout, orgkout
@@ -108,7 +114,10 @@ class qens_model_fit(qbr):
     def eachrun(self, cidx, frac, fig):
         orghout, orgkout = self.getdata(frac)
         self.plotter(fig, 2,  0, cidx, frac, orghout, 'hist')
-        self.plotter(fig, 2,  1, cidx, frac, orgkout, 'kdeb')
+        if self.io:
+            self.plotter(fig, 2,  1, cidx, frac, orgkout, 'kde')
+        else:
+            self.plotter(fig, 2,  1, cidx, frac, orgkout, 'kdeb')
 
     def plotter(self, fig, nr, sidx, cidx, frac, orgout, title):
         mask = np.sum(orgout[:, 4:], axis=1) < -0.5
@@ -150,11 +159,14 @@ class qens_model_fit(qbr):
 def testrun():
     frac = "0125"
     resful = False
+    io = False
     if len(sys.argv) >= 2:
         frac = sys.argv[1]
     if len(sys.argv) >= 3:
         if sys.argv[2] == "resful":
             resful = True
+        elif sys.argv[2] == "io":
+            io = True
     runNo = "4174"
     fracs = ["100", frac]
     #qsize = 11
@@ -163,7 +175,7 @@ def testrun():
     #temps = [303., 288., 275., 263., 253.]
     #temps = [288., 275., 263., 253.]
     qsize = 17
-    prj = qens_model_fit(runNo, fracs, qsize, resful)
+    prj = qens_model_fit(runNo, fracs, qsize, resful, io)
     prj.run()
 
 
