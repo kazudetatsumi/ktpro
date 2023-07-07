@@ -13,8 +13,8 @@ class qens_model_fit(qbr):
         self.temps = np.array(temps)
         self.qsize = qsize
         self.q2 = (np.arange(self.qsize)*0.1 + 0.2 + 0.05)**2.
-        self.D = np.zeros((3, len(runNos)))
-        self.stdD = np.zeros((3, len(runNos)))
+        self.u2 = np.zeros((3, len(runNos)))
+        self.stdu2 = np.zeros((3, len(runNos)))
 
     def getdata(self, runNo):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
@@ -46,10 +46,10 @@ class qens_model_fit(qbr):
 
     def stats(self):
         outall = self.outall[np.sum(self.outall[:, 4:], axis=1) > -0.5]
-        orderidx1 = np.argsort(outall[:, 1])
+        orderidx1 = np.argsort(outall[:, 0])
         lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
         ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
-        return (ubs - lbs) / 2., np.std(outall[:, 1]), np.average(outall[:, 1])
+        return (ubs - lbs) / 2., np.std(outall[:, 0]), np.average(outall[:, 0])
 
     def readerror(self, hork, runNo):
         error = np.zeros((2, self.qsize))
@@ -62,7 +62,7 @@ class qens_model_fit(qbr):
         return error, ave
 
     def readorgout(self, orgout):
-        return np.sum(orgout[:, 4:], axis=1) < -0.5,  orgout[:, 1]
+        return np.sum(orgout[:, 4:], axis=1) < -0.5,  orgout[:, 0]
 
     def readlog(self):
         mask = []
@@ -86,9 +86,9 @@ class qens_model_fit(qbr):
         return np.array(std)
 
     def res(self, coeffs, x, t, error, mask):
-        [D, tau] = coeffs
-        y = D*x[mask]/(1. + D*tau*x[mask])
-        return ((t[mask] - y)/error[mask])
+        [u2, b] = coeffs
+        y = -u2/3.0*x[mask] + b
+        return ((np.log(t[mask]) - y)/(error[mask]/t[mask]))
         #return t[mask] - y
 
     def res_arrhenius(self, coeffs, x, t, error):
@@ -98,7 +98,7 @@ class qens_model_fit(qbr):
         #return t - y
 
     def optimize(self, variables, gamma, error, mask):
-        return so.least_squares(self.res, variables, bounds=(0, np.inf),
+        return so.least_squares(self.res, variables,
                                 args=(self.q2, gamma, error, mask))
 
     def optimize_arrhenius(self, variables, x, t, error):
@@ -115,18 +115,19 @@ class qens_model_fit(qbr):
         #mask *= t > 0.00001
         pnr = 1+len(self.runNos)*sidx+cidx
         ax = fig.add_subplot(nr, len(self.runNos), pnr)
-        ax.plot(x, y*1000., ls='dashed', c='k')
-        ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
+        ax.plot(x, y, ls='dashed', lw=0.5, c='k')
+        ax.errorbar(x[mask], np.log(t[mask]), yerr=np.abs(e[mask]/t[mask]), marker="x",
                     ms=2, elinewidth=1, lw=0, capsize=3, c='k')
-        ax.errorbar(x[~mask], t[~mask]*1000., yerr=e[~mask]*1000., marker="x",
+        ax.errorbar(x[~mask], np.log(t[~mask]), yerr=np.abs(e[~mask]/t[~mask]), marker="x",
                     ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
-        ax.text(0.1, 0.017*1000., title+"_"+str(self.runNos[cidx]))
-        ax.text(0.1, 0.014*1000., 'D={:.2f} +/- {:.2f} '.format(self.D[sidx, cidx], self.stdD[sidx, cidx]) + '$10^9\AA^2s^{-1}$')
-        ax.text(0.1, 0.011*1000., 'rel. error +/- {:.1f}% '.format(self.stdD[sidx, cidx]/self.D[sidx, cidx]*100.))
-        ax.set_ylim(-1, 0.022*1000.)
+        ax.text(0.3, 0., title+"_"+str(self.runNos[cidx]))
+        ax.text(0.3, -0.5, '$u^2$={:.2f} +/- {:.2f} '.format(self.u2[sidx, cidx], self.stdu2[sidx, cidx]) + '$\AA^2$')
+        ax.text(0.3, -0.9, 'rel. error +/- {:.1f}% '.format(self.stdu2[sidx, cidx]/np.abs(self.u2[sidx, cidx])*100.))
+        #ax.set_ylim(-1, 0.022*1000.)
+        #ax.set_ylim(0, 400.)
         #ax.set_xlim(0., 1.6)
         #ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
-        ax.set_yticks([0., 5, 10, 15, 20])
+        #ax.set_yticks([0., 5, 10, 15, 20])
         #ax.set_xticks([0., 0.4, 0.8, 1.2, 1.6])
         if pnr >= (nr-1)*len(self.runNos)+1:
             ax.tick_params(direction='in', top=True, right=True,
@@ -137,7 +138,7 @@ class qens_model_fit(qbr):
         if pnr == 3:
             ax.set_xlabel(r'$Q^2 \ (\AA^{-2})$ ')
         if pnr == 2:
-            ax.set_ylabel(r'$\Gamma\ (\mu eV)$')
+            ax.set_ylabel(r'$lnA_{QENS}$')
 
     def plotters(self, x,  ys, es, titles):
         for sidx, title in enumerate(titles):
@@ -152,6 +153,7 @@ class qens_model_fit(qbr):
         fig = plt.figure(figsize=(4, 6))
         for cidx, runNo in enumerate(self.runNos):
             mask = np.ones((self.qsize), dtype=bool)
+            mask[0:2] = False
             self.eachrun(cidx, runNo, mask, fig)
 
         plt.subplots_adjust(wspace=0.2, hspace=0.0)
@@ -173,16 +175,17 @@ class qens_model_fit(qbr):
 
     def eachsolution(self, fig, sidx, cidx, runNo, gamma, error, mask, label):
         #mask *= error > 0.00005
-        mask *= gamma > 0.001
+        mask *= np.log(gamma) < -1.0
         out = self.optimize([0.05, 52], gamma, error, mask)
-        D = out.x[0]
-        self.D[sidx, cidx] = D/4.1355667*1000.  # [Angs^2s-1 * 10^9]
-        tau = out.x[1]
-        y = D*self.q2/(1. + D*tau*self.q2)
+        u2 = out.x[0]
+        self.u2[sidx, cidx] = u2  # [Angs^2]
+        b = out.x[1]
+        #y = D*self.q2/(1. + D*tau*self.q2)
+        y = -u2/3.0*self.q2 + b
         s_sq = (self.res(out.x, self.q2, gamma, error, mask)**2).sum() /\
                (len(gamma)-len(out.x))
         cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
-        self.stdD[sidx, cidx] = (cov**0.5)[0, 0] / 4.1355667 * 1000.
+        self.stdu2[sidx, cidx] = (cov**0.5)[0, 0]
 
         self.plotter(fig, 3, self.q2, y, gamma,
                      error, mask, label, sidx, cidx)
