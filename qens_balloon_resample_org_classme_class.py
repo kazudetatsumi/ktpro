@@ -15,16 +15,17 @@ np.set_printoptions(suppress=True)
 class qens_org_classm(qbr):
     def __init__(self, qidx, elim=[-0.03, 0.07], rsmodifier="org", ishist=True,
                  orgmodifier="org", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 prefix="./", num=6400, quiet=True, runNos=[6206, 6204]):
+                 prefix="./", num=6400, quiet=True, runNos=[6206, 6204],
+                 ispltchk=False):
         Nb = 1
         if ishist:
-            self.outfile = "outhist" + str(runNos[0]) + "m.pkl"
+            self.outfile = "outhist" + str(runNos[0]) + "me.pkl"
         else:
-            self.outfile = "outkde" + str(runNos[0]) + "m.pkl"
+            self.outfile = "outkde" + str(runNos[0]) + "me.pkl"
         qbr.__init__(self, qidx, runNos=runNos, elim=elim, Nb=Nb, ishist=ishist,
                      num=num, rsmodifier=rsmodifier,
                      orgmodifier=orgmodifier, prefix=prefix,
-                     variables=variables, quiet=quiet)
+                     variables=variables, quiet=quiet, ispltchk=ispltchk)
 
     def run_for_mqs(self):
         for qidx in range(0, 17):
@@ -38,19 +39,6 @@ class qens_org_classm(qbr):
         if self.rank == 0:
             self.outall = outall
             self.savefile()
-
-    def combine_qs(self):
-        _out = self.get_out()
-        self.outfile += ".bak"
-        __out = self.get_out()
-        self.outall = np.concatenate((__out, _out), axis=0)
-        self.outfile = self.outfile.split("bak")[0] + "combined"
-        self.savefile()
-
-    def get_out(self):
-        self.loadfile()
-        return np.array(self.outall)
-
 
 
 def samplerun():

@@ -16,7 +16,7 @@ class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="orge",
                  prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False):
+                 quiet=False, ispltchk=False):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -33,15 +33,8 @@ class qens_balloon_resamples(sqkr):
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
         self.leastsq = False
+        self.ispltchk = ispltchk
         self.DefineFiles()
-
-    def eachrunno(self, fidx, inb):
-        sy = self.getrsspectra(self.rsfiles[fidx], inb)
-        if self.ishist:
-            return sy[0], sy[1], sy[2]
-        else:
-            syb = self.balloon(self.kys[fidx], sy)
-            return sy[0], syb, sy[1]
 
     def getrsspectra(self, rsfile, inb=0):
         super(sqkr, self).__init__(pklfile=rsfile)
@@ -68,34 +61,7 @@ class qens_balloon_resamples(sqkr):
             dat = pickle.load(f)['out']
         return np.std(dat, axis=0)
 
-    def DoQf(self, inb):
-        xt, yt, et = self.eachrunno(0, inb)
-        xd, yd, ed = self.eachrunno(1, inb)
-        self.icorr()
-        print("CHK elim:", self.elim)
-        xtl, ytl = self.limit2(xt, yt, self.elim)
-        xdl, ydl = self.limit2(xd, yd, self.elim)
-        if inb == 0 and self.rank == 0:
-            if np.sum(xtl - xdl) > 0.000001:
-                print('WARNING, check x_tf - x_df')
-        ydlc, ytlc = self.correction(xtl, ydl, ytl)
-        self.bg = 0.
-        etl = self.geterrorbars()
-        self.check_out(inb, self.optimize(xdl, ydlc, ytlc, etl,
-                                          variables=self.variables))
-        if self.rank == 0:
-            import matplotlib.pyplot as plt
-            [alpha, gamma, delta, base] = self.outall[-1][0:4]
-            yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-            y = yqens + delta*ydl + base
-            plt.plot(xdl*1000, y, c='k')
-            plt.plot(xdl*1000, ytlc, c='b')
-            plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-            plt.ylabel('Intensity (Arb. Units)')
-            plt.xlabel(r'$Energy\ (\mu eV)$')
-            plt.show()
-
-    def res(self, coeffs, x, d, t, e):
+    def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
             [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
             y = alpha1*self.convlore(d, gamma1, x)\
@@ -114,29 +80,20 @@ class qens_balloon_resamples(sqkr):
             [alpha, gamma, delta] = coeffs
             y = alpha*self.convlore(d, gamma, x)\
                 + delta*d + self.bg
-        xl, dif = self.limit2(x, (t-y)/e, self.elim)
+        xl, dif = self.limit2(x, (t-y)/self.etl, self.elim)
         #xl, dif = self.limit2(x, t-y, self.elim)
         return dif
 
-    def optimize(self, x, yd, yt, et, variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
-        # leastsq
-        if self.leastsq:
-            out = so.leastsq(self.res, variables, args=(x, yd, yt, et),
-                             full_output=1, epsfcn=0.0001)
-            return out
-        # least_squares
-        else:
-            bounds = (0, np.inf)
-            out = so.least_squares(self.res, variables, bounds=bounds,
-                                   args=(x, yd, yt, et))
-            #if self.rank == 0:
-            print(out.active_mask, out.success, out.x)
-            #out = so.least_squares(self.res, variables, args=(x, yd, yt))
-            _out = [out.x, np.linalg.inv(np.dot(out.jac.T, out.jac))]
-            s_sq = (self.res(_out[0], x, yd, yt, et)**2).sum() / (len(yt)-len(_out[0]))
-            print("cov**0.5")
-            print(np.absolute(_out[1]*s_sq)**0.5)
-            return [out.x, out.success, out.active_mask]
+    def run_eachkde(self):
+        self.etl = self.geterrorbars()
+        self.outall = []
+        for inb in range(self.Nb):
+            self.kys = [self.CalcBandW(orgfile, inb=inb) for orgfile in
+                        self.orgfiles]
+            self.DoQf(inb)
+        self.outall = np.array(self.outall)
+        if self.Nb > 1 and self.rank == 0:
+            self.output()
 
 
 def testrun():

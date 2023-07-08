@@ -5,7 +5,7 @@
 # Kazuyoshi TATSUMI 2023/02/23
 # Modified init and DefineFiles for multi qs.
 # Kazuyoshi TATSUMI 2023/06/12
-
+import pickle
 import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
@@ -53,6 +53,49 @@ class Sqens_balloon_resamples(qkr):
                                self.rsfiles])
             print("orgfiles:", [orgf.split(self.prefix)[1] for orgf in
                                 self.orgfiles])
+
+    def geterrorbars(self):
+        with open("outallkde.pkl."+str(self.qidx), 'rb') as f:
+            dat = pickle.load(f)['out']
+        return np.std(dat, axis=0)
+
+    def res(self, coeffs, x, d, t):
+        if len(coeffs) == 6:
+            [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + base
+        if len(coeffs) == 5:
+            [alpha1, gamma1, alpha2, gamma2,  delta] = coeffs
+            y = alpha1*self.convlore(d, gamma1, x)\
+                + alpha2*self.convlore(d, gamma2, x)\
+                + delta*d + self.bg
+        if len(coeffs) == 4:
+            [alpha, gamma, delta, base] = coeffs
+            y = alpha*self.convlore(d, gamma, x)\
+                + delta*d + base
+        if len(coeffs) == 3:
+            [alpha, gamma, delta] = coeffs
+            y = alpha*self.convlore(d, gamma, x)\
+                + delta*d + self.bg
+        xl, dif = self.limit2(x, (t-y)/self.etl, self.elim)
+        #xl, dif = self.limit2(x, t-y, self.elim)
+        return dif
+
+    def run(self):
+        self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
+                    ]
+        self.etl = self.geterrorbars()
+        self.outall = []
+        for inb in range(self.rank*self.Nb//self.size,
+                         (self.rank+1)*self.Nb//self.size):
+            self.DoQf(inb)
+        ##MPI Gathering the result from each rank
+        outallt = np.zeros((self.size*np.array(self.outall).size))
+        self.comm.Allgather(np.array(self.outall).flatten(), outallt)
+        self.outall = outallt.reshape((self.Nb, -1))
+        if self.Nb > 1 and self.rank == 0:
+            self.output()
 
 
 def testrun():
