@@ -33,8 +33,8 @@ class Sget_qlist(gq):
                 sampletype="sample", sampleDataPath="test_sample_data.dat",
                 DetEffDataPath="none")
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
-        DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
-        #DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85, deltaQ=0.148)
+        #DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
+        DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85, deltaQ=0.148)
         dataset = self.get_all_sdata(DATQE)
         self.spectm(qmin, qmax, dataset)
 

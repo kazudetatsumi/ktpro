@@ -35,7 +35,8 @@ class Sget_qlist(gq):
                     t0_offset=12325.0, background=0.0, useT0ModCorr=False,
                     TimeParam=TimeParam, UseFastChopper=True,
                     isHistogram=False)
-        self.run_moni()
+        if self.pklfile is not None:
+            self.run_moni()
         Cmm.MutiplyConstant(dat=self.EC, factor=1e-09)
 
     def get_frac_TimeParam(self, TimeParam, frac):

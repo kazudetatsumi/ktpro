@@ -313,7 +313,7 @@ class runhistnoidata(qf):
             #if self.rank == 0:
             print(out.active_mask, out.success, out.x)
             #out = so.least_squares(self.res, variables, args=(x, yd, yt))
-            _out = [out.x, np.linalg.inv(np.dot(out.jac.T, out.jac))]
+            _out = [out.x, np.linalg.pinv(np.dot(out.jac.T, out.jac))]
             s_sq = (self.res(_out[0], x, yd, yt)**2).sum() / (len(yt)-len(_out[0]))
             print("cov**0.5")
             print(np.absolute(_out[1]*s_sq)**0.5)

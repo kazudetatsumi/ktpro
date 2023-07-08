@@ -46,7 +46,9 @@ class qens_model_fit(qbr):
 
     def stats(self):
         outall = self.outall[np.sum(self.outall[:, 4:], axis=1) > -0.5]
+        print('CHK', outall.shape)
         orderidx1 = np.argsort(outall[:, 1])
+        print("CHK", orderidx1.shape)
         lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
         ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
         return (ubs - lbs) / 2., np.std(outall[:, 1]), np.average(outall[:, 1])
@@ -57,6 +59,7 @@ class qens_model_fit(qbr):
         for qidx in range(0, self.qsize):
             self.outfile = self.stdprefix + \
                            "/out" + hork + ".pkl." + str(qidx)
+            print(self.outfile)
             self.loadfile()
             error[0, qidx], error[1, qidx], ave[qidx] = self.stats()
         return error, ave
@@ -121,7 +124,7 @@ class qens_model_fit(qbr):
         ax.errorbar(x[~mask], t[~mask]*1000., yerr=e[~mask]*1000., marker="x",
                     ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
         ax.text(0.1, 0.017*1000., title+"_"+str(self.runNos[cidx]))
-        ax.text(0.1, 0.014*1000., 'D={:.2f} +/- {:.2f} '.format(self.D[sidx, cidx], self.stdD[sidx, cidx]) + '$10^9\AA^2s^{-1}$')
+        ax.text(0.1, 0.014*1000., 'D={:.0f} +/- {:.0f} '.format(self.D[sidx, cidx], self.stdD[sidx, cidx]) + '$10^9\AA^2s^{-1}$')
         ax.text(0.1, 0.011*1000., 'rel. error +/- {:.1f}% '.format(self.stdD[sidx, cidx]/self.D[sidx, cidx]*100.))
         ax.set_ylim(-1, 0.022*1000.)
         #ax.set_xlim(0., 1.6)
@@ -176,13 +179,14 @@ class qens_model_fit(qbr):
         mask *= gamma > 0.001
         out = self.optimize([0.05, 52], gamma, error, mask)
         D = out.x[0]
-        self.D[sidx, cidx] = D/4.1355667*1000.  # [Angs^2s-1 * 10^9]
+        # We should mulitiply hbar to convert angular freq. to energy.
+        self.D[sidx, cidx] = D/4.1355667*1000.*2.0*3.1415926  # [Angs^2s-1 * 10^9]
         tau = out.x[1]
         y = D*self.q2/(1. + D*tau*self.q2)
         s_sq = (self.res(out.x, self.q2, gamma, error, mask)**2).sum() /\
                (len(gamma)-len(out.x))
         cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
-        self.stdD[sidx, cidx] = (cov**0.5)[0, 0] / 4.1355667 * 1000.
+        self.stdD[sidx, cidx] = (cov**0.5)[0, 0] / 4.1355667 * 1000.*2.0*3.1415926
 
         self.plotter(fig, 3, self.q2, y, gamma,
                      error, mask, label, sidx, cidx)

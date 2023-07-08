@@ -47,7 +47,8 @@ class Sget_qlist(gq):
                 sampletype="sample", sampleDataPath="test_sample_data.dat",
                 DetEffDataPath="none")
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
-        DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
+        #DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
+        DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85, deltaQ=0.148)
         return self.get_all_sdatab(DATBQE)
 
     def get_all_sdatab(self, DATBQE):

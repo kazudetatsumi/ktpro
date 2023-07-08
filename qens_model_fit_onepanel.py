@@ -20,8 +20,8 @@ class qens_model_fit(qbr):
     def getdata(self, runNo):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/run4174/025/dq0148/"
-        self.outfile = self.orgprefix + "outhist" + str(runNo) + "m.pkl"
+        self.orgprefix = preprefix + "from_pca03/wcorr/run4174/100/resamples/"
+        self.outfile = self.orgprefix + "outkde" + str(runNo) + "m.pkl"
         self.loadfile()
         orghout = self.outall
         self.outfile = self.orgprefix + "outkde" + str(runNo) + "m.pkl"
@@ -183,7 +183,7 @@ def testrun():
     #temps = [303., 288., 275., 263., 253.]
     #temps = [288., 275., 263., 253.]
     #qsize = 17
-    qsize = 12
+    qsize = 17
     prj = qens_model_fit(runNos, temps, qsize)
     prj.run()
 

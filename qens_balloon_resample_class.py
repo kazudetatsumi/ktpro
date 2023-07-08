@@ -128,8 +128,12 @@ class Sqens_balloon_resamples(qkr):
             if np.sum(xtl - xdl) > 0.000001:
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
-        ydlc *= 100000.
-        ytlc *= 100000.
+        de = xtl[1] - xtl[0]
+        #tmpint = np.sum(ydlc)
+        #ydlc /= tmpint * de
+        #ytlc /= tmpint * de
+        ydlc *= 1000000.
+        ytlc *= 1000000.
         self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
