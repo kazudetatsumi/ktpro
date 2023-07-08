@@ -59,6 +59,11 @@ class Sqens_balloon_resamples(qkr):
             dat = pickle.load(f)['out']
         return np.std(dat, axis=0)
 
+    def geterrorbarsio(self):
+        with open("outallkdeio.pkl."+str(self.qidx), 'rb') as f:
+            dat = pickle.load(f)['out']
+        return np.std(dat, axis=0)
+
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
             [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
@@ -90,6 +95,25 @@ class Sqens_balloon_resamples(qkr):
         for inb in range(self.rank*self.Nb//self.size,
                          (self.rank+1)*self.Nb//self.size):
             self.DoQf(inb)
+        ##MPI Gathering the result from each rank
+        outallt = np.zeros((self.size*np.array(self.outall).size))
+        self.comm.Allgather(np.array(self.outall).flatten(), outallt)
+        self.outall = outallt.reshape((self.Nb, -1))
+        if self.Nb > 1 and self.rank == 0:
+            self.output()
+
+    def run_io(self):
+        self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
+                    ]
+        self.check_idata()
+        self.etl = self.geterrorbarsio()
+        self.outall = []
+        for inb in range(self.rank*self.Nb//self.size,
+                         (self.rank+1)*self.Nb//self.size):
+            self.kyos = [self.eachrunno_io(fidx, inb) for fidx in range(2)]
+            self.kyios = [self.io(kyo, kyi) for kyo, kyi in
+                          zip(self.kyos, self.kyis)]
+            self.DoQfio(inb)
         ##MPI Gathering the result from each rank
         outallt = np.zeros((self.size*np.array(self.outall).size))
         self.comm.Allgather(np.array(self.outall).flatten(), outallt)

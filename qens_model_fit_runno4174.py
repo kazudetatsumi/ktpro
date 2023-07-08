@@ -19,8 +19,8 @@ class qens_model_fit(qbr):
     def getdata(self, runNo):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/run4174/100/dq0148/"
-        self.stdprefix = preprefix + "from_pca03/wcorr/run4174/100/dq0148/resamples/"
+        self.orgprefix = preprefix + "from_pca03/wcorr/run4174/100/"
+        self.stdprefix = preprefix + "from_pca03/wcorr/run4174/100/resamples/"
         #self.kdeprefix = preprefix + "winparam_exam_" + str(runNo) + \
         #    "/160_1_0000025io_Boxcar/n8000/"
         self.outfile = self.orgprefix + "outhist" + str(runNo) + "m.pkl"
@@ -214,7 +214,7 @@ def testrun():
     #temps = [288., 275., 263., 253.]
     runNos = [4174]
     temps = [298.]
-    qsize = 12
+    qsize = 17
     prj = qens_model_fit(runNos, temps, qsize)
     prj.run()
 

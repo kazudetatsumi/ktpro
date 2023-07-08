@@ -161,7 +161,28 @@ class Sqens_balloon_resamples(qkr):
             xtl, ytl = self.limit2(xt, yt, self.elim)
             dummy, ytlc = self.correction(xtl, ytl, ytl)
             self.outall.append(ytlc)
-        outallt = np.array(self.comm.gather(np.array(self.outall).flatten(), root=0))
+        outallt = np.array(self.comm.gather(np.array(self.outall).flatten(),
+                           root=0))
+        if self.rank == 0:
+            self.outall = outallt.reshape((self.Nb, -1))
+
+    def CI_of_intensities_io(self):
+        #self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
+        #            ]
+        self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
+        self.check_idata()
+        self.outall = []
+        for inb in range(self.rank*self.Nb//self.size,
+                         (self.rank+1)*self.Nb//self.size):
+            self.kyos = [self.eachrunno_io(fidx, inb) for fidx in range(1)]
+            self.kyios = [self.io(kyo, kyi) for kyo, kyi in
+                          zip(self.kyos, self.kyis)]
+            self.icorr()
+            xtl, ytl = self.limit2(self.kyos[0][1], self.kyios[0], self.elim)
+            dummy, ytlc = self.correction(xtl, ytl, ytl)
+            self.outall.append(ytlc)
+        outallt = np.array(self.comm.gather(np.array(self.outall).flatten(),
+                           root=0))
         if self.rank == 0:
             self.outall = outallt.reshape((self.Nb, -1))
 

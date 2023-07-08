@@ -16,7 +16,7 @@ class Sqbr(qbr):
         ishist = False
         super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
                          ishist=ishist)
-        self.CI_of_intensities()
+        self.CI_of_intensities_io()
         if self.rank == 0:
             self.outfile = outfile
             self.savefile()
