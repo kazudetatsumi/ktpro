@@ -61,6 +61,11 @@ class qens_balloon_resamples(sqkr):
             dat = pickle.load(f)['out']
         return np.std(dat, axis=0)
 
+    def geterrorbars_io(self):
+        with open("outallkdeio.pkl."+str(self.qidx), 'rb') as f:
+            dat = pickle.load(f)['out']
+        return np.std(dat, axis=0)
+
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
             [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
@@ -91,6 +96,19 @@ class qens_balloon_resamples(sqkr):
             self.kys = [self.CalcBandW(orgfile, inb=inb) for orgfile in
                         self.orgfiles]
             self.DoQf(inb)
+        self.outall = np.array(self.outall)
+        if self.Nb > 1 and self.rank == 0:
+            self.output()
+
+    def run_eachkde_io(self):
+        self.etl = self.geterrorbars_io()
+        self.outall = []
+        self.kyos = [self.CalcBandW(orgfile, inb=0) for orgfile in
+                     self.orgfiles]
+        self.check_idata()
+        self.kyios = [self.io(kyo, kyi) for kyo, kyi in
+                      zip(self.kyos, self.kyis)]
+        self.DoQfio(0)
         self.outall = np.array(self.outall)
         if self.Nb > 1 and self.rank == 0:
             self.output()
