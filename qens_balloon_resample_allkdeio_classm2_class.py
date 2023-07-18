@@ -4,6 +4,7 @@
 # target density with the estimated device density.
 # Kazuyoshi TATSUMI 2023/02/23
 import os
+import pickle
 import sys
 sys.path.append("/home/kazu/ktpro")
 from qens_balloon_resample_classm2 import Sqens_balloon_resamples as qbr
@@ -20,6 +21,14 @@ class Sqbr(qbr):
         if self.rank == 0:
             self.outfile = outfile
             self.savefile()
+
+    def savefile(self):
+        dataset = {}
+        dataset['out'] = self.outall
+        dataset['x']  = self.x
+        with open(self.outfile, 'wb') as f:
+            #pickle.dump(dataset, f, -1)
+            pickle.dump(dataset, f, 4)
 
 
 def testrun():

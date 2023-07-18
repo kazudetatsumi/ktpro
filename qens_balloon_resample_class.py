@@ -135,8 +135,10 @@ class Sqens_balloon_resamples(qkr):
 
     def DoQfio(self, inb):
         self.icorr()
+        print("CHKKK", self.elim)
         xtl, ytl = self.limit2(self.kyos[0][1], self.kyios[0], self.elim)
         xdl, ydl = self.limit2(self.kyos[1][1], self.kyios[1], self.elim)
+        print('CHK', ytl.shape)
         if inb == 0 and self.rank == 0:
             if np.sum(xtl - xdl) > 0.000001:
                 print('WARNING, check x_tf - x_df')
@@ -148,20 +150,23 @@ class Sqens_balloon_resamples(qkr):
         ydlc *= 1000000.
         ytlc *= 1000000.
         self.bg = 0.
+        if self.xe.shape[0] != xtl.shape[0]:
+            print("interpolating errors")
+            self.etl = np.interp(xtl, self.xe, self.etl)
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
 
     def CI_of_intensities(self):
         self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
-        self.outall = []
+        ytlcs = []
         for inb in range(self.rank*self.Nb//self.size,
                          (self.rank+1)*self.Nb//self.size):
             xt, yt, yth = self.eachrunno(0, inb)
             self.icorr()
             xtl, ytl = self.limit2(xt, yt, self.elim)
             dummy, ytlc = self.correction(xtl, ytl, ytl)
-            self.outall.append(ytlc)
-        outallt = np.array(self.comm.gather(np.array(self.outall).flatten(),
+            ytlcs.append(ytlc)
+        outallt = np.array(self.comm.gather(np.array(ytlcs).flatten(),
                            root=0))
         if self.rank == 0:
             self.outall = outallt.reshape((self.Nb, -1))
@@ -171,7 +176,7 @@ class Sqens_balloon_resamples(qkr):
         #            ]
         self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
         self.check_idata()
-        self.outall = []
+        ytlcs = []
         for inb in range(self.rank*self.Nb//self.size,
                          (self.rank+1)*self.Nb//self.size):
             self.kyos = [self.eachrunno_io(fidx, inb) for fidx in range(1)]
@@ -180,9 +185,9 @@ class Sqens_balloon_resamples(qkr):
             self.icorr()
             xtl, ytl = self.limit2(self.kyos[0][1], self.kyios[0], self.elim)
             dummy, ytlc = self.correction(xtl, ytl, ytl)
-            self.outall.append(ytlc)
-        outallt = np.array(self.comm.gather(np.array(self.outall).flatten(),
-                           root=0))
+            ytlcs.append(ytlc)
+        outallt = np.array(self.comm.gather(np.array(ytlcs).flatten(), root=0))
+        self.x = xtl
         if self.rank == 0:
             self.outall = outallt.reshape((self.Nb, -1))
 

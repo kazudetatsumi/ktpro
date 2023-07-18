@@ -14,7 +14,7 @@ class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False):
+                 quiet=False, ispltchk=False):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -31,6 +31,7 @@ class qens_balloon_resamples(sqkr):
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
         self.leastsq = False
+        self.ispltchk = ispltchk
         self.DefineFiles()
 
     def getrsspectra(self, rsfile, inb=0):

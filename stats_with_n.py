@@ -9,6 +9,7 @@ if len(sys.argv) >= 2:
 else:
     prefix = "."
 
+plt.rcParams['font.size'] = 14
 def stats(outpklfile):
     with open(outpklfile, 'rb') as f:
         out = pickle.load(f)
@@ -37,15 +38,20 @@ def stats(outpklfile):
 def run(outfile):
     lbsh, ubsh, avesh, stdsh = stats(prefix + "/" + outfile)
     print((ubsh[2989]-lbsh[2989])/2., stdsh[2989])
-    #lbsk, ubsk, avesk, stdsk = stats(prefix + '/outkde.pkl')
-    #plt.plot(ubsh - lbsh, label='ubsh-lbsh')
-    #plt.plot(2.*stdsh, label='2stdh')
-    #plt.plot(ubsk - lbsk, label='ubsk-lbsk')
-    #plt.plot(2.*stdsk, label='2stdk')
-    #plt.xlabel('Number of resampled spectra')
-    #plt.ylabel('Uncertainties, 67% ub-lb or 2sigma (meV)')
-    #plt.legend()
-    #plt.show()
+    lbsk, ubsk, avesk, stdsk = stats(prefix + '/outkde.pkl')
+    plt.plot((ubsh - lbsh)*1000., label='$CI_h$')
+    plt.plot(2.*stdsh*1000., label='2$\sigma_h$')
+    plt.plot((ubsk - lbsk)*1000., label='$CI_{KDE}$')
+    plt.plot(2.*stdsk*1000., label='2$\sigma_{KDE}$')
+    plt.xlabel('Number of resampled spectra')
+    plt.ylabel('67% CI or 2$\sigma$ of $\Gamma$ ($\mu$eV)')
+    #plt.ylim(1, 2.)
+    plt.xlim(0, 3000.)
+    #plt.yticks([0., 0.5, 1.0, 1.5, 2.0])
+    plt.xticks([0, 1000, 2000, 3000])
+    plt.tick_params(direction='in', right=True, top=True, labelbottom=True)
+    plt.legend()
+    plt.show()
 
 
 def mstats():
@@ -54,7 +60,7 @@ def mstats():
         outfile = "outhist.pkl." + str(qidx)
         run(outfile)
 
-#outfile = "outhist.pkl.1"
-#run(outfile)
+outfile = "outhist.pkl"
+run(outfile)
 
-mstats()
+#mstats()

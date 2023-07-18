@@ -1,11 +1,10 @@
-#!/usr/bin/env python
+
 # This script balloon-estimates the re-sampled qens 1D intensity profiles with
 # the kernel band widths optimized on the original data, and fits the estimated
 # target density with the estimated device density.
 # Kazuyoshi TATSUMI 2023/02/23
 from mpi4py import MPI
 import numpy as np
-import scipy.optimize as so
 import pickle
 import sys
 sys.path.append("/home/kazu/ktpro")
@@ -63,8 +62,10 @@ class qens_balloon_resamples(sqkr):
 
     def geterrorbars_io(self):
         with open("outallkdeio.pkl."+str(self.qidx), 'rb') as f:
-            dat = pickle.load(f)['out']
-        return np.std(dat, axis=0)
+            data = pickle.load(f)
+            if 'x' in data.keys():
+                self.xe = data['x']
+        return np.std(data['out'], axis=0)
 
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
@@ -108,6 +109,7 @@ class qens_balloon_resamples(sqkr):
         self.check_idata()
         self.kyios = [self.io(kyo, kyi) for kyo, kyi in
                       zip(self.kyos, self.kyis)]
+        print("CHK2", self.kyios[0].shape, self.kyios[1].shape)
         self.DoQfio(0)
         self.outall = np.array(self.outall)
         if self.Nb > 1 and self.rank == 0:
