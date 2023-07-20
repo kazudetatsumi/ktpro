@@ -157,7 +157,8 @@ class Sqens_balloon_resamples(qkr):
                                           variables=self.variables))
 
     def CI_of_intensities(self):
-        self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
+        if not self.ishist:
+            self.kys = [self.CalcBandW(self.orgfiles[0], inb=0)]
         ytlcs = []
         for inb in range(self.rank*self.Nb//self.size,
                          (self.rank+1)*self.Nb//self.size):
@@ -204,10 +205,27 @@ class Sqens_balloon_resamples(qkr):
             print(self.pklfile)
             self.read_pkl()
             self.select_spectra()
-            self.kde(self.selected_energy, self.selected_spectra, num=self.num)
+            for i in range(10):
+                # the parameters of kde, M, num, winparam can be altered
+                # by setting the corresponding options in the argument.
+                # M=5 and num=800 seem preferable for smooth energy
+                # distributions of the monitored neutron beam. But, I do not
+                # change the default value at the present time (2023/07/20)
+                self.kde(self.selected_energy, self.selected_spectra, M=160,
+                         winparam=1, num=self.num)
+                # if self.rank == 0:
+                #     import matplotlib.pyplot as plt
+                #     fig, ax = plt.subplots()
+                #     ax2 = ax.twinx()
+                #     ax.plot(self.y[1], self.y[0])
+                #     ax2.plot(self.y[1], self.y[2])
+                #     plt.show()
             self.kyis.append(self.y)
 
     def io(self, kyo, kyi):
+        if self.rank == 0:
+            print("CHK NONZERO", np.where(np.interp(kyo[1], kyi[1], kyi[0])
+                                          == 0.))
         return kyo[0]/np.interp(kyo[1], kyi[1], kyi[0])
 
     def run(self):

@@ -49,10 +49,10 @@ class runkdenoidata(rhn, qc):
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         return xtl, ydlc, ytlc
 
-    def kde(self, x, y, num=800):
+    def kde(self, x, y, M=160, winparam=1, num=800):
         self.WinFunc = 'Boxcar'
-        self.M = 160
-        self.winparam = 1
+        self.M = M
+        self.winparam = winparam
         self.selected_spectra = y
         self.selected_energy = x
         self.de = self.selected_energy[1] - self.selected_energy[0]

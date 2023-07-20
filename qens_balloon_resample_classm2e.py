@@ -55,8 +55,12 @@ class Sqens_balloon_resamples(qkr):
                                 self.orgfiles])
 
     def geterrorbars(self):
-        with open("outallkde.pkl."+str(self.qidx), 'rb') as f:
-            dat = pickle.load(f)['out']
+        if self.ishist:
+            with open("outallhst.pkl."+str(self.qidx), 'rb') as f:
+                dat = pickle.load(f)['out']
+        else:
+            with open("outallkde.pkl."+str(self.qidx), 'rb') as f:
+                dat = pickle.load(f)['out']
         return np.std(dat, axis=0)
 
     def geterrorbarsio(self):
@@ -83,14 +87,19 @@ class Sqens_balloon_resamples(qkr):
             [alpha, gamma, delta] = coeffs
             y = alpha*self.convlore(d, gamma, x)\
                 + delta*d + self.bg
-        xl, dif = self.limit2(x, (t-y)/self.etl, self.elim)
+        xl, dif = self.limit2(x, t-y, self.elim)
+        xl, e = self.limit2(x, self.etl, self.elim)
+        dif = dif[np.nonzero(e)]/e[np.nonzero(e)]
         #xl, dif = self.limit2(x, t-y, self.elim)
         return dif
 
     def run(self):
-        self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in self.orgfiles
-                    ]
+        if not self.ishist:
+            self.kys = [self.CalcBandW(orgfile, inb=0) for orgfile in
+                        self.orgfiles]
         self.etl = self.geterrorbars()
+        if self.rank == 0:
+            print("CHKKK", np.where(self.etl == 0.))
         self.outall = []
         for inb in range(self.rank*self.Nb//self.size,
                          (self.rank+1)*self.Nb//self.size):

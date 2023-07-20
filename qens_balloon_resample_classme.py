@@ -56,8 +56,12 @@ class qens_balloon_resamples(sqkr):
         return self.y
 
     def geterrorbars(self):
-        with open("outallkde.pkl."+str(self.qidx), 'rb') as f:
-            dat = pickle.load(f)['out']
+        if self.ishist:
+            with open("outallhst.pkl."+str(self.qidx), 'rb') as f:
+                dat = pickle.load(f)['out']
+        else:
+            with open("outallkde.pkl."+str(self.qidx), 'rb') as f:
+                dat = pickle.load(f)['out']
         return np.std(dat, axis=0)
 
     def geterrorbars_io(self):
@@ -86,7 +90,10 @@ class qens_balloon_resamples(sqkr):
             [alpha, gamma, delta] = coeffs
             y = alpha*self.convlore(d, gamma, x)\
                 + delta*d + self.bg
-        xl, dif = self.limit2(x, (t-y)/self.etl, self.elim)
+        #xl, dif = self.limit2(x, (t-y)/self.etl, self.elim)
+        xl, dif = self.limit2(x, t-y, self.elim)
+        xl, e = self.limit2(x, self.etl, self.elim)
+        dif = dif[np.nonzero(e)]/e[np.nonzero(e)]
         #xl, dif = self.limit2(x, t-y, self.elim)
         return dif
 

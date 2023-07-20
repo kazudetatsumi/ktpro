@@ -23,21 +23,21 @@ class qens_model_fit(qbr):
             + frac + "/"
         self.stdprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
             + frac + "/resamples/"
-        self.outfile = self.orgprefix + "outhist" + self.runNo + "m.pkl"
+        self.outfile = self.orgprefix + "outhist" + self.runNo + "me.pkl"
         self.loadfile()
         orghout = self.outall
-        self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
+        self.outfile = self.orgprefix + "outkde" + self.runNo + "me.pkl"
         self.loadfile()
         orgkout = self.outall
-        self.outfile = self.orgprefix + "outkdeio" + self.runNo + "m.pkl"
+        self.outfile = self.orgprefix + "outkdeio" + self.runNo + "me.pkl"
         self.loadfile()
         orgkioout = self.outall
         maskh, gammah = self.readorgout(orghout)
         maskkb, gammakb = self.readorgout(orgkout)
         maskk, gammak = self.readorgout(orgkioout)
-        errorh, aveh = self.readerror('hist', self.runNo)
-        errorkb, avekb = self.readerror('kde', self.runNo)
-        errork, avek = self.readerror('kdeio', self.runNo)
+        errorh, aveh = self.readerror('histe', self.runNo)
+        errorkb, avekb = self.readerror('kdee', self.runNo)
+        errork, avek = self.readerror('kdeioe', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
         stdhes = self.readstdhessfromlog(self.runNo)
@@ -209,6 +209,7 @@ def testrun():
     runNo = "4174"
     qsize = 17
     fracs = ["100", "050", "025", "0125"]
+    fracs = ["100"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 

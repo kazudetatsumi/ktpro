@@ -12,8 +12,7 @@ from qens_balloon_resample_classm2 import Sqens_balloon_resamples as qbr
 class Sqbr(qbr):
     def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
                  elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
-                 binwidth=0.00025):
-        ishist = False
+                 binwidth=0.00025, ishist=False):
         super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
                          ishist=ishist)
         self.CI_of_intensities()
