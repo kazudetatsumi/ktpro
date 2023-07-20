@@ -23,7 +23,7 @@ class qens_model_fit(qbr):
             + frac + "/dq0148/"
         self.stdprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
             + frac + "/dq0148/resamples/"
-        self.outfile = self.orgprefix + "outhist" + self.runNo + "m.pkl"
+        self.outfile = self.orgprefix + "outhist" + self.runNo + "mr.pkl"
         self.loadfile()
         orghout = self.outall
         self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
@@ -40,7 +40,8 @@ class qens_model_fit(qbr):
         errork, avek = self.readerror('kdeio', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
-        stdhes = self.readstdhessfromlog(self.runNo)
+        #stdhes = self.readstdhessfromlog(self.runNo)
+        stdhes = self.readstdhessfromorgout(orghout)
         return maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
             errork, stdhes, aveh, avekb
 
@@ -84,6 +85,9 @@ class qens_model_fit(qbr):
                 std.append(float(line[:-1].split()[1]))
                 linecount = 999999
         return np.array(std)
+
+    def readstdhessfromorgout(self, orgout):
+        return (orgout[:, 8:].reshape(-1, 4, 4)**0.5)[:, 0, 0]
 
     def res(self, coeffs, x, t, error, mask):
         [u2, b] = coeffs
@@ -194,8 +198,8 @@ class qens_model_fit(qbr):
         maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
          errork, stdhes, aveh, avekb = self.getdata(frac)
         print(frac, len(maskh), len(gammah), len(maskkb), len(gammakb), len(maskk), len(gammak), len(errork[0]), len(stdhes))
-        self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
-        #self.eachsolution(fig, 0, fidx, runNo, gammah, stdhes,
+        #self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
+        self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
                           mask*~maskh, 'hist')
         self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[0],
                           mask*~maskkb, 'kdeb')

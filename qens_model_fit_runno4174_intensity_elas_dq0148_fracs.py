@@ -23,7 +23,7 @@ class qens_model_fit(qbr):
             + frac + "/dq0148/"
         self.stdprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
             + frac + "/dq0148/resamples/"
-        self.outfile = self.orgprefix + "outhist" + self.runNo + "m.pkl"
+        self.outfile = self.orgprefix + "outhist" + self.runNo + "mr.pkl"
         self.loadfile()
         orghout = self.outall
         self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"

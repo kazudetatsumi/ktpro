@@ -53,7 +53,7 @@ class qens_balloon_resamples(sqkr):
         return self.y
 
     def DoQf(self, inb):
-        import matplotlib.pyplot as plt
+        #import matplotlib.pyplot as plt
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         xt, yt = self.rebin(xt, yt)
@@ -70,15 +70,15 @@ class qens_balloon_resamples(sqkr):
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
 
-        [alpha, gamma, delta, base] = self.outall[-1][0:4]
-        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        y = yqens + delta*ydl + base
-        plt.plot(xdl*1000, y, c='k')
-        plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
-        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        plt.ylabel('Intensity (Arb. Units)')
-        plt.xlabel(r'$Energy\ (\mu eV)$')
-        plt.show()
+        #[alpha, gamma, delta, base] = self.outall[-1][0:4]
+        #yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+        #y = yqens + delta*ydl + base
+        #plt.plot(xdl*1000, y, c='k')
+        #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
+        #plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        #plt.ylabel('Intensity (Arb. Units)')
+        #plt.xlabel(r'$Energy\ (\mu eV)$')
+        #plt.show()
 
     def getbins(self):
         bins = []

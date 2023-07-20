@@ -144,7 +144,7 @@ class runhistnoidata(qf):
         #self.outall.append(out)
         #conbine the lists of out.x, out.active_mask, out.success
         print('chk2', out[0].tolist() + out[2].tolist())
-        self.outall.append(out[0].tolist() + out[2].tolist())
+        self.outall.append(out[0].tolist() + out[2].tolist() + out[3].flatten().tolist())
 
     def output(self):
         self.outall = np.array(self.outall)
@@ -315,9 +315,10 @@ class runhistnoidata(qf):
             #out = so.least_squares(self.res, variables, args=(x, yd, yt))
             _out = [out.x, np.linalg.pinv(np.dot(out.jac.T, out.jac))]
             s_sq = (self.res(_out[0], x, yd, yt)**2).sum() / (len(yt)-len(_out[0]))
+            cov = np.absolute(_out[1]*s_sq)
             print("cov**0.5")
-            print(np.absolute(_out[1]*s_sq)**0.5)
-            return [out.x, out.success, out.active_mask]
+            print(cov**0.5)
+            return [out.x, out.success, out.active_mask, cov]
 
     def res(self, coeffs, x, d, t):
         if len(coeffs) == 6:
