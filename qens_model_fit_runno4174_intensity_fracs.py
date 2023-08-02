@@ -20,9 +20,9 @@ class qens_model_fit(qbr):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
         self.orgprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
-            + frac + "/dq0148/"
+            + frac + "/"
         self.stdprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
-            + frac + "/dq0148/resamples/"
+            + frac + "/resamples/"
         self.outfile = self.orgprefix + "outhist" + self.runNo + "mr.pkl"
         self.loadfile()
         orghout = self.outall
@@ -92,8 +92,8 @@ class qens_model_fit(qbr):
     def res(self, coeffs, x, t, error, mask):
         [u2, b] = coeffs
         y = -u2/3.0*x[mask] + b
-        return ((np.log(t[mask]) - y)/(error[mask]/t[mask]))
-        #return np.log(t[mask]) - y
+        #return ((np.log(t[mask]) - y)/(error[mask]/t[mask]))
+        return np.log(t[mask]) - y
 
     def res_arrhenius(self, coeffs, x, t, error):
         [a, b] = coeffs
@@ -158,7 +158,6 @@ class qens_model_fit(qbr):
         for fidx, frac in enumerate(self.fracs):
             mask = np.ones((self.qsize), dtype=bool)
             mask[0:2] = False
-            mask[-1] = False
             self.eachrun(fidx, frac, mask, fig)
 
         plt.subplots_adjust(wspace=0.3, hspace=0.0)
@@ -202,18 +201,15 @@ class qens_model_fit(qbr):
         self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
         #self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
                           mask*~maskh, 'hist')
-        print(mask*~maskh)
         self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[0],
                           mask*~maskkb, 'kdeb')
-        print(mask*~maskkb)
         self.eachsolution(fig, 2, fidx, frac, gammak, errork[0],
                           mask*~maskk, 'kde')
-        print(mask*~maskk)
 
 
 def testrun():
     runNo = "4174"
-    qsize = 12
+    qsize = 17
     fracs = ["100", "050", "025", "0125"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]

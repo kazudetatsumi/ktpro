@@ -12,14 +12,16 @@ from get_resampled_data_mpi_classmgc2 import Sget_qlist as sgq
 
 
 class SSget_qlist(sgq):
-    def __init__(self, runNo, nbs, TimeParam, qmin, qmax):
+    def __init__(self, runNo, nbs, TimeParam, qmin, qmax,
+                 maskfile="maskTY140218ForAfterRun52.txt"):
         super().__init__(pklfile="run" + str(runNo) + "spectrab.pkl",
                          randfile='randomstates.pkl.' + str(runNo) + '.30000')
         self.get_org_data("0.000025", runNo, TimeParam=TimeParam)
         self.get_all_data3()
         self.orgintensityshape = self.dataset['intensity'].shape
         self.orgintensity1d = np.array(self.dataset['intensity'].flatten())
-        self.get_boot_strap_sampled_spectra(nbs, qmin, qmax, wnocorr=True)
+        self.get_boot_strap_sampled_spectra(nbs, qmin, qmax, wnocorr=True,
+                                            maskfile=maskfile)
 
 
 def sample_run(runNo, nbs, TimeParam, qmin, qmax):

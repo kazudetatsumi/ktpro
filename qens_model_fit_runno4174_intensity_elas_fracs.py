@@ -20,9 +20,9 @@ class qens_model_fit(qbr):
         preprefix = "/home/kazu/desktop/210108/Tatsumi/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
         self.orgprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
-            + frac + "/dq0148/"
+            + frac + "/"
         self.stdprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
-            + frac + "/dq0148/resamples/"
+            + frac + "/resamples/"
         self.outfile = self.orgprefix + "outhist" + self.runNo + "mr.pkl"
         self.loadfile()
         orghout = self.outall
@@ -40,17 +40,16 @@ class qens_model_fit(qbr):
         errork, avek = self.readerror('kdeio', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
-        #stdhes = self.readstdhessfromlog(self.runNo)
-        stdhes = self.readstdhessfromorgout(orghout)
+        stdhes = self.readstdhessfromlog(self.runNo)
         return maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
             errork, stdhes, aveh, avekb
 
     def stats(self):
         outall = self.outall[np.sum(self.outall[:, 4:], axis=1) > -0.5]
-        orderidx1 = np.argsort(outall[:, 0])
+        orderidx1 = np.argsort(outall[:, 2])
         lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
         ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
-        return (ubs - lbs) / 2., np.std(outall[:, 0]), np.average(outall[:, 0])
+        return (ubs - lbs) / 2., np.std(outall[:, 2]), np.average(outall[:, 2])
 
     def readerror(self, hork, runNo):
         error = np.zeros((2, self.qsize))
@@ -63,7 +62,7 @@ class qens_model_fit(qbr):
         return error, ave
 
     def readorgout(self, orgout):
-        return np.sum(orgout[:, 4:], axis=1) < -0.5,  orgout[:, 0]
+        return np.sum(orgout[:, 4:], axis=1) < -0.5,  orgout[:, 2]
 
     def readlog(self):
         mask = []
@@ -76,7 +75,7 @@ class qens_model_fit(qbr):
     def readstdhessfromlog(self, runNo):
         std = []
         linecount = 999999
-        for line in open(self.orgprefix + "std-hist-" + self.runNo):
+        for line in open(self.orgprefix + "std-hist-" + str(runNo)):
             if "cov**0.5" in line:
                 linecount = 1
             elif linecount > 0:
@@ -86,14 +85,11 @@ class qens_model_fit(qbr):
                 linecount = 999999
         return np.array(std)
 
-    def readstdhessfromorgout(self, orgout):
-        return (orgout[:, 8:].reshape(-1, 4, 4)**0.5)[:, 0, 0]
-
     def res(self, coeffs, x, t, error, mask):
         [u2, b] = coeffs
         y = -u2/3.0*x[mask] + b
-        return ((np.log(t[mask]) - y)/(error[mask]/t[mask]))
-        #return np.log(t[mask]) - y
+        #return ((np.log(t[mask]) - y)/(error[mask]/t[mask]))
+        return np.log(t[mask]) - y
 
     def res_arrhenius(self, coeffs, x, t, error):
         [a, b] = coeffs
@@ -124,11 +120,11 @@ class qens_model_fit(qbr):
                     ms=2, elinewidth=1, lw=0, capsize=3, c='k')
         ax.errorbar(x[~mask], np.log(t[~mask]), yerr=np.abs(e[~mask]/t[~mask]), marker="x",
                     ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
-        ax.text(0.2, -2.9, title+"_"+str(self.fracs[fidx]))
-        ax.text(0.2, -3.4, '$u^2$={:.2f} +/- {:.2f} '.format(self.u2[sidx, fidx], self.stdu2[sidx, fidx]) + '$\AA^2$')
-        ax.text(0.2, -3.8, 'rel. error +/- {:.1f}% '.format(self.stdu2[sidx, fidx]/np.abs(self.u2[sidx, fidx])*100.))
-        #ax.set_ylim(-1, 0.022*1000.)
-        ax.set_ylim(-4., -1.)
+        ax.text(1.4, -0.5, title+"_"+str(self.fracs[fidx]), fontsize=7)
+        ax.text(1.4, -1.0, '$u^2$={:.2f} +/- {:.2f} '.format(self.u2[sidx, fidx], self.stdu2[sidx, fidx]) + '$\AA^2$', fontsize=7)
+        ax.text(1.4, -1.5, 'rel. error +/- {:.1f}% '.format(self.stdu2[sidx, fidx]/np.abs(self.u2[sidx, fidx])*100.), fontsize=7)
+        ax.set_ylim(-5., -0.)
+        #ax.set_ylim(0, 400.)
         #ax.set_xlim(0., 1.6)
         #ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
         #ax.set_yticks([0., 5, 10, 15, 20])
@@ -142,7 +138,7 @@ class qens_model_fit(qbr):
         if sidx == 2:
             ax.set_xlabel(r'$Q^2 \ (\AA^{-2})$ ')
         if sidx == 1:
-            ax.set_ylabel(r'$lnA_{QENS}$')
+            ax.set_ylabel(r'$lnA_{ELAS}$')
 
     def plotters(self, x,  ys, es, titles):
         for sidx, title in enumerate(titles):
@@ -156,9 +152,9 @@ class qens_model_fit(qbr):
     def run(self):
         fig = plt.figure(figsize=(2.7*len(self.fracs), 6))
         for fidx, frac in enumerate(self.fracs):
-            mask = np.ones((self.qsize), dtype=bool)
-            mask[0:2] = False
-            mask[-1] = False
+            mask = np.zeros((self.qsize), dtype=bool)
+            mask[-2:] = True
+            mask[3:5] = True
             self.eachrun(fidx, frac, mask, fig)
 
         plt.subplots_adjust(wspace=0.3, hspace=0.0)
@@ -181,7 +177,7 @@ class qens_model_fit(qbr):
     def eachsolution(self, fig, sidx, fidx, frac, gamma, error, mask, label):
         #mask *= error > 0.00005
         mask *= np.log(gamma) < -1.0
-        out = self.optimize([0.05, 52], gamma, error, mask)
+        out = self.optimize([2.35, 0.52], gamma, error, mask)
         u2 = out.x[0]
         self.u2[sidx, fidx] = u2  # [Angs^2]
         b = out.x[1]
@@ -200,20 +196,17 @@ class qens_model_fit(qbr):
          errork, stdhes, aveh, avekb = self.getdata(frac)
         print(frac, len(maskh), len(gammah), len(maskkb), len(gammakb), len(maskk), len(gammak), len(errork[0]), len(stdhes))
         self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
-        #self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
+        #self.eachsolution(fig, 0, fidx, runNo, gammah, stdhes,
                           mask*~maskh, 'hist')
-        print(mask*~maskh)
         self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[0],
                           mask*~maskkb, 'kdeb')
-        print(mask*~maskkb)
         self.eachsolution(fig, 2, fidx, frac, gammak, errork[0],
                           mask*~maskk, 'kde')
-        print(mask*~maskk)
 
 
 def testrun():
     runNo = "4174"
-    qsize = 12
+    qsize = 17
     fracs = ["100", "050", "025", "0125"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
@@ -223,4 +216,3 @@ def testrun():
 
 
 testrun()
-

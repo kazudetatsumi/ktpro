@@ -12,9 +12,10 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 
 class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
-                 ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
-                 prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False, ispltchk=False):
+                 ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
+                 orgmodifier="org", prefix="./",
+                 variables=[0.655, 0.0129, 0.200, 0.00208], quiet=False,
+                 ispltchk=False):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -22,6 +23,8 @@ class qens_balloon_resamples(sqkr):
         self.elim = elim
         self.ishist = ishist
         self.num = num
+        self.M = M
+        self.winparam = winparam
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
         self.prefix = prefix
@@ -50,7 +53,7 @@ class qens_balloon_resamples(sqkr):
             print("CalcBandW: chkm slicing spectrab at qidx")
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
-                     num=self.num)
+                     num=self.num, M=self.M, winparam=self.winparam)
         return self.y
 
 

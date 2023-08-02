@@ -20,13 +20,14 @@ from get_resampled_data_org_class import Sget_qlist as gq
 
 
 class Sget_qlist(gq):
-    def __init__(self, save_file=None, pklfile=None):
+    def __init__(self, save_file=None, pklfile=None, maskfile="maskTY140218ForAfterRun52.txt"):
         self.save_file = save_file
         self.pklfile = pklfile
+        self.maskfile = maskfile
 
     def get_qemap(self, qmin, qmax):
         #Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
-        Cmm.DoMask(dat=self.DAT, filename="maskTY140218ForAfterRun52.txt")
+        Cmm.DoMask(dat=self.DAT, filename=self.maskfile)
         ECM = Cmm.ILambdaCorrDNA(dat=self.DAT, ec=self.EC, useMonEff=True)
         ECM2 = Cmm.SolidAngleCorrDNA(
                 dat=ECM, useDetEff=True, useAbsoCorr=False, useEffCorr=False,

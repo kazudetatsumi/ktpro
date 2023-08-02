@@ -35,7 +35,7 @@ class qens_model_fit(qbr):
         maskh, gammah = self.readorgout(orghout)
         maskkb, gammakb = self.readorgout(orgkout)
         maskk, gammak = self.readorgout(orgkioout)
-        errorh, aveh = self.readerror('hist', self.runNo)
+        errorh, aveh = self.readerror('histr', self.runNo)
         errorkb, avekb = self.readerror('kde', self.runNo)
         errork, avek = self.readerror('kdeio', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"

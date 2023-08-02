@@ -25,7 +25,8 @@ class Sget_qlist(gq):
         self.save_file = save_file
         self.pklfile = pklfile
 
-    def get_qemapb(self, intensityb, qmin, qmax):
+    def get_qemapb(self, intensityb, qmin, qmax,
+                   maskfile="maskTY140218ForAfterRun52.txt"):
         #DATB = Manyo.ElementContainerMatrix(self.DAT)
         # To reduce memory usage, self.DAT is overwritten.
         ctp = Manyo.CppToPython()
@@ -40,7 +41,7 @@ class Sget_qlist(gq):
                 self.DAT(ecaidx, ecidx).SetKeys("EnergyTransfer", "Intensity",
                                                 "Error")
         #Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
-        Cmm.DoMask(dat=self.DAT, filename="maskTY140218ForAfterRun52.txt")
+        Cmm.DoMask(dat=self.DAT, filename=maskfile)
         ECM = Cmm.ILambdaCorrDNA(dat=self.DAT, ec=self.EC, useMonEff=True)
         ECM2 = Cmm.SolidAngleCorrDNA(
                 dat=ECM, useDetEff=True, useAbsoCorr=False, useEffCorr=False,

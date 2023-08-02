@@ -15,55 +15,69 @@ class qens_model_fit(qbr):
         self.q2 = ((np.arange(self.qsize)+1)*0.148)**2.
         self.D = np.zeros((3, len(fracs)))
         self.stdD = np.zeros((3, len(fracs)))
+        self.tau = np.zeros((3, len(fracs)))
+        self.stdtau = np.zeros((3, len(fracs)))
 
     def getdata(self, frac):
-        preprefix = "/home/kazu/desktop/210108/Tatsumi/"
+        prepreprefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
-        self.orgprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
+        rebin = "rebin_hist_Ebin20150709"
+        rebin = "rebin_0002"
+        nM = "n200-M5120"
+        self.prefix = prepreprefix + "run" + self.runNo + "/"\
             + frac + "/dq0148/"
-        self.stdprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
-            + frac + "/dq0148/resamples/"
-        self.outfile = self.orgprefix + "outhist" + self.runNo + "mr.pkl"
+        self.outfile = self.prefix + "/resamples/" + rebin +\
+            "/outhist" + self.runNo + "mr.pkl"
         self.loadfile()
         orghout = self.outall
-        self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
+        #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
+        self.outfile = self.prefix + "/" + nM + "/outkde" + self.runNo +\
+            "m.pkl"
         self.loadfile()
         orgkout = self.outall
-        self.outfile = self.orgprefix + "outkdeio" + self.runNo + "m.pkl"
+        self.outfile = self.prefix + "/moni/outkdeio" + self.runNo + "m.pkl"
         self.loadfile()
         orgkioout = self.outall
         maskh, gammah = self.readorgout(orghout)
         maskkb, gammakb = self.readorgout(orgkout)
         maskk, gammak = self.readorgout(orgkioout)
-        errorh, aveh = self.readerror('hist', self.runNo)
-        errorkb, avekb = self.readerror('kde', self.runNo)
-        errork, avek = self.readerror('kdeio', self.runNo)
+        self.outfile = self.prefix + "/resamples/" + rebin
+        maskh2, errorh, aveh = self.readerror('histr', self.runNo)
+        self.outfile = self.prefix + "/resamples/" + nM
+        maskkb2, errorkb, avekb = self.readerror('kde', self.runNo)
+        self.outfile = self.prefix + "/resamples/"
+        maskk2, errork, avek = self.readerror('kdeio', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
         #stdhes = self.readstdhessfromlog(self.runNo)
         stdhes = self.readstdhessfromorgout(orghout)
-        return maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
-            errork, stdhes, aveh, avekb
+        return maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
+            gammak, errorh, errorkb, errork, stdhes, aveh, avekb
 
     def stats(self):
         outall = self.outall[np.sum(self.outall[:, 4:], axis=1) > -0.5]
         #print('CHK', outall.shape)
         orderidx1 = np.argsort(outall[:, 1])
         #print("CHK", orderidx1.shape)
+        print(outall.shape[0], int(self.outall.shape[0]/2))
         lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
         ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
-        return (ubs - lbs) / 2., np.std(outall[:, 1]), np.average(outall[:, 1])
+        return outall.shape[0] < int(self.outall.shape[0]/2), (ubs - lbs) / 2.,\
+            np.std(outall[:, 1]), np.average(outall[:, 1])
 
     def readerror(self, hork, runNo):
         error = np.zeros((2, self.qsize))
         ave = np.zeros((self.qsize))
+        mask = np.zeros((self.qsize), dtype=bool)
+        print(hork)
+        prestr = str(self.outfile)
         for qidx in range(0, self.qsize):
-            self.outfile = self.stdprefix + \
-                           "/out" + hork + ".pkl." + str(qidx)
+            self.outfile = prestr + "/out" + hork + ".pkl." + str(qidx)
             #print(self.outfile)
             self.loadfile()
-            error[0, qidx], error[1, qidx], ave[qidx] = self.stats()
-        return error, ave
+            mask[qidx], error[0, qidx], error[1, qidx], ave[qidx] =\
+                self.stats()
+        return mask, error, ave
 
     def readorgout(self, orgout):
         return np.sum(orgout[:, 4:], axis=1) < -0.5,  orgout[:, 1]
@@ -92,10 +106,10 @@ class qens_model_fit(qbr):
     def readstdhessfromorgout(self, orgout):
         return (orgout[:, 8:].reshape(-1, 4, 4)**0.5)[:, 1, 1]
 
-    def res(self, coeffs, x, t, error, mask):
+    def res(self, coeffs, x, t, error):
         [D, tau] = coeffs
-        y = D*x[mask]/(1. + D*tau*x[mask])
-        return ((t[mask] - y)/error[mask])
+        y = D*x/(1. + D*tau*x)
+        return ((t - y)/error)
         #return t[mask] - y
 
     def res_arrhenius(self, coeffs, x, t, error):
@@ -104,9 +118,9 @@ class qens_model_fit(qbr):
         return ((t - y)/error)
         #return t - y
 
-    def optimize(self, variables, gamma, error, mask):
+    def optimize(self, variables, q2, gamma, error):
         return so.least_squares(self.res, variables, bounds=(0, np.inf),
-                                args=(self.q2, gamma, error, mask))
+                                args=(q2, gamma, error))
 
     def optimize_arrhenius(self, variables, x, t, error):
         out = so.least_squares(self.res_arrhenius, variables,
@@ -116,20 +130,33 @@ class qens_model_fit(qbr):
         cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
         return out.x, cov
 
-    def plotter(self, fig, nr, x, y, t, e, mask, title, sidx, fidx):
+    def plotter(self, fig, nr, x, y, t, R2, e, mask, mask2, title, sidx,
+                fidx):
         #xerr = 2.*(np.arange(self.qsize)*0.1 + 0.05)*0.05
         #mask *= e > 0.0001
         #mask *= t > 0.00001
+        print(mask, title, mask2, title)
         pnr = 1+len(self.fracs)*sidx+fidx
         ax = fig.add_subplot(nr, len(self.fracs), pnr)
         ax.plot(x, y*1000., ls='dashed', c='k')
-        ax.errorbar(x[mask], t[mask]*1000., yerr=e[mask]*1000., marker="x",
-                    ms=2, elinewidth=1, lw=0, capsize=3, c='k')
-        ax.errorbar(x[~mask], t[~mask]*1000., yerr=e[~mask]*1000., marker="x",
-                    ms=2, elinewidth=1, lw=0, capsize=3, c='gray')
-        ax.text(0.1, 0.017*1000., title+"_"+str(self.fracs[fidx]))
-        ax.text(0.1, 0.014*1000., 'D={:.0f} +/- {:.0f} '.format(self.D[sidx, fidx], self.stdD[sidx, fidx]) + '$10^9\AA^2s^{-1}$')
-        ax.text(0.1, 0.011*1000., 'rel. error +/- {:.1f}% '.format(self.stdD[sidx, fidx]/self.D[sidx, fidx]*100.))
+        ax.errorbar(x[~mask*~mask2], t[~mask*~mask2]*1000.,
+                    yerr=e[~mask*~mask2]*1000., marker="x", ms=2, elinewidth=1,
+                    lw=0, capsize=3, c='k')
+        ax.errorbar(x[mask*~mask2], t[mask*~mask2]*1000.,
+                    yerr=e[mask*~mask2]*1000., marker="x",
+                    ms=2, elinewidth=1, lw=0, capsize=3, c='blue')
+        ax.errorbar(x[mask2*~mask], t[mask2*~mask]*1000.,
+                    yerr=e[mask2*~mask]*1000., marker="x",
+                    ms=2, elinewidth=1, lw=0, capsize=3, c='red')
+        ax.errorbar(x[mask2*mask], t[mask2*mask]*1000.,
+                    yerr=e[mask2*mask]*1000., marker="x",
+                    ms=2, elinewidth=1, lw=0, capsize=3, c='pink')
+        ax.text(0.1, 0.020*1000., title+"_"+str(self.fracs[fidx]))
+        ax.text(1.6, 0.020*1000., 'R2={:.0f}%'.format(R2*100.))
+        ax.text(0.1, 0.018*1000., 'D={:.0f} +/- {:.0f} '.format(self.D[sidx, fidx], self.stdD[sidx, fidx]) + '$10^9\AA^2s^{-1}$')
+        ax.text(0.1, 0.016*1000., 'rel. diff. {:.0f}% '.format(self.D[sidx, fidx]/self.D[sidx, 0]*100.-100.))
+        ax.text(0.1, 0.014*1000., 'tau={:.0f} +/- {:.0f} '.format(self.tau[sidx, fidx], self.stdtau[sidx, fidx]) + 'ps')
+        ax.text(0.1, 0.012*1000., 'rel. diff. {:.0f}% '.format(self.tau[sidx, fidx]/self.tau[sidx, 0]*100.-100.))
         ax.set_ylim(-1, 0.022*1000.)
         #ax.set_xlim(0., 1.6)
         #ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
@@ -159,9 +186,9 @@ class qens_model_fit(qbr):
     def run(self):
         fig = plt.figure(figsize=(3*len(self.fracs), 8))
         for fidx, frac in enumerate(self.fracs):
-            mask = np.ones((self.qsize), dtype=bool)
-            mask[0] = False
-            self.eachrun(fidx, frac, mask, fig)
+            #mask = np.ones((self.qsize), dtype=bool)
+            #mask[0:2] = False
+            self.eachrun(fidx, frac, fig)
 
         plt.subplots_adjust(wspace=0.3, hspace=0.0)
         plt.legend()
@@ -180,40 +207,55 @@ class qens_model_fit(qbr):
         #             out_arrhenius[1], c=color)
         #plt.show()
 
-    def eachsolution(self, fig, sidx, fidx, frac, gamma, error, mask, label):
+    def eachsolution(self, fig, sidx, fidx, frac, gamma, error, mask, mask2,
+                     label):
         #mask *= error > 0.00005
-        mask *= gamma > 0.001
-        out = self.optimize([0.05, 52], gamma, error, mask)
+        #mask *= gamma > 0.001
+        #print(mask, mask2, label)
+        mask[0] = True
+        _mask = ~mask*~mask2
+        _q2 = self.q2[_mask]
+        _gamma = gamma[_mask]
+        _error = error[_mask]
+        out = self.optimize([0.05, 52], _q2, _gamma, _error)
         D = out.x[0]
+        tau = out.x[1]
         # We should mulitiply hbar to convert angular freq. to energy.
         self.D[sidx, fidx] = D/4.1355667*1000.*2.0*3.1415926  # [Angs^2s-1 * 10^9]
-        tau = out.x[1]
+        self.tau[sidx, fidx] = tau*4.1355667/2.0/3.1415926    # [ps]
         y = D*self.q2/(1. + D*tau*self.q2)
-        s_sq = (self.res(out.x, self.q2, gamma, error, mask)**2).sum() /\
-               (len(gamma)-len(out.x))
+        s_sq = (self.res(out.x, _q2, _gamma, _error)**2).sum() /\
+               (len(_gamma)-len(out.x))
         cov = np.absolute(np.linalg.inv(np.dot(out.jac.T, out.jac))*s_sq)
         self.stdD[sidx, fidx] = (cov**0.5)[0, 0] / 4.1355667 * 1000.*2.0*3.1415926
+        self.stdtau[sidx, fidx] = (cov**0.5)[1, 1] * 4.1355667/2.0/3.1415926
+        R2 = 1. - np.sum((_gamma - y[_mask])**2.)/np.sum((_gamma - np.mean(_gamma))**2.)
 
-        self.plotter(fig, 3, self.q2, y, gamma,
-                     error, mask, label, sidx, fidx)
+        self.plotter(fig, 3, self.q2, y, gamma, R2,
+                     error, mask, mask2, label, sidx, fidx)
 
-    def eachrun(self, fidx, frac, mask, fig):
-        maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
-         errork, stdhes, aveh, avekb = self.getdata(frac)
+    def eachrun(self, fidx, frac, fig):
+        maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
+             gammak, errorh, errorkb,  errork, stdhes, aveh, avekb =\
+             self.getdata(frac)
         print(frac, len(maskh), len(gammah), len(maskkb), len(gammakb), len(maskk), len(gammak), len(errork[0]), len(stdhes))
-        #self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
-        self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
-                          mask*~maskh, 'hist')
-        self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[0],
-                          mask*~maskkb, 'kdeb')
-        self.eachsolution(fig, 2, fidx, frac, gammak, errork[0],
-                          mask*~maskk, 'kde')
+        #maskhh = np.ones((self.qsize), dtype=bool)
+        #if fidx >= 2:
+        #    maskhh[1] = False
+        self.eachsolution(fig, 0, fidx, frac, gammah, errorh[1],
+        #self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
+                          maskh, maskh2, 'hist')
+        self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[1],
+                          maskkb, maskkb2, 'kdeb')
+        #self.eachsolution(fig, 2, fidx, frac, gammak, errork[1],
+        #                  maskk, maskk2, 'kde')
 
 
 def testrun():
     runNo = "4174"
     qsize = 12
-    fracs = ["100", "050", "025", "0125"]
+    fracs = ["100", "050", "025", "0125", "0100", "0050"]
+    fracs = ["100",  "0125", "0100", "0050"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 

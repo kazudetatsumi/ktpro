@@ -82,9 +82,13 @@ class qens_balloon_resamples(sqkr):
 
     def getbins(self):
         bins = []
-        for line in open("/home/kazu/Ebin20150709.txt"):
-            bins.append(float(line[:-1].split()[0]))
-        self.bins = np.array(bins)
+        #for line in open("/home/kazu/Ebin20150709.txt"):
+        #    bins.append(float(line[:-1].split()[0]))
+        #self.bins = np.array(bins)
+        #self.bins = np.arange(-0.03, 0.12025, 0.00025)
+        #self.bins = np.arange(-0.03, 0.121, 0.001)
+        #self.bins = np.arange(-0.03, 0.121, 0.0005)
+        self.bins = np.arange(-0.03, 0.122, 0.002)
 
     def rebin(self, x, y):
         nbins = self.bins.shape[0]

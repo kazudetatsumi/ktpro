@@ -20,7 +20,9 @@ class Sget_qlist(gq):
         self.pklfile = pklfile
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
-                                       wnocorr=False, frac=None):
+                                       wnocorr=False, frac=None,
+                                       maskfile="maskTY140218ForAfterRun52.txt"
+                                       ):
         import gc
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -62,7 +64,8 @@ class Sget_qlist(gq):
             for _idx0, _idx1, _idx2 in zip(test_idxs[0], test_idxs[1],
                                            test_idxs[2]):
                 intensityb[_idx0, _idx1, _idx2] += 1
-            self.spectm(qmin, qmax, self.get_qemapb(intensityb, qmin, qmax))
+            self.spectm(qmin, qmax, self.get_qemapb(intensityb, qmin, qmax,
+                                                    maskfile=maskfile))
             if inb == rank*(nbs//psize):
                 ener = np.zeros((nbs//psize, self.ene.shape[0]))
                 spectrar = np.zeros((nbs//psize, self.ene.shape[0]))

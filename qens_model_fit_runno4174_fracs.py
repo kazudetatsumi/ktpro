@@ -23,24 +23,25 @@ class qens_model_fit(qbr):
             + frac + "/"
         self.stdprefix = preprefix + "from_pca03/wcorr/run" + self.runNo + "/"\
             + frac + "/resamples/"
-        self.outfile = self.orgprefix + "outhist" + self.runNo + "me.pkl"
+        self.outfile = self.orgprefix + "outhist" + self.runNo + "mr.pkl"
         self.loadfile()
         orghout = self.outall
-        self.outfile = self.orgprefix + "outkde" + self.runNo + "me.pkl"
+        self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
         self.loadfile()
         orgkout = self.outall
-        self.outfile = self.orgprefix + "outkdeio" + self.runNo + "me.pkl"
+        self.outfile = self.orgprefix + "outkdeio" + self.runNo + "m.pkl"
         self.loadfile()
         orgkioout = self.outall
         maskh, gammah = self.readorgout(orghout)
         maskkb, gammakb = self.readorgout(orgkout)
         maskk, gammak = self.readorgout(orgkioout)
-        errorh, aveh = self.readerror('histe', self.runNo)
-        errorkb, avekb = self.readerror('kdee', self.runNo)
-        errork, avek = self.readerror('kdeioe', self.runNo)
+        errorh, aveh = self.readerror('histr', self.runNo)
+        errorkb, avekb = self.readerror('kde', self.runNo)
+        errork, avek = self.readerror('kdeio', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
-        stdhes = self.readstdhessfromlog(self.runNo)
+        #stdhes = self.readstdhessfromlog(self.runNo)
+        stdhes = self.readstdhessfromorgout(orghout)
         return maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
             errork, stdhes, aveh, avekb
 
@@ -87,6 +88,9 @@ class qens_model_fit(qbr):
                 std.append(float(line[:-1].split()[1]))
                 linecount = 999999
         return np.array(std)
+
+    def readstdhessfromorgout(self, orgout):
+        return (orgout[:, 8:].reshape(-1, 4, 4)**0.5)[:, 1, 1]
 
     def res(self, coeffs, x, t, error, mask):
         [D, tau] = coeffs
@@ -177,7 +181,7 @@ class qens_model_fit(qbr):
 
     def eachsolution(self, fig, sidx, fidx, frac, gamma, error, mask, label):
         #mask *= error > 0.00005
-        mask *= gamma > 0.001
+        #mask *= gamma > 0.001
         out = self.optimize([0.05, 52], gamma, error, mask)
         D = out.x[0]
         # We should mulitiply hbar to convert angular freq. to energy.
@@ -196,20 +200,22 @@ class qens_model_fit(qbr):
         maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
          errork, stdhes, aveh, avekb = self.getdata(frac)
         print(frac, len(maskh), len(gammah), len(maskkb), len(gammakb), len(maskk), len(gammak), len(errork[0]), len(stdhes))
-        self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
-        #self.eachsolution(fig, 0, fidx, runNo, gammah, stdhes,
-                          mask*~maskh, 'hist')
+        maskhh = np.ones((self.qsize), dtype=bool)
+        #maskhh[0] = False
+        #self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
+        self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
+                          mask*~maskh*maskhh, 'hist')
         self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[0],
-                          mask*~maskkb, 'kdeb')
+                          mask*~maskkb*maskhh, 'kdeb')
         self.eachsolution(fig, 2, fidx, frac, gammak, errork[0],
-                          mask*~maskk, 'kde')
+                          mask*~maskk*maskhh, 'kde')
 
 
 def testrun():
     runNo = "4174"
     qsize = 17
     fracs = ["100", "050", "025", "0125"]
-    fracs = ["100"]
+    #fracs = ["100"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 

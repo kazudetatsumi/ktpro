@@ -47,7 +47,7 @@ class Sqens_balloon_resamples(qkr):
             qkr.__init__(self, pklfile=orgfile)
             print(orgfile)
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
-                     num=self.num)
+                     num=self.num, M=self.M, winparam=self.winparam)
         return self.y
 
     def balloon(self, ky, sy):
@@ -126,7 +126,7 @@ class Sqens_balloon_resamples(qkr):
         #    yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
         #    y = yqens + delta*ydl + base
         #    plt.plot(xdl*1000, y, c='k')
-        #    #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
+        ##    #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
         #    plt.plot(xdl*1000, ytlc, c='b')
         #    plt.plot(xdl*1000, yqens, ls='dotted', c='k')
         #    plt.ylabel('Intensity (Arb. Units)')
@@ -150,9 +150,12 @@ class Sqens_balloon_resamples(qkr):
         ydlc *= 1000000.
         ytlc *= 1000000.
         self.bg = 0.
-        if self.xe.shape[0] != xtl.shape[0]:
-            print("interpolating errors")
-            self.etl = np.interp(xtl, self.xe, self.etl)
+        try:
+            if self.xe.shape[0] != xtl.shape[0]:
+                print("interpolating errors")
+                self.etl = np.interp(xtl, self.xe, self.etl)
+        except AttributeError:
+            print('self.xe does not exist.')
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
 
