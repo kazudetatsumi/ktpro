@@ -4,7 +4,8 @@ import h5py
 import os
 from ctypes import *
 from mpi4py import MPI
-lib = CDLL("/home/kazu/ktpro/costfort4d_mpi.so")
+#lib = CDLL("/home/kazu/ktpro/costfort4d_mpi.so")
+lib = CDLL("/home/kazu/ktpro/costfort4d_mpi_gf.so")
 
 
 def calc_cost4d_f90(maxw, data, condition, usecond):

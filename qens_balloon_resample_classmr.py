@@ -89,6 +89,9 @@ class qens_balloon_resamples(sqkr):
         #self.bins = np.arange(-0.03, 0.121, 0.001)
         #self.bins = np.arange(-0.03, 0.121, 0.0005)
         self.bins = np.arange(-0.03, 0.122, 0.002)
+        #self.bins = np.arange(-0.03, 0.123, 0.003)
+        #self.bins = np.arange(-0.03, 0.12, 0.01)
+        #self.bins = np.arange(-0.03, 0.124, 0.007)
 
     def rebin(self, x, y):
         nbins = self.bins.shape[0]
@@ -115,6 +118,7 @@ class qens_balloon_resamples(sqkr):
             y = alpha1*self.convlore(d, gamma1, x)\
                 + alpha2*self.convlore(d, gamma2, x)\
                 + delta*d + self.bg
+        # We use convloreorg for histograms whose binwidths varied with x.
         if len(coeffs) == 4:
             [alpha, gamma, delta, base] = coeffs
             y = alpha*self.convloreorg(d, gamma, x)\

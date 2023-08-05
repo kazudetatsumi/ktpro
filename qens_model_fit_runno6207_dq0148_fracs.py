@@ -22,8 +22,10 @@ class qens_model_fit(qbr):
         prepreprefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
         rebin = "rebin_hist_Ebin20150709"
-        rebin = "rebin_0002"
-        nM = "n200-M320"
+        rebin = "rebin_0003"
+        #rebin = "rebin_0010"
+        #rebin = "rebin_0007"
+        nM = "n200"
         self.prefix = prepreprefix + "run" + self.runNo + "/"\
             + frac + "/dq0148/"
         self.outfile = self.prefix + "/resamples/" + rebin +\
@@ -35,24 +37,26 @@ class qens_model_fit(qbr):
             "m.pkl"
         self.loadfile()
         orgkout = self.outall
-        self.outfile = self.prefix + "/moni/outkdeio" + self.runNo + "m.pkl"
-        self.loadfile()
-        orgkioout = self.outall
+        #self.outfile = self.prefix + "/moni/outkdeio" + self.runNo + "m.pkl"
+        #self.loadfile()
+        #orgkioout = self.outall
         maskh, gammah = self.readorgout(orghout)
         maskkb, gammakb = self.readorgout(orgkout)
-        maskk, gammak = self.readorgout(orgkioout)
+        #maskk, gammak = self.readorgout(orgkioout)
         self.outfile = self.prefix + "/resamples/" + rebin
         maskh2, errorh, aveh = self.readerror('histr', self.runNo)
         self.outfile = self.prefix + "/resamples/" + nM
         maskkb2, errorkb, avekb = self.readerror('kde', self.runNo)
-        self.outfile = self.prefix + "/resamples/"
-        maskk2, errork, avek = self.readerror('kdeio', self.runNo)
+        #self.outfile = self.prefix + "/resamples/"
+        #maskk2, errork, avek = self.readerror('kdeio', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
         #stdhes = self.readstdhessfromlog(self.runNo)
         stdhes = self.readstdhessfromorgout(orghout)
-        return maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
-            gammak, errorh, errorkb, errork, stdhes, aveh, avekb
+        #return maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
+        #    gammak, errorh, errorkb, errork, stdhes, aveh, avekb
+        return maskh, maskh2, gammah, maskkb, maskkb2, gammakb, \
+            errorh, errorkb, stdhes, aveh, avekb
 
     def stats(self):
         outall = self.outall[np.sum(self.outall[:, 4:], axis=1) > -0.5]
@@ -162,14 +166,14 @@ class qens_model_fit(qbr):
         #ax.set_yticks([0.000, 0.005, 0.010, 0.015, 0.020])
         ax.set_yticks([0., 5, 10, 15, 20])
         #ax.set_xticks([0., 0.4, 0.8, 1.2, 1.6])
-        if pnr >= (nr-1)*len(self.fracs)+1:
+        if pnr >= (nr-2)*len(self.fracs)+1:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=True)
         else:
             ax.tick_params(direction='in', top=True, right=True,
                            labelbottom=False)
         #if pnr == 5 or pnr == 6:
-        if sidx == 2:
+        if sidx == 1:
             ax.set_xlabel(r'$Q^2 \ (\AA^{-2})$ ')
         if sidx == 1:
             ax.set_ylabel(r'$\Gamma\ (\mu eV)$')
@@ -212,7 +216,7 @@ class qens_model_fit(qbr):
         #mask *= error > 0.00005
         #mask *= gamma > 0.001
         #print(mask, mask2, label)
-        mask[0] = True
+        mask[0:2] = True
         _mask = ~mask*~mask2
         _q2 = self.q2[_mask]
         _gamma = gamma[_mask]
@@ -235,10 +239,13 @@ class qens_model_fit(qbr):
                      error, mask, mask2, label, sidx, fidx)
 
     def eachrun(self, fidx, frac, fig):
-        maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
-             gammak, errorh, errorkb,  errork, stdhes, aveh, avekb =\
+        #maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
+        #     gammak, errorh, errorkb,  errork, stdhes, aveh, avekb =\
+        #     self.getdata(frac)
+        maskh, maskh2, gammah, maskkb, maskkb2, gammakb,\
+             errorh, errorkb, stdhes, aveh, avekb =\
              self.getdata(frac)
-        print(frac, len(maskh), len(gammah), len(maskkb), len(gammakb), len(maskk), len(gammak), len(errork[0]), len(stdhes))
+        print(frac, len(maskh), len(gammah), len(maskkb), len(gammakb), len(stdhes))
         #maskhh = np.ones((self.qsize), dtype=bool)
         #if fidx >= 2:
         #    maskhh[1] = False
@@ -252,10 +259,11 @@ class qens_model_fit(qbr):
 
 
 def testrun():
-    runNo = "4174"
+    runNo = "6207"
     qsize = 12
     fracs = ["100", "050", "025", "0125", "0100", "0050"]
-    fracs = ["100",  "0125", "0100", "0050"]
+    fracs = ["100", "0125", "0050"]
+    #fracs = ["100"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 
