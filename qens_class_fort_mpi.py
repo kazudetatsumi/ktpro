@@ -124,7 +124,7 @@ class qens:
         #      self.selected_energy[0], "num channels=", self.tin.shape[0])
         self.tin_real = np.linspace(self.selected_energy[0],
                                     self.selected_energy[-1], num=num)
-        #print(self.tin_real[0:10])
+        print('CHECK TIN_REAL:', self.tin_real[0:10])
         if rank == 0 and not self.quiet:
             print('number of tin_real elements =', self.tin_real.shape[0])
 

@@ -22,7 +22,7 @@ class qens_model_fit(qbr):
         prepreprefix = "/home/kazu/desktop/210108/Tatsumi/from_pca03/wcorr/"
         # preprefix = "/Users/kazu/Desktop/210108/Tatsumi/"
         rebin = "rebin_hist_Ebin20150709"
-        rebin = "rebin_0003"
+        rebin = "rebin_0002"
         #rebin = "rebin_0010"
         #rebin = "rebin_0007"
         nM = "n200"

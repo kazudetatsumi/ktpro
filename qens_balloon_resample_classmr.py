@@ -88,10 +88,12 @@ class qens_balloon_resamples(sqkr):
         #self.bins = np.arange(-0.03, 0.12025, 0.00025)
         #self.bins = np.arange(-0.03, 0.121, 0.001)
         #self.bins = np.arange(-0.03, 0.121, 0.0005)
-        self.bins = np.arange(-0.03, 0.122, 0.002)
+        #self.bins = np.arange(-0.03, 0.122, 0.002)
         #self.bins = np.arange(-0.03, 0.123, 0.003)
-        #self.bins = np.arange(-0.03, 0.12, 0.01)
-        #self.bins = np.arange(-0.03, 0.124, 0.007)
+        #self.bins = np.arange(-0.03, 0.122, 0.004)
+        self.bins = np.arange(-0.03, 0.125, 0.005)
+        #self.bins = np.arange(-0.03, 0.13, 0.01)
+        #self.bins = np.arange(-0.03, 0.12125, 0.00275)
 
     def rebin(self, x, y):
         nbins = self.bins.shape[0]
