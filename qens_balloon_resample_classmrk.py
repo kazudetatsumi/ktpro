@@ -61,11 +61,13 @@ class qens_balloon_resamples(sqkr):
         return self.y
 
     def DoQf(self, inb):
-        import matplotlib.pyplot as plt
+        #import matplotlib.pyplot as plt
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         xt, yt = self.rebin(xt, yt, self.kys[0])
         xd, yd = self.rebin(xd, yd, self.kys[1])
+        #xt, yt = self.rebin(xt, yt)
+        #xd, yd = self.rebin(xd, yd)
         self.icorr()
         print("CHK elim:", self.elim)
         xtl, ytl = self.limit2(xt, yt, self.elim)
@@ -79,15 +81,15 @@ class qens_balloon_resamples(sqkr):
         self.check_out(inb, self.optimize(xdl, ydlc, xtl, ytlc,
                                           variables=self.variables))
 
-        [alpha, gamma, delta, base] = self.outall[-1][0:4]
-        yqens = alpha*self.convloreorg(ydlc, gamma, xdl, xtl)
-        y = yqens + delta*self.convloreorg(ydlc, 0.0000001, xdl, xtl) + base
-        plt.plot(xtl*1000, y, c='k')
-        plt.scatter(xtl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
-        plt.plot(xtl*1000, yqens, ls='dotted', c='k')
-        plt.ylabel('Intensity (Arb. Units)')
-        plt.xlabel(r'$Energy\ (\mu eV)$')
-        plt.show()
+        #[alpha, gamma, delta, base] = self.outall[-1][0:4]
+        #yqens = alpha*self.convloreorg(ydlc, gamma, xdl, xtl)
+        #y = yqens + delta*self.convloreorg(ydlc, 0.0000001, xdl, xtl) + base
+        #plt.plot(xtl*1000, y, c='k')
+        #plt.scatter(xtl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
+        #plt.plot(xtl*1000, yqens, ls='dotted', c='k')
+        #plt.ylabel('Intensity (Arb. Units)')
+        #plt.xlabel(r'$Energy\ (\mu eV)$')
+        #plt.show()
 
     def correction(self, x, yd, xt, yt):
         x = x + 2.085
@@ -97,10 +99,14 @@ class qens_balloon_resamples(sqkr):
         return yd, yt
 
     def getbins(self, x, kys):
+        #import matplotlib.pyplot as plt
         print("Entering getbins")
         h = kys[2]
         tie = kys[1]
+        #plt.plot(tie, h)
+        #plt.show()
         horg = tie[1] - tie[0]
+        print('CHKk!!!', h[np.argmin(np.abs(tie - 0.1))])
         h0 = h[np.argmin(np.abs(tie))]
         ux = [horg/2.]
         while ux[-1] < x[-1]:
@@ -111,6 +117,7 @@ class qens_balloon_resamples(sqkr):
                 _h = (h[idx + 1] - h[idx])/(tie[idx+1] - tie[idx])*(
                         ux[-1] - tie[idx]) + h[idx]
                 __h = _h/h0*horg
+                __h = _h
                 ux.append(ux[-1] + __h)
         dx = [-horg/2.]
         while dx[-1] > x[0]:
@@ -121,12 +128,42 @@ class qens_balloon_resamples(sqkr):
                 _h = (h[idx + 1] - h[idx])/(tie[idx+1] - tie[idx])*(
                         dx[-1] - tie[idx]) + h[idx]
                 __h = _h/h0*horg
+                __h = _h
                 dx.append(dx[-1] - __h)
         dx.reverse()
         self.bins = np.array(dx + ux)
         #import matplotlib.pyplot as plt
         #plt.scatter(self.bins, np.zeros(self.bins.shape[0]), marker='|')
         #plt.show()
+
+#    def getbins(self):
+#        bins = []
+#        #for line in open("/home/kazu/Ebin20150709.txt"):
+#        #    bins.append(float(line[:-1].split()[0]))
+#        #self.bins = np.array(bins)
+#        #self.bins = np.arange(-0.03, 0.12025, 0.00025)
+#        self.bins = np.arange(-0.03, 0.121, 0.001)
+#        #self.bins = np.arange(-0.03, 0.121, 0.0005)
+#        #self.bins = np.arange(-0.03, 0.122, 0.002)
+#        #self.bins = np.arange(-0.03, 0.123, 0.003)
+#        #self.bins = np.arange(-0.03, 0.122, 0.004)
+#        #self.bins = np.arange(-0.03, 0.125, 0.005)
+#        #self.bins = np.arange(-0.03, 0.13, 0.01)
+#        #self.bins = np.arange(-0.03, 0.12125, 0.00275)
+#
+#    def rebin(self, x, y):
+#        nbins = self.bins.shape[0]
+#        xr = np.zeros((nbins-1))
+#        yr = np.zeros((nbins-1))
+#        for ibdx in range(nbins-1):
+#            xr[ibdx] = (self.bins[ibdx] + self.bins[ibdx+1])/2.
+#        for _x, _y in zip(x, y):
+#            for ibdx in range(nbins-1):
+#                if _x + 0.0000125 >= self.bins[ibdx] and _x + 0.0000125 < self.bins[ibdx+1]:
+#                    yr[ibdx] += _y
+#        for ibdx in range(nbins-1):
+#            yr[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/0.000025)
+#        return xr, yr
 
     def rebin(self, x, y, kys):
         self.getbins(x, kys)

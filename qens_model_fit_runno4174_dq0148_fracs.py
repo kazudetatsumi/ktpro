@@ -30,7 +30,8 @@ class qens_model_fit(qbr):
         self.prefix = prepreprefix + "run" + self.runNo + "/"\
             + frac + "/dq0148/"
         self.outfile = self.prefix + "/resamples/" + self.rebin +\
-            "/outhist" + self.runNo + "mr.pkl"
+            "/outhist" + self.runNo + "mrk.pkl"
+            #"/outhist" + self.runNo + "mr.pkl"
         #print(self.outfile)
         self.loadfile()
         orghout = self.outall
@@ -279,16 +280,17 @@ def testrun():
     fracs = ["100", "050", "025", "0125"]
     fracs = ["100",  "0125"]
     fracs = ["100", "025",  "0125"]
+    fracs = ["100"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 
     #rebin = "rebin_hist_Ebin20150709"
     #rebin = "rebin_000025"
-    rebin = "norebin"
-    #rebin = "rebin_0001"
+    #rebin = "norebin"
+    rebin = "rebin_0001"
     #nM = "n800"
-    nM = "n8000"
-    #nM = "n200"
+    #nM = "n8000"
+    nM = "n200"
     prj = qens_model_fit(runNo, fracs, qsize, rebin, nM)
     prj.run()
 
