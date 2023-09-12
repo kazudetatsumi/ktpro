@@ -7,6 +7,7 @@
 # Kazuyoshi TATSUMI 2023/09/09
 from mpi4py import MPI
 import numpy as np
+import scipy.optimize as so
 import sys
 sys.path.append("/home/kazu/ktpro")
 from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
@@ -60,7 +61,7 @@ class qens_balloon_resamples(sqkr):
         return self.y
 
     def DoQf(self, inb):
-        #import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         xt, yt = self.rebin(xt, yt, self.kys[0])
@@ -69,52 +70,63 @@ class qens_balloon_resamples(sqkr):
         print("CHK elim:", self.elim)
         xtl, ytl = self.limit2(xt, yt, self.elim)
         xdl, ydl = self.limit2(xd, yd, self.elim)
-        if inb == 0 and self.rank == 0:
-            if np.sum(xtl - xdl) > 0.000001:
-                print('WARNING, check x_tf - x_df')
-        ydlc, ytlc = self.correction(xtl, ydl, ytl)
+        #if inb == 0 and self.rank == 0:
+        #    if np.sum(xtl - xdl) > 0.000001:
+        #        print('WARNING, check x_tf - x_df')
+        ydlc, ytlc = self.correction(xdl, ydl, xtl, ytl)
         self.bg = 0.
-        self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+        #self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+        self.check_out(inb, self.optimize(xdl, ydlc, xtl, ytlc,
                                           variables=self.variables))
 
-        #[alpha, gamma, delta, base] = self.outall[-1][0:4]
-        #yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        #y = yqens + delta*ydl + base
-        #plt.plot(xdl*1000, y, c='k')
-        #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
-        #plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        #plt.ylabel('Intensity (Arb. Units)')
-        #plt.xlabel(r'$Energy\ (\mu eV)$')
-        #plt.show()
+        [alpha, gamma, delta, base] = self.outall[-1][0:4]
+        yqens = alpha*self.convloreorg(ydlc, gamma, xdl, xtl)
+        y = yqens + delta*self.convloreorg(ydlc, 0.0000001, xdl, xtl) + base
+        plt.plot(xtl*1000, y, c='k')
+        plt.scatter(xtl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
+        plt.plot(xtl*1000, yqens, ls='dotted', c='k')
+        plt.ylabel('Intensity (Arb. Units)')
+        plt.xlabel(r'$Energy\ (\mu eV)$')
+        plt.show()
+
+    def correction(self, x, yd, xt, yt):
+        x = x + 2.085
+        xt = xt + 2.085
+        yd = yd / (self.k[0] + self.k[1]*x + self.k[2]*x**2 + self.k[3]*x**3)
+        yt = yt / (self.k[0] + self.k[1]*xt + self.k[2]*xt**2 + self.k[3]*xt**3)
+        return yd, yt
 
     def getbins(self, x, kys):
+        print("Entering getbins")
         h = kys[2]
         tie = kys[1]
-        horg = x[1] - x[0]
-        h0 = hs[np.argmin(np.abs(tie))]
+        horg = tie[1] - tie[0]
+        h0 = h[np.argmin(np.abs(tie))]
         ux = [horg/2.]
         while ux[-1] < x[-1]:
             idx = np.min(np.argsort(np.abs(tie - ux[-1]))[0:2])
-            _h = (h[idx + 1] - h[idx])/(tie[idx+1] - tie[idx])*(ux[-1] - tie[idx]) + h[idx]
-
-
-                    
-
-
-            
-        bins = []
-        #for line in open("/home/kazu/Ebin20150709.txt"):
-        #    bins.append(float(line[:-1].split()[0]))
-        #self.bins = np.array(bins)
-        #self.bins = np.arange(-0.03, 0.12025, 0.00025)
-        #self.bins = np.arange(-0.03, 0.121, 0.001)
-        #self.bins = np.arange(-0.03, 0.121, 0.0005)
-        #self.bins = np.arange(-0.03, 0.122, 0.002)
-        #self.bins = np.arange(-0.03, 0.123, 0.003)
-        #self.bins = np.arange(-0.03, 0.122, 0.004)
-        #self.bins = np.arange(-0.03, 0.125, 0.005)
-        #self.bins = np.arange(-0.03, 0.13, 0.01)
-        #self.bins = np.arange(-0.03, 0.12125, 0.00275)
+            if (ux[-1] - tie[idx])*(ux[-1] - tie[idx+1]) >= 0.:
+                break
+            else:
+                _h = (h[idx + 1] - h[idx])/(tie[idx+1] - tie[idx])*(
+                        ux[-1] - tie[idx]) + h[idx]
+                __h = _h/h0*horg
+                ux.append(ux[-1] + __h)
+        dx = [-horg/2.]
+        while dx[-1] > x[0]:
+            idx = np.min(np.argsort(np.abs(tie - dx[-1]))[0:2])
+            if (dx[-1] - tie[idx])*(dx[-1] - tie[idx+1]) >= 0.:
+                break
+            else:
+                _h = (h[idx + 1] - h[idx])/(tie[idx+1] - tie[idx])*(
+                        dx[-1] - tie[idx]) + h[idx]
+                __h = _h/h0*horg
+                dx.append(dx[-1] - __h)
+        dx.reverse()
+        self.bins = np.array(dx + ux)
+        #import matplotlib.pyplot as plt
+        #plt.scatter(self.bins, np.zeros(self.bins.shape[0]), marker='|')
+        #plt.show()
 
     def rebin(self, x, y, kys):
         self.getbins(x, kys)
@@ -131,7 +143,30 @@ class qens_balloon_resamples(sqkr):
             yr[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/0.000025)
         return xr, yr
 
-    def res(self, coeffs, x, d, t):
+    def optimize(self, x, yd, xt, yt,
+                 variables=[6.e-6, 2.e-2, 1.e-6, 4.e-3, 7.e-3, 3.e-1]):
+        # leastsq
+        if self.leastsq:
+            out = so.leastsq(self.res, variables, args=(x, yd, xt, yt),
+                             full_output=1, epsfcn=0.0001)
+            return out 
+        # least_squares
+        else:
+            bounds = (0, np.inf)
+            out = so.least_squares(self.res, variables, bounds=bounds,
+                                   args=(x, yd, xt, yt))
+            #if self.rank == 0:
+            print(out.active_mask, out.success, out.x)
+            #out = so.least_squares(self.res, variables, args=(x, yd, yt))
+            _out = [out.x, np.linalg.pinv(np.dot(out.jac.T, out.jac))]
+            s_sq = (self.res(_out[0], x, yd, xt, yt)**2).sum() / (
+                    len(yt)-len(_out[0]))
+            cov = np.absolute(_out[1]*s_sq)
+            print("cov**0.5")
+            print(cov**0.5)
+            return [out.x, out.success, out.active_mask, cov]
+
+    def res(self, coeffs, x, d, xt, t):
         if len(coeffs) == 6:
             [alpha1, gamma1, alpha2, gamma2,  delta, base] = coeffs
             y = alpha1*self.convlore(d, gamma1, x)\
@@ -145,14 +180,21 @@ class qens_balloon_resamples(sqkr):
         # We use convloreorg for histograms whose binwidths varied with x.
         if len(coeffs) == 4:
             [alpha, gamma, delta, base] = coeffs
-            y = alpha*self.convloreorg(d, gamma, x)\
-                + delta*d + base
+            y = alpha*self.convloreorg(d, gamma, x, xt)\
+                + delta*self.convloreorg(d, 0.0000001, x, xt) + base
+                #+ delta*d + base
         if len(coeffs) == 3:
             [alpha, gamma, delta] = coeffs
             y = alpha*self.convlore(d, gamma, x)\
                 + delta*d + self.bg
-        xl, dif = self.limit2(x, t-y, self.elim)
+        xl, dif = self.limit2(xt, t-y, self.elim)
         return dif
+
+    def convloreorg(self, f, gamma, x, xt):
+        _convd = np.zeros_like(xt)
+        for _x, _f, in zip(x, f):
+            _convd += self.fun_lore(xt - _x, gamma)*_f
+        return _convd
 
 
 def testrun():
