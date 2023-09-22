@@ -69,6 +69,7 @@ class Sget_qlist(gq):
         q = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
         omega = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
         intensity = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
+        error = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
         ones = np.ones((len(DATQE(0).PutYList())))
         for ecidx in range(0, DATQE.PutSize()):
             ## Note here we take the lower bound of each energy bin  as omega ##
@@ -79,10 +80,12 @@ class Sget_qlist(gq):
             #print("CHECK1!!!!!!", ones*DATQE(ecidx).PutHeader().PutDoubleVector('XRANGE')[0])
             #print("CHECK2!!!!!!", ones*DATQE(ecidx).PutHeader().PutDoubleVector('XRANGE')[1])
             intensity[ecidx, :] = np.array(DATQE(ecidx).PutYList())
+            error[ecidx, :] = np.array(DATQE(ecidx).PutEList())
         dataset = {}
         dataset['omega'] = omega
         dataset['q'] = q
         dataset['intensity'] = intensity
+        dataset['error'] = error
         return dataset
 
     def save_pkl(self):

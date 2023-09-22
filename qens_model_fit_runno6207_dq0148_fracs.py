@@ -263,7 +263,7 @@ def testrun():
     qsize = 12
     fracs = ["100", "050", "025", "0125", "0100", "0050"]
     fracs = ["100", "0125", "0050"]
-    #fracs = ["100"]
+    fracs = ["100"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 

@@ -107,7 +107,7 @@ class qens_balloon_resamples(sqkr):
         #plt.show()
         horg = tie[1] - tie[0]
         print('CHKk!!!', h[np.argmin(np.abs(tie - 0.1))])
-        h0 = h[np.argmin(np.abs(tie))]
+        #h0 = h[np.argmin(np.abs(tie))]
         ux = [horg/2.]
         while ux[-1] < x[-1]:
             idx = np.min(np.argsort(np.abs(tie - ux[-1]))[0:2])
@@ -116,9 +116,10 @@ class qens_balloon_resamples(sqkr):
             else:
                 _h = (h[idx + 1] - h[idx])/(tie[idx+1] - tie[idx])*(
                         ux[-1] - tie[idx]) + h[idx]
-                __h = _h/h0*horg
-                __h = _h
-                ux.append(ux[-1] + __h)
+                #__h = _h/h0*horg
+                #__h = _h
+                #ux.append(ux[-1] + __h)
+                ux.append(ux[-1] + _h)
         dx = [-horg/2.]
         while dx[-1] > x[0]:
             idx = np.min(np.argsort(np.abs(tie - dx[-1]))[0:2])
@@ -127,13 +128,16 @@ class qens_balloon_resamples(sqkr):
             else:
                 _h = (h[idx + 1] - h[idx])/(tie[idx+1] - tie[idx])*(
                         dx[-1] - tie[idx]) + h[idx]
-                __h = _h/h0*horg
-                __h = _h
-                dx.append(dx[-1] - __h)
+                #__h = _h/h0*horg
+                #__h = _h
+                #dx.append(dx[-1] - __h)
+                dx.append(dx[-1] - _h)
         dx.reverse()
         self.bins = np.array(dx + ux)
         #import matplotlib.pyplot as plt
+        #_bins = self.bins[np.abs(self.bins) < 0.005]
         #plt.scatter(self.bins, np.zeros(self.bins.shape[0]), marker='|')
+        #plt.scatter(_bins, np.zeros(_bins.shape[0]), marker='|')
         #plt.show()
 
 #    def getbins(self):

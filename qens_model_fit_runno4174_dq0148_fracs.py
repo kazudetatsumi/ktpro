@@ -49,7 +49,7 @@ class qens_model_fit(qbr):
         maskkb, gammakb = self.readorgout(orgkout)
         maskk, gammak = self.readorgout(orgkioout)
         self.outfile = self.prefix + "/resamples/" + self.rebin
-        maskh2, errorh, aveh = self.readerror('histr', self.runNo)
+        maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskkb2, errorkb, avekb = self.readerror('kde', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
@@ -224,7 +224,7 @@ class qens_model_fit(qbr):
         #mask *= gamma > 0.001
         #print(mask, mask2, label)
         #print(gamma)
-        mask[0:1] = True
+        mask[0:2] = True
         if self.nM == "n8000":
             mask3 = gamma < 0.0007
         elif self.nM == "n800":

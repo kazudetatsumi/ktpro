@@ -393,6 +393,32 @@ class get_qlist:
             #plt.yscale('log')
             plt.show()
 
+    def spect3e(self, qmin, qmax, dataset):
+        x = np.ravel(dataset['q'])
+        y = np.ravel(dataset['omega'])
+        z = np.ravel(dataset['intensity'])
+        err = np.ravel(dataset['error'])
+        _x = x
+        area = np.where((_x <= qmax - 1.0e-7) & (_x > qmin - 1.0e-7))
+        x = x[area[0]]
+        y = y[area[0]]
+        z = z[area[0]]
+        err = err[area[0]]
+        _z = z[np.argsort(y)]
+        _err = err[np.argsort(y)]
+        _y = np.sort(y)
+        ene, mult = np.unique(_y, return_counts=True)
+        z1d = np.zeros_like(ene)
+        err1d = np.zeros_like(ene)
+        for eidx, e in enumerate(ene):
+            lb = np.sum(mult[:eidx])
+            ub = lb + mult[eidx]
+            z1d[eidx] = np.sum(_z[lb:ub])
+            err1d[eidx] = (np.sum(_err[lb:ub]**2))**0.5
+        self.ene = ene
+        self.spectra = z1d
+        self.err = err1d
+
     def spectm(self, qmin, qmax, dataset):
         for iq, (qmi, qma) in enumerate(zip(qmin, qmax)):
             self.spect3(qmi, qma, dataset)
@@ -403,6 +429,20 @@ class get_qlist:
             _ene[iq, :] = self.ene
         self.spectra = _spectra.flatten()
         self.ene = _ene.flatten()
+
+    def spectme(self, qmin, qmax, dataset):
+        for iq, (qmi, qma) in enumerate(zip(qmin, qmax)):
+            self.spect3e(qmi, qma, dataset)
+            if iq == 0:
+                _spectra = np.zeros((len(qmin), self.spectra.shape[0]))
+                _ene = np.zeros((len(qmin), self.ene.shape[0]))
+                _err = np.zeros((len(qmin), self.err.shape[0]))
+            _spectra[iq, :] = self.spectra
+            _ene[iq, :] = self.ene
+            _err[iq, :] = self.err
+        self.spectra = _spectra.flatten()
+        self.ene = _ene.flatten()
+        self.err = _err.flatten()
 
     def save_spectra(self, spectrafile, old=False):
         dataset = {}
