@@ -16,7 +16,7 @@ except ModuleNotFoundError as err:
     print(err)
 import numpy as np
 # from get_qlist_nova_class import get_qlist as gq
-from get_resampled_data_org_class import Sget_qlist as gq
+from get_resampled_data_org_classe import Sget_qlist as gq
 
 
 class Sget_qlist(gq):
@@ -37,17 +37,19 @@ class Sget_qlist(gq):
         #DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
         DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85, deltaQ=0.148)
         dataset = self.get_all_sdata(DATQE)
-        self.spectm(qmin, qmax, dataset)
+        self.spectme(qmin, qmax, dataset)
 
     def get_org_spectra(self, qmin, qmax):
         self.get_qemap(qmin, qmax)
-        self.spectrab = np.zeros((1, 2, self.ene.shape[0]))
+        self.spectrab = np.zeros((1, 4, self.ene.shape[0]))
         self.spectrab[0, 0, :] = self.ene
         self.spectrab[0, 1, :] = self.spectra
+        self.spectrab[0, 3, :] = self.err
         self.get_all_data3()
         self.spectm(qmin, qmax, self.dataset)
-        self.spectrab = np.concatenate((self.spectrab,
-                                        self.spectra.reshape(1, 1, -1)),
-                                       axis=1)
+        self.spectrab[0, 2, :] = self.spectra
+        #self.spectrab = np.concatenate((self.spectrab,
+        #                                self.spectra.reshape(1, 1, -1)),
+        #                               axis=1)
         _sh = self.spectrab.shape
         self.spectrab = self.spectrab.reshape((_sh[0], _sh[1], len(qmin), -1))

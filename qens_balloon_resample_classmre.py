@@ -47,7 +47,8 @@ class qens_balloon_resamples(sqkr):
         print("getrsspectra: chkm slicing spectrab at qidx")
         return self.spectrab[inb, 0, self.qidx],\
             self.spectrab[inb, 1, self.qidx],\
-            self.spectrab[inb, 2, self.qidx]
+            self.spectrab[inb, 3, self.qidx]
+            #self.spectrab[inb, 2, self.qidx]
 
     def CalcBandW(self, orgfile, inb=0):
         if self.ishist:
@@ -171,9 +172,10 @@ class qens_balloon_resamples(sqkr):
             #out = so.least_squares(self.res, variables, args=(x, yd, yt))
             _out = [out.x, np.linalg.inv(np.dot(out.jac.T, out.jac))]
             s_sq = (self.res(_out[0], x, yd, yt, et)**2).sum() / (len(yt)-len(_out[0]))
+            cov = np.absolute(_out[1]*s_sq)
             print("cov**0.5")
-            print(np.absolute(_out[1]*s_sq)**0.5)
-            return [out.x, out.success, out.active_mask]
+            print(cov**0.5)
+            return [out.x, out.success, out.active_mask, cov]
 
 
 def testrun():
