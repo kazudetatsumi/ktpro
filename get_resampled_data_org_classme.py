@@ -16,7 +16,8 @@ except ModuleNotFoundError as err:
     print(err)
 import numpy as np
 # from get_qlist_nova_class import get_qlist as gq
-from get_resampled_data_org_classe import Sget_qlist as gq
+#from get_resampled_data_org_classe import Sget_qlist as gq
+from get_resampled_data_org_class import Sget_qlist as gq
 
 
 class Sget_qlist(gq):
@@ -24,6 +25,29 @@ class Sget_qlist(gq):
         self.save_file = save_file
         self.pklfile = pklfile
         self.maskfile = maskfile
+
+    def get_all_sdata(self, DATQE):
+        q = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
+        omega = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
+        intensity = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
+        error = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
+        ones = np.ones((len(DATQE(0).PutYList())))
+        for ecidx in range(0, DATQE.PutSize()):
+            ## Note here we take the lower bound of each energy bin  as omega ##
+            ##  and similarly we take the lower bound of each q bin as q ##
+            omega[ecidx, :] = np.array(DATQE(ecidx).PutXList()[:-1])
+            q[ecidx, :] = ones*DATQE(ecidx).PutHeader().PutDoubleVector(
+                                                                  'XRANGE')[0]
+            #print("CHECK1!!!!!!", ones*DATQE(ecidx).PutHeader().PutDoubleVector('XRANGE')[0])
+            #print("CHECK2!!!!!!", ones*DATQE(ecidx).PutHeader().PutDoubleVector('XRANGE')[1])
+            intensity[ecidx, :] = np.array(DATQE(ecidx).PutYList())
+            error[ecidx, :] = np.array(DATQE(ecidx).PutEList())
+        dataset = {}
+        dataset['omega'] = omega
+        dataset['q'] = q
+        dataset['intensity'] = intensity
+        dataset['error'] = error
+        return dataset
 
     def get_qemap(self, qmin, qmax):
         #Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")

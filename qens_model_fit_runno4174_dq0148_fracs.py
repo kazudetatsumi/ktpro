@@ -30,8 +30,8 @@ class qens_model_fit(qbr):
         self.prefix = prepreprefix + "run" + self.runNo + "/"\
             + frac + "/dq0148/"
         self.outfile = self.prefix + "/resamples/" + self.rebin +\
-            "/outhist" + self.runNo + "mrk.pkl"
-            #"/outhist" + self.runNo + "mr.pkl"
+            "/outhist" + self.runNo + "m.pkl"
+            #"/outhist" + self.runNo + "mrk.pkl"
         #print(self.outfile)
         self.loadfile()
         orghout = self.outall
@@ -49,7 +49,8 @@ class qens_model_fit(qbr):
         maskkb, gammakb = self.readorgout(orgkout)
         maskk, gammak = self.readorgout(orgkioout)
         self.outfile = self.prefix + "/resamples/" + self.rebin
-        maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
+        #maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
+        maskh2, errorh, aveh = self.readerror('histr', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskkb2, errorkb, avekb = self.readerror('kde', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
@@ -287,7 +288,8 @@ def testrun():
     #rebin = "rebin_hist_Ebin20150709"
     #rebin = "rebin_000025"
     #rebin = "norebin"
-    rebin = "rebin_0001"
+    #rebin = "rebin_0001"
+    rebin = "rebin_0001_histe"
     #nM = "n800"
     #nM = "n8000"
     nM = "n200"
