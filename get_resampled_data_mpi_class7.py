@@ -49,7 +49,8 @@ class Sget_qlist(gq):
                 DetEffDataPath="none")
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
         #DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
-        DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85, deltaQ=0.148)
+        DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85,
+                                 deltaQ=0.148)
         return self.get_all_sdatab(DATBQE)
 
     def get_all_sdatab(self, DATBQE):
@@ -68,6 +69,53 @@ class Sget_qlist(gq):
         dataset['omega'] = omega
         dataset['q'] = q
         dataset['intensity'] = intensity
+        return dataset
+
+    def get_qemapbe(self, intensityb, qmin, qmax,
+                    maskfile="maskTY140218ForAfterRun52.txt"):
+        #DATB = Manyo.ElementContainerMatrix(self.DAT)
+        # To reduce memory usage, self.DAT is overwritten.
+        ctp = Manyo.CppToPython()
+        for ecaidx in range(0, self.DAT.PutSize()):
+            for ecidx in range(0, self.DAT(0).PutSize()):
+                vecy = ctp.ListToDoubleVector(intensityb[ecaidx, ecidx, :]
+                                              .tolist())
+                vece = ctp.ListToDoubleVector((intensityb[ecaidx,
+                                               ecidx, :]**0.5).tolist())
+                self.DAT(ecaidx, ecidx).Replace("Intensity", vecy)
+                self.DAT(ecaidx, ecidx).Replace("Error", vece)
+                self.DAT(ecaidx, ecidx).SetKeys("EnergyTransfer", "Intensity",
+                                                "Error")
+        #Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
+        Cmm.DoMask(dat=self.DAT, filename=maskfile)
+        ECM = Cmm.ILambdaCorrDNA(dat=self.DAT, ec=self.EC, useMonEff=True)
+        ECM2 = Cmm.SolidAngleCorrDNA(
+                dat=ECM, useDetEff=True, useAbsoCorr=False, useEffCorr=False,
+                sampletype="sample", sampleDataPath="test_sample_data.dat",
+                DetEffDataPath="none")
+        Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
+        #DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
+        DATBQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85,
+                                 deltaQ=0.148)
+        return self.get_all_sdatabe(DATBQE)
+
+    def get_all_sdatabe(self, DATBQE):
+        q = np.zeros((DATBQE.PutSize(), len(DATBQE(0).PutYList())))
+        omega = np.zeros((DATBQE.PutSize(), len(DATBQE(0).PutYList())))
+        intensity = np.zeros((DATBQE.PutSize(), len(DATBQE(0).PutYList())))
+        error = np.zeros((DATBQE.PutSize(), len(DATBQE(0).PutYList())))
+        ones = np.ones((len(DATBQE(0).PutYList())))
+        for ecidx in range(0, DATBQE.PutSize()):
+            omega[ecidx, :] = np.array(DATBQE(ecidx).PutXList()[:-1])
+            q[ecidx, :] = ones*DATBQE(ecidx).PutHeader().\
+                PutDoubleVector('XRANGE')[0]
+            intensity[ecidx, :] = np.array(DATBQE(ecidx).PutYList())
+            error[ecidx, :] = np.array(DATBQE(ecidx).PutEList())
+        dataset = {}
+        dataset['omega'] = omega
+        dataset['q'] = q
+        dataset['intensity'] = intensity
+        dataset['error'] = error
         return dataset
 
     def get_boot_strap_sampled_spectra(self, nbs, qmin, qmax, seed=314,
