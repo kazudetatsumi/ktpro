@@ -122,13 +122,14 @@ class change_hpos():
     def GetSym(self):
         self.GetCrystalParamsFromPoscar()
         self.cell = (self.lattice, self.positions, self.numbers)
+        print("CHK", self.positions.shape, self.positions)
         self.ShiftAllAtompos()
         self.GetRefineCell()
-        # print(spglib.get_spacegroup(self.cell, symprec=1e-5))
-        # tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
-        # print(tmpsym['rotations'].shape)
-        # for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
-        #         print(rot, trans)
+        print(spglib.get_spacegroup(self.cell, symprec=1e-5))
+        tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        print(tmpsym['rotations'].shape)
+        for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
+            print(rot, trans)
         rpositions = np.zeros((self.positions.shape[0]-1, 3))
         rnumbers = []
         irp = 0
@@ -145,6 +146,7 @@ class change_hpos():
         #for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
         #    print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        self.rcell = rcell
 
     def GetAllHpos(self, cart=False, rot=np.array([[1, 0, 0], [0, 1, 0],
                                                    [0, 0, 1]])):
@@ -324,7 +326,7 @@ class change_hpos():
                                    axis=1) >= 1e-5
                     cond[i] = True
             irr_hpos = irr_hpos[cond]
-        # print('chk, irr_hpos',irr_hpos.shape)
+        print('chk, irr_hpos',irr_hpos.shape)
         # print(irr_hpos)
         self.irr_hpos = irr_hpos
 
@@ -427,7 +429,7 @@ class change_hpos():
         pairs = np.where(np.invert(cond))
         # print('chk pairs', pairs[0].shape)
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
-        print('chk, irr_idx',self.irr_idx.shape)
+        print('chk, irr_idx',self.irr_idx.shape, type(self.irr_idx))
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -447,7 +449,9 @@ class change_hpos():
                         .format(pos[il, 0], pos[il, 1], pos[il, 2])
 
         for iridx, ir in enumerate(self.irr_hpos):
-            if self.irr_hpos.shape[0] > 999:
+            if self.irr_hpos.shape[0] > 9999:
+                outfile = 'POSCAR_' + str(iridx+1).zfill(5)
+            elif self.irr_hpos.shape[0] > 999:
                 outfile = 'POSCAR_' + str(iridx+1).zfill(4)
             else:
                 outfile = 'POSCAR_' + str(iridx+1).zfill(3)
@@ -911,9 +915,38 @@ class change_hpos():
             dE = (self.E[iw+1] - self.E[0])
             sigma = dE*0.02
             spec += s*np.exp(-(ene - dE)**2/sigma**2)
-        plt.plot(ene, spec)
-        plt.bar(self.E[1:] - self.E[0], IntegratedSqw[1:])
-        plt.xlim((0, 400))
+        #plt.plot(ene, spec)
+        #plt.bar(self.E[1:] - self.E[0], IntegratedSqw[1:])
+        #plt.xlim((0, 400))
+        self.dataset = {}
+        self.dataset['ene'] = ene
+        self.dataset['spec'] = spec
+        self.dataset['E'] = self.E
+        self.dataset['integratedsqw'] = IntegratedSqw
+        with open("./savedata_integrated.pkl", 'wb') as f:
+            pickle.dump(self.dataset, f, 4)
+
+    def CheckShortAtomDistanceFlag(self):
+        for irridx, hpos in enumerate(self.irr_hpos):
+            print(irridx, self.minbondlength(hpos))
+
+    def minbondlength(self, hpos):
+        epos = self.expos(self.rcell[1])
+        diffpos = np.dot(epos - hpos , self.rcell[0])
+        length = np.sum(diffpos**2, axis=2)**0.5
+        return np.min(length)
+        
+    def expos(self, pos):
+        extendedpos = np.tile(pos, (27, 1)).reshape(27, pos.shape[0], 3)
+        x = np.arange(-1, 2)
+        X, Y, Z = np.meshgrid(x, x, x)
+        flatX = X.flatten().reshape((1, -1))
+        flatY = Y.flatten().reshape((1, -1))
+        flatZ = Z.flatten().reshape((1, -1))
+        XYZ = np.concatenate((flatX, flatY, flatZ), axis=0).transpose()
+        XYZ2 = np.tile(XYZ.reshape(27, 1, -1), (1, pos.shape[0], 1))
+        extendedpos += XYZ2*1.0
+        return(extendedpos)
 
 
 def samplerun():
