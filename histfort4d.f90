@@ -132,7 +132,7 @@ contains
 
 
   subroutine delete_array4(arr_length0, arr_length1, arr_length2, arr_length3, array) bind(C, name="delete_array4")
-    !DEC$ ATTRIBUTES DLLEXPORT :: delete_array3
+    !DEC$ ATTRIBUTES DLLEXPORT :: delete_array4
     integer(c_int), intent(in) :: arr_length0
     integer(c_int), intent(in) :: arr_length1
     integer(c_int), intent(in) :: arr_length2
@@ -143,7 +143,8 @@ contains
     call C_F_pointer(array, work_array, [arr_length0, arr_length1, arr_length2, arr_length3])
     deallocate(work_array)
     array = C_NULL_PTR
-    print *, "Is work_array freed ?, work_array: ",work_array
+    !The line below causes a segfault with gfortran v9.4.0.
+    !print *, "Is work_array freed ?, work_array: ", work_array
   end subroutine delete_array4
 
 end module histfort

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
-lib = ctypes.CDLL("/home/kazu/ktpro/histfort4d.so")
+lib = ctypes.CDLL("/home/kazu/ktpro/histfort4d_gf.so")
 
 def calc_hist4d_f90(A, data, nw0, nw1, nw2, nw3,  condition):
 

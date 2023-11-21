@@ -167,8 +167,8 @@ def run():
             list_n[0, :], list_m[0, :], hourperallanglescan
             )
     plotter(t_n, t_m, list_n, list_m, deltas, m, ulm)
-    #plt.show()
-    plt.savefig("ei24_cond07_orthotope_data_for_fig1.pdf")
+    plt.show()
+    #plt.savefig("ei24_cond07_orthotope_data_for_fig1.pdf")
     #plt.savefig("ei42_cond09_orthotope_data_for_fig1.pdf")
     #plt.savefig("no17714_cond09_orthotope_opt_data_for_fig1.pdf")
 
