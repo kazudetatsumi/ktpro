@@ -116,8 +116,3 @@ ax4.set_ylim(0, 1.2)
 
 fig.savefig('gradColorLine.png')
 plt.show()
-
-
-
-
-
