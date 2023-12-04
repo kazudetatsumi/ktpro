@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import matplotlib.pyplot as plt
 import numpy as np
-import 
+from mpi4py import MPI
 
 
 class mcmc():
@@ -146,6 +146,9 @@ class mcmc():
             plt.show()
 
     def rmc(self):
+        comm = MPI.COMM_WORLD
+        size = comm.Get_size()
+        rank = comm.Get_rank()
         for isamp in range(1, self.N_sampling):
             if isamp % 1000 == 0:
                 print(isamp)
@@ -154,8 +157,19 @@ class mcmc():
                 self.count_accept_S = 0*self.count_accept_S
                 self.count_accept_W = 0*self.count_accept_W
                 self.count_exchange = 0*self.count_exchange
-            for itemp in range(0, self.L):
+            #for itemp in range(0, self.L):
+            for itemp in range(rank, self.L - ((self.L-rank-1) % size) + size
+                               - 1, size):
                 self.emcmc(isamp, itemp)
+                istart = itemp - rank
+                iend = istart+size
+                self.MSE[istart:iend, isamp] = np.array(comm.allgather(self.MSE[itemp, isamp]))
+                self.Mu_ar[istart:iend, :, isamp] = np.array(comm.allgather(self.Mu_ar[itemp, :, isamp])).reshape((size, self.K))
+                self.S_ar[istart:iend, :, isamp] = np.array(comm.allgather(self.S_ar[itemp, :, isamp])).reshape((size, self.K))
+                self.W_ar[istart:iend, :, isamp] = np.array(comm.allgather(self.W_ar[itemp, :, isamp])).reshape((size, self.K))
+                self.count_accept_Mu[istart:iend] = np.array(comm.allgather(self.count_accept_Mu[itemp]))
+                self.count_accept_S[istart:iend] = np.array(comm.allgather(self.count_accept_S[itemp]))
+                self.count_accept_W[istart:iend] = np.array(comm.allgather(self.count_accept_W[itemp]))
             for itemp in range(0, self.L-1):
                 r_exchange = np.exp(
                                     self.N/(2*self.sigma**2) *
