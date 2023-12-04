@@ -61,7 +61,8 @@ class change_hpos(ch):
         spec = np.zeros(3000)
         for iw, s in enumerate(IntegratedSqw[1:]):
             dE = (self.E[iw+1] - self.E[0])
-            sigma = dE*0.02
+            #sigma = dE*0.02
+            sigma = dE*0.04
             spec += s*np.exp(-(ene - dE)**2/sigma**2)
         if rank == 0:
             self.dataset = {}

@@ -497,7 +497,7 @@ class change_hpos():
                     else:
                         f.write(line)
 
-    def GetEnergies(self, relax=False):
+    def GetEnergies(self, relax=False, isreplace=False):
         ene = []
         with open(self.enefile, 'r') as f:
             lines = f.readlines()
@@ -507,8 +507,9 @@ class change_hpos():
             else:
                 ene.append(line.split()[3])
         self.ene = np.array(ene, dtype=float)
-        eave = np.average(self.ene[np.invert(self.AtomDistanceFlag)])
-        self.ene[self.AtomDistanceFlag] = eave + 10.
+        if isreplace:
+            eave = np.average(self.ene[np.invert(self.AtomDistanceFlag)])
+            self.ene[self.AtomDistanceFlag] = eave + 10.
 
     def GetPotential(self):
         print(self.irr_idx.shape)
