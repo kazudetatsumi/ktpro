@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 import matplotlib.pyplot as plt
 import numpy as np
+import cryspy
+import os
+from cryspy.procedure_rhochi.rhochi_by_dictionary import \
+    rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\
+    rhochi_calc_chi_sq_by_dictionary
+
 
 
 class mcmc():
@@ -27,9 +33,10 @@ class mcmc():
         self.max_S = max_S
         self.min_W = min_W
         self.max_W = max_W
-        self.data = np.loadtxt(self.datafile)
-        plt.plot(self.data[:, 0], self.data[:, 1])
-        self.N = self.data.shape[0]
+        #self.data = np.loadtxt(self.datafile)
+        #plt.plot(self.data[:, 0], self.data[:, 1])
+        #self.N = self.data.shape[0]
+        self.N = 300
         np.random.seed(8)
         self.beta = np.zeros(L)
         self.beta[0] = 0
@@ -209,6 +216,36 @@ class mcmc():
                           np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
         np.savetxt("./rsults.txt", output.T)
 
+    def test_cryspy(self):
+        rhochi = cryspy.load_file(self.datafile)
+        #print(rhochi.get_dictionary()['crystal_phase1']['unit_cell_parameters'][0])
+        #print(rhochi.get_dictionary()['crystal_phase1']['unit_cell_parameters'][0])
+        dict_in_out = {}
+        rhochi_dict = rhochi.get_dictionary()
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
+        print(out)
+        rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 11.1111
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
+        print(out)
+        #print(type(rhochi))
+        #print(rhochi.get_variable_names())
+        #for i, item in enumerate(rhochi.items):
+        #    print(item)
+        #    print(type(item))
+        #    print("FUCK", i)
+        
+        #print(type(rhochi_dict))
+        #print(rhochi_dict.keys())
+        #print(type(rhochi_dict['crystal_phase1']))
+        #crystal_phase1 = rhochi_dict['crystal_phase1']
+        #print(crystal_phase1.keys())
+        #print(crystal_phase1['atom_label'])
+        #print(crystal_phase1['atom_fract_xyz'])
+        return(cryspy.rhochi_no_refinement(rhochi)["chi_sq"])
+
+
 
 def sample_run():
     datafile = "/home/kazu/desktop/230630/data.txt"
@@ -216,4 +253,4 @@ def sample_run():
     prj.rmc()
 
 
-sample_run()
+#sample_run()
