@@ -1,16 +1,18 @@
 #!/usr/bin/env python
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 import cryspy
-import os
+import warnings
+#import os
+from mpi4py import MPI
 from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\
     rhochi_calc_chi_sq_by_dictionary
+warnings.filterwarnings('ignore')
+#import sys
+#import pprint
 
-import sys
-import pprint
-
-pprint.pprint(sys.path)
+#pprint.pprint(sys.path)
 
 
 class mcmc():
@@ -19,7 +21,7 @@ class mcmc():
 #                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, d_S=1.0, C_S=0.6, d_W=0.9,
 #                 C_W=1.0, sigma=0.1, min_Mu=0., max_Mu=2.5, min_S=0.01,
 #                 max_S=1.5, min_W=0., max_W=2.0):
-    def __init__(self, datafile, K=1, N_sampling=20000, burn_in=10000, L=40,
+    def __init__(self, datafile, K=1, N_sampling=8000, burn_in=4000, L=36,
                  gamma=1.3, d_Mu=1.0, C_Mu=1.0, sigma=0.1, min_Mu=0.,
                  max_Mu=20.):
         self.datafile = datafile
@@ -86,7 +88,8 @@ class mcmc():
         #for ik in range(0, self.K):
             #yhat += _W[ik]*np.exp(-(self.data[:, 0]-_Mu[ik])**2/(2*_S[ik]**2))
         self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = _Mu[0]
-        out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={})
+        out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={}
+                                               )
         #print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
         return out[0]
 
@@ -152,31 +155,51 @@ class mcmc():
 #            self.MSE[itemp, isamp] = next_MSE
 #            self.count_accept_W[itemp] += 1
 ## I should undersand the actual spectrum data set to be fitted.
-##        if isamp == self.N_sampling - 1 and itemp == self.L-1:
+        if isamp == self.N_sampling - 1 and itemp == self.L-1:
 ##            yhat = np.zeros(self.data[:, 0].shape[0])
-##            minMSE_sample = np.where(self.MSE[itemp] ==
-##                                     np.min(self.MSE[itemp]))[0][0]
+            minMSE_sample = np.where(self.MSE[itemp] ==
+                                     np.min(self.MSE[itemp]))[0][0]
 ##            for ik in range(0, self.K):
 ##                yhat += self.W_ar[itemp, ik, minMSE_sample] *\
 ##                        np.exp(-(self.data[:, 0] -
 ##                                 self.Mu_ar[itemp, ik, minMSE_sample])**2
 ##                               / (2*self.S_ar[itemp, ik, minMSE_sample]**2))
+            print("minMSE is found at the lattice constant of ",
+                  self.Mu_ar[itemp, 0, minMSE_sample])
 ##            plt.plot(self.data[:, 0], yhat, ".")
 ##            plt.plot(self.data[:, 0], self.data[:, 1], ".")
 ##            plt.show()
 
     def rmc(self):
+        comm = MPI.COMM_WORLD
+        size = comm.Get_size()
+        rank = comm.Get_rank()
         for isamp in range(1, self.N_sampling):
-            print(isamp)
-            #if isamp % 200 == 0:
-            #    print(isamp)
+            if isamp % 100 == 0 and rank == 0:
+                print(isamp, rank)
             if isamp == self.burn_in-1:
                 self.count_accept_Mu = 0*self.count_accept_Mu
 #                self.count_accept_S = 0*self.count_accept_S
 #                self.count_accept_W = 0*self.count_accept_W
                 self.count_exchange = 0*self.count_exchange
-            for itemp in range(0, self.L):
+            #for itemp in range(0, self.L):
+            #    self.emcmc(isamp, itemp)
+            for itemp in range(rank, self.L - ((self.L-rank-1) % size) + size
+                               - 1, size):
                 self.emcmc(isamp, itemp)
+                istart = itemp - rank
+                iend = istart+size
+                self.MSE[istart:iend, isamp] =\
+                    np.array(comm.allgather(self.MSE[itemp, isamp]))
+                self.Mu_ar[istart:iend, :, isamp] =\
+                    np.array(comm.allgather(self.Mu_ar[itemp, :, isamp])
+                             ).reshape((size, self.K))
+                #self.S_ar[istart:iend, :, isamp] = np.array(comm.allgather(self.S_ar[itemp, :, isamp])).reshape((size, self.K))
+                #self.W_ar[istart:iend, :, isamp] = np.array(comm.allgather(self.W_ar[itemp, :, isamp])).reshape((size, self.K))
+                self.count_accept_Mu[istart:iend] =\
+                    np.array(comm.allgather(self.count_accept_Mu[itemp]))
+                #self.count_accept_S[istart:iend] = np.array(comm.allgather(self.count_accept_S[itemp]))
+                #self.count_accept_W[istart:iend] = np.array(comm.allgather(self.count_accept_W[itemp]))
             for itemp in range(0, self.L-1):
                 r_exchange = np.exp(
                                     self.N/(2*self.sigma**2) *
@@ -220,30 +243,32 @@ class mcmc():
 #                        self.W_ar[itemp, :, isamp] =\
 #                            np.array(self.W_ar[itemp+1, :, isamp])
 #                        self.W_ar[itemp+1, :, isamp] = tmp_W
-        print(self.count_accept_Mu/(self.N_sampling - self.burn_in+1))
+        if rank == 0:
+            print(self.count_accept_Mu/(self.N_sampling - self.burn_in+1))
 #        print(self.count_accept_S/(self.N_sampling - self.burn_in+1))
 #        print(self.count_accept_W/(self.N_sampling - self.burn_in+1))
-        print(2*self.count_exchange/(self.N_sampling - self.burn_in+1))
-        output = np.array([self.beta, self.count_accept_Mu/(self.N_sampling - self.burn_in+1),
+            print(2*self.count_exchange/(self.N_sampling - self.burn_in+1))
+            output = np.array([self.beta, self.count_accept_Mu /
+                              (self.N_sampling - self.burn_in+1),
 #                          self.count_accept_S/(self.N_sampling - self.burn_in+1),
 #                          self.count_accept_W/(self.N_sampling - self.burn_in+1),
-                          2*self.count_exchange/(self.N_sampling - self.burn_in+1),
-                          np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
-        np.savetxt("./rsults.txt", output.T)
+                              2*self.count_exchange /
+                              (self.N_sampling - self.burn_in+1),
+                              np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
+            np.savetxt("./rsults.txt", output.T)
 
     def test_cryspy(self):
         rhochi = cryspy.load_file(self.datafile)
         rhochi_dict = rhochi.get_dictionary()
         print(rhochi_dict.keys())
-        #print(rhochi_dict['pd_powder1'])
-        print(rhochi_dict['crystal_phase1'])
         dict_in_out = {}
-        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
-        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
+        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict,
+                                               dict_in_out=dict_in_out)
         print(out[0])
-        rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 10.26296416715323
+        rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 11.1111
         print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
-        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
+        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict,
+                                               dict_in_out=dict_in_out)
         print(out[0])
 
 
