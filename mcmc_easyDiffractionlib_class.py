@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 import matplotlib.pyplot as plt
 import numpy as np
-import cryspy
 import os
-from cryspy.procedure_rhochi.rhochi_by_dictionary import \
-    rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\
-    rhochi_calc_chi_sq_by_dictionary
+from easyCore import np
+from easyCore.Fitting.Fitting import Fitter
+from easyDiffractionLib import Site, Phase, Phases
+from easyDiffractionLib.sample import Sample as Job
+from easyDiffractionLib.interface import InterfaceFactory as Calculator
+from easyDiffractionLib.Jobs import Powder1DCW
+from easyDiffractionLib.Jobs import Powder1DTOF
+from easyDiffractionLib.Profiles.P1D import Instrument1DCWParameters as CWParams
+from easyDiffractionLib.Profiles.P1D import Instrument1DTOFParameters as TOFParams
+from easyDiffractionLib.Profiles.P1D import Powder1DParameters
+from easyDiffractionLib.elements.Backgrounds.Point import PointBackground, BackgroundPoint
+
 
 import sys
 import pprint
@@ -19,10 +27,11 @@ class mcmc():
 #                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, d_S=1.0, C_S=0.6, d_W=0.9,
 #                 C_W=1.0, sigma=0.1, min_Mu=0., max_Mu=2.5, min_S=0.01,
 #                 max_S=1.5, min_W=0., max_W=2.0):
-    def __init__(self, datafile, K=1, N_sampling=20000, burn_in=10000, L=40,
+    def __init__(self, crystfile, exptfile,  K=1, N_sampling=20000, burn_in=10000, L=40,
                  gamma=1.3, d_Mu=1.0, C_Mu=1.0, sigma=0.1, min_Mu=0.,
                  max_Mu=20.):
-        self.datafile = datafile
+        self.crystfile = crystfile
+        self.exptfile = exptfile
         self.K = K
         self.N_sampling = N_sampling
         self.burn_in = burn_in
@@ -41,8 +50,8 @@ class mcmc():
 #        self.max_S = max_S
 #        self.min_W = min_W
 #        self.max_W = max_W
-        rhochi = cryspy.load_file(self.datafile)
-        self.rhochi_dict = rhochi.get_dictionary()
+        #rhochi = cryspy.load_file(self.datafile)
+        #self.rhochi_dict = rhochi.get_dictionary()
         self.N = 300
         np.random.seed(8)
         self.beta = np.zeros(L)
@@ -231,27 +240,47 @@ class mcmc():
                           np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
         np.savetxt("./rsults.txt", output.T)
 
-    def test_cryspy(self):
-        rhochi = cryspy.load_file(self.datafile)
-        rhochi_dict = rhochi.get_dictionary()
-        print(rhochi_dict.keys())
-        #print(rhochi_dict['pd_powder1'])
-        print(rhochi_dict['crystal_phase1'])
-        dict_in_out = {}
-        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
-        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
-        print(out[0])
-        rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 10.26296416715323
-        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
-        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
-        print(out[0])
-        print(type(rhochi_dict))
+    def init_easyDiffractionLib(self):
+        phases = Phases.from_cif_file(self.crystfile)
+        self.meas_x, self.meas_y, self.meas_e = np.loadtxt(self.exptfile,
+                                                           unpack=True)
+        calculator = Calculator(interface_name='CrysPy')
+        self.job = Powder1DCW("PbSO4", phases=phases, parameters=CWParams(),
+                              interface=calculator)
+        bkg = PointBackground(linked_experiment='PbSO4')
+        bkg.append(BackgroundPoint.from_pars(self.meas_x[0], 200))
+        bkg.append(BackgroundPoint.from_pars(self.meas_x[-1], 250))
+        self.job.set_background(bkg)
+        self.job.parameters.wavelength = 1.912
+        self.job.pattern.scale.fixed = False
+        self.job.pattern.zero_shift.fixed = False
+        self.job.parameters.resolution_u.fixed = False
+        self.job.parameters.resolution_v.fixed = False
+        self.job.parameters.resolution_w.fixed = False
+        self.job.backgrounds[0][0].y.fixed = False
+        self.job.backgrounds[0][1].y.fixed = False
+        fitter = Fitter(self.job, calculator.fit_func)
+        result = fitter.fit(self.meas_x, self.meas_y, weights=1/self.meas_e,
+                            method='least_squares',
+                            minimizer_kwargs={'diff_step': 1e-5})
+        print(self.job.pattern.zero_shift)
+        print(self.job.parameters.resolution_u)
+        print(self.job.parameters.resolution_v)
+        print(self.job.parameters.resolution_w)
+        print(self.job.backgrounds[0][0])
+        print(self.job.backgrounds[0][1])
+        calc_y_cryspy = self.job.create_simulation(self.meas_x)
+        plt.plot(self.meas_x, calc_y_cryspy)
+        plt.plot(self.meas_x, self.meas_y)
+        plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
+        plt.show()
 
 
 def samplerun():
-    datafile = "/home/kazu/desktop/231123/main.rcif"
-    prj = mcmc(datafile)
-    print(prj.test_cryspy())
+    crystfile = "/home/kazu/desktop/231207/easyDiffraction/examples/PbSO4.cif"
+    exptfile = "/home/kazu/desktop/231207/easyDiffraction/examples/D1A@ILL.xye"
+    prj = mcmc(crystfile, exptfile)
+    prj.init_easyDiffractionLib()
 
 
-#samplerun()
+samplerun()
