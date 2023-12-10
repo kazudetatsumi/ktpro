@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from mpi4py import MPI
 from easyCore import np
 from easyCore.Fitting.Fitting import Fitter
 from easyDiffractionLib import Site, Phase, Phases
@@ -18,7 +19,10 @@ from easyDiffractionLib.elements.Backgrounds.Point import PointBackground, Backg
 import sys
 import pprint
 
-pprint.pprint(sys.path)
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+if rank == 0:
+    pprint.pprint(sys.path)
 
 
 class mcmc():
@@ -28,8 +32,8 @@ class mcmc():
 #                 C_W=1.0, sigma=0.1, min_Mu=0., max_Mu=2.5, min_S=0.01,
 #                 max_S=1.5, min_W=0., max_W=2.0):
     #def __init__(self, crystfile, exptfile,  K=1, N_sampling=20000, burn_in=10000, L=40,
-    def __init__(self, crystfile, exptfile,  K=1, N_sampling=200, burn_in=100, L=40,
-                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, sigma=0.1, min_Mu=0.,
+    def __init__(self, crystfile, exptfile,  K=3, N_sampling=20000, burn_in=10000, L=36,
+                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, sigma=0.1, min_Mu=2.,
                  max_Mu=20.):
         self.crystfile = crystfile
         self.exptfile = exptfile
@@ -97,10 +101,20 @@ class mcmc():
         #for ik in range(0, self.K):
             #yhat += _W[ik]*np.exp(-(self.data[:, 0]-_Mu[ik])**2/(2*_S[ik]**2))
         #self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = _Mu[0]
+        #_Mu[np.abs(_Mu) < 1E-10] = 1.E-10
         self.job.phases[0].cell.a = _Mu[0]
+        self.job.phases[0].cell.b = _Mu[1]
+        self.job.phases[0].cell.c = _Mu[2]
         #out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={})
         #print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
-        return (np.square((self.job.create_simulation(self.meas_x) - self.meas_y)/self.meas_e)/self.meas_x.shape[0]).sum()
+        out = (np.square((self.job.create_simulation(self.meas_x) - self.meas_y)/self.meas_e)/self.meas_x.shape[0]).sum()
+        #plt.plot(self.meas_x, self.meas_y)
+        #plt.plot(self.meas_x, self.job.create_simulation(self.meas_x), label=str(_Mu[0])+" "+str(np.log(out)))
+        #plt.plot(self.meas_x, self.meas_y - self.job.create_simulation(self.meas_x), label="diff")
+        #plt.legend()
+        #plt.show()
+        #print(out, _Mu)
+        return out
 
     def emcmc(self, isamp, itemp):
         self.Mu_ar[itemp, :, isamp] = self.Mu_ar[itemp, :, isamp-1]
@@ -111,11 +125,16 @@ class mcmc():
         current_Mu = self.Mu_ar[itemp, :, isamp]
 #        current_S = self.S_ar[itemp, :, isamp]
 #        current_W = self.W_ar[itemp, :, isamp]
+        NONNEG = False
         if itemp == 0:
-            next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
+            while not NONNEG:
+                next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
+                NONNEG = all(_Mu > 0. for _Mu in next_Mu)
         else:
-            next_Mu = current_Mu + np.random.normal(0.0, self.step_Mu[itemp],
-                                                    self.K)
+            while not NONNEG:
+                next_Mu = current_Mu + np.abs(np.random.normal(0.0, self.step_Mu[itemp],
+                                                               self.K))
+                NONNEG = all(_Mu > 0. for _Mu in next_Mu)
         #next_MSE = self.calc_E(next_Mu, current_S, current_W)
         next_MSE = self.calc_E(next_Mu)
         r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
@@ -164,31 +183,62 @@ class mcmc():
 #            self.MSE[itemp, isamp] = next_MSE
 #            self.count_accept_W[itemp] += 1
 ## I should undersand the actual spectrum data set to be fitted.
-##        if isamp == self.N_sampling - 1 and itemp == self.L-1:
+        if isamp == self.N_sampling - 1 and itemp == self.L-1:
 ##            yhat = np.zeros(self.data[:, 0].shape[0])
-##            minMSE_sample = np.where(self.MSE[itemp] ==
-##                                     np.min(self.MSE[itemp]))[0][0]
+            minMSE_sample = np.where(self.MSE[itemp] ==
+                                     np.min(self.MSE[itemp]))[0][0]
 ##            for ik in range(0, self.K):
 ##                yhat += self.W_ar[itemp, ik, minMSE_sample] *\
 ##                        np.exp(-(self.data[:, 0] -
 ##                                 self.Mu_ar[itemp, ik, minMSE_sample])**2
 ##                               / (2*self.S_ar[itemp, ik, minMSE_sample]**2))
+            print("minMSE is found at the lattice constant of ",
+                  self.Mu_ar[itemp, :, minMSE_sample],
+                  self.calc_E(self.Mu_ar[itemp, :, minMSE_sample]))
+            #self.job.phases[0].cell.a = self.Mu_ar[itemp, 0, minMSE_sample]
+            #self.job.phases[0].cell.b = self.Mu_ar[itemp, 1, minMSE_sample]
+            #self.job.phases[0].cell.c = self.Mu_ar[itemp, 2, minMSE_sample]
+            #calc_y_cryspy = self.job.create_simulation(self.meas_x)
+            #plt.plot(self.meas_x, calc_y_cryspy)
+            #plt.plot(self.meas_x, self.meas_y)
+            #plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
+            #plt.show()
 ##            plt.plot(self.data[:, 0], yhat, ".")
 ##            plt.plot(self.data[:, 0], self.data[:, 1], ".")
 ##            plt.show()
 
     def rmc(self):
+        comm = MPI.COMM_WORLD
+        size = comm.Get_size()
+        rank = comm.Get_rank()
         for isamp in range(1, self.N_sampling):
-            print(isamp)
-            #if isamp % 200 == 0:
+            #if rank == 0:
             #    print(isamp)
+            if isamp % 5 == 0 and rank == 0:
+                print(isamp)
             if isamp == self.burn_in-1:
                 self.count_accept_Mu = 0*self.count_accept_Mu
 #                self.count_accept_S = 0*self.count_accept_S
 #                self.count_accept_W = 0*self.count_accept_W
                 self.count_exchange = 0*self.count_exchange
-            for itemp in range(0, self.L):
+            #for itemp in range(0, self.L):
+            #    self.emcmc(isamp, itemp)
+            for itemp in range(rank, self.L - ((self.L-rank-1) % size) + size
+                               - 1, size):
                 self.emcmc(isamp, itemp)
+                istart = itemp - rank
+                iend = istart+size
+                self.MSE[istart:iend, isamp] =\
+                    np.array(comm.allgather(self.MSE[itemp, isamp]))
+                self.Mu_ar[istart:iend, :, isamp] =\
+                    np.array(comm.allgather(self.Mu_ar[itemp, :, isamp])
+                             ).reshape((size, self.K))
+                #self.S_ar[istart:iend, :, isamp] = np.array(comm.allgather(self.S_ar[itemp, :, isamp])).reshape((size, self.K))
+                #self.W_ar[istart:iend, :, isamp] = np.array(comm.allgather(self.W_ar[itemp, :, isamp])).reshape((size, self.K))
+                self.count_accept_Mu[istart:iend] =\
+                    np.array(comm.allgather(self.count_accept_Mu[itemp]))
+                #self.count_accept_S[istart:iend] = np.array(comm.allgather(self.count_accept_S[itemp]))
+                #self.count_accept_W[istart:iend] = np.array(comm.allgather(self.count_accept_W[itemp]))
             for itemp in range(0, self.L-1):
                 r_exchange = np.exp(
                                     self.N/(2*self.sigma**2) *
@@ -232,18 +282,24 @@ class mcmc():
 #                        self.W_ar[itemp, :, isamp] =\
 #                            np.array(self.W_ar[itemp+1, :, isamp])
 #                        self.W_ar[itemp+1, :, isamp] = tmp_W
-        print(self.count_accept_Mu/(self.N_sampling - self.burn_in+1))
+        if rank == 0:
+            print("Accept rates for different beta")
+            print(self.count_accept_Mu/(self.N_sampling - self.burn_in+1))
 #        print(self.count_accept_S/(self.N_sampling - self.burn_in+1))
 #        print(self.count_accept_W/(self.N_sampling - self.burn_in+1))
-        print(2*self.count_exchange/(self.N_sampling - self.burn_in+1))
-        output = np.array([self.beta, self.count_accept_Mu/(self.N_sampling - self.burn_in+1),
-#                          self.count_accept_S/(self.N_sampling - self.burn_in+1),
-#                          self.count_accept_W/(self.N_sampling - self.burn_in+1),
-                          2*self.count_exchange/(self.N_sampling - self.burn_in+1),
-                          np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
-        np.savetxt("./rsults.txt", output.T)
+            print("Exchange rates for different beta")
+            print(2*self.count_exchange/(self.N_sampling - self.burn_in+1))
+            output = np.array([self.beta, self.count_accept_Mu/(self.N_sampling - self.burn_in+1),
+#                              self.count_accept_S/(self.N_sampling - self.burn_in+1),
+#                              self.count_accept_W/(self.N_sampling - self.burn_in+1),
+                              2*self.count_exchange/(self.N_sampling - self.burn_in+1),
+                              np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
+            np.savetxt("./results.txt", output.T)
 
     def init_easyDiffractionLib(self):
+        comm = MPI.COMM_WORLD
+        size = comm.Get_size()
+        rank = comm.Get_rank()
         phases = Phases.from_cif_file(self.crystfile)
         self.meas_x, self.meas_y, self.meas_e = np.loadtxt(self.exptfile,
                                                            unpack=True)
@@ -266,17 +322,18 @@ class mcmc():
         result = fitter.fit(self.meas_x, self.meas_y, weights=1/self.meas_e,
                             method='least_squares',
                             minimizer_kwargs={'diff_step': 1e-5})
-        print(self.job.pattern.zero_shift)
-        print(self.job.parameters.resolution_u)
-        print(self.job.parameters.resolution_v)
-        print(self.job.parameters.resolution_w)
-        print(self.job.backgrounds[0][0])
-        print(self.job.backgrounds[0][1])
-        calc_y_cryspy = self.job.create_simulation(self.meas_x)
-        plt.plot(self.meas_x, calc_y_cryspy)
-        plt.plot(self.meas_x, self.meas_y)
-        plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
-        plt.show()
+        if rank == 0:
+            print(self.job.pattern.zero_shift)
+            print(self.job.parameters.resolution_u)
+            print(self.job.parameters.resolution_v)
+            print(self.job.parameters.resolution_w)
+            print(self.job.backgrounds[0][0])
+            print(self.job.backgrounds[0][1])
+            #calc_y_cryspy = self.job.create_simulation(self.meas_x)
+            #plt.plot(self.meas_x, calc_y_cryspy)
+            #plt.plot(self.meas_x, self.meas_y)
+            #plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
+            #plt.show()
 
 
 def samplerun():

@@ -28,8 +28,8 @@ class mcmc():
 #                 C_W=1.0, sigma=0.1, min_Mu=0., max_Mu=2.5, min_S=0.01,
 #                 max_S=1.5, min_W=0., max_W=2.0):
     #def __init__(self, crystfile, exptfile,  K=1, N_sampling=20000, burn_in=10000, L=40,
-    def __init__(self, crystfile, exptfile,  K=1, N_sampling=200, burn_in=100, L=40,
-                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, sigma=0.1, min_Mu=0.,
+    def __init__(self, crystfile, exptfile,  K=3, N_sampling=200, burn_in=100, L=40,
+                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, sigma=0.1, min_Mu=2.,
                  max_Mu=20.):
         self.crystfile = crystfile
         self.exptfile = exptfile
@@ -97,7 +97,11 @@ class mcmc():
         #for ik in range(0, self.K):
             #yhat += _W[ik]*np.exp(-(self.data[:, 0]-_Mu[ik])**2/(2*_S[ik]**2))
         #self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = _Mu[0]
+        _Mu[_Mu == 0.] = 1e-50
         self.job.phases[0].cell.a = _Mu[0]
+        self.job.phases[0].cell.b = _Mu[1]
+        self.job.phases[0].cell.c = _Mu[2]
+        print(self.job.phases[0].cell.a, self.job.phases[0].cell.b, self.job.phases[0].cell.c)
         #out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={})
         #print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
         return (np.square((self.job.create_simulation(self.meas_x) - self.meas_y)/self.meas_e)/self.meas_x.shape[0]).sum()
@@ -115,7 +119,7 @@ class mcmc():
             next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
         else:
             next_Mu = current_Mu + np.random.normal(0.0, self.step_Mu[itemp],
-                                                    self.K)
+                                                    self.K) 
         #next_MSE = self.calc_E(next_Mu, current_S, current_W)
         next_MSE = self.calc_E(next_Mu)
         r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
@@ -164,10 +168,13 @@ class mcmc():
 #            self.MSE[itemp, isamp] = next_MSE
 #            self.count_accept_W[itemp] += 1
 ## I should undersand the actual spectrum data set to be fitted.
-##        if isamp == self.N_sampling - 1 and itemp == self.L-1:
+        if isamp == self.N_sampling - 1 and itemp == self.L-1:
 ##            yhat = np.zeros(self.data[:, 0].shape[0])
-##            minMSE_sample = np.where(self.MSE[itemp] ==
-##                                     np.min(self.MSE[itemp]))[0][0]
+            minMSE_sample = np.where(self.MSE[itemp] ==
+                                     np.min(self.MSE[itemp]))[0][0]
+            print("minMSE is found at the lattice constant of ",
+                  self.Mu_ar[itemp, :, minMSE_sample])
+
 ##            for ik in range(0, self.K):
 ##                yhat += self.W_ar[itemp, ik, minMSE_sample] *\
 ##                        np.exp(-(self.data[:, 0] -
@@ -272,11 +279,11 @@ class mcmc():
         print(self.job.parameters.resolution_w)
         print(self.job.backgrounds[0][0])
         print(self.job.backgrounds[0][1])
-        calc_y_cryspy = self.job.create_simulation(self.meas_x)
-        plt.plot(self.meas_x, calc_y_cryspy)
-        plt.plot(self.meas_x, self.meas_y)
-        plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
-        plt.show()
+        #calc_y_cryspy = self.job.create_simulation(self.meas_x)
+        #plt.plot(self.meas_x, calc_y_cryspy)
+        #plt.plot(self.meas_x, self.meas_y)
+        #plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
+        #plt.show()
 
 
 def samplerun():
