@@ -78,6 +78,7 @@ class mcmc():
 #                                                       self.K)
 #            self.W_ar[itemp, :, 0] = np.random.uniform(self.min_W, self.max_W,
 #                                                       self.K)
+        print("slef.Mu_ar[:, 0, 0]", self.Mu_ar[:, 0, 0])
 
 #    def calc_E(self, _Mu, _S, _W):
     def calc_E(self, _Mu):
@@ -86,8 +87,10 @@ class mcmc():
         #for ik in range(0, self.K):
             #yhat += _W[ik]*np.exp(-(self.data[:, 0]-_Mu[ik])**2/(2*_S[ik]**2))
         self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = _Mu[0]
+        self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][1] = _Mu[0]
+        self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][2] = _Mu[0]
         out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={})
-        #print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
         return out[0]
 
     def emcmc(self, isamp, itemp):
@@ -167,9 +170,8 @@ class mcmc():
 
     def rmc(self):
         for isamp in range(1, self.N_sampling):
-            print(isamp)
-            #if isamp % 200 == 0:
-            #    print(isamp)
+            if isamp % 1000 == 0:
+                print(isamp)
             if isamp == self.burn_in-1:
                 self.count_accept_Mu = 0*self.count_accept_Mu
 #                self.count_accept_S = 0*self.count_accept_S
@@ -236,13 +238,19 @@ class mcmc():
         rhochi_dict = rhochi.get_dictionary()
         print(rhochi_dict.keys())
         #print(rhochi_dict['pd_powder1'])
-        print(rhochi_dict['crystal_phase1'])
+        #print("CHECK", rhochi_dict['crystal_phase1'])
         dict_in_out = {}
         print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][1])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][2])
+        print(rhochi_dict['crystal_phase1']['atom_fract_xyz'][0][2])
         out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
         print(out[0])
         rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 10.26296416715323
+        rhochi_dict['crystal_phase1']['atom_fract_xyz'][0][2] = 0.1
         print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][1])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][2])
         out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
         print(out[0])
         print(type(rhochi_dict))
@@ -254,4 +262,4 @@ def samplerun():
     print(prj.test_cryspy())
 
 
-#samplerun()
+samplerun()

@@ -1,27 +1,28 @@
 #!/usr/bin/env python
+import matplotlib.pyplot as plt
 import numpy as np
-import datetime
-from easyCore.Fitting.Fitting import Fitter
-from easyDiffractionLib import Site, Phase, Phases
-from easyDiffractionLib.sample import Sample as Job
-from easyDiffractionLib.interface import InterfaceFactory as Calculator
-from easyDiffractionLib.Jobs import Powder1DCW
-from easyDiffractionLib.Jobs import Powder1DTOF
-from easyDiffractionLib.Profiles.P1D import Instrument1DCWParameters as CWParams
-from easyDiffractionLib.Profiles.P1D import Instrument1DTOFParameters as TOFParams
-from easyDiffractionLib.Profiles.P1D import Powder1DParameters
-from easyDiffractionLib.elements.Backgrounds.Point import PointBackground, BackgroundPoint
+import cryspy
+import os
+from cryspy.procedure_rhochi.rhochi_by_dictionary import \
+    rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\
+    rhochi_calc_chi_sq_by_dictionary
+
 import sys
 import pprint
+
 pprint.pprint(sys.path)
 
 
 class mcmc():
-    def __init__(self, crystfile, exptfile,  K=3, N_sampling=50, burn_in=25,
-                 L=40, gamma=1.3, d_Mu=1.0, C_Mu=1.0, sigma=0.1, min_Mu=2.,
-                 max_Mu=20.):
-        self.crystfile = crystfile
-        self.exptfile = exptfile
+# Test for optimization on the lattice constant
+#    def __init__(self, datafile, K=3, N_sampling=20000, burn_in=10000, L=40,
+#                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, d_S=1.0, C_S=0.6, d_W=0.9,
+#                 C_W=1.0, sigma=0.1, min_Mu=0., max_Mu=2.5, min_S=0.01,
+#                 max_S=1.5, min_W=0., max_W=2.0):
+    def __init__(self, datafile, K=1, N_sampling=20000, burn_in=10000, L=40,
+                 gamma=1.3, d_Mu=1.0, C_Mu=1.0, d_S=1.0, C_S=1.0, sigma=0.1,
+                 min_Mu=0., max_Mu=20., min_S=0., max_S=1.):
+        self.datafile = datafile
         self.K = K
         self.N_sampling = N_sampling
         self.burn_in = burn_in
@@ -29,63 +30,87 @@ class mcmc():
         self.gamma = gamma
         self.d_Mu = d_Mu
         self.C_Mu = C_Mu
+        self.d_S = d_S
+        self.C_S = C_S
+#        self.d_W = d_W
+#        self.C_W = C_W
         self.sigma = sigma
         self.min_Mu = min_Mu
         self.max_Mu = max_Mu
-        self.init_easyDiffractionLib()
-        self.N = self.meas_x.shape[0]
+        self.min_S = min_S
+        self.max_S = max_S
+#        self.min_W = min_W
+#        self.max_W = max_W
+        rhochi = cryspy.load_file(self.datafile)
+        self.rhochi_dict = rhochi.get_dictionary()
+        self.N = 300
         np.random.seed(8)
         self.beta = np.zeros(L)
         self.beta[0] = 0
         self.step_Mu = np.zeros(self.L)
+        self.step_S = np.zeros(self.L)
+#        self.step_W = np.zeros(self.L)
         for itemp in range(1, self.L):
             self.beta[itemp] = self.gamma**(itemp - (self.L - 1))
             if self.N*self.beta[itemp] <= 1:
                 self.step_Mu[itemp] = self.C_Mu
+                self.step_S[itemp] = self.C_S
+#                self.step_W[itemp] = self.C_W
             else:
                 self.step_Mu[itemp] = self.C_Mu/(self.N*self.beta[itemp]
                                                  )**self.d_Mu
+                self.step_S[itemp] = self.C_S/(self.N*self.beta[itemp]
+                                               )**self.d_S
+#                self.step_W[itemp] = self.C_W/(self.N*self.beta[itemp]
+#                                               )**self.d_W
         self.count_accept_Mu = np.zeros(self.L)
+        self.count_accept_S = np.zeros(self.L)
+#        self.count_accept_W = np.zeros(self.L)
         self.count_exchange = np.zeros(self.L)
         self.Mu_ar = np.zeros([self.L, self.K, self.N_sampling])
+        self.S_ar = np.zeros([self.L, self.K, self.N_sampling])
+#        self.W_ar = np.zeros([self.L, self.K, self.N_sampling])
         self.MSE = np.zeros([self.L, self.N_sampling]) + 9999
         for itemp in range(0, L):
             self.Mu_ar[itemp, :, 0] = np.random.uniform(self.min_Mu,
                                                         self.max_Mu, self.K)
+            self.S_ar[itemp, :, 0] = np.random.uniform(self.min_S, self.max_S,
+                                                       self.K)
+#            self.W_ar[itemp, :, 0] = np.random.uniform(self.min_W, self.max_W,
+#                                                       self.K)
+#        print("slef.Mu_ar[:, 0, 0]", self.Mu_ar[:, 0, 0])
 
-    def calc_E(self, _Mu):
-        _Mu[_Mu == 0.] = 1e-50
-        self.job.phases[0].cell.a = _Mu[0]
-        self.job.phases[0].cell.b = _Mu[1]
-        self.job.phases[0].cell.c = _Mu[2]
-        return (np.square((self.job.create_simulation(self.meas_x) -
-                           self.meas_y)/self.meas_e) /
-                self.meas_x.shape[0]).sum()
+#    def calc_E(self, _Mu, _S, _W):
+    def calc_E(self, _Mu, _S):
+        # Here I use cryspy routines
+        #yhat = np.zeros(self.data.shape[0])
+        #for ik in range(0, self.K):
+            #yhat += _W[ik]*np.exp(-(self.data[:, 0]-_Mu[ik])**2/(2*_S[ik]**2))
+        self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = _Mu[0]
+        self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][1] = _Mu[0]
+        self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][2] = _Mu[0]
+        self.rhochi_dict['crystal_phase1']['atom_fract_xyz'][0][2] = _S[0]
+        out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={})
+        print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        print(out[0], self.rhochi_dict['crystal_phase1']['atom_fract_xyz'][0][2])
+        return out[0]
 
     def emcmc(self, isamp, itemp):
-        print(itemp, datetime.datetime.now(), 'start emcmc')
         self.Mu_ar[itemp, :, isamp] = self.Mu_ar[itemp, :, isamp-1]
-#        self.S_ar[itemp, :, isamp] = self.S_ar[itemp, :, isamp-1]
+        self.S_ar[itemp, :, isamp] = self.S_ar[itemp, :, isamp-1]
 #        self.W_ar[itemp, :, isamp] = self.W_ar[itemp, :, isamp-1]
         self.MSE[itemp, isamp] = self.MSE[itemp, isamp-1]
         pre_MSE = self.MSE[itemp, isamp]
         current_Mu = self.Mu_ar[itemp, :, isamp]
-#        current_S = self.S_ar[itemp, :, isamp]
+        current_S = self.S_ar[itemp, :, isamp]
 #        current_W = self.W_ar[itemp, :, isamp]
-        NONNEG = False
-        while not NONNEG:
-            if itemp == 0:
-                next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
-                NONNEG = all(_Mu > 0. for _Mu in next_Mu)
-            else:
-                next_Mu = current_Mu + np.random.normal(0.0,
-                                                        self.step_Mu[itemp],
-                                                        self.K)
-                NONNEG = all(_Mu > 0. for _Mu in next_Mu)
-        print(itemp, datetime.datetime.now(), 'have set next_Mu')
+        if itemp == 0:
+            next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
+        else:
+            next_Mu = current_Mu + np.random.normal(0.0, self.step_Mu[itemp],
+                                                    self.K)
         #next_MSE = self.calc_E(next_Mu, current_S, current_W)
-        next_MSE = self.calc_E(next_Mu)
-        print(itemp, datetime.datetime.now(), 'have finished calc_E')
+        next_MSE = self.calc_E(next_Mu, current_S)
         r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
                    (-next_MSE+pre_MSE))
         for ik in range(0, self.K):
@@ -95,25 +120,25 @@ class mcmc():
             self.Mu_ar[itemp, :, isamp] = next_Mu
             self.MSE[itemp, isamp] = next_MSE
             self.count_accept_Mu[itemp] += 1
-        print(itemp, datetime.datetime.now(), 'have determined whethre accept')
-#        pre_MSE = self.MSE[itemp, isamp]
-#        current_Mu = self.Mu_ar[itemp, :, isamp]
-#        current_S = self.S_ar[itemp, :, isamp]
+        pre_MSE = self.MSE[itemp, isamp]
+        current_Mu = self.Mu_ar[itemp, :, isamp]
+        current_S = self.S_ar[itemp, :, isamp]
 #        current_W = self.W_ar[itemp, :, isamp]
-#        if itemp == 0:
-#            next_S = np.random.uniform(self.min_S, self.max_S, self.K)
-#        else:
-#            next_S = current_S + np.random.normal(0.0, self.step_S[itemp],
-#                                                  self.K)
+        if itemp == 0:
+            next_S = np.random.uniform(self.min_S, self.max_S, self.K)
+        else:
+            next_S = current_S + np.random.normal(0.0, self.step_S[itemp],
+                                                  self.K)
 #        next_MSE = self.calc_E(current_Mu, next_S, current_W)
-#        r = np.exp(self.N*self.beta[itemp]/(2.*self.sigma**2)*(-next_MSE+pre_MSE))
-#        for ik in range(0, self.K):
-#            if next_S[ik] < self.min_S or next_S[ik] > self.max_S:
-#                r = -1
-#        if r >= np.random.uniform(0.0, 1.0) or itemp == 0 or isamp == 1:
-#            self.S_ar[itemp, :, isamp] = next_S
-#            self.MSE[itemp, isamp] = next_MSE
-#            self.count_accept_S[itemp] += 1
+        next_MSE = self.calc_E(current_Mu, next_S)
+        r = np.exp(self.N*self.beta[itemp]/(2.*self.sigma**2)*(-next_MSE+pre_MSE))
+        for ik in range(0, self.K):
+            if next_S[ik] < self.min_S or next_S[ik] > self.max_S:
+                r = -1
+        if r >= np.random.uniform(0.0, 1.0) or itemp == 0 or isamp == 1:
+            self.S_ar[itemp, :, isamp] = next_S
+            self.MSE[itemp, isamp] = next_MSE
+            self.count_accept_S[itemp] += 1
 #        pre_MSE = self.MSE[itemp, isamp]
 #        current_Mu = self.Mu_ar[itemp, :, isamp]
 #        current_S = self.S_ar[itemp, :, isamp]
@@ -133,13 +158,10 @@ class mcmc():
 #            self.MSE[itemp, isamp] = next_MSE
 #            self.count_accept_W[itemp] += 1
 ## I should undersand the actual spectrum data set to be fitted.
-        if isamp == self.N_sampling - 1 and itemp == self.L-1:
+##        if isamp == self.N_sampling - 1 and itemp == self.L-1:
 ##            yhat = np.zeros(self.data[:, 0].shape[0])
-            minMSE_sample = np.where(self.MSE[itemp] ==
-                                     np.min(self.MSE[itemp]))[0][0]
-            print("minMSE is found at the lattice constant of ",
-                  self.Mu_ar[itemp, :, minMSE_sample])
-
+##            minMSE_sample = np.where(self.MSE[itemp] ==
+##                                     np.min(self.MSE[itemp]))[0][0]
 ##            for ik in range(0, self.K):
 ##                yhat += self.W_ar[itemp, ik, minMSE_sample] *\
 ##                        np.exp(-(self.data[:, 0] -
@@ -151,18 +173,15 @@ class mcmc():
 
     def rmc(self):
         for isamp in range(1, self.N_sampling):
-            print(isamp)
-            #if isamp % 200 == 0:
-            #    print(isamp)
+            if isamp % 1000 == 0:
+                print(isamp)
             if isamp == self.burn_in-1:
                 self.count_accept_Mu = 0*self.count_accept_Mu
-#                self.count_accept_S = 0*self.count_accept_S
+                self.count_accept_S = 0*self.count_accept_S
 #                self.count_accept_W = 0*self.count_accept_W
                 self.count_exchange = 0*self.count_exchange
-            print(datetime.datetime.now(), 'start emcmc')
             for itemp in range(0, self.L):
                 self.emcmc(isamp, itemp)
-            print(datetime.datetime.now(), 'start exchange')
             for itemp in range(0, self.L-1):
                 r_exchange = np.exp(
                                     self.N/(2*self.sigma**2) *
@@ -180,10 +199,10 @@ class mcmc():
                         self.Mu_ar[itemp, :, isamp] =\
                             np.array(self.Mu_ar[itemp+1, :, isamp])
                         self.Mu_ar[itemp+1, :, isamp] = tmp_Mu
-#                        tmp_S = np.array(self.S_ar[itemp, :, isamp])
-#                        self.S_ar[itemp, :, isamp] =\
-#                            np.array(self.S_ar[itemp+1, :, isamp])
-#                        self.S_ar[itemp+1, :, isamp] = tmp_S
+                        tmp_S = np.array(self.S_ar[itemp, :, isamp])
+                        self.S_ar[itemp, :, isamp] =\
+                            np.array(self.S_ar[itemp+1, :, isamp])
+                        self.S_ar[itemp+1, :, isamp] = tmp_S
 #                        tmp_W = np.array(self.W_ar[itemp, :, isamp])
 #                        self.W_ar[itemp, :, isamp] =\
 #                            np.array(self.W_ar[itemp+1, :, isamp])
@@ -198,68 +217,53 @@ class mcmc():
                         self.Mu_ar[itemp, :, isamp] =\
                             np.array(self.Mu_ar[itemp + 1, :, isamp])
                         self.Mu_ar[itemp+1, :, isamp] = tmp_Mu
-#                        tmp_S = np.array(self.S_ar[itemp, :, isamp])
-#                        self.S_ar[itemp, :, isamp] =\
-#                            np.array(self.S_ar[itemp + 1, :, isamp])
-#                        self.S_ar[itemp+1, :, isamp] = tmp_S
+                        tmp_S = np.array(self.S_ar[itemp, :, isamp])
+                        self.S_ar[itemp, :, isamp] =\
+                            np.array(self.S_ar[itemp + 1, :, isamp])
+                        self.S_ar[itemp+1, :, isamp] = tmp_S
 #                        tmp_W = np.array(self.W_ar[itemp, :, isamp])
 #                        self.W_ar[itemp, :, isamp] =\
 #                            np.array(self.W_ar[itemp+1, :, isamp])
 #                        self.W_ar[itemp+1, :, isamp] = tmp_W
-            print(datetime.datetime.now(), 'end exchange')
         print(self.count_accept_Mu/(self.N_sampling - self.burn_in+1))
-#        print(self.count_accept_S/(self.N_sampling - self.burn_in+1))
+        print(self.count_accept_S/(self.N_sampling - self.burn_in+1))
 #        print(self.count_accept_W/(self.N_sampling - self.burn_in+1))
         print(2*self.count_exchange/(self.N_sampling - self.burn_in+1))
         output = np.array([self.beta, self.count_accept_Mu/(self.N_sampling - self.burn_in+1),
-#                          self.count_accept_S/(self.N_sampling - self.burn_in+1),
+                          self.count_accept_S/(self.N_sampling - self.burn_in+1),
 #                          self.count_accept_W/(self.N_sampling - self.burn_in+1),
                           2*self.count_exchange/(self.N_sampling - self.burn_in+1),
                           np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
         np.savetxt("./rsults.txt", output.T)
 
-    def init_easyDiffractionLib(self):
-        phases = Phases.from_cif_file(self.crystfile)
-        self.meas_x, self.meas_y, self.meas_e = np.loadtxt(self.exptfile,
-                                                           unpack=True)
-        calculator = Calculator(interface_name='CrysPy')
-        self.job = Powder1DCW("PbSO4", phases=phases, parameters=CWParams(),
-                              interface=calculator)
-        bkg = PointBackground(linked_experiment='PbSO4')
-        bkg.append(BackgroundPoint.from_pars(self.meas_x[0], 200))
-        bkg.append(BackgroundPoint.from_pars(self.meas_x[-1], 250))
-        self.job.set_background(bkg)
-        self.job.parameters.wavelength = 1.912
-        self.job.pattern.scale.fixed = False
-        self.job.pattern.zero_shift.fixed = False
-        self.job.parameters.resolution_u.fixed = False
-        self.job.parameters.resolution_v.fixed = False
-        self.job.parameters.resolution_w.fixed = False
-        self.job.backgrounds[0][0].y.fixed = False
-        self.job.backgrounds[0][1].y.fixed = False
-        fitter = Fitter(self.job, calculator.fit_func)
-        result = fitter.fit(self.meas_x, self.meas_y, weights=1/self.meas_e,
-                            method='least_squares',
-                            minimizer_kwargs={'diff_step': 1e-5})
-        print(self.job.pattern.zero_shift)
-        print(self.job.parameters.resolution_u)
-        print(self.job.parameters.resolution_v)
-        print(self.job.parameters.resolution_w)
-        print(self.job.backgrounds[0][0])
-        print(self.job.backgrounds[0][1])
-        #calc_y_cryspy = self.job.create_simulation(self.meas_x)
-        #plt.plot(self.meas_x, calc_y_cryspy)
-        #plt.plot(self.meas_x, self.meas_y)
-        #plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
-        #plt.show()
+    def test_cryspy(self):
+        rhochi = cryspy.load_file(self.datafile)
+        rhochi_dict = rhochi.get_dictionary()
+        print(rhochi_dict.keys())
+        #print(rhochi_dict['pd_powder1'])
+        #print("CHECK", rhochi_dict['crystal_phase1'])
+        dict_in_out = {}
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][1])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][2])
+        print(rhochi_dict['crystal_phase1']['atom_fract_xyz'][0][2])
+        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
+        print(out[0])
+        rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 10.26296416715323
+        rhochi_dict['crystal_phase1']['atom_fract_xyz'][0][2] = 0.92048
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][1])
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][2])
+        out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict, dict_in_out=dict_in_out)
+        print(out[0])
+        print(type(rhochi_dict))
 
 
 def samplerun():
-    crystfile = "/home/kazu/desktop/231207/easyDiffraction/examples/PbSO4.cif"
-    exptfile = "/home/kazu/desktop/231207/easyDiffraction/examples/D1A@ILL.xye"
-    prj = mcmc(crystfile, exptfile)
-    prj.rmc()
-    #prj.init_easyDiffractionLib()
+    datafile = "/home/kazu/desktop/231123/main.rcif"
+    prj = mcmc(datafile)
+    #prj.rmc()
+    print(prj.test_cryspy())
 
 
 samplerun()

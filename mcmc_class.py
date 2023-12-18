@@ -7,7 +7,7 @@ class mcmc():
     def __init__(self, datafile, K=3, N_sampling=20000, burn_in=10000, L=40,
                  gamma=1.3, d_Mu=1.0, C_Mu=1.0, d_S=1.0, C_S=0.6, d_W=0.9,
                  C_W=1.0, sigma=0.1, min_Mu=0., max_Mu=2.5, min_S=0.01,
-                 max_S=1.5, min_W=0., max_W=2.0):
+                 max_S=1.5, min_W=0., max_W=2.0, isplot=True):
         self.datafile = datafile
         self.K = K
         self.N_sampling = N_sampling
@@ -27,9 +27,11 @@ class mcmc():
         self.max_S = max_S
         self.min_W = min_W
         self.max_W = max_W
+        self.isplot = isplot
         self.data = np.loadtxt(self.datafile)
         plt.plot(self.data[:, 0], self.data[:, 1])
         self.N = self.data.shape[0]
+        print('N:', self.N)
         np.random.seed(8)
         self.beta = np.zeros(L)
         self.beta[0] = 0
@@ -131,7 +133,7 @@ class mcmc():
             self.W_ar[itemp, :, isamp] = next_W
             self.MSE[itemp, isamp] = next_MSE
             self.count_accept_W[itemp] += 1
-        if isamp == self.N_sampling - 1 and itemp == self.L-1:
+        if isamp == self.N_sampling - 1 and itemp == self.L-1 and self.isplot:
             yhat = np.zeros(self.data[:, 0].shape[0])
             minMSE_sample = np.where(self.MSE[itemp] ==
                                      np.min(self.MSE[itemp]))[0][0]
@@ -207,7 +209,8 @@ class mcmc():
                           self.count_accept_W/(self.N_sampling - self.burn_in+1),
                           2*self.count_exchange/(self.N_sampling - self.burn_in+1),
                           np.mean(self.N*self.MSE/self.sigma**2, axis=1)])
-        np.savetxt("./rsults.txt", output.T)
+        print(output.shape)
+        np.savetxt("./results.txt", output.T)
 
 
 def sample_run():
@@ -216,4 +219,4 @@ def sample_run():
     prj.rmc()
 
 
-sample_run()
+#sample_run()

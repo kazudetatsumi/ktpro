@@ -14,6 +14,9 @@ warnings.filterwarnings('ignore')
 
 #pprint.pprint(sys.path)
 
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
 
 class mcmc():
 # Test for optimization on the lattice constant
@@ -45,7 +48,7 @@ class mcmc():
 #        self.max_W = max_W
         rhochi = cryspy.load_file(self.datafile)
         self.rhochi_dict = rhochi.get_dictionary()
-        self.N = 300
+        self.N = 800
         np.random.seed(8)
         self.beta = np.zeros(L)
         self.beta[0] = 0
@@ -88,6 +91,8 @@ class mcmc():
         #for ik in range(0, self.K):
             #yhat += _W[ik]*np.exp(-(self.data[:, 0]-_Mu[ik])**2/(2*_S[ik]**2))
         self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = _Mu[0]
+        self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][1] = _Mu[0]
+        self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][2] = _Mu[0]
         out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={}
                                                )
         #print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
@@ -108,7 +113,11 @@ class mcmc():
             next_Mu = current_Mu + np.random.normal(0.0, self.step_Mu[itemp],
                                                     self.K)
         #next_MSE = self.calc_E(next_Mu, current_S, current_W)
+        if next_Mu < 0.:
+            print("WARNING, negative next_Mu", next_Mu)
         next_MSE = self.calc_E(next_Mu)
+        if next_Mu < 0.:
+            print("WARNING, next_MSE of negative next_Mu", next_MSE)
         r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
                    (-next_MSE+pre_MSE))
         for ik in range(0, self.K):
@@ -164,19 +173,16 @@ class mcmc():
 ##                        np.exp(-(self.data[:, 0] -
 ##                                 self.Mu_ar[itemp, ik, minMSE_sample])**2
 ##                               / (2*self.S_ar[itemp, ik, minMSE_sample]**2))
-            print("minMSE is found at the lattice constant of ",
-                  self.Mu_ar[itemp, 0, minMSE_sample])
+            print("minMSE is found as", np.min(self.MSE[itemp]), " at the lattice constant of ",
+                  self.Mu_ar[itemp, 0, minMSE_sample], "at isamp ", minMSE_sample)
 ##            plt.plot(self.data[:, 0], yhat, ".")
 ##            plt.plot(self.data[:, 0], self.data[:, 1], ".")
 ##            plt.show()
 
     def rmc(self):
-        comm = MPI.COMM_WORLD
-        size = comm.Get_size()
-        rank = comm.Get_rank()
         for isamp in range(1, self.N_sampling):
-            if isamp % 100 == 0 and rank == 0:
-                print(isamp, rank)
+            if isamp % 1000 == 0 and rank == 0:
+                print(isamp)
             if isamp == self.burn_in-1:
                 self.count_accept_Mu = 0*self.count_accept_Mu
 #                self.count_accept_S = 0*self.count_accept_S
@@ -260,12 +266,12 @@ class mcmc():
     def test_cryspy(self):
         rhochi = cryspy.load_file(self.datafile)
         rhochi_dict = rhochi.get_dictionary()
-        print(rhochi_dict.keys())
+        print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
         dict_in_out = {}
         out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict,
                                                dict_in_out=dict_in_out)
         print(out[0])
-        rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 11.1111
+        rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = 1.59559
         print(rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
         out = rhochi_calc_chi_sq_by_dictionary(rhochi_dict,
                                                dict_in_out=dict_in_out)
