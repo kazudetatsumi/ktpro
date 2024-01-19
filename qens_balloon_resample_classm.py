@@ -15,7 +15,7 @@ class qens_balloon_resamples(sqkr):
                  ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
                  orgmodifier="org", prefix="./",
                  variables=[0.655, 0.0129, 0.200, 0.00208], quiet=False,
-                 ispltchk=False):
+                 ispltchk=False, isnovariablebw=False):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -35,6 +35,7 @@ class qens_balloon_resamples(sqkr):
         self.size = self.comm.Get_size()
         self.leastsq = False
         self.ispltchk = ispltchk
+        self.isnovariablebw = isnovariablebw
         self.DefineFiles()
 
     def getrsspectra(self, rsfile, inb=0):
@@ -53,13 +54,17 @@ class qens_balloon_resamples(sqkr):
             print("CalcBandW: chkm slicing spectrab at qidx")
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
-                     num=self.num, M=self.M, winparam=self.winparam)
+                     num=self.num, M=self.M, winparam=self.winparam,
+                     isnovariablebw=self.isnovariablebw)
             if self.rank == 0 and self.ispltchk:
                 import matplotlib.pyplot as plt
                 plt.plot(self.y[1], self.y[0])
                 plt.show()
-                plt.plot(self.y[1], self.y[2])
-                plt.show()
+                if isinstance(self.y[2], np.ndarray):
+                    plt.plot(self.y[1], self.y[2])
+                    plt.show()
+                else:
+                    print('optimized bandwidth is ', self.y[2])
         return self.y
 
 

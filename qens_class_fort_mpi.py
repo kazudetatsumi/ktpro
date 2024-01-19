@@ -116,7 +116,7 @@ class qens:
         self.xvec_real = MPI.COMM_WORLD.bcast(self.xvec_real)
         #print(self.xvec[0:30])
 
-    def run_ssvkernel(self, num=800):
+    def run_ssvkernel(self, num=800, isnovariablebw=False):
         rank = MPI.COMM_WORLD.Get_rank()
         self.tin = np.arange(self.selected_energy.shape[0])
         #print("Check parameters of horizontal axis")
@@ -134,9 +134,12 @@ class qens:
             WinFuncNo=2
         if self.WinFunc=='Cauchy':
             WinFuncNo=3
-
-        self.y = self.calc_ssvkernel_f90(WinFuncNo)
-        self.y_ = self.calc_sskernel_f90()#sskernel.sskernel(self.xvec_real, self.tin_real)
+        if isnovariablebw:
+            print("Novariablebw KDE")
+            self.y = self.calc_sskernel_f90()
+        else:
+            print("variablebw KDE")
+            self.y = self.calc_ssvkernel_f90(WinFuncNo)
 
     def calc_ssvkernel_f90(self, WinFuncNo):
         lib = CDLL(home + "/ktpro/ssvkernel_f90_mpi.so")

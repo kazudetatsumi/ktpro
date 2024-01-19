@@ -30,7 +30,7 @@ class qens_model_fit(qbr):
         self.prefix = prepreprefix + "run" + self.runNo + "/"\
             + frac + "/dq0148/"
         self.outfile = self.prefix + "/resamples/" + self.rebin +\
-            "/outhist" + self.runNo + "m.pkl"
+            "/outhist" + self.runNo + "mr.pkl"
             #"/outhist" + self.runNo + "mrk.pkl"
         #print(self.outfile)
         self.loadfile()
@@ -225,7 +225,8 @@ class qens_model_fit(qbr):
         #mask *= gamma > 0.001
         #print(mask, mask2, label)
         #print(gamma)
-        mask[0:2] = True
+        #mask[0:2] = True
+        mask[0:1] = True
         if self.nM == "n8000":
             mask3 = gamma < 0.0007
         elif self.nM == "n800":
@@ -236,7 +237,6 @@ class qens_model_fit(qbr):
         #mask3 = gamma < 0.0007 #for norebin
         #mask3 = gamma < 0.00030 #for 0.001
         _mask = ~mask*~mask2*~mask3
-        #_mask = ~mask*~mask2
         _q2 = self.q2[_mask]
         _gamma = gamma[_mask]
         _error = error[_mask]
@@ -281,18 +281,18 @@ def testrun():
     fracs = ["100", "050", "025", "0125"]
     fracs = ["100",  "0125"]
     fracs = ["100", "025",  "0125"]
-    fracs = ["100"]
+    #fracs = ["100"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 
     #rebin = "rebin_hist_Ebin20150709"
     #rebin = "rebin_000025"
-    #rebin = "norebin"
+    rebin = "norebin"
     #rebin = "rebin_0001"
-    rebin = "rebin_0001_histe"
-    #nM = "n800"
-    #nM = "n8000"
-    nM = "n200"
+    #rebin = "rebin_0001_histe"
+    #nM = "n200"
+    nM = "n8000"
+    #nM = "n200"
     prj = qens_model_fit(runNo, fracs, qsize, rebin, nM)
     prj.run()
 

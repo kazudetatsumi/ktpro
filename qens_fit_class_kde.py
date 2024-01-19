@@ -49,7 +49,7 @@ class runkdenoidata(rhn, qc):
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         return xtl, ydlc, ytlc
 
-    def kde(self, x, y, M=160, winparam=1, num=800):
+    def kde(self, x, y, M=160, winparam=1, num=800, isnovariablebw=False):
         self.WinFunc = 'Boxcar'
         self.M = M
         self.winparam = winparam
@@ -58,7 +58,7 @@ class runkdenoidata(rhn, qc):
         self.de = self.selected_energy[1] - self.selected_energy[0]
         self.get_xvec()
         self.add_shift_de()
-        self.run_ssvkernel(num=num)
+        self.run_ssvkernel(num=num, isnovariablebw=isnovariablebw)
 
     def kde_baloon(self, x, y):
         self.selected_energy = x

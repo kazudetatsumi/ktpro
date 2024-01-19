@@ -6,10 +6,10 @@
 # self.f_bar : mean in predictive distribution
 # self.cov   : covariance matrix in predictive distribution
 # Kazuyoshi TATSUMI 2022/05/02
-import os
-os.environ["OPENBLAS_NUM_THREADS"] = "36"
-os.environ["MKL_NUM_THREADS"] = "36"
-os.environ["VECLIB_NUM_THREADS"] = "36"
+#import os
+#os.environ["OPENBLAS_NUM_THREADS"] = "36"
+#os.environ["MKL_NUM_THREADS"] = "36"
+#os.environ["VECLIB_NUM_THREADS"] = "36"
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle

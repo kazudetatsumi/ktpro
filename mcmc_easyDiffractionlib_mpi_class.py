@@ -102,6 +102,10 @@ class mcmc():
             #yhat += _W[ik]*np.exp(-(self.data[:, 0]-_Mu[ik])**2/(2*_S[ik]**2))
         #self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0] = _Mu[0]
         self.job.phases[0].cell.a = _Mu[0]
+        if self.K >= 2:
+            self.job.phases[0].cell.b = _Mu[1]
+        if self.K == 3:
+            self.job.phases[0].cell.c = _Mu[2]
         #out = rhochi_calc_chi_sq_by_dictionary(self.rhochi_dict, dict_in_out={})
         #print(out[0], self.rhochi_dict['crystal_phase1']['unit_cell_parameters'][0])
         out = (np.square((self.job.create_simulation(self.meas_x) - self.meas_y)/self.meas_e)/self.meas_x.shape[0]).sum()
@@ -122,23 +126,18 @@ class mcmc():
         current_Mu = self.Mu_ar[itemp, :, isamp]
 #        current_S = self.S_ar[itemp, :, isamp]
 #        current_W = self.W_ar[itemp, :, isamp]
-        NONNEG = False
-        while not NONNEG:
-            if itemp == 0:
-                next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
-                NONNEG = all(_Mu > 0. for _Mu in next_Mu)
-            else:
-                next_Mu = current_Mu + np.random.normal(0.0,
-                                                        self.step_Mu[itemp],
-                                                        self.K)
-                NONNEG = all(_Mu > 0. for _Mu in next_Mu)
-        #next_MSE = self.calc_E(next_Mu, current_S, current_W)
-        next_MSE = self.calc_E(next_Mu)
-        r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
-                   (-next_MSE+pre_MSE))
-        for ik in range(0, self.K):
-            if next_Mu[ik] < self.min_Mu or next_Mu[ik] > self.max_Mu:
-                r = -1
+        if itemp == 0:
+            next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
+        else:
+            next_Mu = current_Mu + np.random.normal(0.0,
+                                                    self.step_Mu[itemp],
+                                                    self.K)
+        if all(_Mu >= self.min_Mu and _Mu <= self.max_Mu for _Mu in next_Mu):
+            next_MSE = self.calc_E(next_Mu)
+            r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
+                       (-next_MSE+pre_MSE))
+        else:
+            r = -1
         if r >= np.random.uniform(0.0, 1.0) or itemp == 0 or isamp == 1:
             self.Mu_ar[itemp, :, isamp] = next_Mu
             self.MSE[itemp, isamp] = next_MSE
@@ -189,14 +188,14 @@ class mcmc():
 ##                        np.exp(-(self.data[:, 0] -
 ##                                 self.Mu_ar[itemp, ik, minMSE_sample])**2
 ##                               / (2*self.S_ar[itemp, ik, minMSE_sample]**2))
-            print("minMSE is found at the lattice constant of ",
-                  self.Mu_ar[itemp, 0, minMSE_sample])
-            self.job.phases[0].cell.a = self.Mu_ar[itemp, 0, minMSE_sample]
-            calc_y_cryspy = self.job.create_simulation(self.meas_x)
-            plt.plot(self.meas_x, calc_y_cryspy)
-            plt.plot(self.meas_x, self.meas_y)
-            plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
-            plt.show()
+            print("minMSE ", np.min(self.MSE[itemp]),  "is found at the lattice constant of ",
+                  self.Mu_ar[itemp, :, minMSE_sample])
+            #self.job.phases[0].cell.a = self.Mu_ar[itemp, 0, minMSE_sample]
+            #calc_y_cryspy = self.job.create_simulation(self.meas_x)
+            #plt.plot(self.meas_x, calc_y_cryspy)
+            #plt.plot(self.meas_x, self.meas_y)
+            #plt.plot(self.meas_x, self.meas_y - calc_y_cryspy)
+            #plt.show()
 ##            plt.plot(self.data[:, 0], yhat, ".")
 ##            plt.plot(self.data[:, 0], self.data[:, 1], ".")
 ##            plt.show()
@@ -208,7 +207,7 @@ class mcmc():
         for isamp in range(1, self.N_sampling):
             #if rank == 0:
             #    print(isamp)
-            if isamp % 5 == 0 and rank == 0:
+            if isamp % 1000 == 0 and rank == 0:
                 print(isamp)
             if isamp == self.burn_in-1:
                 self.count_accept_Mu = 0*self.count_accept_Mu
@@ -336,4 +335,4 @@ def samplerun():
     #prj.init_easyDiffractionLib()
 
 
-samplerun()
+#samplerun()

@@ -272,6 +272,10 @@ class mcmc():
         print(self.job.parameters.resolution_w)
         print(self.job.backgrounds[0][0])
         print(self.job.backgrounds[0][1])
+        print(self.job.phases[0].cell.a)
+        print(self.job.phases[0].cell.b)
+        print(self.job.phases[0].cell.c)
+        print("FUCK", self.calc_E([8.48]))
         calc_y_cryspy = self.job.create_simulation(self.meas_x)
         plt.plot(self.meas_x, calc_y_cryspy)
         plt.plot(self.meas_x, self.meas_y)
@@ -283,8 +287,8 @@ def samplerun():
     crystfile = "/home/kazu/desktop/231207/easyDiffraction/examples/PbSO4.cif"
     exptfile = "/home/kazu/desktop/231207/easyDiffraction/examples/D1A@ILL.xye"
     prj = mcmc(crystfile, exptfile)
-    prj.rmc()
-    #prj.init_easyDiffractionLib()
+    #prj.rmc()
+    prj.init_easyDiffractionLib()
 
 
 samplerun()

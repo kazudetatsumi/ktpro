@@ -51,7 +51,10 @@ class Sqens_balloon_resamples(qkr):
         return self.y
 
     def balloon(self, ky, sy):
-        bw = np.interp(sy[0], ky[1], ky[2])
+        if isinstance(ky[2], np.ndarray):
+            bw = np.interp(sy[0], ky[1], ky[2])
+        else:
+            bw = np.ones(sy[0].shape[0])*ky[2]
         idx = sy[1].nonzero()
         sy_nz = sy[1][idx]
         t_nz = sy[0][idx]

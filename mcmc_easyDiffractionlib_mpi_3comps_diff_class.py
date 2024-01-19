@@ -83,7 +83,9 @@ class mcmc():
                                                        self.max_W, self.K)
 
     def calc_E(self, _Mu, _S, _W):
-        _Mu[_Mu == 0.] = 1e-50
+        #_Mu[_Mu == 0.] = 1e-50
+        #_S[_S == 0.] = 1e-50
+        #_W[_W == 0.] = 1e-50
         self.job.phases[0].cell.a = _Mu[0]
         self.job.phases[0].cell.b = _S[0]
         self.job.phases[0].cell.c = _W[0]
@@ -101,24 +103,24 @@ class mcmc():
         current_Mu = self.Mu_ar[itemp, :, isamp]
         current_S = self.S_ar[itemp, :, isamp]
         current_W = self.W_ar[itemp, :, isamp]
-        NONNEG = False
-        while not NONNEG:
-            if itemp == 0:
-                next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
-            else:
-                next_Mu = current_Mu + np.random.normal(0.0,
-                                                        self.step_Mu[itemp],
-                                                        self.K)
-            NONNEG = all(_Mu > 0. for _Mu in next_Mu)
-        next_MSE = self.calc_E(next_Mu, current_S, current_W)
+        #NONNEG = False
+        #while not NONNEG:
+        if itemp == 0:
+            next_Mu = np.random.uniform(self.min_Mu, self.max_Mu, self.K)
+        else:
+            next_Mu = current_Mu + np.random.normal(0.0,
+                                                    self.step_Mu[itemp],
+                                                    self.K)
+        #    NONNEG = all(_Mu > 0. for _Mu in next_Mu)
         #print(itemp, datetime.datetime.now(), 'have set next_Mu')
         #next_MSE = self.calc_E(next_Mu)
         #print(itemp, datetime.datetime.now(), 'have finished calc_E')
-        r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
-                   (-next_MSE+pre_MSE))
-        for ik in range(0, self.K):
-            if next_Mu[ik] < self.min_Mu or next_Mu[ik] > self.max_Mu:
-                r = -1
+        if all(_Mu >= self.min_Mu and _Mu <= self.max_Mu for _Mu in next_Mu):
+            next_MSE = self.calc_E(next_Mu, current_S, current_W)
+            r = np.exp(self.N * self.beta[itemp] / (2.*self.sigma**2) *
+                       (-next_MSE+pre_MSE))
+        else:
+            r = -1
         if r >= np.random.uniform(0.0, 1.0) or itemp == 0 or isamp == 1:
             self.Mu_ar[itemp, :, isamp] = next_Mu
             self.MSE[itemp, isamp] = next_MSE
@@ -128,19 +130,20 @@ class mcmc():
         current_Mu = self.Mu_ar[itemp, :, isamp]
         current_S = self.S_ar[itemp, :, isamp]
         current_W = self.W_ar[itemp, :, isamp]
-        NONNEG = False
-        while not NONNEG:
-            if itemp == 0:
-                next_S = np.random.uniform(self.min_S, self.max_S, self.K)
-            else:
-                next_S = current_S + np.random.normal(0.0, self.step_S[itemp],
-                                                      self.K)
-            NONNEG = all(_S > 0. for _S in next_S)
-        next_MSE = self.calc_E(current_Mu, next_S, current_W)
-        r = np.exp(self.N*self.beta[itemp]/(2.*self.sigma**2)*(-next_MSE+pre_MSE))
-        for ik in range(0, self.K):
-            if next_S[ik] < self.min_S or next_S[ik] > self.max_S:
-                r = -1
+        #NONNEG = False
+        #while not NONNEG:
+        if itemp == 0:
+            next_S = np.random.uniform(self.min_S, self.max_S, self.K)
+        else:
+            next_S = current_S + np.random.normal(0.0, self.step_S[itemp],
+                                                  self.K)
+        #    NONNEG = all(_S > 0. for _S in next_S)
+        if all(_S >= self.min_S and _S <= self.max_S for _S in next_S):
+            next_MSE = self.calc_E(current_Mu, next_S, current_W)
+            r = np.exp(self.N*self.beta[itemp] / (2.*self.sigma**2) *
+                       (-next_MSE+pre_MSE))
+        else:
+            r = -1
         if r >= np.random.uniform(0.0, 1.0) or itemp == 0 or isamp == 1:
             self.S_ar[itemp, :, isamp] = next_S
             self.MSE[itemp, isamp] = next_MSE
@@ -149,19 +152,19 @@ class mcmc():
         current_Mu = self.Mu_ar[itemp, :, isamp]
         current_S = self.S_ar[itemp, :, isamp]
         current_W = self.W_ar[itemp, :, isamp]
-        NONNEG = False
-        while not NONNEG:
-            if itemp == 0:
-                next_W = np.random.uniform(self.min_W, self.max_W, self.K)
-            else:
-                next_W = current_W + np.random.normal(0.0, self.step_W[itemp],
-                                                      self.K)
-            NONNEG = all(_W > 0. for _W in next_W)
-        next_MSE = self.calc_E(current_Mu, next_S, current_W)
-        r = np.exp(self.N*self.beta[itemp]/(2.*self.sigma**2)*(-next_MSE+pre_MSE))
-        for ik in range(0, self.K):
-            if next_W[ik] < self.min_W or next_W[ik] > self.max_W:
-                r = -1
+        #NONNEG = False
+        #while not NONNEG:
+        if itemp == 0:
+            next_W = np.random.uniform(self.min_W, self.max_W, self.K)
+        else:
+            next_W = current_W + np.random.normal(0.0, self.step_W[itemp],
+                                                  self.K)
+        #    NONNEG = all(_W > 0. for _W in next_W)
+        if all(_W >= self.min_W and _W <= self.max_W for _W in next_W):
+            next_MSE = self.calc_E(current_Mu, current_S, next_W)
+            r = np.exp(self.N*self.beta[itemp]/(2.*self.sigma**2)*(-next_MSE+pre_MSE))
+        else:
+            r = -1
         if r >= np.random.uniform(0.0, 1.0) or itemp == 0 or isamp == 1:
             self.W_ar[itemp, :, isamp] = next_W
             self.MSE[itemp, isamp] = next_MSE
@@ -189,7 +192,7 @@ class mcmc():
 
     def rmc(self):
         for isamp in range(1, self.N_sampling):
-            if isamp % 200 == 0 and rank == 0:
+            if isamp % 1000 == 0 and rank == 0:
                 print(isamp)
             if isamp == self.burn_in-1:
                 self.count_accept_Mu = 0*self.count_accept_Mu
@@ -322,4 +325,4 @@ def samplerun():
     #prj.init_easyDiffractionLib()
 
 
-samplerun()
+#samplerun()
