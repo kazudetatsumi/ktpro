@@ -13,7 +13,7 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
-                 orgmodifier="org", prefix="./",
+                 orgmodifier="org", prefixes=["./", "./"],
                  variables=[0.655, 0.0129, 0.200, 0.00208], quiet=False,
                  ispltchk=False, isnovariablebw=False):
         self.qidx = qidx
@@ -27,7 +27,7 @@ class qens_balloon_resamples(sqkr):
         self.winparam = winparam
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
-        self.prefix = prefix
+        self.prefixes = prefixes
         self.variables = variables
         self.quiet = quiet
         self.comm = MPI.COMM_WORLD
@@ -85,7 +85,8 @@ def testrun():
     #prj = qens_balloon_resamples(runNos=[6202, 6204], elim=elim, Nb=Nb,
     prj = qens_balloon_resamples(runNos=[6207, 6204], elim=elim, Nb=Nb,
                                  ishist=ishist, num=num, rsmodifier=rsmodifier,
-                                 prefix=prefix, variables=variables)
+                                 prefixes=[prefix, prefix],
+                                 variables=variables)
     #print(qens_balloon_resamples.__mro__)
     prj.run()
     prj.ishist = False

@@ -36,7 +36,8 @@ class qens_model_fit(qbr):
         self.loadfile()
         orghout = self.outall
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
-        self.outfile = self.prefix + "/" + self.nM + "/outkde" + self.runNo +\
+        #self.outfile = self.prefix + "/" + self.nM + "/outkde" + self.runNo +\
+        self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
             "m.pkl"
         #print(self.outfile)
         self.loadfile()
@@ -52,7 +53,7 @@ class qens_model_fit(qbr):
         #maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
         maskh2, errorh, aveh = self.readerror('histr', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
-        maskkb2, errorkb, avekb = self.readerror('kde', self.runNo)
+        maskkb2, errorkb, avekb = self.readerror('kdenovbw', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskk2, errork, avek = self.readerror('kdeio', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
@@ -226,7 +227,7 @@ class qens_model_fit(qbr):
         #print(mask, mask2, label)
         #print(gamma)
         #mask[0:2] = True
-        mask[0:1] = True
+        mask[0:2] = True
         if self.nM == "n8000":
             mask3 = gamma < 0.0007
         elif self.nM == "n800":
@@ -281,7 +282,6 @@ def testrun():
     fracs = ["100", "050", "025", "0125"]
     fracs = ["100",  "0125"]
     fracs = ["100", "025",  "0125"]
-    #fracs = ["100"]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 

@@ -13,8 +13,8 @@ from qens_kde_resampled import qens_kde_resampled as qkr
 class Sqens_balloon_resamples(qkr):
     def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
-                 prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False, ispltchk=False, isnovariablebw=False):
+                 prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200,
+                 0.00208], quiet=False, ispltchk=False, isnovariablebw=False):
         self.runNos = runNos
         self.Nb = Nb
         self.gammas = np.zeros((Nb, 2))
@@ -23,7 +23,7 @@ class Sqens_balloon_resamples(qkr):
         self.num = num
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
-        self.prefix = prefix
+        self.prefixes = prefixes
         self.variables = variables
         self.quiet = quiet
         self.comm = MPI.COMM_WORLD
@@ -79,19 +79,14 @@ class Sqens_balloon_resamples(qkr):
     def DefineFiles(self):
         self.rsfiles = []
         self.orgfiles = []
-        for runno in self.runNos:
-            self.rsfiles.append(self.prefix + "run" + str(runno) + "spectra" +
+        for runno, prefix in zip(self.runNos, self.prefixes):
+            self.rsfiles.append(prefix + "run" + str(runno) + "spectra" +
                                 self.rsmodifier + ".pkl")
-            self.orgfiles.append(self.prefix + "run" + str(runno) + "spectra" +
+            self.orgfiles.append(prefix + "run" + str(runno) + "spectra" +
                                  self.orgmodifier + ".pkl")
         if self.rank == 0:
-            if not self.quiet:
-                print(self.prefix)
-            print("")
-            print("rsfiles:", [rsf.split(self.prefix)[1] for rsf in
-                               self.rsfiles])
-            print("orgfiles:", [orgf.split(self.prefix)[1] for orgf in
-                                self.orgfiles])
+            print("rsfiles:", self.rsfiles)
+            print("orgfiles:", self.orgfiles)
 
     def eachrunno(self, fidx, inb):
         sy = self.getrsspectra(self.rsfiles[fidx], inb)
@@ -314,7 +309,8 @@ def testrun():
     #prj = qens_balloon_resamples(runNos=[6202, 6204], elim=elim, Nb=Nb,
     prj = qens_balloon_resamples(runNos=[6207, 6204], elim=elim, Nb=Nb,
                                  ishist=ishist, num=num, rsmodifier=rsmodifier,
-                                 prefix=prefix, variables=variables)
+                                 prefixes=[prefix, prefix],
+                                 variables=variables)
     #print(qens_balloon_resamples.__mro__)
     prj.run()
     prj.ishist = False
