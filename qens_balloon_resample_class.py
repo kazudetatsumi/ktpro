@@ -14,7 +14,7 @@ class Sqens_balloon_resamples(qkr):
     def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False, ispltchk=False):
+                 quiet=False, ispltchk=False, isnovariablebw=False):
         self.runNos = runNos
         self.Nb = Nb
         self.gammas = np.zeros((Nb, 2))
@@ -31,6 +31,7 @@ class Sqens_balloon_resamples(qkr):
         self.size = self.comm.Get_size()
         self.leastsq = False
         self.ispltchk = ispltchk
+        self.isnovariablebw = isnovariablebw
         self.DefineFiles()
 
     def getrsspectra(self, rsfile, inb=0):
@@ -47,13 +48,20 @@ class Sqens_balloon_resamples(qkr):
             qkr.__init__(self, pklfile=orgfile)
             print(orgfile)
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
-                     num=self.num, M=self.M, winparam=self.winparam)
+                     num=self.num, M=self.M, winparam=self.winparam,
+                     isnovariablebw=self.isnovariablebw)
         return self.y
 
     def balloon(self, ky, sy):
+        # if ky[2] is np.array, then ky is the result of vKDE.
+        # else, ky is the result of the bandwidth of the KDE is a constant over
+        # the whole energies. In the latter case, the bandwidth ndarray is
+        # preapared to be suit for the balloon estimation.
         if isinstance(ky[2], np.ndarray):
+            print("balloon estimation for variable bw")
             bw = np.interp(sy[0], ky[1], ky[2])
         else:
+            print("balloon estimation for non-variable bw")
             bw = np.ones(sy[0].shape[0])*ky[2]
         idx = sy[1].nonzero()
         sy_nz = sy[1][idx]

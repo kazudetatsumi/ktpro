@@ -18,7 +18,7 @@ class Sqens_balloon_resamples(qkr):
                  ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
                  orgmodifier="org",
                  prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False, ispltchk=False):
+                 quiet=False, ispltchk=False, isnovariablebw=False):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -38,6 +38,7 @@ class Sqens_balloon_resamples(qkr):
         self.size = self.comm.Get_size()
         self.leastsq = False
         self.ispltchk = ispltchk
+        self.isnovariablebw = isnovariablebw
         self.DefineFiles()
 
     def DefineFiles(self):
