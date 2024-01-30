@@ -42,7 +42,7 @@ class qens_model_fit(qbr):
         #print(self.outfile)
         self.loadfile()
         orgkout = self.outall
-        self.outfile = self.prefix + "/moni/" + self.nM +"/outkdeio" + self.runNo + "m.pkl"
+        self.outfile = self.prefix + "/moni/" + self.nM +"/outkdeionovbw" + self.runNo + "m.pkl"
         #print(self.outfile)
         self.loadfile()
         orgkioout = self.outall
@@ -55,7 +55,7 @@ class qens_model_fit(qbr):
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskkb2, errorkb, avekb = self.readerror('kdenovbw', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
-        maskk2, errork, avek = self.readerror('kdeio', self.runNo)
+        maskk2, errork, avek = self.readerror('kdeionovbw', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
         #stdhes = self.readstdhessfromlog(self.runNo)
@@ -70,7 +70,10 @@ class qens_model_fit(qbr):
         #print("CHK", orderidx1.shape)
         #print(outall.shape[0], int(self.outall.shape[0]/2))
         lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
-        ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
+        if orderidx1.shape[0] <= int(np.ceil(orderidx1.shape[0]*.84)):
+            ubs = outall[orderidx1[-1], 1]
+        else:
+            ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
         return outall.shape[0] < int(self.outall.shape[0]/2), (ubs - lbs) / 2.,\
             np.std(outall[:, 1]), np.average(outall[:, 1])
 
@@ -280,21 +283,34 @@ def testrun():
     qsize = 12
     fracs = ["100", "050", "025", "0125", "0100", "0050"]
     fracs = ["100", "050", "025", "0125"]
-    fracs = ["100",  "0125"]
     fracs = ["100", "025",  "0125"]
+    fracs = ["100", "050", "025",  "0125", "0100", "0050"]
+    fracsval = [1., 0.5, 0.25, 0.125, 0.1, 0.05]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
 
     #rebin = "rebin_hist_Ebin20150709"
     #rebin = "rebin_000025"
-    rebin = "norebin"
-    #rebin = "rebin_0001"
+    #rebin = "norebin"
+    rebin = "rebin_0001"
     #rebin = "rebin_0001_histe"
     #nM = "n200"
     nM = "n8000"
     #nM = "n200"
     prj = qens_model_fit(runNo, fracs, qsize, rebin, nM)
     prj.run()
+    plt.errorbar(fracsval, prj.D[0, :], yerr=prj.stdD[0, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='hist')
+    plt.errorbar(fracsval, prj.D[1, :], yerr=prj.stdD[1, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeb')
+    plt.errorbar(fracsval, prj.D[2, :], yerr=prj.stdD[2, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeio')
+    plt.ylim([0, 120])
+    plt.legend()
+    plt.show()
+    plt.errorbar(fracsval, prj.tau[0, :], yerr=prj.stdtau[0, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='hist')
+    plt.errorbar(fracsval, prj.tau[1, :], yerr=prj.stdtau[1, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeb')
+    plt.errorbar(fracsval, prj.tau[2, :], yerr=prj.stdtau[2, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeio')
+    plt.ylim([0, 120])
+    plt.legend()
+    plt.show()
 
 
 testrun()

@@ -22,10 +22,16 @@ class qens_org_classm(qbr):
             self.outfile = "outhist" + str(runNos[0]) + "m.pkl"
         else:
             if io:
-                self.outfile = "outkdeio" + str(runNos[0]) + "m.pkl"
+                if isnovariablebw:
+                    self.outfile = "outkdeionovbw" + str(runNos[0]) + "m.pkl"
+                else:
+                    self.outfile = "outkdeio" + str(runNos[0]) + "m.pkl"
             else:
                 if isnovariablebw:
-                    self.outfile = "outkdenovbw" + str(runNos[0]) + "m.pkl"
+                    if prefixes[0] == prefixes[1]:
+                        self.outfile = "outkdenovbw" + str(runNos[0]) + "m.pkl"
+                    else:
+                        self.outfile = "outkdenovbwprefixes" + str(runNos[0]) + "m.pkl"
                 else:
                     self.outfile = "outkde" + str(runNos[0]) + "m.pkl"
         qbr.__init__(self, qidx, runNos=runNos, elim=elim, Nb=Nb,

@@ -54,10 +54,8 @@ class Sqens_balloon_resamples(qkr):
                 if not self.quiet:
                     print(prefix)
                 print("")
-                print("rsfiles:", [rsf.split(prefix)[1] for rsf in
-                                   self.rsfiles])
-                print("orgfiles:", [orgf.split(prefix)[1] for orgf in
-                                    self.orgfiles])
+                print("rsfiles:", self.rsfiles)
+                print("orgfiles:", self.orgfiles)
 
 
 def testrun():

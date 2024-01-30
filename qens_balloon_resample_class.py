@@ -61,8 +61,10 @@ class Sqens_balloon_resamples(qkr):
             print("balloon estimation for variable bw")
             bw = np.interp(sy[0], ky[1], ky[2])
         else:
-            print("balloon estimation for non-variable bw")
+            print("balloon estimation for non-variable bw=", ky[2])
+            #print("opt bw=0.001056739435852833 just testing")
             bw = np.ones(sy[0].shape[0])*ky[2]
+            #bw = np.ones(sy[0].shape[0])*0.001056739435852833
         idx = sy[1].nonzero()
         sy_nz = sy[1][idx]
         t_nz = sy[0][idx]
@@ -214,21 +216,21 @@ class Sqens_balloon_resamples(qkr):
             print(self.pklfile)
             self.read_pkl()
             self.select_spectra()
-            for i in range(10):
-                # the parameters of kde, M, num, winparam can be altered
-                # by setting the corresponding options in the argument.
-                # M=5 and num=800 seem preferable for smooth energy
-                # distributions of the monitored neutron beam. But, I do not
-                # change the default value at the present time (2023/07/20)
-                self.kde(self.selected_energy, self.selected_spectra, M=160,
-                         winparam=1, num=self.num)
-                # if self.rank == 0:
-                #     import matplotlib.pyplot as plt
-                #     fig, ax = plt.subplots()
-                #     ax2 = ax.twinx()
-                #     ax.plot(self.y[1], self.y[0])
-                #     ax2.plot(self.y[1], self.y[2])
-                #     plt.show()
+            # the parameters of kde, M, num, winparam can be altered
+            # by setting the corresponding options in the argument.
+            # M=5 and num=800 seem preferable for smooth energy
+            # distributions of the monitored neutron beam. But, I do not
+            # change the default value at the present time (2023/07/20)
+            self.kde(self.selected_energy, self.selected_spectra, M=160,
+                     winparam=1, num=self.num,
+                     isnovariablebw=self.isnovariablebw)
+            # if self.rank == 0:
+            #     import matplotlib.pyplot as plt
+            #     fig, ax = plt.subplots()
+            #     ax2 = ax.twinx()
+            #     ax.plot(self.y[1], self.y[0])
+            #     ax2.plot(self.y[1], self.y[2])
+            #     plt.show()
             self.kyis.append(self.y)
 
     def io(self, kyo, kyi):
