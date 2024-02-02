@@ -15,9 +15,10 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as qkr
 
 class Sqens_balloon_resamples(qkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
-                 ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
-                 prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200,
-                 0.00208], quiet=False, ispltchk=False):
+                 ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
+                 orgmodifier="org", prefixes=["./", "./"],
+                 variables=[0.655, 0.0129, 0.200, 0.00208], quiet=False,
+                 ispltchk=False, isnovariablebw=False):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -25,6 +26,8 @@ class Sqens_balloon_resamples(qkr):
         self.elim = elim
         self.ishist = ishist
         self.num = num
+        self.M = M 
+        self.winparam = winparam
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
         self.prefixes = prefixes
@@ -35,6 +38,7 @@ class Sqens_balloon_resamples(qkr):
         self.size = self.comm.Get_size()
         self.leastsq = False
         self.ispltchk = ispltchk
+        self.isnovariablebw = isnovariablebw
         self.DefineFiles()
 
     def DefineFiles(self):
@@ -48,7 +52,7 @@ class Sqens_balloon_resamples(qkr):
         if self.rank == 0:
             for prefix in self.prefixes:
                 if not self.quiet:
-                    print(self.prefix)
+                    print(prefix)
                 print("")
                 print("rsfiles:", [rsf.split(prefix)[1] for rsf in
                                    self.rsfiles])

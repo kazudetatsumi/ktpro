@@ -38,7 +38,7 @@ class qens_model_fit(qbr):
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
         #self.outfile = self.prefix + "/" + self.nM + "/outkde" + self.runNo +\
         self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
-            "m.pkl"
+            "me.pkl"
         #print(self.outfile)
         self.loadfile()
         orgkout = self.outall
@@ -53,7 +53,7 @@ class qens_model_fit(qbr):
         #maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
         maskh2, errorh, aveh = self.readerror('histr', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
-        maskkb2, errorkb, avekb = self.readerror('kdenovbw', self.runNo)
+        maskkb2, errorkb, avekb = self.readerror('kdee', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskk2, errork, avek = self.readerror('kdeionovbw', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
@@ -285,6 +285,7 @@ def testrun():
     fracs = ["100", "050", "025", "0125"]
     fracs = ["100", "025",  "0125"]
     fracs = ["100", "050", "025",  "0125", "0100", "0050"]
+    fracs = ["100"]
     fracsval = [1., 0.5, 0.25, 0.125, 0.1, 0.05]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
@@ -299,18 +300,18 @@ def testrun():
     #nM = "n200"
     prj = qens_model_fit(runNo, fracs, qsize, rebin, nM)
     prj.run()
-    plt.errorbar(fracsval, prj.D[0, :], yerr=prj.stdD[0, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='hist')
-    plt.errorbar(fracsval, prj.D[1, :], yerr=prj.stdD[1, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeb')
-    plt.errorbar(fracsval, prj.D[2, :], yerr=prj.stdD[2, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeio')
-    plt.ylim([0, 120])
-    plt.legend()
-    plt.show()
-    plt.errorbar(fracsval, prj.tau[0, :], yerr=prj.stdtau[0, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='hist')
-    plt.errorbar(fracsval, prj.tau[1, :], yerr=prj.stdtau[1, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeb')
-    plt.errorbar(fracsval, prj.tau[2, :], yerr=prj.stdtau[2, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeio')
-    plt.ylim([0, 120])
-    plt.legend()
-    plt.show()
+    #plt.errorbar(fracsval, prj.D[0, :], yerr=prj.stdD[0, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='hist')
+    #plt.errorbar(fracsval, prj.D[1, :], yerr=prj.stdD[1, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeb')
+    #plt.errorbar(fracsval, prj.D[2, :], yerr=prj.stdD[2, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeio')
+    #plt.ylim([0, 120])
+    #plt.legend()
+    #plt.show()
+    #plt.errorbar(fracsval, prj.tau[0, :], yerr=prj.stdtau[0, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='hist')
+    #plt.errorbar(fracsval, prj.tau[1, :], yerr=prj.stdtau[1, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeb')
+    #plt.errorbar(fracsval, prj.tau[2, :], yerr=prj.stdtau[2, :], marker="x", ms=2, elinewidth=1, lw=0, capsize=3, label='kdeio')
+    #plt.ylim([0, 120])
+    #plt.legend()
+    #plt.show()
 
 
 testrun()
