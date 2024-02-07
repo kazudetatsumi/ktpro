@@ -3,6 +3,7 @@ import numpy as np
 import spglib
 import matplotlib.pyplot as plt
 import pickle
+import scipy.optimize as so
 
 
 class change_hpos():
@@ -32,6 +33,7 @@ class change_hpos():
         ## dx is set as follows since 2022/10/05
         ## note that this is formally the same for all of the fractional/cartecian
         ## and scalar/list self.edgelength.
+        print('check"edgelength',self.edgelength)
         if self.oldedgelength:
             self.dx = np.array(self.edgelength)/(self.nx - 1)
         else:
@@ -236,6 +238,7 @@ class change_hpos():
         hlat = np.matmul(self.lattice.T, vec)*self.edgelength
         self.edgelengthina0 = (((hlat**2).sum(axis=0))**0.5)/self.a0
         print("edgelengths in Angs.:", self.edgelengthina0*self.a0)
+        print("hlat", hlat)
 
     def GetAllHpos_mat(self, mat=[[1., -1., 0.],
                                   [1.,  1., 0.],
@@ -590,7 +593,9 @@ class change_hpos():
                                  / self.Eh, norm='forward')
 
     def GetG(self):
+        print("GetG")
         Gs = []
+        print("CHECK_edgelength:", type(self.edgelength))
         if type(self.edgelength) is list:
             for i in range(-self.nx//2, self.nx//2+1):
                 for j in range(-self.nx//2, self.nx//2+1):
@@ -673,7 +678,8 @@ class change_hpos():
             self.U = dataset['U']
 
     def GetWavefuncs(self):
-        nmesh = self.nx*2
+        print("GetWavefuncs")
+        nmesh = self.nx*1
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
                                                        ).reshape((3, -1))
@@ -767,7 +773,7 @@ class change_hpos():
 
     def GetTransitionMatrix(self, q, Isplot=True, label=None, istate=0,
                             Iscalledbyigos=False, nebin=3000):
-        nmesh = self.nx*2
+        nmesh = self.nx*2.
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
                                                        ).reshape(3, -1)
@@ -791,6 +797,57 @@ class change_hpos():
                     pickle.dump(self.dataset, f, 4)
         if Isplot:
             self.Plotter(label=label)
+
+    def GetTransitionMatrixqdep(self, q, Isplot=True, label=None, istate=0,
+                                Iscalledbyigos=False, nebin=3000):
+        print("GetTransitionMatrixdep")
+        nmesh = self.nx*2.
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape(3, -1)
+        qlengths = self.GetQlength(self.E - self.E[istate])
+        print("minq and maxq in Angs-1:", np.min(qlengths), np.max(qlengths))
+        qs = (np.tile(q, self.E.shape[0]).reshape(self.E.shape[0], -1)).T
+        qs = (qs*qlengths).T
+        arg = (-1.0*np.matmul(qs, pos)*2.6*1.j/nmesh
+               ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+        mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
+        self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        fermi = self.GetFermi()
+        occ = self.occ(self.E, fermi, 296.)
+        self.sqw = self.sqw*occ[istate]*(1. - occ)
+        ene = np.arange(0, nebin, 1)
+        spec = np.zeros(nebin)
+        if not Iscalledbyigos:
+            for iw, s in enumerate(self.sqw[1:]):
+                dE = (self.E[iw+1] - self.E[istate])
+                sigma = dE*0.02
+                spec += s*np.exp(-(ene - dE)**2/sigma**2)
+            self.dataset = {}
+            self.dataset['ene'] = ene
+            self.dataset['spec'] = spec
+            self.dataset['E'] = self.E
+            self.dataset['sqw'] = self.sqw
+            with open("./savedata_" + label + ".pkl", 'wb') as f:
+                pickle.dump(self.dataset, f, 4)
+        if Isplot:
+            self.Plotter(label=label)
+
+    def GetQlength(self, dE):
+        return 2.*np.pi*(0.05981993438 + 0.01222688202*dE + 0.0003464878540*(5.984121875 + 2.446246487*dE)**0.5)**0.5
+
+    def occ(self, E, fermi, T):
+        return 1./(np.exp((E-fermi)/(8.617333262*0.01*T)) + 1.)
+
+    def GetFermi(self):
+        fermi = (self.E[1] + self.E[0])/2.0
+        print("initial fermi:", fermi)
+        out = so.minimize(self.res, fermi)
+        print(out)
+        return out.x[0]
+
+    def res(self, fermi):
+        return (np.sum(self.occ(self.E, fermi, 296.)) - 1.)**2.
 
     def GetSJQ(self):
         qmesh = 30

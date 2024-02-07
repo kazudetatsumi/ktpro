@@ -166,6 +166,10 @@ class qens:
         yb = np.zeros((nb, tinsize))
         comm = MPI.COMM_WORLD
         comm = comm.py2f()
+        rank = MPI.COMM_WORLD.Get_rank()
+        if rank == 0:
+            print("CHECK winparam:", self.winparam)
+            print("CHECK M:", self.M)
         #MPI.COMM_WORLD.barrier()
 
         lib.ssvk(

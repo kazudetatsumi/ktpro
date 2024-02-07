@@ -26,7 +26,7 @@ class hpdos(sac.sqwto1dspectrum):
             ax = self.fig.add_subplot(self.gs[iidx+nr, 0])
             ax.plot(self.dataset['ene'], self.dataset['spec'], c=c)
             tmpylim = ax.get_ylim()
-            ax.set_ylim(0, tmpylim[1])
+            #ax.set_ylim(0, tmpylim[1])
             if short:
                 words = [infile.split('/')[-1]]
                 if iidx == 0:
