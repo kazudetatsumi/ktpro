@@ -999,6 +999,7 @@ class change_hpos():
         phis = 2.*np.pi*np.arange(nmesh)/nmesh
         for ip, phi in enumerate(phis):
             q = np.array([np.cos(phi), np.sin(phi), 0.])
+            q = np.array([0., np.cos(phi), np.sin(phi)])
             self.GetTransitionMatrixqdep(q, Isplot=False, Iscalledbyigos=True,
                                          istate=istate)
             if ip == 0:
@@ -1008,7 +1009,7 @@ class change_hpos():
         ene = np.arange(0, 3000, 1)
         spec = np.zeros(3000)
         for iw, s in enumerate(IntegratedSqw[1:]):
-            dE = (self.E[iw+1] - self.E[0])
+            dE = (self.E[iw+1] - self.E[istate])
             sigma = dE*0.02
             spec += s*np.exp(-(ene - dE)**2/sigma**2)
         self.dataset = {}
