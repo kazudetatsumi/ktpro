@@ -21,10 +21,25 @@ class hpdos(sac.sqwto1dspectrum):
                 noxlabel=False, numoffolds=2, short=False, nr=0,
                 c='#1f77b4'):
         for iidx, infile in enumerate(self.infiles):
-            #print(infile, iidx)
-            self.load_pkl(infile)
+            LISTFOUND = False
+            if type(infile) is list:
+                LISTFOUND = True
+                for iiidx, iinfile in enumerate(infile):
+                    self.load_pkl(iinfile)
+                    if iiidx == 0:
+                        _spec_ground = self.dataset['spec']
+                        _spec = np.zeros(self.dataset['spec'].shape[0])
+                    _spec += self.dataset['spec']
+                self.dataset['spec'] = _spec
+            else:
+                self.load_pkl(infile)
             ax = self.fig.add_subplot(self.gs[iidx+nr, 0])
             ax.plot(self.dataset['ene'], self.dataset['spec'], c='k')
+            if LISTFOUND:
+                print(LISTFOUND, _spec_ground)
+                #ax.fill_between(self.dataset['ene'], _spec_ground, self.dataset['spec'], color='lightgray')
+                ax.plot(self.dataset['ene'], _spec_ground)
+                infile = infile[0]
             tmpylim = ax.get_ylim()
             ax.set_ylim(0, tmpylim[1])
             if short:

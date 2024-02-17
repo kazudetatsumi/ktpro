@@ -615,10 +615,13 @@ class change_hpos():
                                 ).sum(axis=0)**0.5
                         if glen < self.rg**2:
                             Gs.append([i, j, k])
-            print("CHECK rec hlat vec")
-            print(np.linalg.inv(self.hlat).T[:, 0])
-            print(np.linalg.inv(self.hlat).T[:, 1])
-            print(np.linalg.inv(self.hlat).T[:, 2])
+            #print("CHECK rec hlat vec")
+            #_rhlat = np.linalg.inv(self.hlat).T
+            #print(np.linalg.inv(self.hlat).T[:, 0])
+            #print(np.linalg.inv(self.hlat).T[:, 1])
+            #print(np.linalg.inv(self.hlat).T[:, 2])
+            #print((_rhlat[:, 1] - _rhlat[:, 2])[0])
+            #print((_rhlat[:, 0] - (_rhlat[:, 1]- 0.5*(_rhlat[:, 1] - _rhlat[:, 2])))[1])
             #print(((np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0, 0])))**2).sum(axis=0)**0.5)
             #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1, 0])))
             #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0, 1])))
@@ -818,7 +821,7 @@ class change_hpos():
         mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
         self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
         fermi = self.GetFermi()
-        occ = self.occ(self.E, fermi, 258.)
+        occ = self.occ(self.E, fermi, 296.)
         self.sqw = self.sqw*occ[istate]*(1. - occ)
         ene = np.arange(0, nebin, 1)
         spec = np.zeros(nebin)
@@ -851,7 +854,7 @@ class change_hpos():
         return out.x[0]
 
     def res(self, fermi):
-        return (np.sum(self.occ(self.E, fermi, 258.)) - 1.)**2.
+        return (np.sum(self.occ(self.E, fermi, 296.)) - 1.)**2.
 
     def GetSJQ(self):
         qmesh = 30
@@ -994,12 +997,16 @@ class change_hpos():
         with open("./savedata_integrated.pkl", 'wb') as f:
             pickle.dump(self.dataset, f, 4)
 
-    def Integrateoverallphi(self, label='', istate=0):
+    def Integrateoverallphi(self, label='', istate=0,
+                            mat=np.array([[1., 0., 0.],
+                                          [0., 1., 0.],
+                                          [0., 0., 0.]])):
         nmesh = 100
         phis = 2.*np.pi*np.arange(nmesh)/nmesh
         for ip, phi in enumerate(phis):
-            q = np.array([np.cos(phi), np.sin(phi), 0.])
-            q = np.array([0., np.cos(phi), np.sin(phi)])
+            #q = np.array([np.cos(phi), np.sin(phi), 0.])
+            q = np.cos(phi)*mat[0] + np.sin(phi)*mat[1]
+            #q = np.array([0., np.cos(phi), np.sin(phi)])
             self.GetTransitionMatrixqdep(q, Isplot=False, Iscalledbyigos=True,
                                          istate=istate)
             if ip == 0:
