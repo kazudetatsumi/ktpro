@@ -19,7 +19,9 @@ class hpdos(sac.sqwto1dspectrum):
 
     def plotter(self, elow=0, ehigh=400, tx=75, ty=1.4*10**8,
                 noxlabel=False, numoffolds=2, short=False, nr=0,
-                c='#1f77b4'):
+                c='#1f77b4', coeffs=None, setylim=False):
+        if not coeffs:
+            coeffs = np.ones((len(self.infiles)))*1.
         for iidx, infile in enumerate(self.infiles):
             LISTFOUND = False
             if type(infile) is list:
@@ -34,22 +36,26 @@ class hpdos(sac.sqwto1dspectrum):
             else:
                 self.load_pkl(infile)
             ax = self.fig.add_subplot(self.gs[iidx+nr, 0])
-            ax.plot(self.dataset['ene'], self.dataset['spec'], c='k')
+            ax.plot(self.dataset['ene'], self.dataset['spec']*coeffs[iidx], c='k')
             if LISTFOUND:
                 print(LISTFOUND, _spec_ground)
-                #ax.fill_between(self.dataset['ene'], _spec_ground, self.dataset['spec'], color='lightgray')
-                ax.plot(self.dataset['ene'], _spec_ground)
+                ax.fill_between(self.dataset['ene'], _spec_ground*coeffs[iidx], self.dataset['spec']*coeffs[iidx], color='lightgray')
+                #ax.plot(self.dataset['ene'], _spec_ground*coeffs[iidx])
                 infile = infile[0]
-            tmpylim = ax.get_ylim()
-            ax.set_ylim(0, tmpylim[1])
+            if setylim:
+                if iidx == 0:
+                    tmpylim = ax.get_ylim()
+                ax.set_ylim(0, tmpylim[1])
+            else:
+                ax.set_ylim(0, ax.get_ylim()[1])
             if short:
                 words = [infile.split('/')[-1]]
                 if iidx == 0:
                     ax.text(elow, tmpylim[1]*1.05, '%s' %
                             infile.split(words[0])[0], fontsize=9)
-                ty = tmpylim[1]*0.8
+                ty = ax.get_ylim()[1]*0.8
             else:
-                ty = tmpylim[1]*0.9
+                ty = ax.get_ylim()[1]*0.9
                 words = self.getwords(infile.split('vasp')[-1], numoffolds)
             for iw, word in enumerate(words):
                 ax.text(tx, ty-iw*ty/8, '%s' % word, fontsize=8)

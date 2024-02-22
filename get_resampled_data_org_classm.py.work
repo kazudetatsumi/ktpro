@@ -15,31 +15,25 @@ try:
 except ModuleNotFoundError as err:
     print(err)
 import numpy as np
-import math
 # from get_qlist_nova_class import get_qlist as gq
 from get_resampled_data_org_class import Sget_qlist as gq
 
 
 class Sget_qlist(gq):
-    def __init__(self, save_file=None, pklfile=None, maskfile="maskTY140218ForAfterRun52.txt"):
+    def __init__(self, save_file=None, pklfile=None):
         self.save_file = save_file
         self.pklfile = pklfile
-        self.maskfile = maskfile
 
     def get_qemap(self, qmin, qmax):
-        #Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
-        Cmm.DoMask(dat=self.DAT, filename=self.maskfile)
+        Cmm.DoMask(dat=self.DAT, filename="maskTY.txt")
+        #Cmm.DoMask(dat=self.DAT, filename="maskTY140218ForAfterRun52.txt")
         ECM = Cmm.ILambdaCorrDNA(dat=self.DAT, ec=self.EC, useMonEff=True)
         ECM2 = Cmm.SolidAngleCorrDNA(
                 dat=ECM, useDetEff=True, useAbsoCorr=False, useEffCorr=False,
                 sampletype="sample", sampleDataPath="test_sample_data.dat",
                 DetEffDataPath="none")
         Cmm.MutiplyConstant(dat=ECM2, factor=1e-06)
-        #DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
-        #DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.074, endQ=1.85, deltaQ=0.148)
-        print("CHECK QRANGE:", qmin[0], qmax[-1], qmax[0]-qmin[0])
-        DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=qmin[0], endQ=qmax[-1],
-                                deltaQ=math.floor((qmax[0]-qmin[0])*10000.)/10000.)
+        DATQE = Cmm.CreateQEMap(dat=ECM2, startQ=0.0, endQ=2.0, deltaQ=0.05)
         dataset = self.get_all_sdata(DATQE)
         self.spectm(qmin, qmax, dataset)
 

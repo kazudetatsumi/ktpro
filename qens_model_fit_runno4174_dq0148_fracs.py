@@ -36,9 +36,10 @@ class qens_model_fit(qbr):
         self.loadfile()
         orghout = self.outall
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
-        #self.outfile = self.prefix + "/" + self.nM + "/outkde" + self.runNo +\
-        self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
-            "me.pkl"
+        self.outfile = self.prefix + "/" + self.nM + "/outkde" + self.runNo +\
+            "m.pkl"
+        #self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
+        #    "me.pkl"
         #print(self.outfile)
         self.loadfile()
         orgkout = self.outall
@@ -53,7 +54,7 @@ class qens_model_fit(qbr):
         #maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
         maskh2, errorh, aveh = self.readerror('histr', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
-        maskkb2, errorkb, avekb = self.readerror('kdee', self.runNo)
+        maskkb2, errorkb, avekb = self.readerror('kde', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskk2, errork, avek = self.readerror('kdeionovbw', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
@@ -231,7 +232,7 @@ class qens_model_fit(qbr):
         #print(gamma)
         #mask[0:2] = True
         mask[0:2] = True
-        if self.nM == "n8000":
+        if self.nM.startswith("n8000"):
             mask3 = gamma < 0.0007
         elif self.nM == "n800":
             mask3 = gamma < 0.00015
@@ -285,7 +286,7 @@ def testrun():
     fracs = ["100", "050", "025", "0125"]
     fracs = ["100", "025",  "0125"]
     fracs = ["100", "050", "025",  "0125", "0100", "0050"]
-    fracs = ["100"]
+    fracs = ["100", "0125"]
     fracsval = [1., 0.5, 0.25, 0.125, 0.1, 0.05]
     if len(sys.argv) >= 2:
         fracs = ["100", sys.argv[1]]
@@ -296,7 +297,7 @@ def testrun():
     rebin = "rebin_0001"
     #rebin = "rebin_0001_histe"
     #nM = "n200"
-    nM = "n8000"
+    nM = "n8000_M80_w5"
     #nM = "n200"
     prj = qens_model_fit(runNo, fracs, qsize, rebin, nM)
     prj.run()

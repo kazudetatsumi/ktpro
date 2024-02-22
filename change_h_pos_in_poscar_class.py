@@ -812,6 +812,7 @@ class change_hpos():
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
                                                        ).reshape(3, -1)
+        q /= (np.sum(q**2))**0.5
         qlengths = self.GetQlength(self.E - self.E[istate])
         print("minq and maxq in Angs-1:", np.min(qlengths), np.max(qlengths))
         qs = (np.tile(q, self.E.shape[0]).reshape(self.E.shape[0], -1)).T
@@ -829,7 +830,9 @@ class change_hpos():
             for iw, s in enumerate(self.sqw[1:]):
                 dE = (self.E[iw+1] - self.E[istate])
                 sigma = dE*0.02
-                spec += s*np.exp(-(ene - dE)**2/sigma**2)
+                # kf/ki = (2.44625/(2.44625+dE))**0.5 for LaNi5Hx
+                spec += (2.44625/(2.44625+dE))**0.5*s*np.exp(
+                        -(ene - dE)**2/sigma**2)
             self.dataset = {}
             self.dataset['ene'] = ene
             self.dataset['spec'] = spec
@@ -1007,6 +1010,8 @@ class change_hpos():
             #q = np.array([np.cos(phi), np.sin(phi), 0.])
             q = np.cos(phi)*mat[0] + np.sin(phi)*mat[1]
             #q = np.array([0., np.cos(phi), np.sin(phi)])
+            print("CHECK Q:", q)
+            print("CHECK Q length:", (np.sum(q**2))**0.5)
             self.GetTransitionMatrixqdep(q, Isplot=False, Iscalledbyigos=True,
                                          istate=istate)
             if ip == 0:
@@ -1018,7 +1023,10 @@ class change_hpos():
         for iw, s in enumerate(IntegratedSqw[1:]):
             dE = (self.E[iw+1] - self.E[istate])
             sigma = dE*0.02
-            spec += s*np.exp(-(ene - dE)**2/sigma**2)
+            # spec += s*np.exp(-(ene - dE)**2/sigma**2)
+            # kf/ki = (2.44625/(2.44625+dE))**0.5 for LaNi5Hx
+            spec += (2.44625/(2.44625+dE))**0.5*s*np.exp(
+                    -(ene - dE)**2/sigma**2)
         self.dataset = {}
         self.dataset['ene'] = ene
         self.dataset['spec'] = spec
