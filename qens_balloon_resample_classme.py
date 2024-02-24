@@ -3,6 +3,10 @@
 # the kernel band widths optimized on the original data, and fits the estimated
 # target density with the estimated device density.
 # Kazuyoshi TATSUMI 2023/02/23
+# "e" in the "_classme_" indicates the square error divided by statistical
+# error**2 for each energy channel. This is accomplished by overriding the res
+# method.
+# Kazuyoshi TATSUMI 2024/02/23
 from mpi4py import MPI
 import numpy as np
 import pickle
@@ -13,8 +17,8 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 
 class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
-                 ishist=False, num=6400, rsmodifier="b", orgmodifier="orge",
-                 prefixes=["./", "./"],
+                 ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
+                 orgmodifier="orge", prefixes=["./", "./"],
                  variables=[0.655, 0.0129, 0.200, 0.00208], quiet=False,
                  ispltchk=False, isnovariablebw=False):
         self.qidx = qidx
@@ -24,6 +28,8 @@ class qens_balloon_resamples(sqkr):
         self.elim = elim
         self.ishist = ishist
         self.num = num
+        self.M = M 
+        self.winparam = winparam
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
         self.prefixes = prefixes
@@ -54,7 +60,8 @@ class qens_balloon_resamples(sqkr):
             print("CalcBandW: chkm slicing spectrab at qidx")
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
-                     num=self.num, isnovariablebw=self.isnovariablebw)
+                     num=self.num, M=self.M, winparam=self.winparam,
+                     isnovariablebw=self.isnovariablebw)
         return self.y
 
     def geterrorbars(self):

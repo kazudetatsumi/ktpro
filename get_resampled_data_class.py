@@ -12,7 +12,6 @@ except ModuleNotFoundError as err:
     print(err)
 import numpy as np
 import datetime
-import matplotlib.pyplot as plt
 import pickle
 #from get_qlist_nova_class import get_qlist as gq
 from get_resampled_data_org_class import Sget_qlist as gq
@@ -195,6 +194,7 @@ def run_org():
 
 
 def check():
+    import matplotlib.pyplot as plt
     prj = Sget_qlist(pklfile="run6202spectraorg.pkl")
     prj.load_pkl()
     for inb in range(prj.spectrab.shape[0]):

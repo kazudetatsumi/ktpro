@@ -19,7 +19,6 @@ except ModuleNotFoundError:
 ###
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 import pickle
 from scipy.interpolate import griddata
 import copy
@@ -264,6 +263,7 @@ class get_qlist:
             hf.create_dataset('intensity', data=self.dataset['intensity'])
 
     def create_fig(self):
+        import matplotlib.pyplot as plt
         self.fig = plt.figure(figsize=(10, 8))
 
     def getXYZ(self, x, y, z, xb, yb):
@@ -276,6 +276,7 @@ class get_qlist:
         return X, Y, Z
 
     def plot_sub(self, X, Y, Z, axindx, vmax):
+        import matplotlib.pyplot as plt
         ax = self.fig.add_subplot(1, 1, axindx)
         cmap1 = copy.copy(plt.cm.jet)
         cmap1.set_under('w')
@@ -288,6 +289,7 @@ class get_qlist:
         self.fig.colorbar(c, ax=ax)
 
     def qemap(self, qmin, qmax):
+        import matplotlib.pyplot as plt
         x = np.ravel(self.dataset['q'])
         y = np.ravel(self.dataset['omega'])
         z = np.ravel(self.dataset['intensity'])
@@ -326,6 +328,7 @@ class get_qlist:
         self.spectra = z1d
         #print("CHECK SPECT:, total intensity with q of", np.unique(x), ":", np.sum(self.spectra))
         if isplot:
+            import matplotlib.pyplot as plt
             self.create_fig()
             plt.plot(ene, z1d)
             #plt.yscale('log')
@@ -357,6 +360,7 @@ class get_qlist:
         self.spectra = z1d
         #print("CHECK SPECT:, total intensity with q of", np.unique(x), ":", np.sum(self.spectra))
         if isplot:
+            import matplotlib.pyplot as plt
             self.create_fig()
             plt.plot(ene, z1d)
             #plt.yscale('log')
@@ -388,6 +392,7 @@ class get_qlist:
         self.spectra = z1d
         #print("CHECK SPECT:, total intensity with q of", np.unique(x), ":", np.sum(self.spectra))
         if isplot:
+            import matplotlib.pyplot as plt
             self.create_fig()
             plt.plot(ene, z1d)
             #plt.yscale('log')

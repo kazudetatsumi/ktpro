@@ -37,7 +37,7 @@ class qens_model_fit(qbr):
         orghout = self.outall
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
         self.outfile = self.prefix + "/" + self.nM + "/outkde" + self.runNo +\
-            "m.pkl"
+            "me.pkl"
         #self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
         #    "me.pkl"
         #print(self.outfile)
@@ -54,7 +54,7 @@ class qens_model_fit(qbr):
         #maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
         maskh2, errorh, aveh = self.readerror('histr', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
-        maskkb2, errorkb, avekb = self.readerror('kde', self.runNo)
+        maskkb2, errorkb, avekb = self.readerror('kdee', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskk2, errork, avek = self.readerror('kdeionovbw', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
@@ -68,15 +68,19 @@ class qens_model_fit(qbr):
         outall = self.outall[np.sum(self.outall[:, 4:], axis=1) > -0.5]
         #print('CHK', outall.shape)
         orderidx1 = np.argsort(outall[:, 1])
-        #print("CHK", orderidx1.shape)
-        #print(outall.shape[0], int(self.outall.shape[0]/2))
-        lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
-        if orderidx1.shape[0] <= int(np.ceil(orderidx1.shape[0]*.84)):
-            ubs = outall[orderidx1[-1], 1]
+        if orderidx1.shape[0] > 0:
+            #print("CHK", orderidx1.shape[0])
+            #print(outall.shape[0], int(self.outall.shape[0]/2))
+            lbs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.16))], 1]
+            if orderidx1.shape[0] <= int(np.ceil(orderidx1.shape[0]*.84)):
+                ubs = outall[orderidx1[-1], 1]
+            else:
+                ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
+            return outall.shape[0] < int(self.outall.shape[0]/2), (ubs - lbs) / 2.,\
+                np.std(outall[:, 1]), np.average(outall[:, 1])
         else:
-            ubs = outall[orderidx1[int(np.ceil(orderidx1.shape[0]*.84))], 1]
-        return outall.shape[0] < int(self.outall.shape[0]/2), (ubs - lbs) / 2.,\
-            np.std(outall[:, 1]), np.average(outall[:, 1])
+            return outall.shape[0] < int(self.outall.shape[0]/2), 0.07, 0.07, 0.07
+         
 
     def readerror(self, hork, runNo):
         error = np.zeros((2, self.qsize))
@@ -231,7 +235,8 @@ class qens_model_fit(qbr):
         #print(mask, mask2, label)
         #print(gamma)
         #mask[0:2] = True
-        mask[0:2] = True
+        #mask[0:2] = True
+        mask[-2:] = True
         if self.nM.startswith("n8000"):
             mask3 = gamma < 0.0007
         elif self.nM == "n800":
