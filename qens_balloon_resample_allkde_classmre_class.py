@@ -6,7 +6,7 @@
 import os
 import sys
 sys.path.append("/home/kazu/ktpro")
-from qens_balloon_resample_classmre import Sqens_balloon_resamples as qbr
+from qens_balloon_resample_allkde_classmre import qens_balloon_resamples as qbr
 
 
 class Sqbr(qbr):
@@ -14,9 +14,9 @@ class Sqbr(qbr):
                  elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
                  binwidth=0.00025, ishist=False, num=6400, M=160, winparam=1,
                  isnovariablebw=False):
-        super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
-                         ishist=ishist, num=num, M=M, winparam=winparam,
-                         isnovariablebw=isnovariablebw)
+        super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb, ishist=ishist,
+                         num=num)
+        self.getbins()
         self.CI_of_intensities()
         if self.rank == 0:
             self.outfile = outfile

@@ -33,7 +33,7 @@ class qens_model_fit(qbr):
         #    "/outhist" + self.runNo + "mr.pkl"
             #"/outhist" + self.runNo + "mrk.pkl"
         #print(self.outfile)
-        self.outfile = self.prefix + "/teste/outhist" + self.runNo + "m.pkl"
+        self.outfile = self.prefix + "/teste/withcorrection/outhist" + self.runNo + "m.pkl"
         self.loadfile()
         orghout = self.outall
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"

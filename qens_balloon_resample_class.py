@@ -174,6 +174,8 @@ class Sqens_balloon_resamples(qkr):
         for inb in range(self.rank*self.Nb//self.size,
                          (self.rank+1)*self.Nb//self.size):
             xt, yt, yth = self.eachrunno(0, inb)
+            # The following procedures are NEEDED to obtain std 
+            # among the resampled spectra at each channel.
             self.icorr()
             xtl, ytl = self.limit2(xt, yt, self.elim)
             dummy, ytlc = self.correction(xtl, ytl, ytl)

@@ -3,6 +3,11 @@
 # the kernel band widths optimized on the original data, and fits the estimated
 # target density with the estimated device density.
 # Kazuyoshi TATSUMI 2023/02/23
+# mre stands for multiple qs, ebinned data and channel specific errors
+# for least square fitting.
+# CI_of_intensities is overriding the original in the 
+# qens_balloon_resample_class, to generate rebinned resampled histogram data
+# sets.
 from mpi4py import MPI
 import numpy as np
 import scipy.optimize as so
@@ -12,8 +17,8 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 
 
 class qens_balloon_resamples(sqkr):
-    def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
-                 ishist=False, num=6400, rsmodifier="b", orgmodifier="orge",
+    def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1, 
+                 ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200, 0.00208],
                  quiet=False):
         self.qidx = qidx
@@ -35,6 +40,7 @@ class qens_balloon_resamples(sqkr):
         self.DefineFiles()
 
     def eachrunno(self, fidx, inb):
+        #print("CHK", self.rsfiles)
         sy = self.getrsspectra(self.rsfiles[fidx], inb)
         if self.ishist:
             return sy[0], sy[1], sy[2]
@@ -44,7 +50,7 @@ class qens_balloon_resamples(sqkr):
 
     def getrsspectra(self, rsfile, inb=0):
         super(sqkr, self).__init__(pklfile=rsfile)
-        print("getrsspectra: chkm slicing spectrab at qidx")
+        print("getrsspectra: chkm slicing spectrab at qidx 0, 1, 3")
         return self.spectrab[inb, 0, self.qidx],\
             self.spectrab[inb, 1, self.qidx],\
             self.spectrab[inb, 3, self.qidx]
@@ -81,8 +87,8 @@ class qens_balloon_resamples(sqkr):
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         etlc, dummy = self.correction(xtl, etl, ytl)
         self.bg = 0.
-        #self.check_out(inb, self.optimize(xdl, ydlc, ytlc, etlc,
-        self.check_out(inb, self.optimize(xdl, ydl, ytl, etl,
+        self.check_out(inb, self.optimize(xdl, ydlc, ytlc, etlc,
+        #self.check_out(inb, self.optimize(xdl, ydl, ytl, etl,
                                           variables=self.variables))
 
         [alpha, gamma, delta, base] = self.outall[-1][0:4]
@@ -90,7 +96,8 @@ class qens_balloon_resamples(sqkr):
         y = yqens + delta*ydl + base
         plt.plot(xdl*1000, y, c='k')
         #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
-        plt.errorbar(xdl*1000, ytl, yerr=etl, marker='o', ms=3., lw=0, elinewidth=1, mfc='None' )
+        plt.errorbar(xdl*1000, ytl, yerr=etl, marker='o', ms=3., lw=0,
+                     elinewidth=1, mfc='None')
         plt.plot(xdl*1000, yqens, ls='dotted', c='k')
         plt.ylabel('Intensity (Arb. Units)')
         plt.xlabel(r'$Energy\ (\mu eV)$')
