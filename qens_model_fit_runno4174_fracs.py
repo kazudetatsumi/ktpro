@@ -42,6 +42,7 @@ class qens_model_fit(qbr):
         #maskk, gammak = self.readlog()
         #stdhes = self.readstdhessfromlog(self.runNo)
         stdhes = self.readstdhessfromorgout(orghout)
+        print("CHECK stdhes", stdhes)
         return maskh, gammah, maskkb, gammakb, maskk, gammak, errorh, errorkb,\
             errork, stdhes, aveh, avekb
 

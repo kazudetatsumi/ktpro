@@ -29,10 +29,11 @@ class qens_model_fit(qbr):
         #nM = "n800"
         self.prefix = prepreprefix + "run" + self.runNo + "/"\
             + frac + "/dq0148/"
-        self.outfile = self.prefix + "/resamples/" + self.rebin +\
-            "/outhist" + self.runNo + "mr.pkl"
+        #self.outfile = self.prefix + "/resamples/" + self.rebin +\
+        #    "/outhist" + self.runNo + "mr.pkl"
             #"/outhist" + self.runNo + "mrk.pkl"
         #print(self.outfile)
+        self.outfile = self.prefix + "/teste/outhist" + self.runNo + "m.pkl"
         self.loadfile()
         orghout = self.outall
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
@@ -61,6 +62,7 @@ class qens_model_fit(qbr):
         #maskk, gammak = self.readlog()
         #stdhes = self.readstdhessfromlog(self.runNo)
         stdhes = self.readstdhessfromorgout(orghout)
+        print("CHECK stdhes:", stdhes)
         return maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
             gammak, errorh, errorkb, errork, stdhes, aveh, avekb
 
@@ -275,10 +277,11 @@ class qens_model_fit(qbr):
         #maskhh = np.ones((self.qsize), dtype=bool)
         #if fidx >= 2:
         #    maskhh[1] = False
-        self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
-        #self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
+        #self.eachsolution(fig, 0, fidx, frac, gammah, errorh[0],
+        self.eachsolution(fig, 0, fidx, frac, gammah, stdhes,
                           maskh, maskh2, 'hist')
         self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[0],
+        #self.eachsolution(fig, 1, fidx, frac, gammakb, stdhes,
                           maskkb, maskkb2, 'kdeb')
         self.eachsolution(fig, 2, fidx, frac, gammak, errork[0],
                           maskk, maskk2, 'kde')
