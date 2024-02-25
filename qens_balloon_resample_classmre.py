@@ -40,7 +40,6 @@ class qens_balloon_resamples(sqkr):
         self.DefineFiles()
 
     def eachrunno(self, fidx, inb):
-        #print("CHK", self.rsfiles)
         sy = self.getrsspectra(self.rsfiles[fidx], inb)
         if self.ishist:
             return sy[0], sy[1], sy[2]
