@@ -93,7 +93,7 @@ class Sqens_balloon_resamples(qkr):
     def eachrunno(self, fidx, inb):
         sy = self.getrsspectra(self.rsfiles[fidx], inb)
         if self.ishist:
-            return sy[0], sy[1], sy[1]
+            return sy[0], sy[1], sy[2]
         else:
             syb = self.balloon(self.kys[fidx], sy)
             return sy[0], syb, sy[1]

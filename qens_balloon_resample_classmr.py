@@ -35,7 +35,6 @@ class qens_balloon_resamples(sqkr):
 
     def getrsspectra(self, rsfile, inb=0):
         super(sqkr, self).__init__(pklfile=rsfile)
-        print("getrsspectra: chkm slicing spectrab at qidx")
         return self.spectrab[inb, 0, self.qidx],\
             self.spectrab[inb, 1, self.qidx]
 
@@ -91,7 +90,7 @@ class qens_balloon_resamples(sqkr):
         #self.bins = np.arange(-0.03, 0.122, 0.002)
         #self.bins = np.arange(-0.03, 0.123, 0.003)
         #self.bins = np.arange(-0.03, 0.122, 0.004)
-        self.bins = np.arange(-0.03, 0.125, 0.005)
+        self.bins = np.arange(-0.03, 0.125, 0.001)
         #self.bins = np.arange(-0.03, 0.13, 0.01)
         #self.bins = np.arange(-0.03, 0.12125, 0.00275)
 

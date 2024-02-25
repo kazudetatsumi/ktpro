@@ -3,8 +3,8 @@
 # the kernel band widths optimized on the original data, and fits the estimated
 # target density with the estimated device density.
 # Kazuyoshi TATSUMI 2023/02/23
-# Rebinning and weights at each bin are added in order to reproduce the results of
-# JPSJ  (2021) T. Yamada et al.. 
+# Rebinning and weights at each bin are added in order to reproduce the
+# results of JPSJ  (2021) T. Yamada et al..
 import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
@@ -13,19 +13,24 @@ np.set_printoptions(suppress=True)
 
 
 class qens_org_classm(qbr):
-    def __init__(self, qidx, qsize, elim=[-0.03, 0.07], rsmodifier="orge", ishist=True,
-                 orgmodifier="orge", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 prefixes=["./", "./"], num=6400, quiet=True, runNos=[6206, 6204]):
+    def __init__(self, qidx, qsize, elim=[-0.03, 0.07], rsmodifier="orge",
+                 ishist=True, usehes=True, orgmodifier="orge",
+                 variables=[0.655, 0.0129, 0.200, 0.00208],
+                 prefixes=["./", "./"], num=6400, quiet=True,
+                 runNos=[6206, 6204]):
         self.qsize = qsize
+        if not usehes:
+            orgmodifier = "org"
+            rsmodifier = "org"
         Nb = 1
         if ishist:
             self.outfile = "outhist" + str(runNos[0]) + "m.pkl"
         else:
             self.outfile = "outkde" + str(runNos[0]) + "m.pkl"
-        qbr.__init__(self, qidx, runNos=runNos, elim=elim, Nb=Nb, ishist=ishist,
-                     num=num, rsmodifier=rsmodifier,
-                     orgmodifier=orgmodifier, prefixes=prefixes,
-                     variables=variables, quiet=quiet)
+        qbr.__init__(self, qidx, runNos=runNos, elim=elim, Nb=Nb,
+                     ishist=ishist, usehes=usehes, num=num,
+                     rsmodifier=rsmodifier, orgmodifier=orgmodifier,
+                     prefixes=prefixes, variables=variables, quiet=quiet)
 
     def run_for_mqs(self):
         for qidx in range(0, self.qsize):

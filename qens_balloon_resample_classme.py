@@ -66,7 +66,8 @@ class qens_balloon_resamples(sqkr):
 
     def geterrorbars(self):
         if self.ishist:
-            with open("outallhst.pkl."+str(self.qidx), 'rb') as f:
+            #with open("outallhst.pkl."+str(self.qidx), 'rb') as f:
+            with open("outallhist.pkl."+str(self.qidx), 'rb') as f:
                 dat = pickle.load(f)['out']
         else:
             with open("outallkde.pkl."+str(self.qidx), 'rb') as f:

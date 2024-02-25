@@ -13,14 +13,14 @@ import numpy as np
 import scipy.optimize as so
 import sys
 sys.path.append("/home/kazu/ktpro")
-from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
+from qens_balloon_resample_classme import qens_balloon_resamples as sqkr
 
 
 class qens_balloon_resamples(sqkr):
-    def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1, 
+    def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False):
+                 quiet=False, usehes=True):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -37,23 +37,22 @@ class qens_balloon_resamples(sqkr):
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
         self.leastsq = False
+        self.usehes = usehes
         self.DefineFiles()
 
-    def eachrunno(self, fidx, inb):
-        sy = self.getrsspectra(self.rsfiles[fidx], inb)
-        if self.ishist:
-            return sy[0], sy[1], sy[2]
-        else:
-            syb = self.balloon(self.kys[fidx], sy)
-            return sy[0], syb, sy[1]
-
     def getrsspectra(self, rsfile, inb=0):
-        super(sqkr, self).__init__(pklfile=rsfile)
+        #super(sqkr, self).__init__(pklfile=rsfile)
+        self.pklfile = rsfile
+        self.load_pkl()
         print("getrsspectra: chkm slicing spectrab at qidx 0, 1, 3")
-        return self.spectrab[inb, 0, self.qidx],\
-            self.spectrab[inb, 1, self.qidx],\
-            self.spectrab[inb, 3, self.qidx]
-            #self.spectrab[inb, 2, self.qidx]
+        if self.usehes:
+            return self.spectrab[inb, 0, self.qidx],\
+                self.spectrab[inb, 1, self.qidx],\
+                self.spectrab[inb, 3, self.qidx]
+        else:
+            return self.spectrab[inb, 0, self.qidx],\
+                self.spectrab[inb, 1, self.qidx],\
+                self.spectrab[inb, 2, self.qidx]
 
     def CalcBandW(self, orgfile, inb=0):
         if self.ishist:
@@ -74,17 +73,26 @@ class qens_balloon_resamples(sqkr):
         xd, yd, ed = self.eachrunno(1, inb)
         xtr, ytr = self.rebin(xt, yt)
         xdr, ydr = self.rebin(xd, yd)
-        etr = self.rebine(xt, et)
         self.icorr()
-        print("CHK elim:", self.elim)
         xtl, ytl = self.limit2(xtr, ytr, self.elim)
         xdl, ydl = self.limit2(xdr, ydr, self.elim)
-        xtl, etl = self.limit2(xtr, etr, self.elim)
         if inb == 0 and self.rank == 0:
             if np.sum(xtl - xdl) > 0.000001:
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
-        etlc, dummy = self.correction(xtl, etl, ytl)
+        # Great complexity is here!
+        # If using errors attached to each energy channels by the usual data
+        # reduction, we should correct the errors as we do the intensiteis.
+        # If using errors from the stds of the resampled spectra intensities
+        # the errors should NOT be limitted in energy and NOT be corrected
+        # because the resampled spectra are already corrected and limitted
+        # in energy.
+        if self.usehes:
+            etr = self.rebine(xt, et)
+            xtl, etl = self.limit2(xtr, etr, self.elim)
+            etlc, dummy = self.correction(xtl, etl, ytl)
+        else:
+            etlc = self.geterrorbars()
         self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc, etlc,
         #self.check_out(inb, self.optimize(xdl, ydl, ytl, etl,
@@ -95,7 +103,7 @@ class qens_balloon_resamples(sqkr):
         y = yqens + delta*ydl + base
         plt.plot(xdl*1000, y, c='k')
         #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
-        plt.errorbar(xdl*1000, ytl, yerr=etl, marker='o', ms=3., lw=0,
+        plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0,
                      elinewidth=1, mfc='None')
         plt.plot(xdl*1000, yqens, ls='dotted', c='k')
         plt.ylabel('Intensity (Arb. Units)')
