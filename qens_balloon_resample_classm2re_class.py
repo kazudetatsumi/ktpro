@@ -13,7 +13,7 @@ class Sqbr(qbr):
     def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
                  elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
                  binwidth=0.00025, io=False, num=6400, M=160, winparam=1,
-                 isnovariablebw=False, prefixes=["./", "./"]):
+                 isnovariablebw=False, prefixes=["./", "./"], usehes=False):
         if "2comps" in outfile:
             variables = [0.8, 0.01, 0.24, 0.0002, 0.001, 1.2]
         else:
@@ -48,6 +48,8 @@ class Sqbr(qbr):
                              ishist=ishist, variables=variables, num=num, M=M,
                              winparam=winparam, isnovariablebw=isnovariablebw,
                              prefixes=prefixes)
+            self.usehes = usehes
+            self.getbins()
             self.run()
             if self.rank == 0:
                 self.outfile = outfile

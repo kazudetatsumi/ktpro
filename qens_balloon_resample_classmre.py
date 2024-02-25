@@ -97,18 +97,18 @@ class qens_balloon_resamples(sqkr):
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc, etlc,
         #self.check_out(inb, self.optimize(xdl, ydl, ytl, etl,
                                           variables=self.variables))
-
-        [alpha, gamma, delta, base] = self.outall[-1][0:4]
-        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        y = yqens + delta*ydl + base
-        plt.plot(xdl*1000, y, c='k')
-        #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
-        plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0,
-                     elinewidth=1, mfc='None')
-        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        plt.ylabel('Intensity (Arb. Units)')
-        plt.xlabel(r'$Energy\ (\mu eV)$')
-        plt.show()
+        if self.ispltchk:
+            [alpha, gamma, delta, base] = self.outall[-1][0:4]
+            yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+            y = yqens + delta*ydl + base
+            plt.plot(xdl*1000, y, c='k')
+            #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
+            plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0,
+                         elinewidth=1, mfc='None')
+            plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+            plt.ylabel('Intensity (Arb. Units)')
+            plt.xlabel(r'$Energy\ (\mu eV)$')
+            plt.show()
 
     def getbins(self):
         #bins = []
