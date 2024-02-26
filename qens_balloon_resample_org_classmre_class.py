@@ -14,12 +14,12 @@ np.set_printoptions(suppress=True)
 
 class qens_org_classm(qbr):
     def __init__(self, qidx, qsize, elim=[-0.03, 0.07], rsmodifier="orge",
-                 ishist=True, usehes=True, orgmodifier="orge",
+                 ishist=True, usestdfromorge=True, orgmodifier="orge",
                  variables=[0.655, 0.0129, 0.200, 0.00208],
                  prefixes=["./", "./"], num=6400, quiet=True,
                  runNos=[6206, 6204]):
         self.qsize = qsize
-        if not usehes:
+        if not usestdfromorge:
             orgmodifier = "org"
             rsmodifier = "org"
         Nb = 1
@@ -28,7 +28,7 @@ class qens_org_classm(qbr):
         else:
             self.outfile = "outkde" + str(runNos[0]) + "m.pkl"
         qbr.__init__(self, qidx, runNos=runNos, elim=elim, Nb=Nb,
-                     ishist=ishist, usehes=usehes, num=num,
+                     ishist=ishist, usestdfromorge=usestdfromorge, num=num,
                      rsmodifier=rsmodifier, orgmodifier=orgmodifier,
                      prefixes=prefixes, variables=variables, quiet=quiet)
 

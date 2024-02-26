@@ -66,13 +66,18 @@ class qens_balloon_resamples(sqkr):
 
     def geterrorbars(self):
         if self.ishist:
-            #with open("outallhst.pkl."+str(self.qidx), 'rb') as f:
-            with open("outallhist.pkl."+str(self.qidx), 'rb') as f:
-                dat = pickle.load(f)['out']
+            if not self.usestdfromorge:
+                #with open("outallhst.pkl."+str(self.qidx), 'rb') as f:
+                print("READING RESAMPLED DATA FROM outallhist.pkl.qidx")
+                with open("outallhist.pkl."+str(self.qidx), 'rb') as f:
+                    dat = pickle.load(f)['out']
+                return np.std(dat, axis=0)
+            else:
+                print("SKIPPING READING RESAMPLED DATA BECAUSE USEHES == TRUE")
         else:
             with open("outallkde.pkl."+str(self.qidx), 'rb') as f:
                 dat = pickle.load(f)['out']
-        return np.std(dat, axis=0)
+            return np.std(dat, axis=0)
 
     def geterrorbars_io(self):
         with open("outallkdeio.pkl."+str(self.qidx), 'rb') as f:

@@ -14,13 +14,14 @@ import scipy.optimize as so
 import sys
 sys.path.append("/home/kazu/ktpro")
 from qens_balloon_resample_classme import qens_balloon_resamples as sqkr
+#from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 
 
 class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False, usehes=True):
+                 quiet=False, usestdfromorge=True):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -37,7 +38,7 @@ class qens_balloon_resamples(sqkr):
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
         self.leastsq = False
-        self.usehes = usehes
+        self.usestdfromorge = usestdfromorge
         self.DefineFiles()
 
     def getrsspectra(self, rsfile, inb=0):
@@ -45,7 +46,7 @@ class qens_balloon_resamples(sqkr):
         self.pklfile = rsfile
         self.load_pkl()
         print("getrsspectra: chkm slicing spectrab at qidx 0, 1, 3")
-        if self.usehes:
+        if self.usestdfromorge:
             return self.spectrab[inb, 0, self.qidx],\
                 self.spectrab[inb, 1, self.qidx],\
                 self.spectrab[inb, 3, self.qidx]
@@ -76,6 +77,7 @@ class qens_balloon_resamples(sqkr):
         self.icorr()
         xtl, ytl = self.limit2(xtr, ytr, self.elim)
         xdl, ydl = self.limit2(xdr, ydr, self.elim)
+        print("CHK slef.usestdfromorge", self.usestdfromorge)
         if inb == 0 and self.rank == 0:
             if np.sum(xtl - xdl) > 0.000001:
                 print('WARNING, check x_tf - x_df')
@@ -87,28 +89,30 @@ class qens_balloon_resamples(sqkr):
         # the errors should NOT be limitted in energy and NOT be corrected
         # because the resampled spectra are already corrected and limitted
         # in energy.
-        if self.usehes:
+        if self.usestdfromorge:
             etr = self.rebine(xt, et)
             xtl, etl = self.limit2(xtr, etr, self.elim)
             etlc, dummy = self.correction(xtl, etl, ytl)
+            print("USE WEIGHTS FROM THE DATA REDUCTION")
         else:
             etlc = self.geterrorbars()
+            print("USE WEIGHTS FROM THE RESAMPLED HISTs")
         self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc, etlc,
         #self.check_out(inb, self.optimize(xdl, ydl, ytl, etl,
                                           variables=self.variables))
-        if self.ispltchk:
-            [alpha, gamma, delta, base] = self.outall[-1][0:4]
-            yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-            y = yqens + delta*ydl + base
-            plt.plot(xdl*1000, y, c='k')
-            #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
-            plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0,
-                         elinewidth=1, mfc='None')
-            plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-            plt.ylabel('Intensity (Arb. Units)')
-            plt.xlabel(r'$Energy\ (\mu eV)$')
-            plt.show()
+        #if self.ispltchk:
+        [alpha, gamma, delta, base] = self.outall[-1][0:4]
+        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+        y = yqens + delta*ydl + base
+        plt.plot(xdl*1000, y, c='k')
+        #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
+        plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0,
+                     elinewidth=1, mfc='None')
+        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        plt.ylabel('Intensity (Arb. Units)')
+        plt.xlabel(r'$Energy\ (\mu eV)$')
+        plt.show()
 
     def getbins(self):
         #bins = []
