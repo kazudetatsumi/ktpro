@@ -307,6 +307,7 @@ class runhistnoidata(qf):
             return out
         # least_squares
         else:
+            print("FUCK!!!!")
             bounds = (0, np.inf)
             out = so.least_squares(self.res, variables, bounds=bounds,
                                    args=(x, yd, yt))

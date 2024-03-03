@@ -8,7 +8,8 @@
 ### We just read pklfiles containing numpy arrays. If you use this script on dna, uncomment the following two lines.
 try:
     import Cmm
-except ModuleNotFoundError:
+except Exception:
+#except ModuleNotFoundError:
     pass
 try:
     import Manyo

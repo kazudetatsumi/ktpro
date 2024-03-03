@@ -16,12 +16,13 @@ except ModuleNotFoundError as err:
     print(err)
 import numpy as np
 # from get_qlist_nova_class import get_qlist as gq
-#from get_resampled_data_org_classe import Sget_qlist as gq
+# from get_resampled_data_org_classe import Sget_qlist as gq
 from get_resampled_data_org_class import Sget_qlist as gq
 
 
 class Sget_qlist(gq):
-    def __init__(self, save_file=None, pklfile=None, maskfile="maskTY140218ForAfterRun52.txt"):
+    def __init__(self, save_file=None, pklfile=None,
+                 maskfile="maskTY140218ForAfterRun52.txt"):
         self.save_file = save_file
         self.pklfile = pklfile
         self.maskfile = maskfile

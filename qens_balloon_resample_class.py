@@ -124,6 +124,8 @@ class Sqens_balloon_resamples(qkr):
             plt.plot(xdl*1000, y, c='k')
             plt.plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'+str(self.qidx))
             plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+            plt.plot(xdl*1000, y-ytlc)
+            plt.plot(xdl*1000, np.zeros_like(xdl))
             plt.ylabel('Intensity (Arb. Units)')
             plt.xlabel(r'$Energy\ (\mu eV)$')
             plt.legend()

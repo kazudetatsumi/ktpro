@@ -77,6 +77,8 @@ class qens_balloon_resamples(sqkr):
         self.icorr()
         xtl, ytl = self.limit2(xtr, ytr, self.elim)
         xdl, ydl = self.limit2(xdr, ydr, self.elim)
+        print("CHK argmax of ytl", np.argmax(ytl))
+        print("CHK argmax of ydl", np.argmax(ydl))
         print("CHK slef.usestdfromorge", self.usestdfromorge)
         if inb == 0 and self.rank == 0:
             if np.sum(xtl - xdl) > 0.000001:
@@ -102,56 +104,65 @@ class qens_balloon_resamples(sqkr):
         #self.check_out(inb, self.optimize(xdl, ydl, ytl, etl,
                                           variables=self.variables))
         #if self.ispltchk:
-        [alpha, gamma, delta, base] = self.outall[-1][0:4]
-        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        y = yqens + delta*ydl + base
-        plt.plot(xdl*1000, y, c='k')
-        #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
-        plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0,
-                     elinewidth=1, mfc='None')
-        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        plt.ylabel('Intensity (Arb. Units)')
-        plt.xlabel(r'$Energy\ (\mu eV)$')
-        plt.show()
+        if self.qidx > 12:
+            [alpha, gamma, delta, base] = self.outall[-1][0:4]
+            yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+            y = yqens + delta*ydl + base
+            plt.plot(xdl*1000, y, c='k')
+            #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
+            plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0.5,
+                         elinewidth=1, mfc='None')
+            plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+            plt.plot(xdl*1000, ytlc - y)
+            plt.plot(xdl*1000, np.zeros_like(xdl))
+            plt.ylabel('Intensity (Arb. Units)')
+            plt.xlabel(r'$Energy\ (\mu eV)$')
+            plt.show()
 
-    def getbins(self):
+    def getbins(self, bins=np.arange(-0.03, 0.121, 0.001)):
         #bins = []
         #for line in open("/home/kazu/Ebin20150709.txt"):
         #    bins.append(float(line[:-1].split()[0]))
         #self.bins = np.array(bins)
-        self.bins = np.arange(-0.03, 0.121, 0.001)
+        self.bins = bins
 
     def rebin(self, x, y):
-        nbins = self.bins.shape[0]
-        xr = np.zeros((nbins-1))
-        yr = np.zeros((nbins-1))
-        de = x[1] - x[0]
-        for ibdx in range(nbins-1):
-            xr[ibdx] = (self.bins[ibdx] + self.bins[ibdx+1])/2.
-        for _x, _y in zip(x, y):
+        if hasattr(self, 'bins'):
+            nbins = self.bins.shape[0]
+            xr = np.zeros((nbins-1))
+            yr = np.zeros((nbins-1))
+            de = x[1] - x[0]
             for ibdx in range(nbins-1):
-                if _x >= self.bins[ibdx] and _x < self.bins[ibdx+1]:
-                    yr[ibdx] += _y
-        for ibdx in range(nbins-1):
-            yr[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/de)
-        return xr, yr
-
-    def rebine(self, x, e):
-        nbins = self.bins.shape[0]
-        xr = np.zeros((nbins-1))
-        er = np.zeros((nbins-1))
-        de = x[1] - x[0]
-        for ibdx in range(nbins-1):
-            xr[ibdx] = (self.bins[ibdx] + self.bins[ibdx+1])/2.
-        for _x, _e in zip(x, e):
-            if _e < 100000.:
+                xr[ibdx] = (self.bins[ibdx] + self.bins[ibdx+1])/2.
+            for _x, _y in zip(x, y):
                 for ibdx in range(nbins-1):
                     if _x >= self.bins[ibdx] and _x < self.bins[ibdx+1]:
-                        er[ibdx] += _e**2
-        er = er**0.5
-        for ibdx in range(nbins-1):
-            er[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/de)
-        return er
+                        yr[ibdx] += _y
+            for ibdx in range(nbins-1):
+                yr[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/de)
+            return xr, yr
+        else:
+            return x, y
+
+    def rebine(self, x, e):
+        if hasattr(self, 'bins'):
+            nbins = self.bins.shape[0]
+            xr = np.zeros((nbins-1))
+            er = np.zeros((nbins-1))
+            de = x[1] - x[0]
+            for ibdx in range(nbins-1):
+                xr[ibdx] = (self.bins[ibdx] + self.bins[ibdx+1])/2.
+            for _x, _e in zip(x, e):
+                if _e < 100000.:
+                    for ibdx in range(nbins-1):
+                        if _x >= self.bins[ibdx] and _x < self.bins[ibdx+1]:
+                            er[ibdx] += _e**2
+            er = er**0.5
+            for ibdx in range(nbins-1):
+                er[ibdx] /= ((self.bins[ibdx+1] - self.bins[ibdx])/de)
+            return er
+        else:
+            return e
 
     def res(self, coeffs, x, d, t, e):
         if len(coeffs) == 6:
@@ -188,6 +199,7 @@ class qens_balloon_resamples(sqkr):
                                    args=(x, yd, yt, et))
             #if self.rank == 0:
             print(out.active_mask, out.success, out.x)
+            print("costfunction value:",out.cost)
             #out = so.least_squares(self.res, variables, args=(x, yd, yt))
             _out = [out.x, np.linalg.inv(np.dot(out.jac.T, out.jac))]
             s_sq = (self.res(_out[0], x, yd, yt, et)**2).sum() / (len(yt)-len(_out[0]))

@@ -3,8 +3,8 @@
 # the kernel band widths optimized on the original data, and fits the estimated
 # target density with the estimated device density.
 # Kazuyoshi TATSUMI 2023/02/23
-# Rebinning and weights at each bin are added in order to reproduce the results of
-# JPSJ  (2021) T. Yamada et al.. 
+# Rebinning and weights at each bin are added in order to reproduce the
+# results of JPSJ  (2021) T. Yamada et al..
 import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")

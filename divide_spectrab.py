@@ -21,7 +21,12 @@ class SSdivide(sgq):
 
 
 def samplerun():
-    runNo = 6206
+    runNo = 6207
+    pklfile = "run" + str(runNo) + "spectraorg.pkl"
+    SSdivide(pklfile)
+    pklfile = "run" + str(runNo) + "spectrab.pkl"
+    SSdivide(pklfile)
+    runNo = 6204
     pklfile = "run" + str(runNo) + "spectraorg.pkl"
     SSdivide(pklfile)
     pklfile = "run" + str(runNo) + "spectrab.pkl"
