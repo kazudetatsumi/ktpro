@@ -14,7 +14,7 @@ class Sqens_balloon_resamples(qkr):
     def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200,
-                 0.00208], quiet=False, ispltchk=False, isnovariablebw=False):
+                 0.00208], quiet=False, isnovariablebw=False):
         self.runNos = runNos
         self.Nb = Nb
         self.gammas = np.zeros((Nb, 2))
@@ -30,7 +30,6 @@ class Sqens_balloon_resamples(qkr):
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
         self.leastsq = False
-        self.ispltchk = ispltchk
         self.isnovariablebw = isnovariablebw
         self.DefineFiles()
 
@@ -92,6 +91,7 @@ class Sqens_balloon_resamples(qkr):
 
     def eachrunno(self, fidx, inb):
         sy = self.getrsspectra(self.rsfiles[fidx], inb)
+        print("CHECK", len(sy))
         if self.ishist:
             return sy[0], sy[1], sy[2]
         else:
@@ -121,15 +121,23 @@ class Sqens_balloon_resamples(qkr):
             [alpha, gamma, delta, base] = self.outall[-1][0:4]
             yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
             y = yqens + delta*ydl + base
+            #[alpha1, gamma1, alpha2, gamma2,  delta, base] = self.outall[-1][0:6]
+            #yqens1 = alpha1*self.convloreorg(ydlc, gamma1, xdl)
+            #yqens2 = alpha2*self.convloreorg(ydlc, gamma2, xdl)
+            #y = yqens1 + yqens2 + delta*ydl + base
             plt.plot(xdl*1000, y, c='k')
             plt.plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'+str(self.qidx))
             plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+            #plt.plot(xdl*1000, yqens1, ls='dotted', c='k')
+            #plt.plot(xdl*1000, yqens2, ls='dotted', c='gray')
             plt.plot(xdl*1000, y-ytlc)
             plt.plot(xdl*1000, np.zeros_like(xdl))
             plt.ylabel('Intensity (Arb. Units)')
             plt.xlabel(r'$Energy\ (\mu eV)$')
             plt.legend()
-            plt.show()
+            plt.savefig("fitting_result_qidx" + str(self.qidx) + ".png")
+            plt.close()
+            #plt.show()
         #if self.rank == 0:
         #    import matplotlib.pyplot as plt
         #    [alpha, gamma, delta, base] = self.outall[-1][0:4]

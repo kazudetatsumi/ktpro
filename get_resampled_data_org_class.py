@@ -10,8 +10,10 @@
 
 try:
     import Cmm
-except ModuleNotFoundError as err:
-    print(err)
+#except ModuleNotFoundError as err:
+#    print(err)
+except Exception:
+    pass
 import numpy as np
 import pickle
 from get_qlist_nova_class import get_qlist as gq

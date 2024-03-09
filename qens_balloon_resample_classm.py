@@ -56,15 +56,15 @@ class qens_balloon_resamples(sqkr):
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
                      num=self.num, M=self.M, winparam=self.winparam,
                      isnovariablebw=self.isnovariablebw)
-            if self.rank == 0 and self.ispltchk:
-                import matplotlib.pyplot as plt
-                plt.plot(self.y[1], self.y[0])
-                plt.show()
-                if isinstance(self.y[2], np.ndarray):
-                    plt.plot(self.y[1], self.y[2])
-                    plt.show()
-                else:
-                    print('optimized bandwidth is ', self.y[2])
+            #if self.rank == 0 and self.ispltchk:
+            #    import matplotlib.pyplot as plt
+            #    plt.plot(self.y[1], self.y[0])
+            #    plt.show()
+            #    if isinstance(self.y[2], np.ndarray):
+            #        plt.plot(self.y[1], self.y[2])
+            #        plt.show()
+            #    else:
+            #        print('optimized bandwidth is ', self.y[2])
         return self.y
 
 

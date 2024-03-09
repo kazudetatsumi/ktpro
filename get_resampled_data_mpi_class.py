@@ -10,9 +10,11 @@ rank = MPI.COMM_WORLD.Get_rank()
 try:
     import Cmm
     import Manyo
-except ModuleNotFoundError as err:
-    if rank == 0:
-        print(err)
+#except ModuleNotFoundError as err:
+#    if rank == 0:
+#        print(err)
+except Exception:
+    pass
 import numpy as np
 import datetime
 import pickle

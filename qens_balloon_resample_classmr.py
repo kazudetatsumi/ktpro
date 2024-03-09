@@ -13,8 +13,8 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
-                 prefix="./", variables=[0.655, 0.0129, 0.200, 0.00208],
-                 quiet=False):
+                 prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200, 0.00208],
+                 quiet=False, ispltchk=False):
         self.qidx = qidx
         self.runNos = runNos
         self.Nb = Nb
@@ -24,9 +24,10 @@ class qens_balloon_resamples(sqkr):
         self.num = num
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
-        self.prefix = prefix
+        self.prefixes = prefixes
         self.variables = variables
         self.quiet = quiet
+        self.ispltchk = ispltchk
         self.comm = MPI.COMM_WORLD
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
@@ -36,7 +37,7 @@ class qens_balloon_resamples(sqkr):
     def getrsspectra(self, rsfile, inb=0):
         super(sqkr, self).__init__(pklfile=rsfile)
         return self.spectrab[inb, 0, self.qidx],\
-            self.spectrab[inb, 1, self.qidx]
+            self.spectrab[inb, 1, self.qidx], self.spectrab[inb, 2, self.qidx]
 
     def CalcBandW(self, orgfile, inb=0):
         if self.ishist:
@@ -52,7 +53,7 @@ class qens_balloon_resamples(sqkr):
         return self.y
 
     def DoQf(self, inb):
-        #import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         xt, yt = self.rebin(xt, yt)
@@ -68,16 +69,19 @@ class qens_balloon_resamples(sqkr):
         self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
-
-        #[alpha, gamma, delta, base] = self.outall[-1][0:4]
-        #yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        #y = yqens + delta*ydl + base
-        #plt.plot(xdl*1000, y, c='k')
-        #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
-        #plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        #plt.ylabel('Intensity (Arb. Units)')
-        #plt.xlabel(r'$Energy\ (\mu eV)$')
-        #plt.show()
+        [alpha, gamma, delta, base] = self.outall[-1][0:4]
+        yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+        y = yqens + delta*ydl + base
+        plt.plot(xdl*1000, y, c='k')
+        #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
+        plt.plot(xdl*1000, ytlc, marker='o', ms=3., lw=0.5, mfc='None')
+        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        plt.plot(xdl*1000, ytlc - y)
+        plt.plot(xdl*1000, np.zeros_like(xdl))
+        plt.ylabel('Intensity (Arb. Units)')
+        plt.xlabel(r'$Energy\ (\mu eV)$')
+        plt.savefig('fitting_result_qidx' + str(self.qidx) + '.png')
+        plt.close()
 
     def getbins(self):
         bins = []
@@ -87,10 +91,10 @@ class qens_balloon_resamples(sqkr):
         #self.bins = np.arange(-0.03, 0.12025, 0.00025)
         #self.bins = np.arange(-0.03, 0.121, 0.001)
         #self.bins = np.arange(-0.03, 0.121, 0.0005)
-        #self.bins = np.arange(-0.03, 0.122, 0.002)
+        self.bins = np.arange(-0.03, 0.122, 0.002)
         #self.bins = np.arange(-0.03, 0.123, 0.003)
         #self.bins = np.arange(-0.03, 0.122, 0.004)
-        self.bins = np.arange(-0.03, 0.125, 0.001)
+        #self.bins = np.arange(-0.03, 0.125, 0.001)
         #self.bins = np.arange(-0.03, 0.13, 0.01)
         #self.bins = np.arange(-0.03, 0.12125, 0.00275)
 

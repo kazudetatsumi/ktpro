@@ -34,7 +34,7 @@ class qens_model_fit(qbr):
             #"/outhist" + self.runNo + "mrk.pkl"
         #print(self.outfile)
         self.outfile = self.prefix + "/p8/teste/binw0.003/outhist" + self.runNo + "m.pkl"
-        print(self.outfile)
+        #print(self.outfile)
         self.loadfile()
         orghout = self.outall
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
@@ -42,7 +42,7 @@ class qens_model_fit(qbr):
             "me.pkl"
         ###self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
         ###    "m.pkl"
-        print(self.outfile)
+        #print(self.outfile)
         self.loadfile()
         orgkout = self.outall
         self.outfile = self.prefix + "/moni/" + self.nM +"/outkdeionovbw" + self.runNo + "m.pkl"
@@ -225,7 +225,7 @@ class qens_model_fit(qbr):
 
         plt.subplots_adjust(wspace=0.3, hspace=0.0)
         #plt.legend()
-        plt.show()
+        #plt.show()
         #fig2 = plt.figure(figsize=(10, 10))
         #self.plotters(1./self.temps, np.log(self.D), self.stdD/self.D,
         #              ['hist', 'kdeb', 'kde'])

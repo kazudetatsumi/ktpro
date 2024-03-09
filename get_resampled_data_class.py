@@ -8,8 +8,10 @@
 try:
     import Cmm
     import Manyo
-except ModuleNotFoundError as err:
-    print(err)
+#except ModuleNotFoundError as err:
+#    print(err)
+except Exception:
+    pass
 import numpy as np
 import datetime
 import pickle
