@@ -16,11 +16,14 @@ from keras.models import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.optimizers import Adam
 from skimage import metrics
+import tensorflow as tf
 import os
 import pickle
 import numpy as np
 import pickle
 import sys
+import pandas as pd
+import matplotlib.pyplot as plt
 sys.path.append("/home/kazu")
 # importing  a data plotting script written by Hiroyuki AOKI.
 import nr2d
@@ -55,7 +58,7 @@ np.random.seed(314)
 batch_size = 32
 num_classes = 10
 epochs = 100
-saveDir = "/home/kazu/ae/"
+saveDir = "/home/kazu/ae_test/"
 dataDir = "/home/kazu/2D-NR_2frame/"
 gathered_data = dataDir + "gather.pkl"
 if not os.path.isdir(saveDir):
@@ -147,28 +150,59 @@ x = Conv2D(1, (3, 3), padding='same')(x)
 #decoded = Activation('sigmoid')(x)
 decoded = Activation('linear')(x)
 
-model = Model(input_img, decoded)
-model.load_weights(saveDir +
-                   "AutoEncoder_nr_denoise_weights.18-0.00-0.00.hdf5")
 
-model.compile(optimizer='adam', loss='mean_squared_error')
+def custom_loss(y_val, y_pred):
+    loss = tf.reduce_mean(tf.math.abs((y_val - y_pred))**2)
+    loss += 1.*tf.reduce_mean(tf.math.abs((y_pred[:, 1:5] - y_pred[:, 0:4]))**2)
+    return loss
+
+
+model = Model(input_img, decoded)
+#model.load_weights(saveDir +
+#                   "AutoEncoder_nr_denoise_weights.18-0.00-0.00.hdf5")
+#
+#model.compile(optimizer='adam', loss='mean_squared_error')
+model.compile(optimizer='adam', loss=custom_loss, metrics=["mse"])
 model.summary()
 
 
-es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
+es_cb = EarlyStopping(monitor='val_loss', patience=4, verbose=1, mode='auto')
 chkpt = saveDir + 'AutoEncoder_nr_denoise_weights.' +\
         '{epoch:02d}-{loss:.2f}-{val_loss:.2f}.hdf5'
 cp_cb = ModelCheckpoint(filepath=chkpt, monitor='val_loss', verbose=1,
                         save_best_only=True, mode='auto')
 
 # If u need training, uncomment these lines:
-#history = model.fit(x_train_noisy, x_train,
-#                    batch_size=batch_size,
-#                    epochs=epochs,
-#                    verbose=1,
-#                    validation_data=(x_val_noisy, x_val),
-#                    callbacks=[es_cb, cp_cb],
-#                    shuffle=True)
+history = model.fit(x_train_noisy, x_train,
+                    batch_size=batch_size,
+                    epochs=epochs,
+                    verbose=1,
+                    validation_data=(x_val_noisy, x_val),
+                    callbacks=[es_cb, cp_cb],
+                    shuffle=True)
+
+
+def plot_history(history):
+  hist = pd.DataFrame(history.history)
+  hist['epoch'] = history.epoch
+  plt.figure()
+  plt.xlabel('Epoch')
+  plt.ylabel('Custom loss [$MPG^2$]')
+  plt.plot(hist['epoch'], hist['loss'], linewidth=2,
+           label='Train loss')
+  plt.plot(hist['epoch'], hist['val_loss'], linewidth=2,
+           label='Val loss')
+  plt.plot(hist['epoch'], hist['mse'], 'o', linewidth=0.5,
+           label='Train mse')
+  plt.plot(hist['epoch'], hist['val_mse'], 'x', linewidth=0.5,
+           label='Val mse')
+  plt.ylim([0, 0.02])
+  plt.legend()
+  plt.savefig("custom_loss.png")
+  plt.show()
+
+
+plot_history(history)
 
 score = model.evaluate(x_test_noisy, x_test, verbose=1)
 print(score)
