@@ -47,7 +47,7 @@ class Sqens_balloon_resamples(qkr):
             qkr.__init__(self, pklfile=orgfile)
             print(orgfile)
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
-                     num=self.num, M=self.M, winparam=self.winparam,
+                     num=self.num, M=self.M, winparam=self.winparam, WinFunc=self.WinFunc,
                      isnovariablebw=self.isnovariablebw)
         return self.y
 
@@ -59,6 +59,12 @@ class Sqens_balloon_resamples(qkr):
         if isinstance(ky[2], np.ndarray):
             print("balloon estimation for variable bw")
             bw = np.interp(sy[0], ky[1], ky[2])
+            #if self.rank == 0:
+            #    import matplotlib.pyplot as plt
+            #    plt.plot(ky[1], ky[2], label='kde bw')
+            #    plt.plot(sy[0], bw, label='interpolated kde bw')
+            #    plt.legend()
+            #    plt.show()
         else:
             print("balloon estimation for non-variable bw=", ky[2])
             #print("opt bw=0.001056739435852833 just testing")
@@ -118,6 +124,7 @@ class Sqens_balloon_resamples(qkr):
                                           variables=self.variables))
         if self.rank == 0 and self.ispltchk:
             import matplotlib.pyplot as plt
+            fig, ax1 = plt.subplots()
             [alpha, gamma, delta, base] = self.outall[-1][0:4]
             yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
             y = yqens + delta*ydl + base
@@ -125,15 +132,21 @@ class Sqens_balloon_resamples(qkr):
             #yqens1 = alpha1*self.convloreorg(ydlc, gamma1, xdl)
             #yqens2 = alpha2*self.convloreorg(ydlc, gamma2, xdl)
             #y = yqens1 + yqens2 + delta*ydl + base
-            plt.plot(xdl*1000, y, c='k')
-            plt.plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'+str(self.qidx))
-            plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+            ax1.plot(xdl*1000, y, c='k')
+            ax1.plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'+str(self.qidx))
+            ax1.plot(xdl*1000, yqens, ls='dotted', c='k')
             #plt.plot(xdl*1000, yqens1, ls='dotted', c='k')
             #plt.plot(xdl*1000, yqens2, ls='dotted', c='gray')
-            plt.plot(xdl*1000, y-ytlc)
-            plt.plot(xdl*1000, np.zeros_like(xdl))
-            plt.ylabel('Intensity (Arb. Units)')
-            plt.xlabel(r'$Energy\ (\mu eV)$')
+            ax1.plot(xdl*1000, y-ytlc)
+            ax1.plot(xdl*1000, np.zeros_like(xdl))
+            ax1.set_ylabel('Intensity (Arb. Units)')
+            ax1.set_xlabel(r'$Energy\ (\mu eV)$')
+            ax2 = ax1.twinx()
+            ax2.plot(self.kys[0][1]*1000, self.kys[0][2]*1000, c='gray')
+            ax2.plot(self.kys[1][1]*1000, self.kys[1][2]*1000, c='lightgray')
+            ax2.set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+            ax2.set_ylabel(r'$Bandwidth\ (\mu eV)$')
+            ax1.set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
             plt.legend()
             plt.savefig("fitting_result_qidx" + str(self.qidx) + ".png")
             plt.close()
@@ -288,6 +301,10 @@ class Sqens_balloon_resamples(qkr):
         for inb in range(self.Nb):
             self.kys = [self.CalcBandW(orgfile, inb=inb) for orgfile in
                         self.orgfiles]
+            if self.rank == 0 and self.qidx >= 9:
+                import matplotlib.pyplot as plt
+                plt.plot(self.kys[0][1], self.kys[0][0])
+                plt.show()
             self.DoQf(inb)
         self.outall = np.array(self.outall)
         if self.Nb > 1 and self.rank == 0:
