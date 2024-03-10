@@ -10,8 +10,10 @@
 
 try:
     import Cmm
-except ModuleNotFoundError as err:
-    print(err)
+#except ModuleNotFoundError as err:
+#    print(err)
+except Exception:
+    pass
 import numpy as np
 import pickle
 from get_qlist_nova_class import get_qlist as gq
@@ -71,13 +73,15 @@ class Sget_qlist(gq):
         intensity = np.zeros((DATQE.PutSize(), len(DATQE(0).PutYList())))
         ones = np.ones((len(DATQE(0).PutYList())))
         for ecidx in range(0, DATQE.PutSize()):
-            ## Note here we take the lower bound of each energy bin  as omega ##
-            ##  and similarly we take the lower bound of each q bin as q ##
+            # Note here we take the lower bound of each energy bin as omega
+            # and similarly we take the lower bound of each q bin as q
             omega[ecidx, :] = np.array(DATQE(ecidx).PutXList()[:-1])
             q[ecidx, :] = ones*DATQE(ecidx).PutHeader().PutDoubleVector(
                                                                   'XRANGE')[0]
-            #print("CHECK1!!!!!!", ones*DATQE(ecidx).PutHeader().PutDoubleVector('XRANGE')[0])
-            #print("CHECK2!!!!!!", ones*DATQE(ecidx).PutHeader().PutDoubleVector('XRANGE')[1])
+            # print("CHECK1", ones*DATQE(ecidx).PutHeader().PutDoubleVector(
+            # 'XRANGE')[0])
+            # print("CHECK2", ones*DATQE(ecidx).PutHeader().PutDoubleVector(
+            # 'XRANGE')[1])
             intensity[ecidx, :] = np.array(DATQE(ecidx).PutYList())
         dataset = {}
         dataset['omega'] = omega
@@ -103,7 +107,6 @@ class Sget_qlist(gq):
         self.spectrab = np.concatenate((self.spectrab,
                                         self.spectra.reshape(1, 1, -1)),
                                        axis=1)
-
 
 
 def run_org():

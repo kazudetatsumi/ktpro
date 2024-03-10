@@ -170,6 +170,7 @@ class qens:
         if rank == 0:
             print("CHECK winparam:", self.winparam)
             print("CHECK M:", self.M)
+            print("CHECK WinFunc:", self.WinFunc)
         #MPI.COMM_WORLD.barrier()
 
         lib.ssvk(

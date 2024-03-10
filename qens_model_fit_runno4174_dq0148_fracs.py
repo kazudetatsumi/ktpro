@@ -29,18 +29,19 @@ class qens_model_fit(qbr):
         #nM = "n800"
         self.prefix = prepreprefix + "run" + self.runNo + "/"\
             + frac + "/dq0148/"
-        #self.outfile = self.prefix + "/resamples/" + self.rebin +\
-        #    "/outhist" + self.runNo + "mr.pkl"
+        ###self.outfile = self.prefix + "/resamples/" + self.rebin +\
+        ###    "/outhist" + self.runNo + "mr.pkl"
             #"/outhist" + self.runNo + "mrk.pkl"
         #print(self.outfile)
-        self.outfile = self.prefix + "/teste/withcorrection/outhist" + self.runNo + "m.pkl"
+        self.outfile = self.prefix + "/p8/teste/binw0.003/outhist" + self.runNo + "m.pkl"
+        #print(self.outfile)
         self.loadfile()
         orghout = self.outall
         #self.outfile = self.orgprefix + "outkde" + self.runNo + "m.pkl"
-        self.outfile = self.prefix + "/" + self.nM + "/outkde" + self.runNo +\
+        self.outfile = self.prefix + "/p8/resamples/" + self.nM + "/outkde" + self.runNo +\
             "me.pkl"
-        #self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
-        #    "me.pkl"
+        ###self.outfile = self.prefix + "/" + self.nM + "/outkdenovbw" + self.runNo +\
+        ###    "m.pkl"
         #print(self.outfile)
         self.loadfile()
         orgkout = self.outall
@@ -54,15 +55,17 @@ class qens_model_fit(qbr):
         self.outfile = self.prefix + "/resamples/" + self.rebin
         #maskh2, errorh, aveh = self.readerror('histrk', self.runNo)
         maskh2, errorh, aveh = self.readerror('histr', self.runNo)
-        self.outfile = self.prefix + "/resamples/" + self.nM
+        self.outfile = self.prefix + "/p8/resamples/" + self.nM
+        ###self.outfile = self.prefix + "/resamples/" + self.nM
         maskkb2, errorkb, avekb = self.readerror('kdee', self.runNo)
+        ###maskkb2, errorkb, avekb = self.readerror('kdenovbw', self.runNo)
         self.outfile = self.prefix + "/resamples/" + self.nM
         maskk2, errork, avek = self.readerror('kdeionovbw', self.runNo)
         #self.kdefile = self.kdeprefix + "kde3.log"
         #maskk, gammak = self.readlog()
         #stdhes = self.readstdhessfromlog(self.runNo)
         stdhes = self.readstdhessfromorgout(orghout)
-        print("CHECK stdhes:", stdhes)
+        #print("CHECK stdhes:", stdhes)
         return maskh, maskh2, gammah, maskkb, maskkb2, gammakb, maskk, maskk2,\
             gammak, errorh, errorkb, errork, stdhes, aveh, avekb
 
@@ -205,6 +208,11 @@ class qens_model_fit(qbr):
         plt.xlabel('1/T (K)')
         plt.ylabel('lnD')
 
+    def getdifdif(self, pp):
+        dpp = (pp[:-1, 1]-pp[:-1, 0])/pp[:-1, 0]
+        return np.abs(dpp[0]) - np.abs(dpp[1])
+
+
     def run(self):
         fig = plt.figure(figsize=(3*len(self.fracs), 8))
         fig.suptitle("run#" +  self.runNo + ", " + self.rebin + ", " + self.nM)
@@ -212,10 +220,12 @@ class qens_model_fit(qbr):
             #mask = np.ones((self.qsize), dtype=bool)
             #mask[0:2] = False
             self.eachrun(fidx, frac, fig)
+        print("ddD, ddtau (%):", self.getdifdif(self.D)*100,
+              self.getdifdif(self.tau)*100)
 
         plt.subplots_adjust(wspace=0.3, hspace=0.0)
-        plt.legend()
-        plt.show()
+        #plt.legend()
+        #plt.show()
         #fig2 = plt.figure(figsize=(10, 10))
         #self.plotters(1./self.temps, np.log(self.D), self.stdD/self.D,
         #              ['hist', 'kdeb', 'kde'])
@@ -237,8 +247,8 @@ class qens_model_fit(qbr):
         #print(mask, mask2, label)
         #print(gamma)
         #mask[0:2] = True
-        #mask[0:2] = True
-        mask[-2:] = True
+        #mask[0:1] = True
+        mask[-3:] = True
         if self.nM.startswith("n8000"):
             mask3 = gamma < 0.0007
         elif self.nM == "n800":
@@ -283,8 +293,8 @@ class qens_model_fit(qbr):
         self.eachsolution(fig, 1, fidx, frac, gammakb, errorkb[0],
         #self.eachsolution(fig, 1, fidx, frac, gammakb, stdhes,
                           maskkb, maskkb2, 'kdeb')
-        self.eachsolution(fig, 2, fidx, frac, gammak, errork[0],
-                          maskk, maskk2, 'kde')
+        #self.eachsolution(fig, 2, fidx, frac, gammak, errork[0],
+        #                  maskk, maskk2, 'kde')
 
 
 def testrun():
@@ -306,6 +316,7 @@ def testrun():
     #rebin = "rebin_0001_histe"
     #nM = "n200"
     nM = "n8000_M80_w5"
+    ###nM = "n8000"
     #nM = "n200"
     prj = qens_model_fit(runNo, fracs, qsize, rebin, nM)
     prj.run()

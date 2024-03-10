@@ -12,8 +12,8 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 
 class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
-                 ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
-                 orgmodifier="org", prefixes=["./", "./"],
+                 ishist=False, num=6400, M=160, winparam=1, WinFunc='Boxcar',
+                 rsmodifier="b", orgmodifier="org", prefixes=["./", "./"],
                  variables=[0.655, 0.0129, 0.200, 0.00208], quiet=False,
                  ispltchk=False, isnovariablebw=False):
         self.qidx = qidx
@@ -25,6 +25,7 @@ class qens_balloon_resamples(sqkr):
         self.num = num
         self.M = M
         self.winparam = winparam
+        self.WinFunc = WinFunc
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
         self.prefixes = prefixes
@@ -55,16 +56,16 @@ class qens_balloon_resamples(sqkr):
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
                      num=self.num, M=self.M, winparam=self.winparam,
-                     isnovariablebw=self.isnovariablebw)
-            if self.rank == 0 and self.ispltchk:
-                import matplotlib.pyplot as plt
-                plt.plot(self.y[1], self.y[0])
-                plt.show()
-                if isinstance(self.y[2], np.ndarray):
-                    plt.plot(self.y[1], self.y[2])
-                    plt.show()
-                else:
-                    print('optimized bandwidth is ', self.y[2])
+                     WinFunc=self.WinFunc, isnovariablebw=self.isnovariablebw)
+            #if self.rank == 0 and self.ispltchk:
+            #    import matplotlib.pyplot as plt
+            #    plt.plot(self.y[1], self.y[0])
+            #    plt.show()
+            #    if isinstance(self.y[2], np.ndarray):
+            #        plt.plot(self.y[1], self.y[2])
+            #        plt.show()
+            #    else:
+            #        print('optimized bandwidth is ', self.y[2])
         return self.y
 
 

@@ -28,7 +28,7 @@ class qens_balloon_resamples(sqkr):
         self.elim = elim
         self.ishist = ishist
         self.num = num
-        self.M = M 
+        self.M = M
         self.winparam = winparam
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier

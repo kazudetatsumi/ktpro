@@ -95,6 +95,7 @@ class runhistnoidata(qf):
                 #self.modify_out(cyidx, _out[0])
                 self.modify_out(cyidx, _out)
             else:
+                #self.modify_out(cyidx, _out)
                 print(cyidx, 'optimization is not converged..')
 
     def modify_out(self, cyidx, out):
@@ -308,7 +309,7 @@ class runhistnoidata(qf):
         # least_squares
         else:
             bounds = (0, np.inf)
-            out = so.least_squares(self.res, variables, bounds=bounds,
+            out = so.least_squares(self.res, variables, bounds=bounds, #loss='huber', f_scale = 0.005,
                                    args=(x, yd, yt))
             #if self.rank == 0:
             print(out.active_mask, out.success, out.x)
@@ -318,6 +319,7 @@ class runhistnoidata(qf):
             cov = np.absolute(_out[1]*s_sq)
             print("cov**0.5")
             print(cov**0.5)
+            print("cost of least_squares:", out.cost)
             return [out.x, out.success, out.active_mask, cov]
 
     def res(self, coeffs, x, d, t):
