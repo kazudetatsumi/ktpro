@@ -438,8 +438,8 @@ contains
     !expa=-0.5*(w*2*pi*f)**2
     !K = 0.
     !where (expa > -708) K=exp(expa)
+    t=2*pi*f
     if (WinFunc == 'Boxcar') then
-       t=2*pi*f
        a=12**0.5*w
        K(2:)=2*sin(a*t(2:)/2)/(a*t(2:))
        K(1)=1.

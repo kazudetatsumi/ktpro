@@ -119,7 +119,7 @@ class Sqens_balloon_resamples(qkr):
             if np.sum(xtl - xdl) > 0.000001:
                 print('WARNING, check x_tf - x_df')
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
-        self.bg = 0.
+        #self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
         if self.rank == 0 and self.ispltchk:
@@ -138,6 +138,7 @@ class Sqens_balloon_resamples(qkr):
             #plt.plot(xdl*1000, yqens1, ls='dotted', c='k')
             #plt.plot(xdl*1000, yqens2, ls='dotted', c='gray')
             ax1.plot(xdl*1000, y-ytlc)
+            ax1.plot(xdl*1000, np.zeros_like(xdl)+0.005)
             ax1.plot(xdl*1000, np.zeros_like(xdl))
             ax1.set_ylabel('Intensity (Arb. Units)')
             ax1.set_xlabel(r'$Energy\ (\mu eV)$')
@@ -301,7 +302,7 @@ class Sqens_balloon_resamples(qkr):
         for inb in range(self.Nb):
             self.kys = [self.CalcBandW(orgfile, inb=inb) for orgfile in
                         self.orgfiles]
-            if self.rank == 0 and self.qidx >= 9:
+            if self.rank == 0 and self.qidx >= 12:
                 import matplotlib.pyplot as plt
                 plt.plot(self.kys[0][1], self.kys[0][0])
                 plt.show()
