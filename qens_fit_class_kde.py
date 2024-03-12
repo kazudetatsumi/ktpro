@@ -6,6 +6,7 @@ from ctypes import *
 from mpi4py import MPI
 sys.path.append("/home/kazu/ktpro")
 from qens_class_fort_mpi import qens as qc
+#from qens_class import qens as qc
 from qens_fit_class_hist_noidata  import runhistnoidata as rhn
 
 

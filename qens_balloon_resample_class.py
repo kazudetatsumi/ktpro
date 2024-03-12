@@ -165,6 +165,27 @@ class Sqens_balloon_resamples(qkr):
         #    plt.xlabel(r'$Energy\ (\mu eV)$')
         #    plt.show()
 
+    def DoQfandKDE(self, inb):
+        xt, yt, yth = self.eachrunno(0, inb)
+        xd, yd, ydh = self.eachrunno(1, inb)
+        self.icorr()
+        xtl, ytl = self.limit2(xt, yt, self.elim)
+        xdl, ydl = self.limit2(xd, yd, self.elim)
+        if inb == 0 and self.rank == 0:
+            if np.sum(xtl - xdl) > 0.000001:
+                print('WARNING, check x_tf - x_df')
+        ydlc, ytlc = self.correction(xtl, ydl, ytl)
+        #self.bg = 0.
+        self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
+                                          variables=self.variables))
+        if self.rank == 0 and self.ispltchk:
+            import matplotlib.pyplot as plt
+            fig, ax1 = plt.subplots()
+            [alpha, gamma, delta, base] = self.outall[-1][0:4]
+            yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+            y = yqens + delta*ydl + base
+            plt.plot(xdl*1000, y)
+
     def DoQfio(self, inb):
         self.icorr()
         print("CHKKK", self.elim)

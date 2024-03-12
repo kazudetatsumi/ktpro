@@ -125,9 +125,9 @@ class qens:
         self.tin_real = np.linspace(self.selected_energy[0],
                                     self.selected_energy[-1], num=num)
         print('CHECK TIN_REAL:', self.tin_real[0:3], self.tin_real[-3:])
-        if rank == 0 and not self.quiet:
-            print('number of tin_real elements =', self.tin_real.shape[0])
-
+        if hasattr(self, 'quiet'):
+            if rank == 0 and not self.quiet:
+                print('number of tin_real elements =', self.tin_real.shape[0])
         if self.WinFunc=='Boxcar':
             WinFuncNo=1
         if self.WinFunc=='Gauss':

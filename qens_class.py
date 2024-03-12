@@ -169,7 +169,8 @@ class qens:
         self.xvec_real += self.shift*self.de
         #print(self.xvec[0:30])
 
-    def run_ssvkernel(self):
+    def run_ssvkernel(self, num=800, isnovariablebw=False):
+        #self.optsm = True
         if self.optsm:
             tinmax = 10.**int(np.log10(self.selected_spectra.shape[0])+1.)
             self.tin = np.linspace(0.0, tinmax, int(tinmax)*2+1)
@@ -184,8 +185,8 @@ class qens:
                   self.selected_energy[0], "num channels=", self.tin.shape[0])
             self.tin_real = np.linspace(self.selected_energy[0],
                                         self.selected_energy[-1],
-                                        #num=self.selected_spectra.shape[0])
-                                        num=800)
+                                        num=self.selected_spectra.shape[0])
+                                        #num=800)
                                         #num=8000)
                                         #num=66670)
                                         #num=200000)

@@ -23,22 +23,15 @@ class runhistnoidata(qf):
         self.numcycle = numcycle
         self.leastsq = leastsq
 
-    def get_xmlyd(self):
+    def get_xmlyd(self, variables=[0.54e-00, 2.7e-02,
+                                   3.5e-01, 7.0e-03,
+                                   0.18e+00, 1.9e-02]):
         x, yd, yt = self.preprocess()
         # normalization
         dx = x[1] - x[0]
         yd = yd / np.sum(yd) / dx
         yt = yt / np.sum(yt) / dx
-        _out = self.optimize(x, yd, yt,
-#                            variables=[2.18704786e-04, 1.67980295e-02,
-#                                       4.92405238e-05, 1.88866588e-03,
-#                                       1.21127501e-01, 5.02759930e-02])
-                            #variables=[0.59704786e-00, 2.67980295e-02,
-                            #           3.82405238e-01, 7.88866588e-03,
-                            #           0.21127501e+00, 1.82759930e-02])
-                            variables=[0.54e-00, 2.7e-02,
-                                       3.5e-01, 7.0e-03,
-                                       0.18e+00, 1.9e-02])
+        _out = self.optimize(x, yd, yt, variables=variables)
         print(_out[0])
         self.ml = self.reconstruct(x, yd, _out[0])
         self.yd = yd
@@ -53,34 +46,21 @@ class runhistnoidata(qf):
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         return xtl, ydlc, ytlc
 
-    def cycle(self):
+    def cycle(self, variables=[6.2e+01, 2.7e-02,
+                               2.5e+01, 7.0e-03,
+                               2.0e+01, 4.0e+01]):
         self.outall = []
         for cyidx in range(0, self.numcycle):
             simd, simt = self.generate_data()
-            # normalization
-            # dx = self.x[1] - self.x[0]
-            # simd = simd / np.sum(simd) / dx
-            # simt = simt / np.sum(simt) / dx * 100.
-            # rebinning
-            tin_real, simdr = self.rebin_generated_samples(self.x, simd, num=480)
-            tin_real, simtr = self.rebin_generated_samples(self.x, simt, num=480)
+            tin_real, simdr = self.rebin_generated_samples(self.x, simd,
+                                                           num=480)
+            tin_real, simtr = self.rebin_generated_samples(self.x, simt,
+                                                           num=480)
             dx = tin_real[1] - tin_real[0]
             simdr = simdr / np.sum(simdr) / dx
             simtr = simtr / np.sum(simtr) / dx * 100.
             _out = self.optimize(tin_real, simdr, simtr,
-            # out = self.optimize(self.x, simd, simt,
-#                                 variables=[1.73704786e-05, 2.66580295e-02,
-#                                           9.96405238e-06, 7.00766588e-03,
-#                                           2.00077501e-01, 1.78759930e-01])
-                                #variables=[0.18704786e-00, 2.67980295e-02,
-                                #           1.02405238e-01, 6.48866588e-03,
-                                #           0.06127501e+00, 0.13759930e-00])
-                                #variables=[0.7e-00, 2.6e-02,
-                                #           2.3e-01, 7.0e-03,
-                                #           0.17e+00, 0.38e-00])
-                                variables=[6.2e+01, 2.7e-02,
-                                           2.5e+01, 7.0e-03,
-                                           2.0e+01, 4.0e+01])
+                                 variables=variables)
             self.check_out(cyidx, _out)
 
     def check_out(self, cyidx, _out):
