@@ -7,7 +7,7 @@ import numpy as np
 import sys
 sys.path.append("/home/kazu/ktpro")
 from qens_balloon_resample_classm import qens_balloon_resamples as qbr
-from qens_balloon_resample_org_classm_class import qens_org_classm as qoc
+#from qens_balloon_resample_org_classm_class import qens_org_classm as qoc
 np.set_printoptions(suppress=True)
 
 
@@ -45,7 +45,7 @@ class qens_org_classm(qbr):
     def run_for_mqs(self):
         for qidx in range(self.qsize):
             print("CHECK qidx:", qidx)
-            self.qidx = qidx
+            self.qidx = qidx + 9
             if "kdeio" in self.outfile:
                 self.run_eachkde_io()
             else:
@@ -73,6 +73,7 @@ class qens_org_classm(qbr):
             self.output()
 
     def DoQfandKDE(self, inb):
+        print("ENTERING DoAfandKDE")
         xt, yt, yth = self.eachrunno(0, inb)
         xd, yd, ydh = self.eachrunno(1, inb)
         self.icorr()
@@ -88,8 +89,29 @@ class qens_org_classm(qbr):
         [alpha, gamma, delta, base] = self.outall[-1][0:4]
         yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
         y = yqens + delta*ydl + base
-        _yd, _y = self.decorrection(xtl, ydlc, y)
-        print("CHECKNPSUM", np.sum(_y))
+        #_yqens, _y = self.decorrection(xtl, yqens, y)
+        #_ydlc, _ytlc = self.decorrection(xtl, ydlc, ytlc)
+        self.ml = y
+        self.yd = ydlc
+        self.alpha = 0.03375
+        np.random.seed(100)
+        ml_data = np.zeros_like(self.ml)
+        if self.rank == 0:
+            yd_data, ml_data = self.generate_data()
+        #yd_data, ml_data = self.correction(xtl, yd_data, ml_data)
+        from mpi4py import MPI
+        ml_data = MPI.COMM_WORLD.bcast(ml_data)
+        self.kde(xtl, ml_data, M=self.M, winparam=self.winparam, num=self.num,
+                 WinFunc=self.WinFunc, isnovariablebw=False)
+        if self.rank == 0:
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(2, 1)
+            ax[0].plot(xtl, self.ml/np.max(self.ml))
+            ax[0].plot(self.y[1], self.y[0]/np.max(self.y[0]))
+            ax[1].plot(xtl, ml_data, marker='.', linewidth=0, ms=0.4)
+            plt.savefig('kde_check.png')
+            plt.show()
+
 
 
 def run():
@@ -103,14 +125,14 @@ def run():
     qsize = 12
     qsize = 1
     num = 8000
-    M = 40
+    M = 80
     winparam = 5
     WinFunc = 'Boxcar'
     ispltchk = True
     isnovariablebw = False
-    prj = qoc(qidx, qsize, elim=elim, runNos=runNos, ishist=ishist,
-              num=num, M=M, winparam=winparam, WinFunc=WinFunc,
-              ispltchk=ispltchk, isnovariablebw=isnovariablebw)
+    prj = qens_org_classm(qidx, qsize, elim=elim, runNos=runNos, ishist=ishist,
+                          num=num, M=M, winparam=winparam, WinFunc=WinFunc,
+                          ispltchk=ispltchk, isnovariablebw=isnovariablebw)
     prj.run_for_mqs()
 
 
