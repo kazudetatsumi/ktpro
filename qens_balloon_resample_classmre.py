@@ -43,8 +43,8 @@ class qens_balloon_resamples(sqkr):
 
     def getrsspectra(self, rsfile, inb=0):
         #super(sqkr, self).__init__(pklfile=rsfile)
-        self.pklfile = rsfile
-        self.load_pkl()
+        #self.pklfile = rsfile
+        self.load_pkl(rsfile)
         print("getrsspectra: chkm slicing spectrab at qidx 0, 1, 3")
         if self.usestdfromorge:
             return self.spectrab[inb, 0, self.qidx],\
@@ -61,7 +61,8 @@ class qens_balloon_resamples(sqkr):
                 print("skipping KDE because ishist", self.ishist)
             self.y = "dummy"
         else:
-            super(sqkr, self).__init__(pklfile=orgfile)
+            #super(sqkr, self).__init__(pklfile=orgfile)
+            self.load_pkl(orgfile)
             print("CalcBandW: chkm slicing spectrab at qidx")
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
@@ -110,9 +111,10 @@ class qens_balloon_resamples(sqkr):
         #plt.errorbar(xdl*1000, ytlc, yerr=etl, marker='o', ms=2., lw=0, elinewidth=1 )
         plt.errorbar(xdl*1000, ytlc, yerr=etlc, marker='o', ms=3., lw=0.5,
                      elinewidth=1, mfc='None')
-        plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        plt.plot(xdl*1000, ytlc - y)
-        plt.plot(xdl*1000, np.zeros_like(xdl))
+        #plt.plot(xdl*1000, yqens, ls='dotted', c='k')
+        #plt.plot(xdl*1000, ytlc - y)
+        #plt.plot(xdl*1000, np.zeros_like(xdl))
+        plt.yscale('log')
         plt.ylabel('Intensity (Arb. Units)')
         plt.xlabel(r'$Energy\ (\mu eV)$')
         plt.savefig('fitting_result_qidx' + str(self.qidx) + '.png')

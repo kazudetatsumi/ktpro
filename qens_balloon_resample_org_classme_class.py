@@ -16,8 +16,8 @@ class qens_org_classm(qbr):
     def __init__(self, qidx, qsize, elim=[-0.03, 0.07], rsmodifier="org",
                  ishist=True, orgmodifier="org", variables=[0.655, 0.0129,
                  0.200, 0.00208], prefixes=["./", "./"], num=6400, M=160,
-                 winparam=1, quiet=True, io=False, runNos=[6206, 6204],
-                 ispltchk=False, isnovariablebw=False):
+                 winparam=1, WinFunc='Boxcar', quiet=True, io=False,
+                 runNos=[6206, 6204], ispltchk=False, isnovariablebw=False):
         self.qsize = qsize
         Nb = 1
         if ishist:
@@ -35,9 +35,10 @@ class qens_org_classm(qbr):
                     self.outfile = "outkde" + str(runNos[0]) + "me.pkl"
         qbr.__init__(self, qidx, runNos=runNos, elim=elim, Nb=Nb,
                      ishist=ishist, num=num, M=M, winparam=winparam,
-                     rsmodifier=rsmodifier, orgmodifier=orgmodifier,
-                     prefixes=prefixes, variables=variables, quiet=quiet,
-                     ispltchk=ispltchk, isnovariablebw=isnovariablebw)
+                     WinFunc=WinFunc, rsmodifier=rsmodifier,
+                     orgmodifier=orgmodifier, prefixes=prefixes,
+                     variables=variables, quiet=quiet, ispltchk=ispltchk,
+                     isnovariablebw=isnovariablebw)
 
     def run_for_mqs(self):
         for qidx in range(self.qsize):

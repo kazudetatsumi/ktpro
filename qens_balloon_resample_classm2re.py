@@ -78,8 +78,8 @@ class Sqens_balloon_resamples(qkr):
 
     def getrsspectra(self, rsfile, inb=0):
         #super(sqkr, self).__init__(pklfile=rsfile)
-        self.pklfile = rsfile
-        self.load_pkl()
+        #self.pklfile = rsfile
+        self.load_pkl(rsfile)
         print("getrsspectra: chkm slicing spectrab at qidx 0, 1, 2")
         return self.spectrab[inb, 0], self.spectrab[inb, 1],\
             self.spectrab[inb, 2]

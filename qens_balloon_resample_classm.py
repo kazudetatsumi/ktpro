@@ -40,7 +40,8 @@ class qens_balloon_resamples(sqkr):
         self.DefineFiles()
 
     def getrsspectra(self, rsfile, inb=0):
-        super(sqkr, self).__init__(pklfile=rsfile)
+        #super(sqkr, self).__init__(pklfile=rsfile)
+        self.load_pkl(rsfile)
         print("getrsspectra: chkm slicing spectrab at qidx")
         # altered the retrun in order to fit to the script
         # qens_balloon_resmaple_org_classm_class.py
@@ -56,7 +57,8 @@ class qens_balloon_resamples(sqkr):
                 print("skipping KDE because ishist", self.ishist)
             self.y = "dummy"
         else:
-            super(sqkr, self).__init__(pklfile=orgfile)
+            #super(sqkr, self).__init__(pklfile=orgfile)
+            self.load_pkl(orgfile)
             print("CalcBandW: chkm slicing spectrab at qidx")
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],

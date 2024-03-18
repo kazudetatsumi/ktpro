@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-
 def highResPoints(x, y, factor=10):
     '''
     Take points listed in two vectors and return them at a higher
@@ -12,7 +11,7 @@ def highResPoints(x, y, factor=10):
 
     Returns new x and y arrays as a tuple (x,y).
     '''
-
+    print("test")
     # r is the distance spanned between pairs of points
     r = [0]
     for i in range(1, len(x)):

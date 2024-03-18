@@ -13,7 +13,7 @@ class SSget_qlist(sgq):
     def __init__(self, runNo, TimeParam, qmin, qmax, maskfile="maskTY140218ForAfterRun52.txt"):
         super().__init__(pklfile="run" + str(runNo) + "spectraorg.pkl", maskfile=maskfile)
         self.get_org_data("0.000025", runNo, TimeParam=TimeParam)
-        #self.get_org_data("0.025", runNo, TimeParam=TimeParam)
+        #self.get_org_data("0.001", runNo, TimeParam=TimeParam)
         self.get_org_spectra(qmin, qmax)
 
 

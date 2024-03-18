@@ -17,8 +17,8 @@ from qens_balloon_resample_class import Sqens_balloon_resamples as sqkr
 
 class qens_balloon_resamples(sqkr):
     def __init__(self, qidx, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
-                 ishist=False, num=6400, M=160, winparam=1, rsmodifier="b",
-                 orgmodifier="orge", prefixes=["./", "./"],
+                 ishist=False, num=6400, M=160, winparam=1, WinFunc='Boxcar',
+                 rsmodifier="b", orgmodifier="orge", prefixes=["./", "./"],
                  variables=[0.655, 0.0129, 0.200, 0.00208], quiet=False,
                  ispltchk=False, isnovariablebw=False):
         self.qidx = qidx
@@ -30,6 +30,7 @@ class qens_balloon_resamples(sqkr):
         self.num = num
         self.M = M
         self.winparam = winparam
+        self.WinFunc = WinFunc
         self.rsmodifier = rsmodifier
         self.orgmodifier = orgmodifier
         self.prefixes = prefixes
@@ -44,7 +45,8 @@ class qens_balloon_resamples(sqkr):
         self.DefineFiles()
 
     def getrsspectra(self, rsfile, inb=0):
-        super(sqkr, self).__init__(pklfile=rsfile)
+        #super(sqkr, self).__init__(pklfile=rsfile)
+        self.load_pkl(rsfile)
         print("getrsspectra: chkm slicing spectrab at qidx")
         return self.spectrab[inb, 0, self.qidx],\
             self.spectrab[inb, 1, self.qidx],\
@@ -56,7 +58,8 @@ class qens_balloon_resamples(sqkr):
                 print("skipping KDE because ishist", self.ishist)
             self.y = "dummy"
         else:
-            super(sqkr, self).__init__(pklfile=orgfile)
+            #super(sqkr, self).__init__(pklfile=orgfile)
+            self.load_pkl(rsfile)
             print("CalcBandW: chkm slicing spectrab at qidx")
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],

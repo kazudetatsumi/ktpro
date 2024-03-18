@@ -11,12 +11,11 @@ from qens_balloon_resample_classm2 import Sqens_balloon_resamples as qbr
 
 class Sqbr(qbr):
     def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
-                 elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
-                 binwidth=0.00025, ishist=False, num=6400, M=160, winparam=1,
-                 isnovariablebw=False):
+                 elim=[-0.03, 0.07], ishist=False, num=6400, M=160, winparam=1,
+                 WinFunc='Boxcar', isnovariablebw=False):
         super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
                          ishist=ishist, num=num, M=M, winparam=winparam,
-                         isnovariablebw=isnovariablebw)
+                         WinFunc=WinFunc, isnovariablebw=isnovariablebw)
         self.CI_of_intensities()
         if self.rank == 0:
             self.outfile = outfile
@@ -31,9 +30,8 @@ def testrun():
     elim = [-0.03, 0.07]
     # binwidth1 = 0.0005
     # binwidth2 = 0.0005
-    binwidth = 0.00025
     qidx = 0
-    Sqbr(qidx, outfile, Nb, runNos=runNos, elim=elim, binwidth=binwidth)
+    Sqbr(qidx, outfile, Nb, runNos=runNos, elim=elim)
 
 
 # testrun()

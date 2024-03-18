@@ -37,7 +37,8 @@ class qens_balloon_resamples(sqkr):
         self.DefineFiles()
 
     def getrsspectra(self, rsfile, inb=0):
-        super(sqkr, self).__init__(pklfile=rsfile)
+        #super(sqkr, self).__init__(pklfile=rsfile)
+        self.load_pkl(rsfile)
         print("getrsspectra: chkm slicing spectrab at qidx")
         return self.spectrab[inb, 0, self.qidx],\
             self.spectrab[inb, 1, self.qidx]
@@ -53,7 +54,8 @@ class qens_balloon_resamples(sqkr):
         #    self.spectrab = self.spectrab[:, :, self.qidx, :]
         #    self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
         #             num=self.num)
-        super(sqkr, self).__init__(pklfile=orgfile)
+        #super(sqkr, self).__init__(pklfile=orgfile)
+        self.load_pkl(orgfile)
         print("CalcBandW: chkm slicing spectrab at qidx")
         self.spectrab = self.spectrab[:, :, self.qidx, :]
         self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],

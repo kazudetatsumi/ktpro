@@ -5,12 +5,14 @@
 # Kazuyoshi TATSUMI 2023/02/23
 import numpy as np
 import sys
+import pickle
 sys.path.append("/home/kazu/ktpro")
 from mpi4py import MPI
-from qens_kde_resampled import qens_kde_resampled as qkr
+#from qens_kde_resampled import qens_kde_resampled as qkr
+from qens_fit_class_kde import runkdenoidata as rkn
 
 
-class Sqens_balloon_resamples(qkr):
+class Sqens_balloon_resamples(rkn):
     def __init__(self, runNos=[6202, 6204], elim=[-0.03, 0.07], Nb=1,
                  ishist=False, num=6400, rsmodifier="b", orgmodifier="org",
                  prefixes=["./", "./"], variables=[0.655, 0.0129, 0.200,
@@ -33,8 +35,13 @@ class Sqens_balloon_resamples(qkr):
         self.isnovariablebw = isnovariablebw
         self.DefineFiles()
 
+    def load_pkl(self, pklfile):
+        with open(pklfile, 'rb') as f:
+            self.spectrab = pickle.load(f)
+
     def getrsspectra(self, rsfile, inb=0):
-        qkr.__init__(self, pklfile=rsfile)
+        #qkr.__init__(self, pklfile=rsfile)
+        self.load_pkl(rsfile)
         return self.spectrab[inb, 0, :], self.spectrab[inb, 1, :],\
             self.spectrab[inb, 2, :]
 
@@ -44,11 +51,12 @@ class Sqens_balloon_resamples(qkr):
                 print("skipping KDE because ishist", self.ishist)
             self.y = "dummy"
         else:
-            qkr.__init__(self, pklfile=orgfile)
+            #qkr.__init__(self, pklfile=orgfile)
+            self.load_pkl(orgfile)
             print(orgfile)
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
-                     num=self.num, M=self.M, winparam=self.winparam, WinFunc=self.WinFunc,
-                     isnovariablebw=self.isnovariablebw)
+                     num=self.num, M=self.M, winparam=self.winparam,
+                     WinFunc=self.WinFunc, isnovariablebw=self.isnovariablebw)
         return self.y
 
     def balloon(self, ky, sy):
@@ -111,20 +119,26 @@ class Sqens_balloon_resamples(qkr):
 
     def DoQf(self, inb):
         xt, yt, yth = self.eachrunno(0, inb)
-        xd, yd, ydh = self.eachrunno(1, inb)
-        self.icorr()
         xtl, ytl = self.limit2(xt, yt, self.elim)
+        # _yth is the qens histogram of the target spectrum
+        _xt, _yth = self.limit2(xt, yth, self.elim)
+        # _yth2 is the nueutron count distribution of the target spectrum
+        _xt, _yth2 = self.limit2(self.spectrab[inb, 0, self.qidx],
+                                 self.spectrab[inb, 2, self.qidx], self.elim)
+        xd, yd, ydh = self.eachrunno(1, inb)
         xdl, ydl = self.limit2(xd, yd, self.elim)
         if inb == 0 and self.rank == 0:
             if np.sum(xtl - xdl) > 0.000001:
                 print('WARNING, check x_tf - x_df')
+        self.icorr()
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
         #self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
+
         if self.rank == 0 and self.ispltchk:
             import matplotlib.pyplot as plt
-            fig, ax1 = plt.subplots()
+            fig, ax1 = plt.subplots(3, 1, figsize=(15, 12))
             [alpha, gamma, delta, base] = self.outall[-1][0:4]
             yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
             y = yqens + delta*ydl + base
@@ -132,23 +146,32 @@ class Sqens_balloon_resamples(qkr):
             #yqens1 = alpha1*self.convloreorg(ydlc, gamma1, xdl)
             #yqens2 = alpha2*self.convloreorg(ydlc, gamma2, xdl)
             #y = yqens1 + yqens2 + delta*ydl + base
-            ax1.plot(xdl*1000, y, c='k')
-            ax1.plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'+str(self.qidx))
-            ax1.plot(xdl*1000, yqens, ls='dotted', c='k')
+            ax1[0].plot(xdl*1000, y, c='k')
+            ax1[0].plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'
+                           + str(self.qidx))
+            #ax1[0].plot(xdl*1000, yqens, ls='dotted', c='k')
             #plt.plot(xdl*1000, yqens1, ls='dotted', c='k')
             #plt.plot(xdl*1000, yqens2, ls='dotted', c='gray')
-            ax1.plot(xdl*1000, y-ytlc)
-            ax1.plot(xdl*1000, np.zeros_like(xdl)+0.005)
-            ax1.plot(xdl*1000, np.zeros_like(xdl))
-            ax1.set_ylabel('Intensity (Arb. Units)')
-            ax1.set_xlabel(r'$Energy\ (\mu eV)$')
-            ax2 = ax1.twinx()
+            #ax1[0].plot(xdl*1000, y-ytlc)
+            #ax1.plot(xdl*1000, np.zeros_like(xdl)+0.005)
+            #ax1[0].plot(xdl*1000, np.zeros_like(xdl))
+            ax1[0].set_yscale('log')
+            ax1[0].set_ylabel('Intensity (Arb. Units)')
+            ax1[0].set_xlabel(r'$Energy\ (\mu eV)$')
+            ax2 = ax1[0].twinx()
             ax2.plot(self.kys[0][1]*1000, self.kys[0][2]*1000, c='gray')
             ax2.plot(self.kys[1][1]*1000, self.kys[1][2]*1000, c='lightgray')
             ax2.set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
             ax2.set_ylabel(r'$Bandwidth\ (\mu eV)$')
-            ax1.set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
-            plt.legend()
+            ax1[0].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+            ax1[1].plot(_xt*1000, _yth, marker='.', linewidth=0., markersize=0.4, label='Target QENS HIST')
+            ax1[1].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+            ax1[2].plot(_xt*1000, _yth2, marker='.', linewidth=0., markersize=0.4, label='Target neutron count ditr.')
+            ax1[2].text(np.max(_xt)*0.6*1000, np.max(_yth2)*0.8, 'total count:'+str(np.sum(_yth2)))
+            ax1[2].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+            ax1[0].legend()
+            ax1[1].legend()
+            ax1[2].legend()
             plt.savefig("fitting_result_qidx" + str(self.qidx) + ".png")
             plt.close()
             #plt.show()
