@@ -120,11 +120,15 @@ class Sqens_balloon_resamples(rkn):
     def DoQf(self, inb):
         xt, yt, yth = self.eachrunno(0, inb)
         xtl, ytl = self.limit2(xt, yt, self.elim)
-        # _yth is the qens histogram of the target spectrum
-        _xt, _yth = self.limit2(xt, yth, self.elim)
-        # _yth2 is the nueutron count distribution of the target spectrum
-        _xt, _yth2 = self.limit2(self.spectrab[inb, 0, self.qidx],
-                                 self.spectrab[inb, 2, self.qidx], self.elim)
+        # If self. Nb > 1 then we gather results on many resampled data sets
+        # and the figure plot is omitted.
+        if self.Nb == 1:
+            # _yth is the qens histogram of the target spectrum
+            _xt, _yth = self.limit2(xt, yth, self.elim)
+            # _yth2 is the nueutron count distribution of the target spectrum
+            _xt, _yth2 = self.limit2(self.spectrab[inb, 0, self.qidx],
+                                     self.spectrab[inb, 2, self.qidx],
+                                     self.elim)
         xd, yd, ydh = self.eachrunno(1, inb)
         xdl, ydl = self.limit2(xd, yd, self.elim)
         if inb == 0 and self.rank == 0:
@@ -132,61 +136,41 @@ class Sqens_balloon_resamples(rkn):
                 print('WARNING, check x_tf - x_df')
         self.icorr()
         ydlc, ytlc = self.correction(xtl, ydl, ytl)
-        #self.bg = 0.
         self.check_out(inb, self.optimize(xdl, ydlc, ytlc,
                                           variables=self.variables))
-
-        if self.rank == 0 and self.ispltchk:
-            import matplotlib.pyplot as plt
-            fig, ax1 = plt.subplots(3, 1, figsize=(15, 12))
-            [alpha, gamma, delta, base] = self.outall[-1][0:4]
-            yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-            y = yqens + delta*ydl + base
-            #[alpha1, gamma1, alpha2, gamma2,  delta, base] = self.outall[-1][0:6]
-            #yqens1 = alpha1*self.convloreorg(ydlc, gamma1, xdl)
-            #yqens2 = alpha2*self.convloreorg(ydlc, gamma2, xdl)
-            #y = yqens1 + yqens2 + delta*ydl + base
-            ax1[0].plot(xdl*1000, y, c='k')
-            ax1[0].plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'
-                           + str(self.qidx))
-            #ax1[0].plot(xdl*1000, yqens, ls='dotted', c='k')
-            #plt.plot(xdl*1000, yqens1, ls='dotted', c='k')
-            #plt.plot(xdl*1000, yqens2, ls='dotted', c='gray')
-            #ax1[0].plot(xdl*1000, y-ytlc)
-            #ax1.plot(xdl*1000, np.zeros_like(xdl)+0.005)
-            #ax1[0].plot(xdl*1000, np.zeros_like(xdl))
-            ax1[0].set_yscale('log')
-            ax1[0].set_ylabel('Intensity (Arb. Units)')
-            ax1[0].set_xlabel(r'$Energy\ (\mu eV)$')
-            ax2 = ax1[0].twinx()
-            ax2.plot(self.kys[0][1]*1000, self.kys[0][2]*1000, c='gray')
-            ax2.plot(self.kys[1][1]*1000, self.kys[1][2]*1000, c='lightgray')
-            ax2.set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
-            ax2.set_ylabel(r'$Bandwidth\ (\mu eV)$')
-            ax1[0].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
-            ax1[1].plot(_xt*1000, _yth, marker='.', linewidth=0., markersize=0.4, label='Target QENS HIST')
-            ax1[1].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
-            ax1[2].plot(_xt*1000, _yth2, marker='.', linewidth=0., markersize=0.4, label='Target neutron count ditr.')
-            ax1[2].text(np.max(_xt)*0.6*1000, np.max(_yth2)*0.8, 'total count:'+str(np.sum(_yth2)))
-            ax1[2].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
-            ax1[0].legend()
-            ax1[1].legend()
-            ax1[2].legend()
-            plt.savefig("fitting_result_qidx" + str(self.qidx) + ".png")
-            plt.close()
-            #plt.show()
-        #if self.rank == 0:
-        #    import matplotlib.pyplot as plt
-        #    [alpha, gamma, delta, base] = self.outall[-1][0:4]
-        #    yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
-        #    y = yqens + delta*ydl + base
-        #    plt.plot(xdl*1000, y, c='k')
-        ##    #plt.scatter(xdl*1000, ytlc, marker='o', s=18, fc='None', ec='k')
-        #    plt.plot(xdl*1000, ytlc, c='b')
-        #    plt.plot(xdl*1000, yqens, ls='dotted', c='k')
-        #    plt.ylabel('Intensity (Arb. Units)')
-        #    plt.xlabel(r'$Energy\ (\mu eV)$')
-        #    plt.show()
+        if self.Nb == 1:
+            if self.rank == 0 and self.ispltchk:
+                import matplotlib.pyplot as plt
+                fig, ax1 = plt.subplots(3, 1, figsize=(15, 12))
+                [alpha, gamma, delta, base] = self.outall[-1][0:4]
+                yqens = alpha*self.convloreorg(ydlc, gamma, xdl)
+                y = yqens + delta*ydl + base
+                ax1[0].plot(xdl*1000, y, c='k')
+                ax1[0].plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'
+                            + str(self.qidx))
+                ax1[0].set_yscale('log')
+                ax1[0].set_ylabel('Intensity (Arb. Units)')
+                ax1[0].set_xlabel(r'$Energy\ (\mu eV)$')
+                ax2 = ax1[0].twinx()
+                ax2.plot(self.kys[0][1]*1000, self.kys[0][2]*1000, c='gray')
+                ax2.plot(self.kys[1][1]*1000, self.kys[1][2]*1000,
+                         c='lightgray')
+                ax2.set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+                ax2.set_ylabel(r'$Bandwidth\ (\mu eV)$')
+                ax1[0].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+                ax1[1].plot(_xt*1000, _yth, marker='.', linewidth=0.,
+                            markersize=0.4, label='Target QENS HIST')
+                ax1[1].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+                ax1[2].plot(_xt*1000, _yth2, marker='.', linewidth=0.,
+                            markersize=0.4, label='Target neutron count ditr.')
+                ax1[2].text(np.max(_xt)*0.6*1000, np.max(_yth2)*0.8,
+                            'total count:'+str(np.sum(_yth2)))
+                ax1[2].set_xlim([np.min(xdl)*1000, np.max(xdl)*1000])
+                ax1[0].legend()
+                ax1[1].legend()
+                ax1[2].legend()
+                plt.savefig("fitting_result_qidx" + str(self.qidx) + ".png")
+                plt.close()
 
     def DoQfandKDE(self, inb):
         xt, yt, yth = self.eachrunno(0, inb)

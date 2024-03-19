@@ -59,7 +59,7 @@ class qens_balloon_resamples(sqkr):
             self.y = "dummy"
         else:
             #super(sqkr, self).__init__(pklfile=orgfile)
-            self.load_pkl(rsfile)
+            self.load_pkl(orgfile)
             print("CalcBandW: chkm slicing spectrab at qidx")
             self.spectrab = self.spectrab[:, :, self.qidx, :]
             self.kde(self.spectrab[inb, 0, :], self.spectrab[inb, 2, :],
