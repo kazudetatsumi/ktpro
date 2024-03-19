@@ -84,8 +84,10 @@ else:
         datasets = pickle.load(f)
     num_data = datasets['target'].shape[0]
 
-datasets['target'] = np.log(datasets['target'] + 1.)
-datasets['noisy'] = np.log(datasets['noisy'] + 1.)
+#datasets['target'] = np.log(datasets['target'] + 1.)
+#datasets['noisy'] = np.log(datasets['noisy'] + 1.)
+datasets['target'] = np.log1p(datasets['target'])
+datasets['noisy'] = np.log1p(datasets['noisy'])
 _test = datasets['target'][9]
 _ntest = datasets['noisy'][9]
 #for i in range(10):
@@ -259,7 +261,8 @@ def showOrigDec(orig, noise, denoise, num=2):
     for i in range(n):
         # display original
         ####ax = plt.subplot(n, 3, i*3 + 1)
-        _noise = (10**noise[i] - 1.).squeeze()
+        #_noise = (10**noise[i] - 1.).squeeze()
+        _noise = np.expm1(noise[i]).squeeze()
         #_orig = orig[i].reshape(x_train[0].shape)
         #for j in range(10):
         #    plt.plot(_orig[int(j/10*_orig.shape[0])])
@@ -273,7 +276,8 @@ def showOrigDec(orig, noise, denoise, num=2):
 
         # display noisy image
         ####ax = plt.subplot(n, 3, i*3 + 2)
-        _orig = (10**orig[i] - 1.).squeeze()
+        #_orig = (10**orig[i] - 1.).squeeze()
+        _orig = np.expm1(orig[i]).squeeze()
         #_noise = noise[i].reshape(x_train[0].shape)
         #for j in range(10):
         #    plt.plot(_noise[int(j/10*_noise.shape[0])])
@@ -285,18 +289,20 @@ def showOrigDec(orig, noise, denoise, num=2):
 
         # display denoised image
         ####ax = plt.subplot(n, 3, i*3  + 3)
-        _denoise = (10**denoise[i] - 1.).squeeze()
+        #_denoise = (10**denoise[i] - 1.).squeeze()
+        _denoise = np.expm1(denoise[i]).squeeze()
         #_denoise = denoise[i].reshape(x_train[0].shape)
         #for j in range(10):
         #    plt.plot(_denoise[int(j/10*_denoise.shape[0])])
         ####plt.imshow(_denoise.T, origin='lower', norm=LogNorm())
-        #plt.imshow(10**(denoise[i]-1.).reshape(x_train[0].shape)) 
+        #plt.imshow(10**(denoise[i]-1.).reshape(x_train[0].shape))
         #plt.gray()
         #ax.get_xaxis().set_visible(False)
         #ax.get_yaxis().set_visible(False)
     ####plt.show()
         nr2d.plot(_noise, _orig, _denoise, savefig='test_ae_'+str(i)+'.png')
-        evaluate_PSNRandSSIM(np.log(_noise[50]+1.), np.log(_orig[50]+1.), np.log(_denoise[50]+1.))
+        evaluate_PSNRandSSIM(np.log1p(_noise), np.log1p(_orig),
+                             np.log1p(_denoise))
     #_noise = _noise[50]
     #_orig = _orig[50]
     #_denoise = _denoise[50]

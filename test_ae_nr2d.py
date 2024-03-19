@@ -79,8 +79,8 @@ else:
         datasets = pickle.load(f)
     num_data = datasets['target'].shape[0]
 
-datasets['target'] = np.log(datasets['target'] + 1.)
-datasets['noisy'] = np.log(datasets['noisy'] + 1.)
+datasets['target'] = np.log1p(datasets['target'])
+datasets['noisy'] = np.log1p(datasets['noisy'])
 _test = datasets['target'][9]
 _ntest = datasets['noisy'][9]
 train_size = 15000
@@ -167,12 +167,12 @@ print("nr_test: {0}\nnr_val: {1}".format(np.average(nrtest), np.average(nrval))
 
 def showOrigDec(orig, noise, denoise, num=2):
     for i in range(num):
-        _noise = (10**noise[i] - 1.).squeeze()
-        _orig = (10**orig[i] - 1.).squeeze()
-        _denoise = (10**denoise[i] - 1.).squeeze()
+        _noise = np.expm1(noise[i]).squeeze()
+        _orig = np.expm1(orig[i]).squeeze()
+        _denoise = np.expm1(denoise[i]).squeeze()
         nr2d.plot(_noise, _orig, _denoise, savefig='test_ae_'+str(i)+'.png')
-        evaluate_PSNRandSSIM(np.log(_noise+1.), np.log(_orig+1.),
-                             np.log(_denoise+1.))
+        evaluate_PSNRandSSIM(np.log1p(_noise), np.log1p(_orig),
+                             np.log1p(_denoise))
 
 
 showOrigDec(x_test, x_test_noisy, nrtest, num=5)
