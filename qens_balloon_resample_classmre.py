@@ -114,7 +114,7 @@ class qens_balloon_resamples(sqkr):
         #plt.plot(xdl*1000, yqens, ls='dotted', c='k')
         #plt.plot(xdl*1000, ytlc - y)
         #plt.plot(xdl*1000, np.zeros_like(xdl))
-        plt.yscale('log')
+        #plt.yscale('log')
         plt.ylabel('Intensity (Arb. Units)')
         plt.xlabel(r'$Energy\ (\mu eV)$')
         plt.savefig('fitting_result_qidx' + str(self.qidx) + '.png')
