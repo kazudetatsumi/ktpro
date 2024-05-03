@@ -11,8 +11,7 @@ from qens_balloon_resample_classm2re import Sqens_balloon_resamples as qbr
 
 class Sqbr(qbr):
     def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
-                 elim=[-0.03, 0.07], binwidth1=0.0005, binwidth2=0.0005,
-                 binwidth=0.00025, ishist=False, num=6400, M=160, winparam=1,
+                 elim=[-0.03, 0.07], ishist=False, num=6400, M=160, winparam=1,
                  isnovariablebw=False):
         super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb, ishist=ishist,
                          num=num)

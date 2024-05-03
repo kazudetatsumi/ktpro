@@ -13,9 +13,10 @@ class Sqbr(qbr):
     def __init__(self, qidx, outfile, Nb, runNos=[6202, 6204],
                  elim=[-0.03, 0.07], ishist=False, num=6400, M=160, winparam=1,
                  WinFunc='Boxcar', isnovariablebw=False):
-        super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb,
-                         ishist=ishist, num=num, M=M, winparam=winparam,
-                         WinFunc=WinFunc, isnovariablebw=isnovariablebw)
+        super().__init__(qidx, runNos=runNos, elim=elim, Nb=Nb, ishist=ishist,
+                         num=num, M=M, winparam=winparam, WinFunc=WinFunc,
+                         isnovariablebw=isnovariablebw)
+
         self.CI_of_intensities()
         if self.rank == 0:
             self.outfile = outfile

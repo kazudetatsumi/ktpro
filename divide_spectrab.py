@@ -31,7 +31,7 @@ def samplerun():
     #SSdivide(pklfile)
     #pklfile = "run" + str(runNo) + "spectrab.pkl"
     #SSdivide(pklfile)
-    runNo = 4174
+    runNo = 6203
     pklfile = "run" + str(runNo) + "spectraorg.pkl"
     SSdivide(pklfile)
     pklfile = "run" + str(runNo) + "spectrab.pkl"

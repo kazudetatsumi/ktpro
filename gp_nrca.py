@@ -155,21 +155,26 @@ def searchrun2dnrca():
     x_train = np.array([[2.5, 2.0]])
     y_train = np.array([testfunc2dnrca(X, Y, density, x_train)])
     noiselevel = 0.000000000001
-    plt.pcolor(X, Y, density.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.0004, vmax=0.0004)
+    plt.pcolormesh(X, Y, density.reshape(X.shape), shading='auto', cmap='bwr',
+                   vmin=-0.0004, vmax=0.0004)
     plt.axis('equal')
     plt.show()
 
+    prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
+    prj.new()
     for itry in range(0, 101):
-        prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
         if itry % 10 == 0:
-            print('itry:',itry)
+            print('itry:', itry)
             plt.subplot(1, 2, 1)
-            #plt.pcolor(X, Y, prj.f_bar.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.2004, vmax=0.0004)
-            plt.pcolor(X, Y, prj.f_bar.reshape(X.shape), shading='auto', cmap='bwr', vmin=-0.400, vmax=0.400)
+            #plt.pcolormesh(X, Y, prj.f_bar.reshape(X.shape), shading='auto',
+            #                cmap='bwr', vmin=-0.2004, vmax=0.0004)
+            plt.pcolormesh(X, Y, prj.f_bar.reshape(X.shape), shading='auto',
+                           cmap='bwr', vmin=-0.400, vmax=0.400)
             plt.axis('equal')
             plt.subplot(1, 2, 2)
-            plt.pcolor(X, Y, prj.std.reshape(X.shape), shading='auto', cmap='Reds',vmin=0.)
-            plt.scatter(prj.x_train[:,0], prj.x_train[:,1], marker='x')
+            plt.pcolormesh(X, Y, prj.std.reshape(X.shape), shading='auto',
+                           cmap='Reds', vmin=0.)
+            plt.scatter(prj.x_train[:, 0], prj.x_train[:, 1], marker='x')
             plt.axis('equal')
             plt.savefig('test_nrca_very_large_'+str(itry)+'.png')
 
@@ -193,8 +198,9 @@ def searchrun2dnrca():
 
         print('adding to x_train', nextx)
         x_train = np.vstack((x_train, nextx))
-        y_train = np.append(y_train, testfunc2dnrca(X, Y, density, nextx[np.newaxis, :]))
-
+        y_train = np.append(y_train, testfunc2dnrca(X, Y, density,
+                            nextx[np.newaxis, :]))
+        prj.renew(x_train, y_train)
 
 
 def testfunc2dnrca(X, Y, density, xvec):
@@ -205,12 +211,52 @@ def testfunc2dnrca(X, Y, density, xvec):
 def testfunc2d(x):
     pos2 = np.array([2., 3.])
     pos1 = np.array([1., 1.])
-    return np.exp(-np.sum((x-pos1)**2., axis=1)) + 0.5*np.exp(-np.sum((x-pos2)**2., axis=1))
+    return np.exp(-np.sum((x-pos1)**2., axis=1)) +\
+        0.5*np.exp(-np.sum((x-pos2)**2., axis=1))
 
 
 def testfunc(x):
     return 2.*np.exp(-x**2.) + np.exp(-((x-1.5)/2.0)**2.)
 
 
+def draw_sample(mean=4.5, numsample=5, xlim=20, xsize=96):
+    x = np.linspace(-xlim, xlim, xsize)
+    x_train = x
+    y_train = testfunc(x)
+    noiselevel = 0.000000000001
+    prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
+    K = prj.kernelorg(x, x)
+    y = np.random.multivariate_normal(
+            mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
+    for i in range(numsample):
+        plt.plot(y[i])
+    plt.show()
+
+
+def draw_sample2d(mean=4.5, numsample=5, xlim=10., xsize=11):
+    X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
+                       np.linspace(-xlim, xlim, xsize))
+    x = []
+    for _x, _y in zip(X.flatten(), Y.flatten()):
+        x.append([_x, _y])
+    x = np.array(x)
+    x_train = x
+    y_train = testfunc(x)
+    noiselevel = 0.000000000001
+    prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
+    K = prj.kernel(x, x)
+    y = np.random.multivariate_normal(
+            mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
+    for i in range(numsample):
+        plt.imshow(y[i].reshape((xsize, xsize)))
+        plt.show()
+
+# drawing samples from the gaussian process:
+#draw_sample()
+#draw_sample2d()
+
+# examples of gaussian process regression:
+# if u run searchrun, exchange the names of def kernel and def kernelorg
+# because def kernel assumes 2D x.
 #searchrun2dnrca()
 #searchrun()

@@ -148,7 +148,7 @@ class Sqens_balloon_resamples(rkn):
                 ax1[0].plot(xdl*1000, y, c='k')
                 ax1[0].plot(xdl*1000, ytlc, c='b', label='ytlc@qidx'
                             + str(self.qidx))
-                ax1[0].set_yscale('log')
+                #ax1[0].set_yscale('log')
                 ax1[0].set_ylabel('Intensity (Arb. Units)')
                 ax1[0].set_xlabel(r'$Energy\ (\mu eV)$')
                 ax2 = ax1[0].twinx()
