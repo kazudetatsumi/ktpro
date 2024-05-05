@@ -219,18 +219,19 @@ def testfunc(x):
     return 2.*np.exp(-x**2.) + np.exp(-((x-1.5)/2.0)**2.)
 
 
-def draw_sample(mean=4.5, numsample=5, xlim=20, xsize=96):
+def draw_sample(mean=4.5, scale=1., numsample=5, xlim=20, xsize=96):
     x = np.linspace(-xlim, xlim, xsize)
     x_train = x
     y_train = testfunc(x)
     noiselevel = 0.000000000001
     prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
-    K = prj.kernelorg(x, x)
+    K = prj.kernelorg(x, x)*scale
     y = np.random.multivariate_normal(
             mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
-    for i in range(numsample):
-        plt.plot(y[i])
-    plt.show()
+    return y
+    #for i in range(numsample):
+    #    plt.plot(y[i])
+    #plt.show()
 
 
 def draw_sample2d(mean=4.5, numsample=5, xlim=10., xsize=11):
@@ -252,7 +253,7 @@ def draw_sample2d(mean=4.5, numsample=5, xlim=10., xsize=11):
         plt.show()
 
 # drawing samples from the gaussian process:
-#draw_sample()
+# draw_sample()
 #draw_sample2d()
 
 # examples of gaussian process regression:
