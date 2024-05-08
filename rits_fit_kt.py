@@ -8,16 +8,16 @@ os.environ['LD_LIBRARY_PATH'] = '/home/kazu/desktop/240424/rits/src/cpp/rietveld
 sys.path.append("/home/kazu/desktop/240424/rits/src/cpp/rietveldcc/Linux")
 np.random.seed(222)
 
-def get_sim_spectrum():
+def get_sim_spectrum(inpfile='rits_initial.inp'):
     sys.stdout = open(os.devnull, 'w')
     rits = AdvRietveld()
     if not os.path.exists("spgra"):
         print("'spgra' dose not exist.")
         return
 
-    rits.SetInitialFileName('rits_initial.inp')
+    rits.SetInitialFileName(inpfile)
     rits.ReadInitialFile()
-    rits.SetDataFileName('fit_results.dat')
+    rits.SetDataFileName('fit_results.dat.tmp')
     rits.ReadDataFile()
     rits.SetFittingResultDataFileName('fit_func.data')
     rits.SetFittingResultParamFileName('fit_para.data')
