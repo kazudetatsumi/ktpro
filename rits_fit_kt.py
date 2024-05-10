@@ -9,7 +9,6 @@ sys.path.append("/home/kazu/desktop/240424/rits/src/cpp/rietveldcc/Linux")
 np.random.seed(222)
 
 def get_sim_spectrum(inpfile='rits_initial.inp'):
-    sys.stdout = open(os.devnull, 'w')
     rits = AdvRietveld()
     if not os.path.exists("spgra"):
         print("'spgra' dose not exist.")

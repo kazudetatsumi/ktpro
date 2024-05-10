@@ -234,7 +234,7 @@ def draw_sample(mean=4.5, scale=1., numsample=5, xlim=20, xsize=96):
     #plt.show()
 
 
-def draw_sample2d(mean=4.5, numsample=5, xlim=10., xsize=11):
+def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32):
     X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
                        np.linspace(-xlim, xlim, xsize))
     x = []
@@ -245,12 +245,13 @@ def draw_sample2d(mean=4.5, numsample=5, xlim=10., xsize=11):
     y_train = testfunc(x)
     noiselevel = 0.000000000001
     prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
-    K = prj.kernel(x, x)
+    K = prj.kernel(x, x)*scale
     y = np.random.multivariate_normal(
             mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
     for i in range(numsample):
         plt.imshow(y[i].reshape((xsize, xsize)))
         plt.show()
+    return y
 
 # drawing samples from the gaussian process:
 # draw_sample()

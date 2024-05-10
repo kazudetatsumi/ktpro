@@ -7,10 +7,10 @@ import pickle
 import matplotlib.pyplot as plt
 import copy
 sys.path.append("/home/kazu/ktpro")
-from gp_nrca import draw_sample
+from gp_nrca import draw_sample, draw_sample2d
 from rits_fit_kt import get_sim_spectrum
 sys.path.append("/home/kazu/denoise")
-import nr2d
+import bi2d
 np.random.seed(126)
 
 
@@ -58,7 +58,7 @@ def get_params():
     return param_sets
 
 
-def draw_params(param_sets):
+def draw_params(param_sets, dim=1):
     for pidx in range(len(param_sets['param_name'])):
         lims_mean = param_sets['lims_mean'][pidx]
         lims_scale = param_sets['lims_scale'][pidx]
@@ -66,7 +66,12 @@ def draw_params(param_sets):
         mean = np.random.uniform(low=lims_mean[0], high=lims_mean[1])
         scale = np.random.uniform(low=lims_scale[0], high=lims_scale[1])
         xlim = np.random.uniform(low=lims_xlim[0], high=lims_xlim[1])
-        _params = draw_sample(mean=mean, numsample=1, scale=scale, xlim=xlim)
+        if dim == 1:
+            _params = draw_sample(mean=mean, numsample=1, scale=scale,
+                                  xlim=xlim)
+        elif dim == 2:
+            _params = draw_sample2d(mean=mean, numsample=1, scale=scale,
+                                    xlim=xlim)
         if np.min(_params) < 0.:
             _params -= np.min(_params)
         if pidx == 0:
@@ -81,13 +86,17 @@ def draw_params(param_sets):
     return _param_sets
 
 
-def cycles(ns=2):
+def cycles(ns=2, dim=1):
     param_sets_sets = []
     param_sets = get_params()
     for ins in range(ns):
-        param_sets_sets.append(draw_params(param_sets))
-    with open('param_sets_sets2.pkl', 'wb') as f:
-        pickle.dump(param_sets_sets, f, 4)
+        param_sets_sets.append(draw_params(param_sets, dim=dim))
+    if dim == 1:
+        with open('param_sets_sets.pkl', 'wb') as f:
+            pickle.dump(param_sets_sets, f, 4)
+    elif dim == 2:
+        with open('param_sets_sets_2d.pkl', 'wb') as f:
+            pickle.dump(param_sets_sets, f, 4)
 
 
 def load_param_sets_sets(param_sets_sets_file='param_sets_sets.pkl'):
@@ -145,50 +154,56 @@ def mpi_parallel_computation():
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     psize = comm.Get_size()
-    inino = rank
-    inpfile = 'rits_initial.inp.' + str(inino)
-    ns = len(param_sets_sets)
-    ns = 12000
+    inpfile = 'rits_initial.inp.' + str(rank)
+    #ns = len(param_sets_sets)
+    iniidx = int(sys.argv[1])
+    ns = 240
+    nskip = ns*iniidx
+    if rank == 0:
+        print("NSKIP:", nskip)
     for splidx in range(rank*(ns//psize), (rank+1)*(ns//psize)):
-        param_sets = param_sets_sets[splidx]
+        param_sets = param_sets_sets[splidx+nskip]
         bi2d_true, x = run_rits(param_sets['params'],  param_sets['string'],
                                 inpfile=inpfile)
         if splidx == rank*(ns//psize):
             spectrar = np.zeros((ns//psize, bi2d_true.flatten().shape[0]))
         spectrar[splidx - rank*ns//psize, :] = bi2d_true.flatten()
+    comm.barrier()
     bi2dt = np.array(comm.gather(spectrar.flatten(), root=0))
     if rank == 0:
         bi2dt = bi2dt.reshape((ns, bi2d_true.shape[0], bi2d_true.shape[1]))
-        with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl', 'wb') as f:
+        with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl.'+str(iniidx),
+                  'wb') as f:
             pickle.dump(bi2dt, f, 4)
             pickle.dump(x, f, 4)
 
 
-def gather_bi2d(timescale=600):
+def gather_bi2d(timescale=600, nidx=100):
     datat = []
-    for inino in range(100):
-        with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '.pkl',
-                  'rb') as f:
+    for iniidx in range(nidx):
+        with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl.'
+                  + str(iniidx), 'rb') as f:
             data = pickle.load(f)
             x = pickle.load(f)
         data = data[np.isnan(data).sum(axis=1).sum(axis=1) == 0]
-        if inino == 0:
+        if iniidx == 0:
             datat = data
         else:
             datat = np.vstack((datat, data))
     datat_noisy = get_noisydata(datat, x, timescale)
     datasets = {}
-    datasets['data_true'] = datat*timescale
-    datasets['data_noisy'] = datat_noisy
+    datasets['target'] = datat*timescale
+    datasets['noisy'] = datat_noisy
     datasets['x'] = x
-    with open('/home/kazu/desktop/240424/bi2d/bi2d.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl', 'wb') as f:
         pickle.dump(datasets, f, 4)
 
+
 def select_bi2d(timescale=600):
-    with open('/home/kazu/desktop/240424/bi2d/bi2d2.pkl', 'rb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl', 'rb') as f:
         data = pickle.load(f)
         x = pickle.load(f)
-    data = data.reshape((12000, 96, 155))
+    print(data.shape)
     datat = data[np.isnan(data).sum(axis=1).sum(axis=1) == 0]
     datat_noisy = get_noisydata(datat, x, timescale)
     datasets = {}
@@ -200,17 +215,19 @@ def select_bi2d(timescale=600):
 
 
 def check_data():
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_sel.pkl', 'rb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl', 'rb') as f:
         datasets = pickle.load(f)
+    print(datasets['target'].shape)
     for i in range(5):
         _orig = datasets['target'][i]
         _noise = datasets['noisy'][i]
-        nr2d.plot(_noise, _orig, _orig, savefig='test_bi_'+str(i)+'.png')
+        bi2d.plot(_noise, _orig, _orig, savefig='test_bi_'+str(i)+'.png')
 
 
-#cycles(ns=12000)
-mpi_parallel_computation()
 #gather_bi2d(timescale=50)
+cycles(ns=1, dim=2)
+#mpi_parallel_computation()
+#gather_bi2d(timescale=50, nidx=125)
 #select_bi2d()
 #check_data()
 
