@@ -275,10 +275,12 @@ def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
     dist = MultivariateNormal(loc, cov)
     y = dist.sample().to("cpu").numpy()
     print(datetime.datetime.now(), 'drew sample')
-    print(y.shape)
-    for i in range(numsample):
-        plt.imshow(y[i])
-        plt.show()
+    #print(y.shape)
+    #fig = plt.figure(figsize=(8,8))
+    #for i in range(numsample):
+    #    plt.imshow(y[i].reshape((xsize, xsize)))
+        #plt.savefig('test_sample' + str(i) + '.png')
+    #    plt.show()
     return y
 
 
