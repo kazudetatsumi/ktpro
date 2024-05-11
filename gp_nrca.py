@@ -250,21 +250,35 @@ def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
     print(datetime.datetime.now(), 'before getting K')
     K = prj.kernel(x, x)*scale
     print(datetime.datetime.now(), 'got K')
-    y = np.random.multivariate_normal(
-            mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
+    #y = np.random.multivariate_normal(
+    #        mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
+    #print(datetime.datetime.now(), 'drew sample')
+    #y = y.reshape((numsample, xsize, xsize))
+    #if rsize > xsize:
+    #    y = y[np.newaxis, :, :, :]
+    #    import torch
+    #    y = torch.from_numpy(y)
+    #    upsample = torch.nn.Upsample(size=(rsize, rsize),
+    #                                 mode='bilinear')
+    #    y = upsample(y).reshape((numsample, rsize, rsize)).numpy()
+    #print(datetime.datetime.now(), 'sample resized')
+    import torch
+    from torch.distributions.multivariate_normal import MultivariateNormal
+    device = "cuda:0"
+    size = x.shape[0]
+    _eps = np.min(np.diag(K))*0.0001
+    _K = K[np.newaxis, :, :]
+    cov = torch.from_numpy(_K).to(device).to(torch.float32)
+    eps = torch.diag(torch.ones(size, device=device)).unsqueeze(0)
+    cov += eps*_eps
+    loc = torch.zeros(x.shape[0], device=device) + mean
+    dist = MultivariateNormal(loc, cov)
+    y = dist.sample().to("cpu").numpy()
     print(datetime.datetime.now(), 'drew sample')
-    y = y.reshape((numsample, xsize, xsize))
-    if rsize > xsize:
-        y = y[np.newaxis, :, :, :]
-        import torch
-        y = torch.from_numpy(y)
-        upsample = torch.nn.Upsample(size=(rsize, rsize),
-                                     mode='bilinear')
-        y = upsample(y).reshape((numsample, rsize, rsize)).numpy()
-    print(datetime.datetime.now(), 'sample resized')
-    #for i in range(numsample):
-    #    plt.imshow(y[i])
-    #    plt.show()
+    print(y.shape)
+    for i in range(numsample):
+        plt.imshow(y[i])
+        plt.show()
     return y
 
 

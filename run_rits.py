@@ -72,7 +72,7 @@ def draw_params(param_sets, dim=1):
                                   xlim=xlim)
         elif dim == 2:
             _params = draw_sample2d(mean=mean, numsample=1, scale=scale,
-                                    xlim=xlim, xsize=72, rsize=96)
+                                    xlim=xlim, xsize=96, rsize=96)
         if np.min(_params) < 0.:
             _params -= np.min(_params)
         if pidx == 0:
