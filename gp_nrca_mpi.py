@@ -119,6 +119,35 @@ class GaussianProcessRegression:
                 return dataset['base']
 
 
+def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
+                  rsize=32):
+    X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
+                       np.linspace(-xlim, xlim, xsize))
+    x = []
+    for _x, _y in zip(X.flatten(), Y.flatten()):
+        x.append([_x, _y])
+    x = np.array(x)
+    x_train = x
+    y_train = testfunc(x)
+    noiselevel = 0.000000000001
+    prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
+    K = prj.kernel_mpi(x, x)*scale
+    y = np.random.multivariate_normal(
+            mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
+    y = y.reshape((numsample, xsize, xsize))
+    if rsize > xsize:
+        y = y[np.newaxis, :, :, :]
+        import torch
+        y = torch.from_numpy(y)
+        upsample = torch.nn.Upsample(size=(rsize, rsize),
+                                     mode='bilinear')
+        y = upsample(y).reshape((numsample, rsize, rsize)).numpy()
+    #for i in range(numsample):
+    #    plt.imshow(y[i])
+    #    plt.show()
+    return y
+
+
 def searchrun():
     x = np.linspace(-5., 5., 80)
     x_train = np.array([-2.3])

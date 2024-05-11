@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import copy
 sys.path.append("/home/kazu/ktpro")
 from gp_nrca import draw_sample, draw_sample2d
+#from gp_nrca_mpi import draw_sample2d
 from rits_fit_kt import get_sim_spectrum
 sys.path.append("/home/kazu/denoise")
 import bi2d
@@ -71,7 +72,7 @@ def draw_params(param_sets, dim=1):
                                   xlim=xlim)
         elif dim == 2:
             _params = draw_sample2d(mean=mean, numsample=1, scale=scale,
-                                    xlim=xlim)
+                                    xlim=xlim, xsize=72, rsize=96)
         if np.min(_params) < 0.:
             _params -= np.min(_params)
         if pidx == 0:
