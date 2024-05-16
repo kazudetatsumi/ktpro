@@ -235,7 +235,7 @@ def draw_sample(mean=4.5, scale=1., numsample=5, xlim=20, xsize=96):
     #plt.show()
 
 
-def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
+def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
                   rsize=32):
     X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
                        np.linspace(-xlim, xlim, xsize))
@@ -247,34 +247,45 @@ def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
     y_train = testfunc(x)
     noiselevel = 0.000000000001
     prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
-    print(datetime.datetime.now(), 'before getting K')
+    #print(datetime.datetime.now(), 'before getting K')
     K = prj.kernel(x, x)*scale
-    print(datetime.datetime.now(), 'got K')
+    #print(datetime.datetime.now(), 'got K')
     #y = np.random.multivariate_normal(
-    #        mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
+    #y = rg.multivariate_normal(mean=np.zeros(x.shape[0])+mean, cov=K,
+    #                           size=numsample)
+    # numpy multivariate_normal is too slow!!
+    #_K = np.array(K, dtype='float32')
+    #L = np.linalg.cholesky(_K+np.min(np.diag(_K))*0.0001*np.eye(_K.shape[0], dtype='float32'))
+    #z = rg.standard_normal(len(_K), dtype='float32')
+    L = np.linalg.cholesky(K+np.min(np.diag(K))*1e-3*np.eye(K.shape[0]))
+    z = rg.standard_normal(len(K))
+    y = np.dot(L, z) + mean
+
     #print(datetime.datetime.now(), 'drew sample')
-    #y = y.reshape((numsample, xsize, xsize))
-    #if rsize > xsize:
-    #    y = y[np.newaxis, :, :, :]
-    #    import torch
-    #    y = torch.from_numpy(y)
-    #    upsample = torch.nn.Upsample(size=(rsize, rsize),
-    #                                 mode='bilinear')
-    #    y = upsample(y).reshape((numsample, rsize, rsize)).numpy()
+    y = y.reshape((numsample, xsize, xsize))
+    if rsize > xsize:
+        y = y[np.newaxis, :, :, :]
+        import torch
+        y = torch.from_numpy(y)
+        upsample = torch.nn.Upsample(size=(rsize, rsize),
+                                     mode='bilinear')
+        y = upsample(y).reshape((numsample, rsize, rsize)).numpy()
     #print(datetime.datetime.now(), 'sample resized')
-    import torch
-    from torch.distributions.multivariate_normal import MultivariateNormal
-    device = "cuda:0"
-    size = x.shape[0]
-    _eps = np.min(np.diag(K))*0.0001
-    _K = K[np.newaxis, :, :]
-    cov = torch.from_numpy(_K).to(device).to(torch.float32)
-    eps = torch.diag(torch.ones(size, device=device)).unsqueeze(0)
-    cov += eps*_eps
-    loc = torch.zeros(x.shape[0], device=device) + mean
-    dist = MultivariateNormal(loc, cov)
-    y = dist.sample().to("cpu").numpy()
-    print(datetime.datetime.now(), 'drew sample')
+    #import torch
+    #from torch.distributions.multivariate_normal import MultivariateNormal
+    #device = "cuda:0"
+    #device = "cpu"
+    #size = x.shape[0]
+    #_eps = np.min(np.diag(K))*0.0001
+    #_K = K[np.newaxis, :, :]
+    #cov = torch.from_numpy(_K).to(device).to(torch.float32)
+    #eps = torch.diag(torch.ones(size, device=device)).unsqueeze(0)
+    #cov += eps*_eps
+    #loc = torch.zeros(x.shape[0], device=device) + mean
+    #dist = MultivariateNormal(loc, cov)
+    #y = dist.sample().to("cpu").numpy()
+    #print(datetime.datetime.now(), 'drew sample')
+    #print(y.dtype)
     #print(y.shape)
     #fig = plt.figure(figsize=(8,8))
     #for i in range(numsample):
