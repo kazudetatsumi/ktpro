@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import h5py
 import ctypes
-lib = ctypes.CDLL("./histfort3d.so")
-
+import sys
+lib = ctypes.CDLL("/home/kazu/ktpro/histfort3d.so")
 
 
 def calc_hist3d_f90(A, nw0, nw1, nw2, condition):
@@ -80,7 +80,6 @@ def calc_hist3d(A, nw0, nw1, nw2, condition):
     return k, kcond
 
 
-
 def calc_cost3d(A, data, maxw, condition, fflag):
     print('chk', maxw)
     Cn = np.zeros((maxw))
@@ -141,7 +140,7 @@ def run_simu3d():
     
     n = np.sum(data)*1.0
     print("n=", n)
-
+ 
 
     maxxwidth = np.min(np.sum(condition, axis=0)) // 12
     maxywidth = np.min(np.sum(condition, axis=1)) // 12
@@ -221,11 +220,23 @@ def run_tst3d():
         lib.delete_array3(ctypes.byref(ctypes.c_int(klen0)), ctypes.byref(ctypes.c_int(klen1)), ctypes.byref(ctypes.c_int(klen2)), k)
 
 
-run_simu3d()
+def run_bi():
+    from tifffile import imread, imwrite
+    tifffile = sys.argv[1]
+    outtifffile = "423/" + tifffile.split(".")[0]+"_423.tiff"
+    data = imread(tifffile)
+    condition = np.ones(data.shape, dtype=bool)
+    A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
+    print("A is obtained")
+    k, kcond = calc_hist3d(A, 4, 2, 3, condition)
+    imwrite(outtifffile, k)
+
+#run_simu3d()
+run_bi()
 #run_tst3d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
 #lib.delete_array(ctypes.byref(ctypes.c_int(klen)), k)
-plt.show()
+#plt.show()
 
 

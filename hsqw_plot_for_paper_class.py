@@ -48,6 +48,7 @@ class hpdos(sac.sqwto1dspectrum):
                 ax.set_ylim(0, tmpylim[1])
             else:
                 ax.set_ylim(0, ax.get_ylim()[1])
+                #ax.set_ylim(0, 4.*10**9)
             if short:
                 words = [infile.split('/')[-1]]
                 if iidx == 0:

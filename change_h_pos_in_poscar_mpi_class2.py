@@ -31,6 +31,7 @@ class change_hpos(ch):
                     pickle.dump(dataset, f, 4)
 
     def Integrateoverallsolidangle2(self, qlength, Iswrite=True):
+        print('Integrateoverallsolidangle2')
         comm = MPI.COMM_WORLD
         rank = MPI.COMM_WORLD.Get_rank()
         size = MPI.COMM_WORLD.Get_size()
@@ -61,9 +62,12 @@ class change_hpos(ch):
         spec = np.zeros(3000)
         for iw, s in enumerate(IntegratedSqw[1:]):
             dE = (self.E[iw+1] - self.E[0])
-            #sigma = dE*0.02
-            sigma = dE*0.04
-            spec += s*np.exp(-(ene - dE)**2/sigma**2)
+            #The doubled sigma for check the peak in INS of NbH.
+            #sigma = dE*0.04
+            sigma = dE*0.02
+            #spec += s*np.exp(-(ene - dE)**2/sigma**2)
+            # kf/ki = (1/E)**0.5 for TiSbHx
+            spec += dE**(-0.5)*s*np.exp(-(ene - dE)**2/sigma**2)
         if rank == 0:
             self.dataset = {}
             self.dataset['ene'] = ene
