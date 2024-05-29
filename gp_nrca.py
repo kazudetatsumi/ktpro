@@ -220,7 +220,7 @@ def testfunc(x):
     return 2.*np.exp(-x**2.) + np.exp(-((x-1.5)/2.0)**2.)
 
 
-def draw_sample(mean=4.5, scale=1., numsample=5, xlim=20, xsize=96):
+def draw_sample(mean=4.5, scale=1., numsample=5, xlim=20, xsize=85):
     x = np.linspace(-xlim, xlim, xsize)
     x_train = x
     y_train = testfunc(x)
@@ -229,10 +229,10 @@ def draw_sample(mean=4.5, scale=1., numsample=5, xlim=20, xsize=96):
     K = prj.kernelorg(x, x)*scale
     y = np.random.multivariate_normal(
             mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
-    return y
     #for i in range(numsample):
     #    plt.plot(y[i])
     #plt.show()
+    return y
 
 
 def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,

@@ -13,48 +13,79 @@ from gp_nrca import draw_sample, draw_sample2d_mpi
 from rits_fit_kt import get_sim_spectrum
 sys.path.append("/home/kazu/denoise")
 import bi2d
-np.random.seed(126)
+np.random.seed(129)
 
 
 def get_params():
     param_sets = {}
     param_sets['param_name'] = ["lattice constance"]
     param_sets['string'] = ['LATCON']
-    param_sets['lims_mean'] = [[2.5, 4.6]]
-    param_sets['lims_scale'] = [[0.0, 0.05]]
+    ##param_sets['lims_mean'] = [[2.5, 3.2]]
+    #param_sets['lims_mean'] = [[2.86338, 2.86340]]
+    param_sets['lims_mean'] = [[2.85315, 2.908040]]
+    ##param_sets['lims_scale'] = [[0.0, 0.04]]
+    param_sets['lims_scale'] = [[0.0, 0.005]]
+    ##param_sets['lims_scale'] = [[0.0, 0.00001]]
     param_sets['lims_xlim'] = [[10., 30.]]
     #45 Crsytallite size, 2.0〜9.0 ミクロン. エッジのジャンプ高さが低くなる。
     param_sets['param_name'].append("crsytallite size")
     param_sets['string'].append("CRSIZE")
-    param_sets['lims_mean'].append([2.0, 9.0])
+    ##param_sets['lims_mean'].append([0.5, 1.1])
+    #param_sets['lims_mean'].append([0.800057, 0.800059])
+    param_sets['lims_mean'].append([0.186038, 1.31959])
+    ##param_sets['lims_scale'].append([0.1, 2.0])
+    ##param_sets['lims_scale'].append([0.0, 0.00001])
+    param_sets['lims_scale'].append([0.0, 0.01])
+    param_sets['lims_xlim'].append([10., 30.])
+    #23 Microstrain in Jorgensen function, エッジの傾きが変わる。
+    # 0〜6ぐらい．
+    param_sets['param_name'].append("microstrain in Jorgensen func")
+    param_sets['string'].append("MICRST")
+    ##param_sets['lims_mean'].append([0.0, 6.0])
+    #param_sets['lims_mean'].append([1.65100, 1.65102])
+    param_sets['lims_mean'].append([1.0, 15.7124])
+    ##param_sets['lims_scale'].append([0.1, 2.0])
+    ##param_sets['lims_scale'].append([0.0, 0.00001])
     param_sets['lims_scale'].append([0.1, 2.0])
     param_sets['lims_xlim'].append([10., 30.])
     #24 Crysallite size in Jorgensen function, エッジの傾きが変わる。
     # 0〜6ぐらい．
-    param_sets['param_name'].append("crsytallite size in Jorgensen func")
-    param_sets['string'].append("CRSIZJ")
-    param_sets['lims_mean'].append([0.0, 6.0])
-    param_sets['lims_scale'].append([0.1, 2.0])
-    param_sets['lims_xlim'].append([10., 30.])
+    #param_sets['param_name'].append("crsytallite size in Jorgensen func")
+    #param_sets['string'].append("CRSIZJ")
+    #param_sets['lims_mean'].append([0.0, 6.0])
+    #param_sets['lims_scale'].append([0.1, 2.0])
+    #param_sets['lims_xlim'].append([10., 30.])
     #32 March-Dollase 係数,  1.5〜2.0 (蘇さんの歯車), 0.3〜0.9 (佐藤さんの溶接材)。
     # <1でビームに平行に成長、>1で垂直に成長。
     # 特定のhkl列のエッジジャンプが変わる．
     param_sets['param_name'].append("March-Dollase Coefficient")
     param_sets['string'].append("MDCOEF")
-    param_sets['lims_mean'].append([0.3, 2.0])
-    param_sets['lims_scale'].append([0.01, 0.1])
+    #param_sets['lims_mean'].append([0.3, 2.0])
+    ##param_sets['lims_mean'].append([1.5, 2.0])
+    #param_sets['lims_mean'].append([1.942830, 1.94283])
+    param_sets['lims_mean'].append([1.33567, 2.53587])
+    ##param_sets['lims_scale'].append([0.01, 0.1])
+    #param_sets['lims_scale'].append([0.0, 0.000001])
+    #param_sets['lims_scale'].append([0.01, 2.0])
+    param_sets['lims_scale'].append([0.01, 1.0])
     param_sets['lims_xlim'].append([10., 30.])
     # 元素特性1
-    param_sets['param_name'].append("Coherent Scattering Length")
-    param_sets['string'].append("COHESL")
-    param_sets['lims_mean'].append([9.4, 9.6])
-    param_sets['lims_scale'].append([0.01, 0.1])
-    param_sets['lims_xlim'].append([10., 30.])
-    # 投影原子数密度
+    #param_sets['param_name'].append("Coherent Scattering Length")
+    #param_sets['string'].append("COHESL")
+    ##param_sets['lims_mean'].append([9.3, 9.6])
+    #param_sets['lims_mean'].append([9.44, 9.46])
+    ##param_sets['lims_scale'].append([0.01, 0.1])
+    #param_sets['lims_scale'].append([0.0, 0.000001])
+    #param_sets['lims_xlim'].append([10., 30.])
+    ## 投影原子数密度
     param_sets['param_name'].append("Projected Atomic Number Density")
     param_sets['string'].append("PRODEN")
-    param_sets['lims_mean'].append([6.3, 10.3])
-    param_sets['lims_scale'].append([0.05, 0.5])
+    ##param_sets['lims_mean'].append([1.0, 7.0])
+    #param_sets['lims_mean'].append([3.50487, 3.50489])
+    param_sets['lims_mean'].append([1.33478, 3.96254])
+    ##param_sets['lims_scale'].append([0.05, 0.5])
+    #param_sets['lims_scale'].append([0.0, 0.000005])
+    param_sets['lims_scale'].append([0.05, 2.0])
     param_sets['lims_xlim'].append([6., 10.])
 
     return param_sets
@@ -125,7 +156,7 @@ def cycles(ns=2, dim=1):
     for ins in range(ns):
         param_sets_sets.append(draw_params(param_sets, dim=dim))
     if dim == 1:
-        with open('param_sets_sets.pkl', 'wb') as f:
+        with open('param_sets_sets_bccrev2.pkl', 'wb') as f:
             pickle.dump(param_sets_sets, f, 4)
     elif dim == 2:
         with open('param_sets_sets_2d.pkl', 'wb') as f:
@@ -224,17 +255,17 @@ def get_noisydata(bi2d, x, timescale):
 #cycles(ns=10000)
 
 # routine for crude parallel computations of rits
-def crude_parallel_computation():
+def crude_parallel_computation(pklfile='param_sets_sets_bccrev2.pkl'):
     inino = int(sys.argv[1])
     inpfile = 'rits_initial.inp.' + str(inino)
-    param_sets_sets = load_param_sets_sets()
+    param_sets_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
     for pid, param_sets in enumerate(param_sets_sets[inino*100:inino*100+100]):
         bi2d_true, x = run_rits(param_sets['params'],  param_sets['string'],
                                 inpfile=inpfile)
         if pid == 0:
             bi2dt = np.zeros((100, bi2d_true.shape[0], bi2d_true.shape[1]))
         bi2dt[pid] = bi2d_true
-    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev2.pkl', 'wb') as f:
         pickle.dump(bi2dt, f, 4)
         pickle.dump(x, f, 4)
     #bi2d_noisy = get_noisydata(bi2d_true, x, 200)
@@ -277,38 +308,224 @@ def mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl'):
             pickle.dump(x, f, 4)
 
 
-def single_computation(pklfile='param_sets_sets_2dlarge.pkl'):
+def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
     iniidx = int(sys.argv[1])
-    pklfile = "divided_params/"+pklfile+"."+str(iniidx)
-    param_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
+    #pklfile = "divided_params/"+pklfile+"."+str(iniidx)
+    #param_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
+    param_sets = load_param_sets_sets(param_sets_sets_file=pklfile)[iniidx]
     inpfile = 'rits_initial.inp.' + str(iniidx)
     bi3d_true, x = run_rits(param_sets['params'],  param_sets['string'],
                             inpfile=inpfile)
-    with open('/home/kazu/desktop/240424/bi3d/bi3dlarge.pkl.'+str(iniidx),
+    with open('/home/kazu/desktop/240424/bi2dsingle.pkl.'+str(iniidx),
               'wb') as f:
         pickle.dump(bi3d_true, f, 4)
         pickle.dump(x, f, 4)
 
 
-def gather_bi2d(timescale=600, nidx=100):
-    datat = []
+def synthesize_bi2ddata():
+    with open('/home/kazu/desktop/240424/uNID_data_KO/433/openbeam.pkl',
+              'rb') as f:
+        openbeamexp = pickle.load(f)
+        openbeamexp_noisy = pickle.load(f)
+        sampleexp = pickle.load(f)
+        sampleexp_noisy = pickle.load(f)
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev.pkl',
+              'rb') as f:
+        datasets = pickle.load(f)
+    #data = datasets['target'][0, 0, :]
+    #data = np.tile(datasets['target'][0:1], (10000, 1, 1))
+    data = datasets['target']
+    print(data.shape)
+    print(sampleexp.shape)
+    #print(openbeamexp.shape)
+    #mean_openbeamexp = openbeamexp.sum(axis=1).sum(axis=1)/openbeamexp.shape[1]/openbeamexp.shape[2]
+    #print(np.unravel_index(np.argmax(openbeamexp), openbeamexp.shape))
+    #_openbeamexp = openbeamexp[:, 0, 0]
+    #_openbeamexp_noisy = openbeamexp_noisy[:, 0, 0]
+    #plt.plot(np.random.poisson(mean_openbeamexp*data))
+    #plt.plot(openbeamexp[:, 0, 0])
+    #plt.plot(openbeamexp[:, 32, 20])
+    #plt.plot(openbeamexp[:, 12, 10])
+    #plt.plot(openbeamexp[191,:, 20])
+    #plt.show()
+
+    #openbeamexp = openbeamexp.transpose((2, 1, 0))
+    #openbeamexp_noisy = openbeamexp_noisy.transpose((2, 1, 0))
+    _shape = openbeamexp.shape
+    #print("_shape", _shape)
+    #print("openbeamexp shape", openbeamexp.shape)
+    #print("openbeamexp_noisy shape", openbeamexp_noisy.shape)
+    tcount_openbeamexp = np.tile(openbeamexp.sum(axis=0), (1, 414)).T[:data.shape[0]]
+    tcount_openbeamexp_noisy = np.tile(openbeamexp_noisy.sum(axis=0), (1, 414)).T[:data.shape[0]]
+    #print("tcount_openbeamexp shape", tcount_openbeamexp.shape)
+    #print("tcount_openbeamexp_noisy shape", tcount_openbeamexp_noisy.shape)
+    # x 1.15 is due to the low counts near the edge of the experimental bi.
+    mean_openbeamexp = openbeamexp.transpose((2, 1, 0)).sum(axis=0).sum(axis=0)/_shape[1]/_shape[2]*1.15
+    print("mean_openbeamexp", mean_openbeamexp.shape)
+    print("data", data.shape)
+    print((data*mean_openbeamexp).transpose((2, 0, 1)).shape)
+    sample = (data*mean_openbeamexp).transpose((2, 0, 1))*tcount_openbeamexp_noisy/np.sum(mean_openbeamexp)*0.78
+    op = ((np.zeros_like(data)+1)*mean_openbeamexp).transpose((2, 0, 1))*tcount_openbeamexp_noisy/np.sum(mean_openbeamexp)
+    #print(tcount_openbeamexp.shape)
+    #print(tcount_openbeamexp_noisy.shape)
+    #print(sample.shape)
+    #print(openbeamexp.shape)
+    #print(data.shape)
+    k=24
+    w=sampleexp.shape[0]
+    idx = np.fromfunction(lambda i, j: i + j, (k, w), dtype=np.int) - k // 2
+    idx[idx < 0] = 0
+    idx[idx > w - 1] = w - 1
+    #smoothed = np.median(sampleexp[idx, 40, 24], axis=0)
+    smoothed = np.median(sampleexp[idx, 40, 24], axis=0)
+ 
+    print(op.shape)
+    print(openbeamexp_noisy.shape)
+    fig, ax = plt.subplots(2,2)
+    #plt.plot(sample[:, 60, 40], label='sample')
+    #plt.plot(op[:, 42, 15], label='op')
+    #plt.plot(openbeamexp_noisy[:, 20, 12], label='openbeamexp_noisy')
+    #plt.plot(openbeamexp_noisy[:, 30, 42], label='openbeamexp_noisy')
+    #plt.plot(openbeamexp_noisy[:, 10, 22], label='openbeamexp_noisy')
+    ##plt.plot(openbeamexp_noisy[:, 15, 42], label='openbeamexp_noisy')
+    #plt.plot(sampleexp[:, 15, 42], label='openbeamexp_noisy')
+    #for didx, (spectrum, label) in enumerate(zip([sampleexp_noisy[:, 40, 24], np.random.poisson(sample[:, 24, 40])], 
+    #                                    ['sampleexp_noisy', 'samplesim'])):
+    for didx, (spectrum, label) in enumerate(zip([sampleexp[:, 40, 24], np.random.poisson(sample[:, 24, 40]/2)*7*2], 
+                                        ['sampleexp', 'samplesim'])):
+    #for didx, (spectrum, label) in enumerate(zip([openbeamexp_noisy[:, 40, 24], np.random.poisson(op[:, 24, 40])],
+    #                                             ['openbeamexp_noisy', 'op'])):
+        smoothed = np.median(spectrum[idx], axis=0)
+        ax[0,didx].plot(spectrum, label=label)
+        ax[0,didx].plot(smoothed, label='medianfiltered')
+        ax[0,didx].set_xlabel(r'$\lambda$ / ch')
+        ax[0,didx].set_xlabel('TOF / ch')
+        ax[0,didx].set_ylabel('Neutron Count')
+        ax[0,didx].legend()
+        ax[1,didx].plot(spectrum - smoothed)
+        ax[1,didx].set_ylabel(label + '-medianfiltered')
+        ax[1,didx].set_xlabel('TOF / ch')
+    #ax[1].set_xlabel(r'$\lambda$ / ch')
+    plt.tight_layout()
+    #ax1.set_ylim([0., np.max(smoothed)*1.1])
+    #plt.plot(openbeamexp[:, 15, 42], label='openbeamexp_noisy')
+    #plt.plot(openbeamexp[:, 15, 42]-op[:, 42, 15])
+    #plt.plot(np.random.poisson(openbeamexp_noisy.sum(axis=1).sum(axis=1)/openbeamexp_noisy.shape[1]/openbeamexp_noisy.shape[2]*1.14), label='openbeamexp_noisy')
+    plt.show()
+
+    fig, ax = plt.subplots(4, 2, figsize=(10, 15))
+    for didx, (spectrum, label) in enumerate(zip([sampleexp[:, 40, 24],
+                                                  sampleexp_noisy[:, 40, 24],
+                                                  openbeamexp[:, 40, 24],
+                                                  openbeamexp_noisy[:, 40, 24]
+                                                  ],
+                                                 ['sample',
+                                                  'sample_part',
+                                                  'openbeam',
+                                                  'openbeam_part']
+                                                 )):
+        smoothed = np.median(spectrum[idx], axis=0)
+        ax[didx, 0].plot(spectrum, label=label)
+        ax[didx, 0].plot(smoothed, label='medianfiltered')
+        ax[didx, 0].set_xlabel(r'$\lambda$ / ch')
+        ax[didx, 0].set_xlabel('TOF / ch')
+        ax[didx, 0].set_ylabel('Neutron Count')
+        ax[didx, 0].legend()
+        ax[didx, 1].plot(spectrum - smoothed)
+        ax[didx, 1].set_ylabel('Diff.')
+    plt.tight_layout()
+    plt.show()
+
+    #print(tcount_openbeamexp_noisy.shape)
+    fig, ax = plt.subplots(4, 2, figsize=(10, 10))
+    for didx, (image, name) in enumerate(zip([op[:, :56, :],
+                                             openbeamexp_noisy.transpose(
+                                                 (0, 2, 1))],
+                                             ['simulated_openbeam',
+                                                 'expt_openbeam_noisy'])):
+        ax[0, didx].set_title(name + ' crosssection at x=20 ch')
+        ax[0, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[0, didx].set_ylabel('y / ch')
+        ax[0, didx].imshow(image[:, 20, :].T)
+        ax[1, didx].set_title(name + ' crosssection at y=40 ch')
+        ax[1, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[1, didx].imshow(image[:, :, 40].T)
+        ax[1, didx].set_ylabel('x / ch')
+        ax[2, didx].set_title(name + ' projected onto xy')
+        ax[2, didx].imshow(image.sum(axis=0))
+        ax[2, didx].set_xlabel('x / ch')
+        ax[2, didx].set_ylabel('y / ch')
+        ax[3, didx].set_title(name + ' intensity at x=20 ch, y=40 ch')
+        ax[3, didx].plot(image[:, 20, 40])
+        ax[3, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[3, didx].set_ylabel('Neutron Count')
+    plt.tight_layout()
+    plt.show()
+    sample = sample.transpose((1, 2, 0))
+    op = op[:, :56, :].transpose((1, 2, 0))
+    plt.hist(sample.sum(axis=1).sum(axis=1))
+    plt.show()
+    #sim_datasets = {}
+    #sim_datasets['sample'] = sample
+    #sim_datasets['op'] = op
+    #datasets['x'] = x
+    #with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_simudata_rev.pkl', 'wb') as f:
+    #    pickle.dump(sim_datasets, f, 4)
+
+
+def gather_bi2d_only_cond(timescale=600, nidx=100):
     for iniidx in range(nidx):
-        with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl.'
-                  + str(iniidx), 'rb') as f:
+        with open('/home/kazu/desktop/240424/bi2d/' + str(iniidx) + '_rev.pkl',
+                  'rb') as f:
             data = pickle.load(f)
-            x = pickle.load(f)
-        data = data[np.isnan(data).sum(axis=1).sum(axis=1) == 0]
+        cond = np.isnan(data).sum(axis=1).sum(axis=1) == 0
+        if iniidx == 0:
+            condt = cond
+        else:
+            condt = np.concatenate([condt, cond])
+    param_sets_sets = load_param_sets_sets(param_sets_sets_file='param_sets_sets_bccrev.pkl')
+    param_sets_sets_disel = []
+    for pssidx in range(30000):
+        if not condt[pssidx]:
+            param_sets_sets_disel.append(param_sets_sets[pssidx])
+
+    with open('/home/kazu/desktop/240424/param_sets_sets_bccrev_disel.pkl', 'wb') as f:
+        pickle.dump(param_sets_sets_disel, f, 4)
+
+
+def gather_bi2d(timescale=600, nidx=100):
+    #with open('/home/kazu/desktop/240424/uNID_data_KO/433/openbeam.pkl',
+    #          'rb') as f:
+    #    openbeamexp = pickle.load(f)
+    #    openbeamexp_noisy = pickle.load(f)
+    #    etc = pickle.load(f)
+    #mean_openbeamexp = openbeamexp.sum(axis=1).sum(axis=1)
+    #tcount_openbeamexp_noisy = openbeamexp_noisy.sum(axis=0)
+    for iniidx in range(nidx):
+        print(iniidx)
+        with open('/home/kazu/desktop/240424/bi2d/' + str(iniidx) + '_rev.pkl',
+                  'rb') as f:
+            data = pickle.load(f)
+        #print(data.shape)
+        #plt.imshow(data[0, :, :])
+        #plt.plot(data[0, 10, :])
+        #plt.show()
+        cond = np.isnan(data).sum(axis=1).sum(axis=1) == 0
+        data = data[cond]
         if iniidx == 0:
             datat = data
+            condt = cond
         else:
             datat = np.vstack((datat, data))
-    datat_noisy = get_noisydata(datat, x, timescale)
+            condt = np.concatenate([condt, cond])
+    #datat_noisy = get_noisydata(datat, x, timescale)
     datasets = {}
     datasets['target'] = datat*timescale
-    datasets['noisy'] = datat_noisy
-    datasets['x'] = x
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_test.pkl', 'wb') as f:
+    #datasets['noisy'] = datat_noisy
+    #datasets['x'] = x
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev_wcond.pkl', 'wb') as f:
         pickle.dump(datasets, f, 4)
+        pickle.dump(condt, f, 4)
 
 
 def gather_bi3d(timescale=600, nidx=100):
@@ -360,13 +577,15 @@ def check_data():
 
 
 #gather_bi2d(timescale=50)
-#cycles(ns=1, dim=2)
+#cycles(ns=30000, dim=1)
 #cycles_mpi(ns=240, dim=2, pklfile='param_sets_sets_2dlarge.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation()
-#gather_bi2d(timescale=50, nidx=125)
+#single_computation()
+#gather_bi2d(timescale=1, nidx=300)
+#gather_bi2d_only_cond(timescale=1, nidx=300)
+synthesize_bi2ddata()
 #gather_bi3d(timescale=50, nidx=125)
 #select_bi2d()
 #check_data()
-
+#crude_parallel_computation()
