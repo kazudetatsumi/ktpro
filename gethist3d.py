@@ -20,6 +20,7 @@ def calc_hist3d_f90(A, nw0, nw1, nw2, condition):
     Nmax0 = A.shape[0]
     Nmax1 = A.shape[1]
     Nmax2 = A.shape[2]
+    print(A.dtype)
 
     result = lib.hist3d(ctypes.byref(ctypes.c_int(nw0)), ctypes.byref(ctypes.c_int(nw1)), ctypes.byref(ctypes.c_int(nw2)),
                         ctypes.byref(ctypes.c_int(Nmax0)), ctypes.byref(ctypes.c_int(Nmax1)), ctypes.byref(ctypes.c_int(Nmax2)), A)
@@ -223,12 +224,17 @@ def run_tst3d():
 def run_bi():
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
-    outtifffile = "423/" + tifffile.split(".")[0]+"_423.tiff"
-    data = imread(tifffile)
+    outtifffile = "433/" + tifffile.split(".")[0]+"_433.tiff"
+    # Note that the obtained experimental data type is float32.
+    # The data type should be converted as float64 so as to keep the numbers in
+    # the cummulative sum matrix.
+    data = imread(tifffile).astype(np.float64)
     condition = np.ones(data.shape, dtype=bool)
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
     print("A is obtained")
-    k, kcond = calc_hist3d(A, 4, 2, 3, condition)
+    k,__,__,__, kcond = calc_hist3d_f90(A, 4, 3, 3, condition)
+    #k, kcond = calc_hist3d(A, 4, 3, 3, condition)
+    print(k.shape)
     imwrite(outtifffile, k)
 
 #run_simu3d()
