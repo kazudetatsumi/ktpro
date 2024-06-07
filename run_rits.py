@@ -366,10 +366,10 @@ def synthesize_bi2ddata():
     #
     smoothed = np.median(sampleexp[idx, 40, 24], axis=0)
     fig, ax = plt.subplots(2, 2)
-    for didx, (spectrum, label) in enumerate(zip([sampleexp[:, 40, 24],
+    for didx, (spectrum, label) in enumerate(zip([sampleexp_noisy[:, 40, 24],
                                              np.random.poisson(
-                                                 sample[:, 24, 40]/2)*7*2],
-                                             ['sampleexp', 'samplesim'])):
+                                                 sample[:, 24, 40])],
+                                             ['sampleexp_noisy', 'samplesim'])):
     #for didx, (spectrum, label) in enumerate(zip([openbeamexp_noisy[:, 40, 24], np.random.poisson(op[:, 24, 40])],
     #                                             ['openbeamexp_noisy', 'op'])):
         smoothed = np.median(spectrum[idx], axis=0)
