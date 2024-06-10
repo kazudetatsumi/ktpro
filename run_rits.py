@@ -23,9 +23,11 @@ def get_params():
     ##param_sets['lims_mean'] = [[2.5, 3.2]]
     #param_sets['lims_mean'] = [[2.86338, 2.86340]]
     #param_sets['lims_mean'] = [[2.85315, 2.908040]]
-    param_sets['lims_mean'] = [[2.86, 2.87]]
+    #param_sets['lims_mean'] = [[2.86, 2.87]]
+    param_sets['lims_mean'] = [[2.86, 2.88]]
     ##param_sets['lims_scale'] = [[0.0, 0.04]]
-    param_sets['lims_scale'] = [[0.0, 0.00005]]
+    #param_sets['lims_scale'] = [[0.0, 0.00005]]
+    param_sets['lims_scale'] = [[0.0, 0.00006]]
     ##param_sets['lims_scale'] = [[0.0, 0.00001]]
     #param_sets['lims_xlim'] = [[10., 30.]]
     param_sets['lims_xlim'] = [[5., 25.]]
@@ -34,22 +36,28 @@ def get_params():
     param_sets['string'].append("CRSIZE")
     ##param_sets['lims_mean'].append([0.5, 1.1])
     #param_sets['lims_mean'].append([0.800057, 0.800059])
-    param_sets['lims_mean'].append([0.186038, 1.31959])
+    #param_sets['lims_mean'].append([0.186038, 1.31959])
+    param_sets['lims_mean'].append([0.5, 2.5])
     ##param_sets['lims_scale'].append([0.1, 2.0])
     ##param_sets['lims_scale'].append([0.0, 0.00001])
-    param_sets['lims_scale'].append([0.0, 0.01])
-    param_sets['lims_xlim'].append([10., 30.])
+    #param_sets['lims_scale'].append([0.0, 0.01])
+    param_sets['lims_scale'].append([0.0, 0.10])
+    #param_sets['lims_xlim'].append([10., 30.])
+    param_sets['lims_xlim'].append([20., 40.])
     #23 Microstrain in Jorgensen function, エッジの傾きが変わる。
     # 0〜6ぐらい．
     param_sets['param_name'].append("microstrain in Jorgensen func")
     param_sets['string'].append("MICRST")
     ##param_sets['lims_mean'].append([0.0, 6.0])
     #param_sets['lims_mean'].append([1.65100, 1.65102])
-    param_sets['lims_mean'].append([1.0, 15.7124])
+    #param_sets['lims_mean'].append([1.0, 15.7124])
+    param_sets['lims_mean'].append([2.0, 15.])
     ##param_sets['lims_scale'].append([0.1, 2.0])
     ##param_sets['lims_scale'].append([0.0, 0.00001])
-    param_sets['lims_scale'].append([0.1, 2.0])
-    param_sets['lims_xlim'].append([10., 30.])
+    #param_sets['lims_scale'].append([0.1, 2.0])
+    param_sets['lims_scale'].append([0.1, 3.0])
+    #param_sets['lims_xlim'].append([10., 30.])
+    param_sets['lims_xlim'].append([10., 40.])
     #24 Crysallite size in Jorgensen function, エッジの傾きが変わる。
     # 0〜6ぐらい．
     #param_sets['param_name'].append("crsytallite size in Jorgensen func")
@@ -65,12 +73,14 @@ def get_params():
     #param_sets['lims_mean'].append([0.3, 2.0])
     ##param_sets['lims_mean'].append([1.5, 2.0])
     #param_sets['lims_mean'].append([1.942830, 1.94283])
-    param_sets['lims_mean'].append([1.33567, 2.53587])
+    #param_sets['lims_mean'].append([1.33567, 2.53587])
+    param_sets['lims_mean'].append([1.5, 4.])
     ##param_sets['lims_scale'].append([0.01, 0.1])
     #param_sets['lims_scale'].append([0.0, 0.000001])
     #param_sets['lims_scale'].append([0.01, 2.0])
     param_sets['lims_scale'].append([0.01, 1.0])
-    param_sets['lims_xlim'].append([10., 30.])
+    #param_sets['lims_xlim'].append([10., 30.])
+    param_sets['lims_xlim'].append([10., 40.])
     # 元素特性1
     #param_sets['param_name'].append("Coherent Scattering Length")
     #param_sets['string'].append("COHESL")
@@ -84,11 +94,14 @@ def get_params():
     param_sets['string'].append("PRODEN")
     ##param_sets['lims_mean'].append([1.0, 7.0])
     #param_sets['lims_mean'].append([3.50487, 3.50489])
-    param_sets['lims_mean'].append([1.33478, 3.96254])
+    #param_sets['lims_mean'].append([1.33478, 3.96254])
+    param_sets['lims_mean'].append([1., 4.])
     ##param_sets['lims_scale'].append([0.05, 0.5])
     #param_sets['lims_scale'].append([0.0, 0.000005])
-    param_sets['lims_scale'].append([0.05, 2.0])
-    param_sets['lims_xlim'].append([6., 10.])
+    #param_sets['lims_scale'].append([0.05, 2.0])
+    param_sets['lims_scale'].append([0.05, 4.0])
+    #param_sets['lims_xlim'].append([6., 10.])
+    param_sets['lims_xlim'].append([16., 20.])
 
     return param_sets
 
@@ -158,7 +171,7 @@ def cycles(ns=2, dim=1):
     for ins in range(ns):
         param_sets_sets.append(draw_params(param_sets, dim=dim))
     if dim == 1:
-        with open('param_sets_sets_bccrev2.pkl', 'wb') as f:
+        with open('param_sets_sets_bccrev3.pkl', 'wb') as f:
             pickle.dump(param_sets_sets, f, 4)
     elif dim == 2:
         with open('param_sets_sets_2d.pkl', 'wb') as f:
@@ -257,7 +270,7 @@ def get_noisydata(bi2d, x, timescale):
 #cycles(ns=10000)
 
 # routine for crude parallel computations of rits
-def crude_parallel_computation(pklfile='param_sets_sets_bccrev2.pkl'):
+def crude_parallel_computation(pklfile='param_sets_sets_bccrev3.pkl'):
     inino = int(sys.argv[1])
     inpfile = 'rits_initial.inp.' + str(inino)
     param_sets_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
@@ -267,7 +280,7 @@ def crude_parallel_computation(pklfile='param_sets_sets_bccrev2.pkl'):
         if pid == 0:
             bi2dt = np.zeros((100, bi2d_true.shape[0], bi2d_true.shape[1]))
         bi2dt[pid] = bi2d_true
-    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev2.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev3.pkl', 'wb') as f:
         pickle.dump(bi2dt, f, 4)
         pickle.dump(x, f, 4)
     #bi2d_noisy = get_noisydata(bi2d_true, x, 200)
@@ -331,15 +344,15 @@ def synthesize_bi2ddata():
         openbeamexp_noisy = pickle.load(f)
         sampleexp = pickle.load(f)
         sampleexp_noisy = pickle.load(f)
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev2.pkl',
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev3.pkl',
               'rb') as f:
         datasets = pickle.load(f)
     data = datasets['target']
     _shape = openbeamexp.shape
     tcount_openbeamexp = np.tile(openbeamexp.sum(axis=0),
-                                 (1, 493)).T[:data.shape[0]]
+                                 (1, 691)).T[:data.shape[0]]
     tcount_openbeamexp_noisy = np.tile(openbeamexp_noisy.sum(axis=0),
-                                       (1, 493)).T[:data.shape[0]]
+                                       (1, 691)).T[:data.shape[0]]
     mean_openbeamexp = openbeamexp.transpose((2, 1, 0))\
         .sum(axis=0).sum(axis=0)/_shape[1]/_shape[2]*1.15
     sample = (data*mean_openbeamexp).transpose((2, 0, 1))\
@@ -440,8 +453,8 @@ def synthesize_bi2ddata():
     sim_datasets['sample'] = sample
     sim_datasets['op'] = op
     #datasets['x'] = x
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_simudata_rev2.pkl', 'wb') as f:
-        pickle.dump(sim_datasets, f, 4)
+    #with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_simudata_rev3.pkl', 'wb') as f:
+    #    pickle.dump(sim_datasets, f, 4)
 
 
 def gather_bi2d_only_cond(timescale=600, nidx=100):
@@ -474,7 +487,7 @@ def gather_bi2d(timescale=600, nidx=100):
     #tcount_openbeamexp_noisy = openbeamexp_noisy.sum(axis=0)
     for iniidx in range(nidx):
         print(iniidx)
-        with open('/home/kazu/desktop/240424/bi2d/' + str(iniidx) + '_rev2.pkl',
+        with open('/home/kazu/desktop/240424/bi2d/' + str(iniidx) + '_rev3.pkl',
                   'rb') as f:
             data = pickle.load(f)
         #print(data.shape)
@@ -494,7 +507,7 @@ def gather_bi2d(timescale=600, nidx=100):
     datasets['target'] = datat*timescale
     #datasets['noisy'] = datat_noisy
     #datasets['x'] = x
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev2.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev3.pkl', 'wb') as f:
         pickle.dump(datasets, f, 4)
         #pickle.dump(condt, f, 4)
 
@@ -548,12 +561,12 @@ def check_data():
 
 
 #gather_bi2d(timescale=50)
-#cycles(ns=30000, dim=1)
+#cycles(ns=40000, dim=1)
 #cycles_mpi(ns=240, dim=2, pklfile='param_sets_sets_2dlarge.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation()
-#gather_bi2d(timescale=1, nidx=300)
+#gather_bi2d(timescale=1, nidx=400)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
 synthesize_bi2ddata()
 #gather_bi3d(timescale=50, nidx=125)
