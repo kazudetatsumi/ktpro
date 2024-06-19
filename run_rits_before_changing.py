@@ -20,89 +20,73 @@ def get_params():
     param_sets = {}
     param_sets['param_name'] = ["lattice constance"]
     param_sets['string'] = ['LATCON']
-    ##param_sets['lims_mean'] = [[2.5, 3.2]]
-    #param_sets['lims_mean'] = [[2.86338, 2.86340]]
-    #param_sets['lims_mean'] = [[2.85315, 2.908040]]
-    #param_sets['lims_mean'] = [[2.86, 2.87]]
-    param_sets['lims_mean'] = [[2.86, 2.88]]
-    ##param_sets['lims_scale'] = [[0.0, 0.04]]
-    #param_sets['lims_scale'] = [[0.0, 0.00005]]
-    param_sets['lims_scale'] = [[0.0, 0.00006]]
-    ##param_sets['lims_scale'] = [[0.0, 0.00001]]
-    #param_sets['lims_xlim'] = [[10., 30.]]
+    param_sets['lims_mean'] = [[2.86, 2.87]]
+    param_sets['lims_scale'] = [[0.0, 0.00005]]
     param_sets['lims_xlim'] = [[5., 25.]]
     #45 Crsytallite size, 2.0〜9.0 ミクロン. エッジのジャンプ高さが低くなる。
     param_sets['param_name'].append("crsytallite size")
     param_sets['string'].append("CRSIZE")
-    ##param_sets['lims_mean'].append([0.5, 1.1])
-    #param_sets['lims_mean'].append([0.800057, 0.800059])
-    #param_sets['lims_mean'].append([0.186038, 1.31959])
-    param_sets['lims_mean'].append([0.5, 2.5])
-    ##param_sets['lims_scale'].append([0.1, 2.0])
-    ##param_sets['lims_scale'].append([0.0, 0.00001])
-    #param_sets['lims_scale'].append([0.0, 0.01])
-    param_sets['lims_scale'].append([0.0, 0.10])
-    #param_sets['lims_xlim'].append([10., 30.])
-    param_sets['lims_xlim'].append([20., 40.])
+    param_sets['lims_mean'].append([0.186038, 1.31959])
+    param_sets['lims_scale'].append([0.0, 0.01])
+    param_sets['lims_xlim'].append([10., 30.])
     #23 Microstrain in Jorgensen function, エッジの傾きが変わる。
     # 0〜6ぐらい．
     param_sets['param_name'].append("microstrain in Jorgensen func")
     param_sets['string'].append("MICRST")
-    ##param_sets['lims_mean'].append([0.0, 6.0])
-    #param_sets['lims_mean'].append([1.65100, 1.65102])
-    #param_sets['lims_mean'].append([1.0, 15.7124])
-    param_sets['lims_mean'].append([2.0, 15.])
-    ##param_sets['lims_scale'].append([0.1, 2.0])
-    ##param_sets['lims_scale'].append([0.0, 0.00001])
-    #param_sets['lims_scale'].append([0.1, 2.0])
-    param_sets['lims_scale'].append([0.1, 3.0])
-    #param_sets['lims_xlim'].append([10., 30.])
-    param_sets['lims_xlim'].append([10., 40.])
-    #24 Crysallite size in Jorgensen function, エッジの傾きが変わる。
-    # 0〜6ぐらい．
-    #param_sets['param_name'].append("crsytallite size in Jorgensen func")
-    #param_sets['string'].append("CRSIZJ")
-    #param_sets['lims_mean'].append([0.0, 6.0])
-    #param_sets['lims_scale'].append([0.1, 2.0])
-    #param_sets['lims_xlim'].append([10., 30.])
+    param_sets['lims_mean'].append([1.0, 15.7124])
+    param_sets['lims_scale'].append([0.1, 2.0])
+    param_sets['lims_xlim'].append([10., 30.])
     #32 March-Dollase 係数,  1.5〜2.0 (蘇さんの歯車), 0.3〜0.9 (佐藤さんの溶接材)。
     # <1でビームに平行に成長、>1で垂直に成長。
     # 特定のhkl列のエッジジャンプが変わる．
     param_sets['param_name'].append("March-Dollase Coefficient")
     param_sets['string'].append("MDCOEF")
-    #param_sets['lims_mean'].append([0.3, 2.0])
-    ##param_sets['lims_mean'].append([1.5, 2.0])
-    #param_sets['lims_mean'].append([1.942830, 1.94283])
-    #param_sets['lims_mean'].append([1.33567, 2.53587])
-    param_sets['lims_mean'].append([1.5, 4.])
-    ##param_sets['lims_scale'].append([0.01, 0.1])
-    #param_sets['lims_scale'].append([0.0, 0.000001])
-    #param_sets['lims_scale'].append([0.01, 2.0])
+    param_sets['lims_mean'].append([1.33567, 2.53587])
     param_sets['lims_scale'].append([0.01, 1.0])
-    #param_sets['lims_xlim'].append([10., 30.])
-    param_sets['lims_xlim'].append([10., 40.])
-    # 元素特性1
-    #param_sets['param_name'].append("Coherent Scattering Length")
-    #param_sets['string'].append("COHESL")
-    ##param_sets['lims_mean'].append([9.3, 9.6])
-    #param_sets['lims_mean'].append([9.44, 9.46])
-    ##param_sets['lims_scale'].append([0.01, 0.1])
-    #param_sets['lims_scale'].append([0.0, 0.000001])
-    #param_sets['lims_xlim'].append([10., 30.])
+    param_sets['lims_xlim'].append([10., 30.])
     ## 投影原子数密度
     param_sets['param_name'].append("Projected Atomic Number Density")
     param_sets['string'].append("PRODEN")
-    ##param_sets['lims_mean'].append([1.0, 7.0])
-    #param_sets['lims_mean'].append([3.50487, 3.50489])
-    #param_sets['lims_mean'].append([1.33478, 3.96254])
-    param_sets['lims_mean'].append([1., 4.])
-    ##param_sets['lims_scale'].append([0.05, 0.5])
-    #param_sets['lims_scale'].append([0.0, 0.000005])
-    #param_sets['lims_scale'].append([0.05, 2.0])
-    param_sets['lims_scale'].append([0.05, 4.0])
-    #param_sets['lims_xlim'].append([6., 10.])
-    param_sets['lims_xlim'].append([16., 20.])
+    param_sets['lims_mean'].append([1.33478, 3.96254])
+    param_sets['lims_scale'].append([0.05, 2.0])
+    param_sets['lims_xlim'].append([6., 10.])
+    return param_sets
 
+
+def get_params_now():
+    param_sets = {}
+    param_sets['param_name'] = ["lattice constance"]
+    param_sets['string'] = ['LATCON']
+    param_sets['lims_mean'] = [[2.86, 2.88]]
+    param_sets['lims_scale'] = [[0.0, 0.00006]]
+    param_sets['lims_xlim'] = [[5., 25.]]
+    #45 Crsytallite size, 2.0〜9.0 ミクロン. エッジのジャンプ高さが低くなる。
+    param_sets['param_name'].append("crsytallite size")
+    param_sets['string'].append("CRSIZE")
+    param_sets['lims_mean'].append([0.5, 2.5])
+    param_sets['lims_scale'].append([0.0, 0.10])
+    param_sets['lims_xlim'].append([20., 40.])
+    #23 Microstrain in Jorgensen function, エッジの傾きが変わる。
+    # 0〜6ぐらい．
+    param_sets['param_name'].append("microstrain in Jorgensen func")
+    param_sets['string'].append("MICRST")
+    param_sets['lims_mean'].append([2.0, 15.])
+    param_sets['lims_scale'].append([0.1, 3.0])
+    param_sets['lims_xlim'].append([10., 40.])
+    #32 March-Dollase 係数,  1.5〜2.0 (蘇さんの歯車), 0.3〜0.9 (佐藤さんの溶接材)。
+    # <1でビームに平行に成長、>1で垂直に成長。
+    # 特定のhkl列のエッジジャンプが変わる．
+    param_sets['param_name'].append("March-Dollase Coefficient")
+    param_sets['string'].append("MDCOEF")
+    param_sets['lims_mean'].append([1.5, 4.])
+    param_sets['lims_scale'].append([0.01, 1.0])
+    param_sets['lims_xlim'].append([10., 40.])
+    ## 投影原子数密度
+    param_sets['param_name'].append("Projected Atomic Number Density")
+    param_sets['string'].append("PRODEN")
+    param_sets['lims_mean'].append([1., 4.])
+    param_sets['lims_scale'].append([0.05, 4.0])
+    param_sets['lims_xlim'].append([16., 20.])
     return param_sets
 
 
@@ -171,7 +155,7 @@ def cycles(ns=2, dim=1):
     for ins in range(ns):
         param_sets_sets.append(draw_params(param_sets, dim=dim))
     if dim == 1:
-        with open('param_sets_sets_bccrev3.pkl', 'wb') as f:
+        with open('param_sets_sets_before_changing.pkl', 'wb') as f:
             pickle.dump(param_sets_sets, f, 4)
     elif dim == 2:
         with open('param_sets_sets_2d.pkl', 'wb') as f:
@@ -267,10 +251,8 @@ def get_noisydata(bi2d, x, timescale):
     return np.random.poisson(bi2d*timescale*x)/x
 
 
-#cycles(ns=10000)
-
 # routine for crude parallel computations of rits
-def crude_parallel_computation(pklfile='param_sets_sets_bccrev2.pkl'):
+def crude_parallel_computation(pklfile='param_sets_sets_before_changing.pkl'):
     inino = int(sys.argv[1])
     inpfile = 'rits_initial.inp.' + str(inino)
     param_sets_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
@@ -280,47 +262,9 @@ def crude_parallel_computation(pklfile='param_sets_sets_bccrev2.pkl'):
         if pid == 0:
             bi2dt = np.zeros((100, bi2d_true.shape[0], bi2d_true.shape[1]))
         bi2dt[pid] = bi2d_true
-    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev2_chk.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_before_changing.pkl', 'wb') as f:
         pickle.dump(bi2dt, f, 4)
         pickle.dump(x, f, 4)
-    #bi2d_noisy = get_noisydata(bi2d_true, x, 200)
-    #bi2d(bi2d_true, bi2d_noisy)
-
-
-# routine for mpi parallel computations of rits
-def mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl'):
-    print('loading ', pklfile)
-    param_sets_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
-    print('loaded ', pklfile)
-    from mpi4py import MPI
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    psize = comm.Get_size()
-    inpfile = 'rits_initial.inp.' + str(rank)
-    #ns = len(param_sets_sets)
-    iniidx = int(sys.argv[1])
-    ns = 1
-    nskip = ns*iniidx
-    if rank == 0:
-        print("NSKIP:", nskip)
-    for splidx in range(rank*(ns//psize), (rank+1)*(ns//psize)):
-        param_sets = param_sets_sets[splidx+nskip]
-        bi2d_true, x = run_rits(param_sets['params'],  param_sets['string'],
-                                inpfile=inpfile)
-        if splidx == rank*(ns//psize):
-            spectrar = np.zeros((ns//psize, bi2d_true.flatten().shape[0]))
-        spectrar[splidx - rank*ns//psize, :] = bi2d_true.flatten()
-    comm.barrier()
-    bi2dt = np.array(comm.gather(spectrar.flatten(), root=0))
-    if rank == 0:
-        if bi2d_true.ndim == 2:
-            bi2dt = bi2dt.reshape((ns, bi2d_true.shape[0], bi2d_true.shape[1]))
-        elif bi2d_true.ndim == 3:
-            bi2dt = bi2dt.reshape((ns, bi2d_true.shape[0], bi2d_true.shape[1], bi2d_true.shape[2]))
-        with open('/home/kazu/desktop/240424/bi2d/bi2dlarge_test_.pkl.'+str(iniidx),
-                  'wb') as f:
-            pickle.dump(bi2dt, f, 4)
-            pickle.dump(x, f, 4)
 
 
 def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
@@ -344,7 +288,7 @@ def synthesize_bi2ddata():
         openbeamexp_noisy = pickle.load(f)
         sampleexp = pickle.load(f)
         sampleexp_noisy = pickle.load(f)
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev3.pkl',
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_before_changing.pkl',
               'rb') as f:
         datasets = pickle.load(f)
     data = datasets['target']
@@ -478,22 +422,11 @@ def gather_bi2d_only_cond(timescale=600, nidx=100):
 
 
 def gather_bi2d(timescale=600, nidx=100):
-    #with open('/home/kazu/desktop/240424/uNID_data_KO/433/openbeam.pkl',
-    #          'rb') as f:
-    #    openbeamexp = pickle.load(f)
-    #    openbeamexp_noisy = pickle.load(f)
-    #    etc = pickle.load(f)
-    #mean_openbeamexp = openbeamexp.sum(axis=1).sum(axis=1)
-    #tcount_openbeamexp_noisy = openbeamexp_noisy.sum(axis=0)
     for iniidx in range(nidx):
         print(iniidx)
-        with open('/home/kazu/desktop/240424/bi2d/' + str(iniidx) + '_rev3.pkl',
-                  'rb') as f:
+        with open('/home/kazu/desktop/240424/bi2d/' + str(iniidx) +
+                  '_before_changing.pkl', 'rb') as f:
             data = pickle.load(f)
-        #print(data.shape)
-        #plt.imshow(data[0, :, :])
-        #plt.plot(data[0, 10, :])
-        #plt.show()
         cond = np.isnan(data).sum(axis=1).sum(axis=1) == 0
         data = data[cond]
         if iniidx == 0:
@@ -502,14 +435,10 @@ def gather_bi2d(timescale=600, nidx=100):
         else:
             datat = np.vstack((datat, data))
             condt = np.concatenate([condt, cond])
-    #datat_noisy = get_noisydata(datat, x, timescale)
     datasets = {}
     datasets['target'] = datat*timescale
-    #datasets['noisy'] = datat_noisy
-    #datasets['x'] = x
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev3.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_before_changing.pkl', 'wb') as f:
         pickle.dump(datasets, f, 4)
-        #pickle.dump(condt, f, 4)
 
 
 def gather_bi3d(timescale=600, nidx=100):
@@ -561,15 +490,15 @@ def check_data():
 
 
 #gather_bi2d(timescale=50)
-#cycles(ns=40000, dim=1)
+#cycles(ns=30000, dim=1)
 #cycles_mpi(ns=240, dim=2, pklfile='param_sets_sets_2dlarge.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation()
 #gather_bi2d(timescale=1, nidx=400)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
-synthesize_bi2ddata()
+#synthesize_bi2ddata()
 #gather_bi3d(timescale=50, nidx=125)
 #select_bi2d()
 #check_data()
-#crude_parallel_computation()
+crude_parallel_computation()

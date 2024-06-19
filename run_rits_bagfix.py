@@ -20,89 +20,73 @@ def get_params():
     param_sets = {}
     param_sets['param_name'] = ["lattice constance"]
     param_sets['string'] = ['LATCON']
-    ##param_sets['lims_mean'] = [[2.5, 3.2]]
-    #param_sets['lims_mean'] = [[2.86338, 2.86340]]
-    #param_sets['lims_mean'] = [[2.85315, 2.908040]]
-    #param_sets['lims_mean'] = [[2.86, 2.87]]
-    param_sets['lims_mean'] = [[2.86, 2.88]]
-    ##param_sets['lims_scale'] = [[0.0, 0.04]]
-    #param_sets['lims_scale'] = [[0.0, 0.00005]]
-    param_sets['lims_scale'] = [[0.0, 0.00006]]
-    ##param_sets['lims_scale'] = [[0.0, 0.00001]]
-    #param_sets['lims_xlim'] = [[10., 30.]]
+    param_sets['lims_mean'] = [[2.86, 2.87]]
+    param_sets['lims_scale'] = [[0.0, 0.00005]]
     param_sets['lims_xlim'] = [[5., 25.]]
     #45 Crsytallite size, 2.0〜9.0 ミクロン. エッジのジャンプ高さが低くなる。
     param_sets['param_name'].append("crsytallite size")
     param_sets['string'].append("CRSIZE")
-    ##param_sets['lims_mean'].append([0.5, 1.1])
-    #param_sets['lims_mean'].append([0.800057, 0.800059])
-    #param_sets['lims_mean'].append([0.186038, 1.31959])
-    param_sets['lims_mean'].append([0.5, 2.5])
-    ##param_sets['lims_scale'].append([0.1, 2.0])
-    ##param_sets['lims_scale'].append([0.0, 0.00001])
-    #param_sets['lims_scale'].append([0.0, 0.01])
-    param_sets['lims_scale'].append([0.0, 0.10])
-    #param_sets['lims_xlim'].append([10., 30.])
-    param_sets['lims_xlim'].append([20., 40.])
+    param_sets['lims_mean'].append([0.186038, 1.31959])
+    param_sets['lims_scale'].append([0.0, 0.01])
+    param_sets['lims_xlim'].append([10., 30.])
     #23 Microstrain in Jorgensen function, エッジの傾きが変わる。
     # 0〜6ぐらい．
     param_sets['param_name'].append("microstrain in Jorgensen func")
     param_sets['string'].append("MICRST")
-    ##param_sets['lims_mean'].append([0.0, 6.0])
-    #param_sets['lims_mean'].append([1.65100, 1.65102])
-    #param_sets['lims_mean'].append([1.0, 15.7124])
-    param_sets['lims_mean'].append([2.0, 15.])
-    ##param_sets['lims_scale'].append([0.1, 2.0])
-    ##param_sets['lims_scale'].append([0.0, 0.00001])
-    #param_sets['lims_scale'].append([0.1, 2.0])
-    param_sets['lims_scale'].append([0.1, 3.0])
-    #param_sets['lims_xlim'].append([10., 30.])
-    param_sets['lims_xlim'].append([10., 40.])
-    #24 Crysallite size in Jorgensen function, エッジの傾きが変わる。
-    # 0〜6ぐらい．
-    #param_sets['param_name'].append("crsytallite size in Jorgensen func")
-    #param_sets['string'].append("CRSIZJ")
-    #param_sets['lims_mean'].append([0.0, 6.0])
-    #param_sets['lims_scale'].append([0.1, 2.0])
-    #param_sets['lims_xlim'].append([10., 30.])
+    param_sets['lims_mean'].append([1.0, 15.7124])
+    param_sets['lims_scale'].append([0.1, 2.0])
+    param_sets['lims_xlim'].append([10., 30.])
     #32 March-Dollase 係数,  1.5〜2.0 (蘇さんの歯車), 0.3〜0.9 (佐藤さんの溶接材)。
     # <1でビームに平行に成長、>1で垂直に成長。
     # 特定のhkl列のエッジジャンプが変わる．
     param_sets['param_name'].append("March-Dollase Coefficient")
     param_sets['string'].append("MDCOEF")
-    #param_sets['lims_mean'].append([0.3, 2.0])
-    ##param_sets['lims_mean'].append([1.5, 2.0])
-    #param_sets['lims_mean'].append([1.942830, 1.94283])
-    #param_sets['lims_mean'].append([1.33567, 2.53587])
-    param_sets['lims_mean'].append([1.5, 4.])
-    ##param_sets['lims_scale'].append([0.01, 0.1])
-    #param_sets['lims_scale'].append([0.0, 0.000001])
-    #param_sets['lims_scale'].append([0.01, 2.0])
+    param_sets['lims_mean'].append([1.33567, 2.53587])
     param_sets['lims_scale'].append([0.01, 1.0])
-    #param_sets['lims_xlim'].append([10., 30.])
-    param_sets['lims_xlim'].append([10., 40.])
-    # 元素特性1
-    #param_sets['param_name'].append("Coherent Scattering Length")
-    #param_sets['string'].append("COHESL")
-    ##param_sets['lims_mean'].append([9.3, 9.6])
-    #param_sets['lims_mean'].append([9.44, 9.46])
-    ##param_sets['lims_scale'].append([0.01, 0.1])
-    #param_sets['lims_scale'].append([0.0, 0.000001])
-    #param_sets['lims_xlim'].append([10., 30.])
+    param_sets['lims_xlim'].append([10., 30.])
     ## 投影原子数密度
     param_sets['param_name'].append("Projected Atomic Number Density")
     param_sets['string'].append("PRODEN")
-    ##param_sets['lims_mean'].append([1.0, 7.0])
-    #param_sets['lims_mean'].append([3.50487, 3.50489])
-    #param_sets['lims_mean'].append([1.33478, 3.96254])
-    param_sets['lims_mean'].append([1., 4.])
-    ##param_sets['lims_scale'].append([0.05, 0.5])
-    #param_sets['lims_scale'].append([0.0, 0.000005])
-    #param_sets['lims_scale'].append([0.05, 2.0])
-    param_sets['lims_scale'].append([0.05, 4.0])
-    #param_sets['lims_xlim'].append([6., 10.])
-    param_sets['lims_xlim'].append([16., 20.])
+    param_sets['lims_mean'].append([1.33478, 3.96254])
+    param_sets['lims_scale'].append([0.05, 2.0])
+    param_sets['lims_xlim'].append([6., 10.])
+    return param_sets
 
+
+def get_params_now():
+    param_sets = {}
+    param_sets['param_name'] = ["lattice constance"]
+    param_sets['string'] = ['LATCON']
+    param_sets['lims_mean'] = [[2.86, 2.88]]
+    param_sets['lims_scale'] = [[0.0, 0.00006]]
+    param_sets['lims_xlim'] = [[5., 25.]]
+    #45 Crsytallite size, 2.0〜9.0 ミクロン. エッジのジャンプ高さが低くなる。
+    param_sets['param_name'].append("crsytallite size")
+    param_sets['string'].append("CRSIZE")
+    param_sets['lims_mean'].append([0.5, 2.5])
+    param_sets['lims_scale'].append([0.0, 0.10])
+    param_sets['lims_xlim'].append([20., 40.])
+    #23 Microstrain in Jorgensen function, エッジの傾きが変わる。
+    # 0〜6ぐらい．
+    param_sets['param_name'].append("microstrain in Jorgensen func")
+    param_sets['string'].append("MICRST")
+    param_sets['lims_mean'].append([2.0, 15.])
+    param_sets['lims_scale'].append([0.1, 3.0])
+    param_sets['lims_xlim'].append([10., 40.])
+    #32 March-Dollase 係数,  1.5〜2.0 (蘇さんの歯車), 0.3〜0.9 (佐藤さんの溶接材)。
+    # <1でビームに平行に成長、>1で垂直に成長。
+    # 特定のhkl列のエッジジャンプが変わる．
+    param_sets['param_name'].append("March-Dollase Coefficient")
+    param_sets['string'].append("MDCOEF")
+    param_sets['lims_mean'].append([1.5, 4.])
+    param_sets['lims_scale'].append([0.01, 1.0])
+    param_sets['lims_xlim'].append([10., 40.])
+    ## 投影原子数密度
+    param_sets['param_name'].append("Projected Atomic Number Density")
+    param_sets['string'].append("PRODEN")
+    param_sets['lims_mean'].append([1., 4.])
+    param_sets['lims_scale'].append([0.05, 4.0])
+    param_sets['lims_xlim'].append([16., 20.])
     return param_sets
 
 
@@ -270,7 +254,7 @@ def get_noisydata(bi2d, x, timescale):
 #cycles(ns=10000)
 
 # routine for crude parallel computations of rits
-def crude_parallel_computation(pklfile='param_sets_sets_bccrev2.pkl'):
+def crude_parallel_computation(pklfile='param_sets_sets_bccrev3.pkl'):
     inino = int(sys.argv[1])
     inpfile = 'rits_initial.inp.' + str(inino)
     param_sets_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
@@ -280,7 +264,7 @@ def crude_parallel_computation(pklfile='param_sets_sets_bccrev2.pkl'):
         if pid == 0:
             bi2dt = np.zeros((100, bi2d_true.shape[0], bi2d_true.shape[1]))
         bi2dt[pid] = bi2d_true
-    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev2_chk.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev3.pkl', 'wb') as f:
         pickle.dump(bi2dt, f, 4)
         pickle.dump(x, f, 4)
     #bi2d_noisy = get_noisydata(bi2d_true, x, 200)
