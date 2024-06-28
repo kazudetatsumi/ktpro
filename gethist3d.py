@@ -237,8 +237,45 @@ def run_bi():
     print(k.shape)
     imwrite(outtifffile, k)
 
+
+def get_k(data, bins):
+    condition = np.ones(data.shape, dtype=bool)
+    A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
+    k, _, _, _, _ = calc_hist3d_f90(A, bins[0], bins[1], bins[2], condition)
+    return k
+
+
+def run_bi_with_stride():
+    bins = [4, 3, 3]
+    _bins = f'{bins[0]}{bins[1]}{bins[2]}'
+    from tifffile import imread, imwrite
+    tifffile = sys.argv[1]
+    outtifffile = _bins + '/' + tifffile.split(".")[0] + _bins + 'strd.tiff'
+    #tifffile = 'GEM000211_00_000_000.tiff'
+    #outtifffile = '433/GEM000211_00_000_000_433strd.tiff'
+    data = imread(tifffile).astype(np.float64)
+    totdata = np.zeros((data.shape[0]//bins[0], data.shape[1], data.shape[2]))
+    print(totdata.shape)
+    for tx in range(bins[1]):
+        for ty in range(bins[2]):
+            tdata = np.zeros_like(data)
+            if tx == 0 and ty == 0:
+                tdata = data
+            if tx == 0 and ty != 0:
+                tdata[:, :, :-ty] = data[:, :, ty:]
+            if tx != 0 and ty == 0:
+                tdata[:, :-tx, :] = data[:, tx:, :]
+            if tx != 0 and ty != 0:
+                tdata[:, :-tx, :-ty] = data[:, tx:, ty:]
+            totdata[:, tx:-bins[1]+tx:bins[1], ty:-bins[2]+ty:bins[2]] = get_k(tdata, bins)
+    #plt.imshow(totdata.sum(axis=0))
+    #plt.show()
+    imwrite(outtifffile, totdata)
+
+
 #run_simu3d()
-run_bi()
+#run_bi()
+run_bi_with_stride()
 #run_tst3d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
