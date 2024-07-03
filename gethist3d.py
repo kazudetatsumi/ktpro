@@ -224,7 +224,7 @@ def run_tst3d():
 def run_bi():
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
-    outtifffile = "433/" + tifffile.split(".")[0]+"_433.tiff"
+    outtifffile = "322/" + tifffile.split(".")[0]+"_322.tiff"
     # Note that the obtained experimental data type is float32.
     # The data type should be converted as float64 so as to keep the numbers in
     # the cummulative sum matrix.
@@ -232,7 +232,7 @@ def run_bi():
     condition = np.ones(data.shape, dtype=bool)
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
     print("A is obtained")
-    k,__,__,__, kcond = calc_hist3d_f90(A, 4, 3, 3, condition)
+    k,__,__,__, kcond = calc_hist3d_f90(A, 3, 2, 2, condition)
     #k, kcond = calc_hist3d(A, 4, 3, 3, condition)
     print(k.shape)
     imwrite(outtifffile, k)
@@ -274,8 +274,8 @@ def run_bi_with_stride():
 
 
 #run_simu3d()
-#run_bi()
-run_bi_with_stride()
+run_bi()
+#run_bi_with_stride()
 #run_tst3d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
