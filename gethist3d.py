@@ -246,7 +246,7 @@ def get_k(data, bins):
 
 
 def run_bi_with_stride():
-    bins = [4, 3, 3]
+    bins = [3, 3, 3]
     _bins = f'{bins[0]}{bins[1]}{bins[2]}'
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
@@ -274,8 +274,8 @@ def run_bi_with_stride():
 
 
 #run_simu3d()
-run_bi()
-#run_bi_with_stride()
+#run_bi()
+run_bi_with_stride()
 #run_tst3d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]

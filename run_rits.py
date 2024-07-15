@@ -115,7 +115,7 @@ def draw_params(param_sets, dim=1):
         xlim = np.random.uniform(low=lims_xlim[0], high=lims_xlim[1])
         if dim == 1:
             _params = draw_sample(mean=mean, numsample=1, scale=scale,
-                                  xlim=xlim, xsize=72)
+                                  xlim=xlim, xsize=96)
         elif dim == 2:
             _params = draw_sample2d(mean=mean, numsample=1, scale=scale,
                                     xlim=xlim, xsize=96, rsize=96)
@@ -170,7 +170,7 @@ def cycles(ns=2, dim=1):
     for ins in range(ns):
         param_sets_sets.append(draw_params(param_sets, dim=dim))
     if dim == 1:
-        with open('param_sets_sets_bccrev5long.pkl', 'wb') as f:
+        with open('param_sets_sets_bccrev5.pkl', 'wb') as f:
             pickle.dump(param_sets_sets, f, 4)
     elif dim == 2:
         with open('param_sets_sets_2d.pkl', 'wb') as f:
@@ -266,10 +266,8 @@ def get_noisydata(bi2d, x, timescale):
     return np.random.poisson(bi2d*timescale*x)/x
 
 
-#cycles(ns=10000)
-
 # routine for crude parallel computations of rits
-def crude_parallel_computation(pklfile='param_sets_sets_bccrev5long.pkl'):
+def crude_parallel_computation(pklfile='param_sets_sets_bccrev5.pkl'):
     inino = int(sys.argv[1])
     inpfile = 'rits_initial.inp.' + str(inino)
     param_sets_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
@@ -279,7 +277,7 @@ def crude_parallel_computation(pklfile='param_sets_sets_bccrev5long.pkl'):
         if pid == 0:
             bi2dt = np.zeros((100, bi2d_true.shape[0], bi2d_true.shape[1]))
         bi2dt[pid] = bi2d_true
-    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev5long.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/bi2d/' + str(inino) + '_rev5large.pkl', 'wb') as f:
         pickle.dump(bi2dt, f, 4)
         pickle.dump(x, f, 4)
     #bi2d_noisy = get_noisydata(bi2d_true, x, 200)
@@ -337,7 +335,8 @@ def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
 
 
 def synthesize_bi2ddata():
-    with open('/home/kazu/desktop/240424/suuNID/433/openbeamlong.pkl',
+    #with open('/home/kazu/desktop/240424/suuNID/433/openbeamstrd_openbaemnoisylowcount.pkl',
+    with open('/home/kazu/desktop/240424/suuNID/333/openbeamstrd_openbaemnoisylowcount.pkl',
               'rb') as f:
         # 3020	#4#	---23780	#5#	---
         #initof = (3020-20)//40 
@@ -346,15 +345,16 @@ def synthesize_bi2ddata():
         #openbeamexp_noisy = pickle.load(f)[initof:fintof, 2:34, 2:22]
         #sampleexp = pickle.load(f)[initof:fintof, 2:34, 2:22]
         #sampleexp_noisy = pickle.load(f)[initof:fintof, 2:34, 2:22]
-        openbeamexp = pickle.load(f)[:, 2:34, 2:22]
-        openbeamexp_noisy = pickle.load(f)[:, 2:34, 2:22]
-        sampleexp = pickle.load(f)[:, 2:34, 2:22]
-        sampleexp_noisy = pickle.load(f)[:, 2:34, 2:22]
+        openbeamexp = pickle.load(f)[:, 2:98, 2:62]
+        openbeamexp_noisy = pickle.load(f)[:, 2:98, 2:62]
+        sampleexp = pickle.load(f)[:, 2:98, 2:62]
+        sampleexp_noisy = pickle.load(f)[:, 2:98, 2:62]
         print("CHK", openbeamexp.shape)
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev4long.pkl',
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev5large.pkl',
               'rb') as f:
         datasets = pickle.load(f)
-    data = datasets['target']
+    data = datasets['target'][:, :, :]
+    print(data.shape)
     _shape = openbeamexp.shape
     tcount_openbeamexp_noisy = np.tile(openbeamexp_noisy.sum(axis=0),
                                        (1, 3440)).T[:data.shape[0]]
@@ -364,15 +364,15 @@ def synthesize_bi2ddata():
     plt.show()
     # correction due to the different # of kickers is added.
     sample = (data*mean_openbeamexp).transpose((2, 0, 1))\
-        * tcount_openbeamexp_noisy / np.sum(mean_openbeamexp)*199981/359575
+        * tcount_openbeamexp_noisy / np.sum(mean_openbeamexp)*199981/113494
     op = ((np.zeros_like(data)+1)*mean_openbeamexp).transpose((2, 0, 1))\
         * tcount_openbeamexp_noisy/np.sum(mean_openbeamexp)
     print("FUCK", sample.shape, op.shape, data.shape)
-    vpos = 24
-    hpos = 8
+    vpos = 24*3
+    hpos = 20
     plt.plot((sample/op)[:, hpos, vpos])
     plt.show()
-    x = np.arange(_shape[0])*40.+5500
+    x = np.arange(_shape[0])*40.+3020
     output = np.vstack((x, sample[:, hpos, vpos]/op[:, hpos, vpos]))
     output = np.vstack((output, np.zeros_like(x) + 0.01))
     np.savetxt('check_simuspectrum.txt', output.T)
@@ -402,7 +402,7 @@ def synthesize_bi2ddata():
         ax[1, didx].set_ylabel(lab + '-medianfiltered')
         ax[1, didx].set_xlabel('TOF / ch')
     plt.tight_layout()
-    plt.savefig('noise_levels_sample_exp_simulong.png')
+    #plt.savefig('noise_levels_sample_exp_simulong.png')
     plt.show()
 
     fig, ax = plt.subplots(4, 2, figsize=(10, 15))
@@ -469,7 +469,7 @@ def synthesize_bi2ddata():
         ax[3, didx].set_xlabel(r'$\lambda$ / ch')
         ax[3, didx].set_ylabel('Neutron Count')
     plt.tight_layout()
-    plt.savefig('openbeam_data_expt_simulong.png')
+    #plt.savefig('openbeam_data_expt_simulong.png')
     plt.show()
     fig, ax = plt.subplots(4, 2, figsize=(10, 10))
     _sample = np.random.poisson(sample[:, :_shape[2], :])
@@ -515,7 +515,7 @@ def synthesize_bi2ddata():
         ax[3, didx].set_xlabel(r'$\lambda$ / ch')
         ax[3, didx].set_ylabel('Neutron Count')
     plt.tight_layout()
-    plt.savefig('sample_data_expt_simulong.png')
+    #plt.savefig('sample_data_expt_simulong.png')
     plt.show()
     #plt.plot(op[300, 20-16, :], marker='o')
     #plt.show()
@@ -530,7 +530,7 @@ def synthesize_bi2ddata():
     sim_datasets['op'] = op
     datasets['x'] = x
     with open('/home/kazu/desktop/240424/bi2d/' +
-              'bi2d_testbcc_simudata_rev4long_lim.pkl', 'wb') as f:
+              'bi2d_testbcc_simudata_rev5large_lim.pkl', 'wb') as f:
         pickle.dump(sim_datasets, f, 4)
 
 
@@ -620,7 +620,7 @@ def gather_bi2d_mpi(timescale=600, nidx=100):
     for iniidx in range(ininum, finnum):
         if iniidx % 10 == 0:
             print(f'iniidx {iniidx} @ rank {rank}')
-        with open(f'/home/kazu/desktop/240424/bi2d/{iniidx}_rev4long.pkl',
+        with open(f'/home/kazu/desktop/240424/bi2d/{iniidx}_rev5large.pkl',
                   'rb') as f:
             data = pickle.load(f)
         cond = np.isnan(data).sum(axis=1).sum(axis=1) == 0
@@ -630,13 +630,13 @@ def gather_bi2d_mpi(timescale=600, nidx=100):
         else:
             datat = np.vstack((datat, data))
     with open('/home/kazu/desktop/240424/bi2d/' +
-              f'bi2d_testbcc_rev4long_{rank}.pkl', 'wb') as f:
+              f'bi2d_testbcc_rev5large_{rank}.pkl', 'wb') as f:
         pickle.dump(datat, f, 4)
     comm.barrier()
     if rank == 0:
         for ridx in range(psize):
             with open('/home/kazu/desktop/240424/bi2d/' +
-                      f'bi2d_testbcc_rev4long_{ridx}.pkl', 'rb') as f:
+                      f'bi2d_testbcc_rev5large_{ridx}.pkl', 'rb') as f:
                 data = pickle.load(f)
             if ridx == 0:
                 datat = data
@@ -645,7 +645,7 @@ def gather_bi2d_mpi(timescale=600, nidx=100):
         datasets = {}
         datasets['target'] = datat*timescale
         with open('/home/kazu/desktop/240424/bi2d/'
-                  + 'bi2d_testbcc_rev4long.pkl', 'wb') as f:
+                  + 'bi2d_testbcc_rev5large.pkl', 'wb') as f:
             pickle.dump(datasets, f, 4)
 
 
@@ -703,10 +703,10 @@ def check_data():
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation()
-gather_bi2d(timescale=1, nidx=300)
-#gather_bi2d_mpi(timescale=1, nidx=700)
+#gather_bi2d(timescale=1, nidx=300)
+#gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
-#synthesize_bi2ddata()
+synthesize_bi2ddata()
 #gather_bi3d(timescale=50, nidx=125)
 #select_bi2d()
 #check_data()
