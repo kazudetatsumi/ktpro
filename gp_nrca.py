@@ -235,10 +235,43 @@ def draw_sample(mean=4.5, scale=1., numsample=5, xlim=20, xsize=85):
     return y
 
 
-def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
+def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
                   rsize=32):
     X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
                        np.linspace(-xlim, xlim, xsize))
+    x = []
+    for _x, _y in zip(X.flatten(), Y.flatten()):
+        x.append([_x, _y])
+    x = np.array(x)
+    x_train = x
+    y_train = testfunc(x)
+    noiselevel = 0.000000000001
+    prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
+    print(datetime.datetime.now(), 'before getting K')
+    K = prj.kernel(x, x)*scale
+    print(datetime.datetime.now(), 'got K')
+    y = np.random.multivariate_normal(
+            mean=np.zeros(x.shape[0])+mean, cov=K, size=numsample)
+    print(datetime.datetime.now(), 'drew sample')
+    y = y.reshape((numsample, xsize, xsize))
+    if rsize > xsize:
+        y = y[np.newaxis, :, :, :]
+        import torch
+        y = torch.from_numpy(y)
+        upsample = torch.nn.Upsample(size=(rsize, rsize),
+                                     mode='bilinear')
+        y = upsample(y).reshape((numsample, rsize, rsize)).numpy()
+    print(datetime.datetime.now(), 'sample resized')
+    #for i in range(numsample):
+    #    plt.imshow(y[i])
+    #    plt.show()
+    return y
+
+
+def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32, ysize=32,
+                  rsize=32):
+    X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
+                       np.linspace(-xlim, xlim, ysize))
     x = []
     for _x, _y in zip(X.flatten(), Y.flatten()):
         x.append([_x, _y])
@@ -262,7 +295,7 @@ def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
     y = np.dot(L, z) + mean
 
     #print(datetime.datetime.now(), 'drew sample')
-    y = y.reshape((numsample, xsize, xsize))
+    y = y.reshape((numsample, xsize, ysize))
     if rsize > xsize:
         y = y[np.newaxis, :, :, :]
         import torch
