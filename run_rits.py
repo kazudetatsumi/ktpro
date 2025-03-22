@@ -283,46 +283,38 @@ def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
         pickle.dump(x, f, 4)
 
 
-def synthesize_bi2ddata():
-    #with open('/home/kazu/desktop/240424/suuNID/433/openbeamstrd_openbaemnoisylowcount.pkl',
-    with open('/home/kazu/desktop/240424/suuNID/333/openbeamstrd_openbaemnoisylowcount.pkl',
+def synthesize_bi3ddata():
+    with open('/home/kazu/desktop/240424/uNID_data_KO/433/openbeam.pkl',
               'rb') as f:
-        # 3020	#4#	---23780	#5#	---
-        #initof = (3020-20)//40 
-        #fintof = (23780-20)//40 + 1
-        #openbeamexp = pickle.load(f)[initof:fintof, 2:34, 2:22]
-        #openbeamexp_noisy = pickle.load(f)[initof:fintof, 2:34, 2:22]
-        #sampleexp = pickle.load(f)[initof:fintof, 2:34, 2:22]
-        #sampleexp_noisy = pickle.load(f)[initof:fintof, 2:34, 2:22]
-        openbeamexp = pickle.load(f)[:, 2:98, 2:62]
-        openbeamexp_noisy = pickle.load(f)[:, 2:98, 2:62]
-        sampleexp = pickle.load(f)[:, 2:98, 2:62]
-        sampleexp_noisy = pickle.load(f)[:, 2:98, 2:62]
+        openbeamexp = pickle.load(f)[:, 8:-5, 16:-16]
+        openbeamexp_noisy = pickle.load(f)[:, 8:-5, 16:-16]
+        sampleexp = pickle.load(f)[:, 8:-5, 16:-16]
+        sampleexp_noisy = pickle.load(f)[:, 8:-5, 16:-16]
         print("CHK", openbeamexp.shape)
-    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev5large.pkl',
+    with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_rev2.pkl',
               'rb') as f:
         datasets = pickle.load(f)
-    data = datasets['target'][:, :, :]
+    data = datasets['target'][:, 8:-5, :]
     print(data.shape)
     _shape = openbeamexp.shape
+    tcount_openbeamexp = np.tile(openbeamexp.sum(axis=0),
+                                 (1, 1612)).T[:data.shape[0]]
     tcount_openbeamexp_noisy = np.tile(openbeamexp_noisy.sum(axis=0),
-                                       (1, 3440)).T[:data.shape[0]]
+                                       (1, 1612)).T[:data.shape[0]]
     mean_openbeamexp = openbeamexp.transpose((2, 1, 0))\
         .sum(axis=0).sum(axis=0)/_shape[1]/_shape[2]*1.15
-    plt.plot(mean_openbeamexp)
-    plt.show()
-    # correction due to the different # of kickers is added.
     sample = (data*mean_openbeamexp).transpose((2, 0, 1))\
-        * tcount_openbeamexp_noisy / np.sum(mean_openbeamexp)*199981/113494
+        * tcount_openbeamexp_noisy / np.sum(mean_openbeamexp)
+        #* tcount_openbeamexp_noisy / np.sum(mean_openbeamexp) * 0.78
     op = ((np.zeros_like(data)+1)*mean_openbeamexp).transpose((2, 0, 1))\
         * tcount_openbeamexp_noisy/np.sum(mean_openbeamexp)
     print("FUCK", sample.shape, op.shape, data.shape)
-    vpos = 24*3
-    hpos = 20
-    plt.plot((sample/op)[:, hpos, vpos])
+    plt.plot((sample/op)[:, 40, 24])
     plt.show()
-    x = np.arange(_shape[0])*40.+3020
-    output = np.vstack((x, sample[:, hpos, vpos]/op[:, hpos, vpos]))
+    x = np.arange(_shape[0])*40.+7240
+    #output = np.vstack((x, np.random.poisson(sample[:, 40, 24]/10.)/np.random.poisson(op[:, 40, 24]/10.)))
+    output = np.vstack((x, sample[:, 40, 24]/op[:, 40, 24]))
+    #output = np.vstack((x, data[40, 24, :]))
     output = np.vstack((output, np.zeros_like(x) + 0.01))
     np.savetxt('check_simuspectrum.txt', output.T)
 
@@ -332,35 +324,40 @@ def synthesize_bi2ddata():
     idx = np.fromfunction(lambda i, j: i + j, (k, w), dtype=np.int) - k // 2
     idx[idx < 0] = 0
     idx[idx > w - 1] = w - 1
-    print(sampleexp.shape)
-    smoothed = np.median(sampleexp[idx, vpos, hpos], axis=0)
+    #
+    smoothed = np.median(sampleexp[idx, 40-8, 24-16], axis=0)
     fig, ax = plt.subplots(2, 2)
-    for didx, (sp, lab) in enumerate(zip([sampleexp_noisy[:, vpos, hpos],
-                                     np.random.poisson(sample[:, hpos, vpos])],
-                                     ['sampleexp_noisy', 'samplesim'])):
-    #for didx, (sp, lab) in enumerate(zip([openbeamexp_noisy[:, 40, 24], np.random.poisson(op[:, 24, 40])],
+    for didx, (spectrum, label) in enumerate(zip([sampleexp_noisy[:, 40-8, 24-16],
+                                             np.random.poisson(
+                                                 sample[:, 24-16, 40-8])],
+                                             ['sampleexp_noisy', 'samplesim'])):
+    #for didx, (spectrum, label) in enumerate(zip([openbeamexp_noisy[:, 40, 24], np.random.poisson(op[:, 24, 40])],
     #                                             ['openbeamexp_noisy', 'op'])):
-        smoothed = np.median(sp[idx], axis=0)
-        ax[0, didx].plot(sp, label=lab)
+        smoothed = np.median(spectrum[idx], axis=0)
+        ax[0, didx].plot(spectrum, label=label)
         ax[0, didx].plot(smoothed, label='medianfiltered')
         ax[0, didx].set_xlabel(r'$\lambda$ / ch')
         ax[0, didx].set_xlabel('TOF / ch')
         ax[0, didx].set_ylabel('Neutron Count')
         ax[0, didx].legend()
-        ax[1, didx].plot(sp - smoothed)
-        ax[1, didx].set_ylabel(lab + '-medianfiltered')
+        ax[1, didx].plot(spectrum - smoothed)
+        ax[1, didx].set_ylabel(label + '-medianfiltered')
         ax[1, didx].set_xlabel('TOF / ch')
     plt.tight_layout()
-    #plt.savefig('noise_levels_sample_exp_simulong.png')
+    plt.savefig('noise_levels_sample_exp_simu.png')
     plt.show()
 
     fig, ax = plt.subplots(4, 2, figsize=(10, 15))
-    for didx, (spectrum, label) in enumerate(zip([sampleexp[:, vpos, hpos],
-                                             sampleexp_noisy[:, vpos, hpos],
-                                             openbeamexp[:, vpos, hpos],
-                                             openbeamexp_noisy[:, vpos, hpos]],
-                                             ['sample', 'sample_part',
-                                              'openbeam', 'openbeam_part'])):
+    for didx, (spectrum, label) in enumerate(zip([sampleexp[:, 40-8, 24-16],
+                                                  sampleexp_noisy[:, 40-8, 24-16],
+                                                  openbeamexp[:, 40-8, 24-16],
+                                                  openbeamexp_noisy[:, 40-8, 24-16]
+                                                  ],
+                                                 ['sample',
+                                                  'sample_part',
+                                                  'openbeam',
+                                                  'openbeam_part']
+                                                 )):
         smoothed = np.median(spectrum[idx], axis=0)
         ax[didx, 0].plot(spectrum, label=label)
         ax[didx, 0].plot(smoothed, label='medianfiltered')
@@ -371,116 +368,95 @@ def synthesize_bi2ddata():
         ax[didx, 1].plot(spectrum - smoothed)
         ax[didx, 1].set_ylabel('Diff.')
     plt.tight_layout()
-    plt.savefig('noise_levels_sample_exp_full_partlong.png')
+    plt.savefig('noise_levels_sample_exp_full_part.png')
     plt.show()
 
     fig, ax = plt.subplots(4, 2, figsize=(10, 10))
-    _op = np.random.poisson(op[:, :_shape[2], :])
+    _op = np.random.poisson(op[:, :56-32, :])
     _openbeamexp_noisy = openbeamexp_noisy.transpose((0, 2, 1))
-    vmin1 = np.min(np.vstack((_op[:, hpos, :],
-                              _openbeamexp_noisy[:, hpos, :])))
-    vmax1 = np.max(np.vstack((_op[:, hpos, :],
-                              _openbeamexp_noisy[:, hpos, :])))
-    vmin2 = np.min(np.vstack((_op[:, :, vpos],
-                              _openbeamexp_noisy[:, :, vpos])))
-    vmax2 = np.max(np.vstack((_op[:, :, vpos],
-                              _openbeamexp_noisy[:, :, vpos])))
-    vmin3 = np.min(np.vstack((_op.sum(axis=0),
-                              _openbeamexp_noisy.sum(axis=0))))
-    vmax3 = np.max(np.vstack((_op.sum(axis=0),
-                              _openbeamexp_noisy.sum(axis=0))))
-    ymax = np.max(np.vstack((_op[:, hpos, vpos],
-                             _openbeamexp_noisy[:, hpos, vpos])))
-    ymin = np.min(np.vstack((_op[:, hpos, vpos],
-                             _openbeamexp_noisy[:, hpos, vpos])))
+    vmin1 = np.min(np.vstack((_op[:, 4, :], _openbeamexp_noisy[:, 4, :])))
+    vmax1 = np.max(np.vstack((_op[:, 4, :], _openbeamexp_noisy[:, 4, :])))
+    vmin2 = np.min(np.vstack((_op[:, :, 32], _openbeamexp_noisy[:, :, 32])))
+    vmax2 = np.max(np.vstack((_op[:, :, 32], _openbeamexp_noisy[:, :, 32])))
+    vmin3 = np.min(np.vstack((_op.sum(axis=0), _openbeamexp_noisy.sum(axis=0))))
+    vmax3 = np.max(np.vstack((_op.sum(axis=0), _openbeamexp_noisy.sum(axis=0))))
+    ymax = np.max(np.vstack((_op[:, 4, 32], _openbeamexp_noisy[:, 4, 32])))
+    ymin = np.min(np.vstack((_op[:, 4, 32], _openbeamexp_noisy[:, 4, 32])))
     for didx, (image, name) in enumerate(zip([_op, _openbeamexp_noisy],
-                                         ['simulated_openbeam',
-                                          'expt_openbeam_noisy'])):
-        ax[0, didx].set_title(f'{name} crosssection at y={hpos} ch')
+                                             ['simulated_openbeam',
+                                                 'expt_openbeam_noisy'])):
+        ax[0, didx].set_title(name + ' crosssection at y=4 ch')
         ax[0, didx].set_xlabel(r'$\lambda$ / ch')
         ax[0, didx].set_ylabel('y / ch')
-        ax[0, didx].imshow(image[:, hpos, :].T, vmin=vmin1, vmax=vmax1,
-                           aspect=5)
-        ax[1, didx].set_title(f'{name} crosssection at x={vpos} ch')
+        ax[0, didx].imshow(image[:, 20-16, :].T, vmin=vmin1, vmax=vmax1, aspect=5)
+        ax[1, didx].set_title(name + ' crosssection at x=32 ch')
         ax[1, didx].set_xlabel(r'$\lambda$ / ch')
-        ax[1, didx].imshow(image[:, :, vpos].T, vmin=vmin2, vmax=vmax2,
-                           aspect=10)
+        ax[1, didx].imshow(image[:, :, 40-8].T, vmin=vmin2, vmax=vmax2, aspect=10)
         ax[1, didx].set_ylabel('x / ch')
-        ax[2, didx].set_title(f'{name} projected onto xy')
+        ax[2, didx].set_title(name + ' projected onto xy')
         ax[2, didx].imshow(image.sum(axis=0), vmin=vmin3, vmax=vmax3)
         ax[2, didx].set_xlabel('x / ch')
         ax[2, didx].set_ylabel('y / ch')
-        ax[2, didx].axhline(hpos, color='r', linestyle='--', lw=1)
-        ax[2, didx].axvline(vpos, color='r', linestyle='--', lw=1)
-        ax[3, didx].set_title(f'{name} intensity at y={hpos} ch, x={vpos} ch')
-        ax[3, didx].plot(image[:, hpos, vpos])
+        ax[2, didx].axhline(4, color='r', linestyle='--', lw=1)
+        ax[2, didx].axvline(32, color='r', linestyle='--', lw=1)
+        ax[3, didx].set_title(name + ' intensity at y=4 ch, x=32 ch')
+        ax[3, didx].plot(image[:, 20-16, 40-8])
         ax[3, didx].set_ylim([ymin, ymax])
         ax[3, didx].set_xlabel(r'$\lambda$ / ch')
         ax[3, didx].set_ylabel('Neutron Count')
     plt.tight_layout()
-    #plt.savefig('openbeam_data_expt_simulong.png')
+    plt.savefig('openbeam_data_expt_simu.png')
     plt.show()
     fig, ax = plt.subplots(4, 2, figsize=(10, 10))
-    _sample = np.random.poisson(sample[:, :_shape[2], :])
+    _sample = np.random.poisson(sample[:, :56-32, :])
     _sampleexp_noisy = sampleexp_noisy.transpose((0, 2, 1))
-    vmin1 = np.min(np.vstack((_sample[:, hpos, :],
-                   _sampleexp_noisy[:, hpos, :])))
-    vmax1 = np.max(np.vstack((_sample[:, hpos, :],
-                   _sampleexp_noisy[:, hpos, :])))
-    vmin2 = np.min(np.vstack((_sample[:, :, vpos],
-                   _sampleexp_noisy[:, :, vpos])))
-    vmax2 = np.max(np.vstack((_sample[:, :, vpos],
-                   _sampleexp_noisy[:, :, vpos])))
-    vmin3 = np.min(np.vstack((_sample.sum(axis=0),
-                   _sampleexp_noisy.sum(axis=0))))
-    vmax3 = np.max(np.vstack((_sample.sum(axis=0),
-                   _sampleexp_noisy.sum(axis=0))))
-    ymax = np.max(np.vstack((_sample[:, hpos, vpos],
-                  _sampleexp_noisy[:, hpos, vpos])))
-    ymin = np.min(np.vstack((_sample[:, hpos, vpos],
-                  _sampleexp_noisy[:, hpos, vpos])))
+    vmin1 = np.min(np.vstack((_sample[:, 4, :], _sampleexp_noisy[:, 4, :])))
+    vmax1 = np.max(np.vstack((_sample[:, 4, :], _sampleexp_noisy[:, 4, :])))
+    vmin2 = np.min(np.vstack((_sample[:, :, 32], _sampleexp_noisy[:, :, 32])))
+    vmax2 = np.max(np.vstack((_sample[:, :, 32], _sampleexp_noisy[:, :, 32])))
+    vmin3 = np.min(np.vstack((_sample.sum(axis=0), _sampleexp_noisy.sum(axis=0))))
+    vmax3 = np.max(np.vstack((_sample.sum(axis=0), _sampleexp_noisy.sum(axis=0))))
+    ymax = np.max(np.vstack((_sample[:, 4, 32], _sampleexp_noisy[:, 4, 32])))
+    ymin = np.min(np.vstack((_sample[:, 4, 32], _sampleexp_noisy[:, 4, 32])))
     for didx, (image, name) in enumerate(zip([_sample, _sampleexp_noisy],
                                              ['simulated_sample',
                                                  'expt_sample_noisy'])):
-        ax[0, didx].set_title(f'{name} crosssection at y={hpos} ch')
+        ax[0, didx].set_title(name + ' crosssection at y=4 ch')
         ax[0, didx].set_xlabel(r'$\lambda$ / ch')
         ax[0, didx].set_ylabel('y / ch')
-        ax[0, didx].imshow(image[:, hpos, :].T, vmin=vmin1, vmax=vmax1,
-                           aspect=5)
-        ax[1, didx].set_title(f'{name} crosssection at x={vpos} ch')
+        ax[0, didx].imshow(image[:, 20-16, :].T, vmin=vmin1, vmax=vmax1, aspect=5)
+        ax[1, didx].set_title(name + ' crosssection at x=32 ch')
         ax[1, didx].set_xlabel(r'$\lambda$ / ch')
-        ax[1, didx].imshow(image[:, :, vpos].T, vmin=vmin2, vmax=vmax2,
-                           aspect=10)
+        ax[1, didx].imshow(image[:, :, 40-8].T, vmin=vmin2, vmax=vmax2, aspect=10)
         ax[1, didx].set_ylabel('x / ch')
-        ax[2, didx].set_title(f'{name} projected onto xy')
+        ax[2, didx].set_title(name + ' projected onto xy')
         ax[2, didx].imshow(image.sum(axis=0), vmin=vmin3, vmax=vmax3)
         ax[2, didx].set_xlabel('x / ch')
         ax[2, didx].set_ylabel('y / ch')
-        ax[2, didx].axhline(hpos, color='r', linestyle='--', lw=1)
-        ax[2, didx].axvline(vpos, color='r', linestyle='--', lw=1)
-        ax[3, didx].set_title(f'{name} intensity at y={hpos} ch, x={vpos} ch')
-        ax[3, didx].plot(image[:, hpos, vpos])
+        ax[2, didx].axhline(4, color='r', linestyle='--', lw=1)
+        ax[2, didx].axvline(32, color='r', linestyle='--', lw=1)
+        ax[3, didx].set_title(name + ' intensity at y=4 ch, x=32 ch')
+        ax[3, didx].plot(image[:, 20-16, 40-8])
         ax[3, didx].set_ylim([ymin, ymax])
         ax[3, didx].set_xlabel(r'$\lambda$ / ch')
         ax[3, didx].set_ylabel('Neutron Count')
     plt.tight_layout()
-    #plt.savefig('sample_data_expt_simulong.png')
+    plt.savefig('sample_data_expt_simu.png')
     plt.show()
     #plt.plot(op[300, 20-16, :], marker='o')
     #plt.show()
     #plt.plot(op[300, :56-32, 50-8], marker='o')
     #plt.show()
     sample = sample.transpose((1, 2, 0))
-    op = op[:, :_shape[2], :].transpose((1, 2, 0))
+    op = op[:, :56, :].transpose((1, 2, 0))
     #plt.hist(sample.sum(axis=1).sum(axis=1))
     #plt.show()
     sim_datasets = {}
     sim_datasets['sample'] = sample
     sim_datasets['op'] = op
     datasets['x'] = x
-    with open('/home/kazu/desktop/240424/bi2d/' +
-              'bi2d_testbcc_simudata_rev5large_lim.pkl', 'wb') as f:
-        pickle.dump(sim_datasets, f, 4)
+    #with open('/home/kazu/desktop/240424/bi2d/bi2d_testbcc_simudata_rev2_lim.pkl', 'wb') as f:
+    #    pickle.dump(sim_datasets, f, 4)
 
 
 def gather_bi2d_only_cond(timescale=600, nidx=100):
@@ -599,26 +575,28 @@ def gather_bi2d_mpi(timescale=600, nidx=100):
 
 
 def gather_bi3d(timescale=600, nidx=100):
-    datat = []
+    #datat = []
+    nremainders = 0
     for iniidx in range(nidx):
-        print(iniidx)
-        with open('/home/kazu/desktop/240424/bi3d/bi2d_test_.pkl.'
-                  + str(iniidx), 'rb') as f:
+        print(nremainders, iniidx)
+        with open('bi2dsingle.pkl.' + str(iniidx), 'rb') as f:
             data = pickle.load(f)
             x = pickle.load(f)
-        data = data[np.isnan(data).sum(axis=1).sum(axis=1).sum(axis=1) == 0]
-        if iniidx == 0:
-            datat = data
-        else:
-            datat = np.vstack((datat, data))
-    datat_noisy = get_noisydata(datat, x, timescale)
-    datasets = {}
-    datasets['target'] = datat*timescale
-    datasets['noisy'] = datat_noisy
-    datasets['x'] = x
-    print('start to write data into a file')
-    with open('/home/kazu/desktop/240424/bi3d/bi3d_test.pkl', 'wb') as f:
-        pickle.dump(datasets, f, 4)
+            if np.sum(np.isnan(data)) == 0:
+                nremainders += 1
+        #data = data[np.isnan(data).sum(axis=1).sum(axis=1).sum(axis=1) == 0]
+        #if iniidx == 0:
+        #    datat = data
+        #else:
+        #    datat = np.vstack((datat, data))
+    #datat_noisy = get_noisydata(datat, x, timescale)
+    #datasets = {}
+    #datasets['target'] = datat*timescale
+    #datasets['noisy'] = datat_noisy
+    #datasets['x'] = x
+    #print('start to write data into a file')
+    #with open('bi3d_test.pkl', 'wb') as f:
+    #    pickle.dump(datasets, f, 4)
 
 
 def select_bi2d(timescale=600):
@@ -648,15 +626,15 @@ def check_data():
 
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
-#cycles_mpi(ns=1200, dim=2, pklfile='param_sets_sets_bccrev2_2d.pkl')
+#cycles_mpi(ns=1800, dim=2, pklfile='param_sets_sets_bccrev2_2d_continue.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev2_2d.pkl')
+single_computation(pklfile='param_sets_sets_bccrev2_2d_continue.pkl')
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
-#synthesize_bi2ddata()
-#gather_bi3d(timescale=50, nidx=125)
+#synthesize_bi3ddata()
+#gather_bi3d(timescale=1, nidx=1200)
 #select_bi2d()
 #check_data()
 #crude_parallel_computation()
