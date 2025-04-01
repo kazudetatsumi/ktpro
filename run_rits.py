@@ -24,28 +24,28 @@ def get_params(rpkl=None, wpkl=None):
         param_sets['param_name'] = ["lattice constance"]
         param_sets['string'] = ['LATCON']
         param_sets['lims_mean'] = [[2.86, 2.87]]
-        param_sets['lims_scale'] = [[0.0, 0.00005]]
-        param_sets['lims_xlim'] = [[5., 25.]]
+        param_sets['lims_scale'] = [[0.0, 0.00001]]
+        param_sets['lims_xlim'] = [[25., 50.]]
         param_sets['param_name'].append("crsytallite size")
         param_sets['string'].append("CRSIZE")
-        param_sets['lims_mean'].append([0.186038, 1.31959])
-        param_sets['lims_scale'].append([0.0, 0.01])
-        param_sets['lims_xlim'].append([10., 30.])
+        param_sets['lims_mean'].append([1.0, 1.3])
+        param_sets['lims_scale'].append([0.3, 1.0])
+        param_sets['lims_xlim'].append([30., 40.])
         param_sets['param_name'].append("microstrain in Jorgensen func")
         param_sets['string'].append("MICRST")
-        param_sets['lims_mean'].append([1.0, 15.7124])
-        param_sets['lims_scale'].append([0.1, 2.0])
-        param_sets['lims_xlim'].append([10., 30.])
+        param_sets['lims_mean'].append([1.3, 1.5])
+        param_sets['lims_scale'].append([0.1, 1.0])
+        param_sets['lims_xlim'].append([40., 50.])
         param_sets['param_name'].append("March-Dollase Coefficient")
         param_sets['string'].append("MDCOEF")
-        param_sets['lims_mean'].append([1.33567, 2.53587])
+        param_sets['lims_mean'].append([2.3, 2.7])
         param_sets['lims_scale'].append([0.01, 1.0])
-        param_sets['lims_xlim'].append([10., 30.])
+        param_sets['lims_xlim'].append([15., 40.])
         param_sets['param_name'].append("Projected Atomic Number Density")
         param_sets['string'].append("PRODEN")
-        param_sets['lims_mean'].append([1.33478, 3.96254])
-        param_sets['lims_scale'].append([0.05, 2.0])
-        param_sets['lims_xlim'].append([6., 10.])
+        param_sets['lims_mean'].append([2.5, 3.6])
+        param_sets['lims_scale'].append([1.5, 2.6])
+        param_sets['lims_xlim'].append([4., 20.])
         if wpkl:
             with open(wpkl, 'wb') as f:
                 pickle.dump(param_sets, f, 4)
@@ -65,7 +65,7 @@ def draw_params(param_sets, dim=1):
                                   xlim=xlim, xsize=96)
         elif dim == 2:
             _params = draw_sample2d(mean=mean, numsample=1, scale=scale,
-                                    xlim=xlim, xsize=72, rsize=24)
+                                    xlim=xlim, xsize=96, rsize=56)
         if np.min(_params) < 0.:
             _params -= np.min(_params)
         if pidx == 0:
@@ -93,8 +93,8 @@ def draw_params_mpi(rg, param_sets, dim=1):
                                   xlim=xlim)
         elif dim == 2:
             _params = draw_sample2d_mpi(rg, mean=mean, numsample=1,
-                                    scale=scale, xlim=xlim, xsize=72,
-                                    ysize=24, rsize=12)
+                                    scale=scale, xlim=xlim, xsize=88,
+                                    ysize=56, rsize=12)
         #if pidx==0:
         #    print(param_sets['param_name'][pidx], param_sets['lims_mean'][pidx], mean, _params)
         if np.min(_params) < 0.:
@@ -113,14 +113,14 @@ def draw_params_mpi(rg, param_sets, dim=1):
 
 def cycles(ns=2, dim=1):
     param_sets_sets = []
-    param_sets = get_params(wpkl='param_sets_bccrev2.pkl')
+    param_sets = get_params(wpkl='param_sets_bccrev5.pkl')
     for ins in range(ns):
         param_sets_sets.append(draw_params(param_sets, dim=dim))
     if dim == 1:
         with open('param_sets_sets_bccrev5.pkl', 'wb') as f:
             pickle.dump(param_sets_sets, f, 4)
     elif dim == 2:
-        with open('param_sets_sets_bccrev2_2d.pkl', 'wb') as f:
+        with open('param_sets_sets_bccrev5_2d.pkl', 'wb') as f:
             pickle.dump(param_sets_sets, f, 4)
 
 
@@ -149,7 +149,7 @@ def cycles_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d.pkl'):
         ss = sg.spawn(psize)
         rg = Generator(PCG64(ss[rank]))
     _param_sets_sets = []
-    param_sets = get_params(rpkl='param_sets_bccrev2.pkl')
+    param_sets = get_params(rpkl='param_sets_bccrev5.pkl')
     for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
         print('rank=', rank, 'ins=', ins)
         _param_sets_sets.append(draw_params_mpi(rg, param_sets, dim=dim))
@@ -626,10 +626,10 @@ def check_data():
 
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
-#cycles_mpi(ns=1800, dim=2, pklfile='param_sets_sets_bccrev2_2d_continue.pkl')
+#cycles_mpi(ns=1800, dim=2, pklfile='param_sets_sets_bccrev5_2d_continue.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev2_2d_continue.pkl')
+single_computation(pklfile='param_sets_sets_bccrev5_2d_continue.pkl')
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
