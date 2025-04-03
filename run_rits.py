@@ -192,7 +192,7 @@ def load_param_sets_sets(param_sets_sets_file='param_sets_sets.pkl'):
 def run_rits(params, strings, inpfile='rits_initial.inp'):
     #for pidx in range(len(params[0])):
     for pidx in range(params[0].size):
-        print("run_rits pidx", pidx,'/',params[0].size)
+        #print("run_rits pidx", pidx,'/',params[0].size)
         os.system('cp rits_initial.inp.temp '+inpfile)
         for sidx, string in enumerate(strings):
             _param = "{:.4f}".format(params[sidx].flatten()[pidx])
