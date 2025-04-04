@@ -18,7 +18,7 @@ def double_gaussian_func(x, y, sigma):
     denominator1 = 2 * math.pi * pow(sigma, 2)
     exponent2 = - ((x - 5*sigma) ** 2 + y ** 2) / (2 * pow(sigma, 2))
     denominator2 = 2 * math.pi * pow(sigma, 2)
-    return pow(math.e, exponent1) / denominator1 + pow(math.e, exponent2) / denominator2
+    return 0.5 * (pow(math.e, exponent1) / denominator1 + pow(math.e, exponent2) / denominator2)
 
 def single_gaussian_func(x, sigma):
     exponent = - (x ** 2) / (2 * pow(sigma, 2))
@@ -128,13 +128,24 @@ u1x1 = np.array(u1x1)*dr
 u2x2 = np.array(u2x2)*dr
 positions2 = np.vstack([u1x1, u2x2])
 f1f2 = np.outer(f1[0], f2[0])
-f_cop = f1f2*copulad(positions2).reshape(X.shape)
+f_cop = f1f2*copulad(positions2).reshape(X.shape).T
+print("CHK", f_cop.shape)
 
-fig, ax = plt.subplots(2, 1)
-ax[0].pcolor(X, Y, f_cop)
-ax[0].set_title('Estimated using couplad')
-ax[1].pcolor(X, Y, Z)
-ax[1].set_title('Ground truth')
+ud = np.vstack([vec1, vec2])
+kde = stats.gaussian_kde(ud)
+position3 = np.vstack([X.ravel(), Y.ravel()])
+f_kde = kde(position3).reshape(X.shape).T
+
+fig, ax = plt.subplots(4, 1)
+ax[0].pcolor(X, Y, f_kde)
+ax[0].set_title('Estimated using gaussian kde')
+ax[1].pcolor(X, Y, f_cop)
+ax[1].set_title('Estimated using couplad')
+ax[2].pcolor(X, Y, Z)
+ax[2].set_title('Ground truth')
+ax[3].plot(f_kde[300, :], label='Estimated using gaussian kde')
+ax[3].plot(f_cop[300, :], label='Estimated using copulad')
+ax[3].plot(Z[300, :], label='Ground truth')
 plt.legend()
 plt.show()
 
