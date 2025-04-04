@@ -3,6 +3,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import sys
+from scipy import stats
 sys.path.append("/home/kazu/desktop/210108/AdaptiveKDE/adaptivekde")
 import ssvkernel
 
@@ -12,11 +13,18 @@ def gaussian_func(x, y, sigma):
     denominator = 2 * math.pi * pow(sigma, 2)
     return pow(math.e, exponent) / denominator
 
+def double_gaussian_func(x, y, sigma):
+    exponent1 = - (x ** 2 + y ** 2) / (2 * pow(sigma, 2))
+    denominator1 = 2 * math.pi * pow(sigma, 2)
+    exponent2 = - ((x - 5*sigma) ** 2 + y ** 2) / (2 * pow(sigma, 2))
+    denominator2 = 2 * math.pi * pow(sigma, 2)
+    return pow(math.e, exponent1) / denominator1 + pow(math.e, exponent2) / denominator2
+
 def single_gaussian_func(x, sigma):
     exponent = - (x ** 2) / (2 * pow(sigma, 2))
     denominator = (2 * math.pi * pow(sigma, 2))**0.5
     return pow(math.e, exponent) / denominator
-
+np.random.seed(314)
 M = 80
 winparam = 5
 WinFunc = "Boxcar"
@@ -25,16 +33,16 @@ dr = 0.01
 x = np.arange(-3.0, 3.0, dr)
 y = np.arange(-3.0, 3.0, dr)
 X, Y = np.meshgrid(x, y)
-Z = gaussian_func(X, Y, 0.1)
+Z = double_gaussian_func(X, Y, 0.1)
 z = single_gaussian_func(x, 0.1)
-print('fuck', z.sum()*dr)
-#plt.imshow(Z)
+#print('fuck', z.sum()*dr)
+#plt.pcolor(X, Y, Z)
 #plt.show()
 
 #tmpdata = np.random.randn(1000,2)
 #plt.scatter(tmpdata[:,0], tmpdata[:, 1])
 #plt.show()
-data = np.random.poisson(Z*dr**2*1000)
+data = np.random.poisson(Z*dr**2*20000)
 
 vec1 = []
 vec2 = []
@@ -75,6 +83,8 @@ f1 = ssvkernel.ssvkernel(vec1, x, M=M, winparam=winparam, WinFunc=WinFunc)
 f2 = ssvkernel.ssvkernel(vec2, y, M=M, winparam=winparam, WinFunc=WinFunc)
 #f1 = ssvkernel.ssvkernel(tmpdata[:, 0], M=M, winparam=winparam, WinFunc=WinFunc)
 #f2 = ssvkernel.ssvkernel(tmpdata[:, 1], M=M, winparam=winparam, WinFunc=WinFunc)
+print('chk1', x[0:10])
+print('chk1', f1[1][0:10])
 
 
 
@@ -94,8 +104,41 @@ u2 = []
 for v1, v2 in zip(vec1, vec2):
     u1.append(f1[0][f1[1] <= v1].sum())
     u2.append(f2[0][f2[1] <= v2].sum())
-plt.scatter(np.array(u1)*dr, np.array(u2)*dr)
+u1 = np.array(u1)*dr
+u2 = np.array(u2)*dr
+u = np.vstack([u1, u2])
+fig, ax = plt.subplots(3, 1)
+ax[0].scatter(u1, u2, s=0.1)
+ax[1].hist2d(u1, u2, bins=15)
+UX, UY = np.mgrid[np.min(u1):np.max(u1):100j, np.min(u2):np.max(u2):100j]
+copulad = stats.gaussian_kde(u)
+positions = np.vstack([UX.ravel(), UY.ravel()])
+#print(kde(np.vstack([UX.ravel(), UY.ravel()])).reshape(UX.shape).shape)
+c = ax[2].pcolor(UX, UY, copulad(positions).reshape(UX.shape))
+plt.colorbar(c)
 plt.show()
+
+
+u1x1 = []
+u2x2 = []
+for idx, (x1, x2) in enumerate(zip(X.ravel(), Y.ravel())):
+    u1x1.append(f1[0][f1[1] <= x1].sum())
+    u2x2.append(f2[0][f2[1] <= x2].sum())
+u1x1 = np.array(u1x1)*dr
+u2x2 = np.array(u2x2)*dr
+positions2 = np.vstack([u1x1, u2x2])
+f1f2 = np.outer(f1[0], f2[0])
+f_cop = f1f2*copulad(positions2).reshape(X.shape)
+
+fig, ax = plt.subplots(2, 1)
+ax[0].pcolor(X, Y, f_cop)
+ax[0].set_title('Estimated using couplad')
+ax[1].pcolor(X, Y, Z)
+ax[1].set_title('Ground truth')
+plt.legend()
+plt.show()
+
+
 
 #kde1 = ssvkernel.ssvkernel(vec1, x, M=M, winparam=winparam, WinFunc=WinFunc)
 #kde2 = ssvkernel.ssvkernel(vec2, y, M=M, winparam=winparam, WinFunc=WinFunc)
