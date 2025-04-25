@@ -224,7 +224,7 @@ def run_tst3d():
 def run_bi():
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
-    outtifffile = "411/" + tifffile.split(".")[0]+"_411.tiff"
+    outtifffile = "233/" + tifffile.split(".")[0]+"_233.tiff"
     # Note that the obtained experimental data type is float32.
     # The data type should be converted as float64 so as to keep the numbers in
     # the cummulative sum matrix.
@@ -232,7 +232,7 @@ def run_bi():
     condition = np.ones(data.shape, dtype=bool)
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
     print("A is obtained")
-    k,__,__,__, kcond = calc_hist3d_f90(A, 4, 1, 1, condition)
+    k,__,__,__, kcond = calc_hist3d_f90(A, 2, 3, 3, condition)
     #k, kcond = calc_hist3d(A, 4, 3, 3, condition)
     print(k.shape)
     imwrite(outtifffile, k)
@@ -246,29 +246,67 @@ def get_k(data, bins):
 
 
 def run_bi_with_stride():
-    bins = [3, 3, 3]
+    bins = [4, 3, 3]
     _bins = f'{bins[0]}{bins[1]}{bins[2]}'
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
-    outtifffile = _bins + '/' + tifffile.split(".")[0] + _bins + 'strd.tiff'
+    outtifffile = _bins + '/' + tifffile.split(".")[0] + _bins + 'strd_rev.tiff'
     #tifffile = 'GEM000211_00_000_000.tiff'
     #outtifffile = '433/GEM000211_00_000_000_433strd.tiff'
     data = imread(tifffile).astype(np.float64)
     totdata = np.zeros((data.shape[0]//bins[0], data.shape[1], data.shape[2]))
     print(totdata.shape)
+    mb = [bins[0]//2, bins[1]//2, bins[2]//2]
     for tx in range(bins[1]):
         for ty in range(bins[2]):
             tdata = np.zeros_like(data)
-            if tx == 0 and ty == 0:
+            ## I assume bins[1] == 3 and bins[2] == 3
+            #if tx == 0 and ty == 0:
+            #    tdata[:, 1:, 1:] = data[:, :-1, :-1]
+            #elif tx == 1 and ty == 1:
+            #    tdata = data
+            #elif tx == 2 and ty == 2:
+            #    tdata[:, :-1, :-1] = data[:, 1:, 1:]
+            #elif tx == 0 and ty == 1:
+            #    tdata[:, 1:, :] = data[:, :-1, :]
+            #elif tx == 0 and ty == 2:
+            #    tdata[:, 1:, :-1] = data[:, :-1, 1:]
+            #elif tx == 1 and ty == 0:
+            #    tdata[:, :, 1:] = data[:, :, :-1]
+            #elif tx == 1 and ty == 2:
+            #    tdata[:, :, :-1] = data[:, :, 1:]
+            #elif tx == 2 and ty == 0:
+            #    tdata[:, :-1, 1:] = data[:, 1:, :-1]
+            #elif tx == 2 and ty == 1:
+            #    tdata[:, :-1, :] = data[:, 1:, :]
+
+
+            ## For general bins arrays
+            if tx < mb[1] and ty < mb[2]:
+                tdata[:, mb[1] - tx:, mb[2] - ty:] = data[:, :-mb[1] + tx, :-mb[2]+ty]
+            elif tx == mb[1] and ty == mb[2]:
                 tdata = data
-            if tx == 0 and ty != 0:
-                tdata[:, :, :-ty] = data[:, :, ty:]
-            if tx != 0 and ty == 0:
-                tdata[:, :-tx, :] = data[:, tx:, :]
-            if tx != 0 and ty != 0:
-                tdata[:, :-tx, :-ty] = data[:, tx:, ty:]
+            elif tx > mb[1] and ty > mb[2]:
+                tdata[:, :mb[1] - tx, :mb[2] - ty] = data[:, tx - mb[1]:, ty - mb[2]:]
+            elif tx < mb[1] and ty == mb[2]:
+                tdata[:, mb[1] - tx:, :] = data[:, :-mb[1] + tx, :]
+            elif tx < mb[1] and ty > mb[2]:
+                tdata[:, mb[1] - tx:, :mb[2] - ty] = data[:, :-mb[1] + tx, ty - mb[2]:]
+            elif tx == mb[1] and ty < mb[2]:
+                tdata[:, :, mb[2] - ty:] = data[:, :, :-mb[2]+ty]
+            elif tx == mb[1] and ty > mb[2]:
+                tdata[:, :, :mb[2] - ty] = data[:, :, ty - mb[2]:]
+            elif tx > mb[1] and ty < mb[2]:
+                tdata[:, :mb[1] - tx, mb[2] - ty:] = data[:, tx - mb[1]:, :-mb[2]+ty]
+            elif tx > mb[1] and ty == mb[2]:
+                tdata[:, :mb[1] - tx, :] = data[:, tx - mb[1]:, :]
+
             totdata[:, tx:-bins[1]+tx:bins[1], ty:-bins[2]+ty:bins[2]] = get_k(tdata, bins)
+
+
+
     #plt.imshow(totdata.sum(axis=0))
+    #plt.plot(totdata.sum(axis=0)[:, 64])
     #plt.show()
     imwrite(outtifffile, totdata)
 
