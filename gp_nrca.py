@@ -270,8 +270,11 @@ def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
 
 def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32, ysize=32,
                   rsize=32):
+    ylim = xlim*ysize/xsize
     X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
-                       np.linspace(-xlim, xlim, ysize))
+                       np.linspace(-ylim, ylim, ysize))
+    X = X.T
+    Y = Y.T
     x = []
     for _x, _y in zip(X.flatten(), Y.flatten()):
         x.append([_x, _y])

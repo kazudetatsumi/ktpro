@@ -246,11 +246,11 @@ def get_k(data, bins):
 
 
 def run_bi_with_stride():
-    bins = [4, 3, 3]
+    bins = [2, 3, 3]
     _bins = f'{bins[0]}{bins[1]}{bins[2]}'
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
-    outtifffile = _bins + '/' + tifffile.split(".")[0] + _bins + 'strd_rev.tiff'
+    outtifffile = _bins + '/' + tifffile.split(".")[0] + _bins + 'strd.tiff'
     #tifffile = 'GEM000211_00_000_000.tiff'
     #outtifffile = '433/GEM000211_00_000_000_433strd.tiff'
     data = imread(tifffile).astype(np.float64)
@@ -312,8 +312,8 @@ def run_bi_with_stride():
 
 
 #run_simu3d()
-run_bi()
-#run_bi_with_stride()
+#run_bi()
+run_bi_with_stride()
 #run_tst3d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
