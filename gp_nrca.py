@@ -269,7 +269,7 @@ def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
 
 
 def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32, ysize=32,
-                  rsize=32):
+                  rsize=1):
     ylim = xlim*ysize/xsize
     X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
                        np.linspace(-ylim, ylim, ysize))
@@ -299,13 +299,13 @@ def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32, y
 
     #print(datetime.datetime.now(), 'drew sample')
     y = y.reshape((numsample, xsize, ysize))
-    if rsize > xsize:
+    if rsize > 1:
         y = y[np.newaxis, :, :, :]
         import torch
         y = torch.from_numpy(y)
-        upsample = torch.nn.Upsample(size=(rsize, rsize),
+        upsample = torch.nn.Upsample(size=(rsize*xsize, rsize*ysize),
                                      mode='bilinear')
-        y = upsample(y).reshape((numsample, rsize, rsize)).numpy()
+        y = upsample(y).reshape((numsample, rsize*xsize, rsize*ysize)).numpy()
     #print(datetime.datetime.now(), 'sample resized')
     #import torch
     #from torch.distributions.multivariate_normal import MultivariateNormal

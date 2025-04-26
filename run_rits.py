@@ -93,8 +93,8 @@ def draw_params_mpi(rg, param_sets, dim=1):
                                   xlim=xlim)
         elif dim == 2:
             _params = draw_sample2d_mpi(rg, mean=mean, numsample=1,
-                                    scale=scale, xlim=xlim, xsize=88,
-                                    ysize=56, rsize=12)
+                                    scale=scale, xlim=xlim, xsize=64,
+                                    ysize=200, rsize=1)
         #if pidx==0:
         #    print(param_sets['param_name'][pidx], param_sets['lims_mean'][pidx], mean, _params)
         if np.min(_params) < 0.:
@@ -103,10 +103,12 @@ def draw_params_mpi(rg, param_sets, dim=1):
             _param_sets = copy.deepcopy(param_sets)
             _param_sets['mean'] = [mean]
             _param_sets['scale'] = [scale]
+            _param_sets['xlim'] = [xlim]
             _param_sets['params'] = [_params[0]]
         else:
             _param_sets['mean'].append(mean)
             _param_sets['scale'].append(scale)
+            _param_sets['xlim'].append(xlim)
             _param_sets['params'].append(_params[0])
     return _param_sets
 
@@ -149,7 +151,7 @@ def cycles_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d.pkl'):
         ss = sg.spawn(psize)
         rg = Generator(PCG64(ss[rank]))
     _param_sets_sets = []
-    param_sets = get_params(rpkl='param_sets_bccrev5.pkl')
+    param_sets = get_params(rpkl='param_sets_bccrev2.pkl')
     for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
         print('rank=', rank, 'ins=', ins)
         _param_sets_sets.append(draw_params_mpi(rg, param_sets, dim=dim))
@@ -626,10 +628,10 @@ def check_data():
 
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
-#cycles_mpi(ns=1800, dim=2, pklfile='param_sets_sets_bccrev5_2d_continue.pkl')
+#cycles_mpi(ns=1800, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev5_2d_continue.pkl')
+single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge.pkl')
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
