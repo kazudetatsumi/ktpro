@@ -93,8 +93,8 @@ def draw_params_mpi(rg, param_sets, dim=1):
                                   xlim=xlim)
         elif dim == 2:
             _params = draw_sample2d_mpi(rg, mean=mean, numsample=1,
-                                    scale=scale, xlim=xlim, xsize=64,
-                                    ysize=200, rsize=1)
+                                    scale=scale, xlim=xlim, xsize=72,
+                                    ysize=192, rsize=1)
         #if pidx==0:
         #    print(param_sets['param_name'][pidx], param_sets['lims_mean'][pidx], mean, _params)
         if np.min(_params) < 0.:
@@ -628,10 +628,10 @@ def check_data():
 
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
-#cycles_mpi(ns=1800, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge.pkl')
+#cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge.pkl')
+single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
