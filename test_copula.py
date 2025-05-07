@@ -13,17 +13,23 @@ def gaussian_func(x, y, sigma):
     denominator = 2 * math.pi * pow(sigma, 2)
     return pow(math.e, exponent) / denominator
 
+
 def double_gaussian_func(x, y, sigma):
     exponent1 = - (x ** 2 + y ** 2) / (2 * pow(sigma, 2))
     denominator1 = 2 * math.pi * pow(sigma, 2)
-    exponent2 = - ((x - 5*sigma) ** 2 + (y - 3*sigma) ** 2) / (2 * pow(sigma/2., 2))
+    exponent2 = - ((x - 5*sigma) ** 2 + (y - 3*sigma) ** 2) /\
+        (2 * pow(sigma/2., 2))
     denominator2 = 2 * math.pi * pow(sigma/2., 2)
-    return 0.5 * (pow(math.e, exponent1) / denominator1 + pow(math.e, exponent2) / denominator2)
+    return 0.5 * (pow(math.e, exponent1) / denominator1
+                  + pow(math.e, exponent2) / denominator2)
+
 
 def single_gaussian_func(x, sigma):
     exponent = - (x ** 2) / (2 * pow(sigma, 2))
     denominator = (2 * math.pi * pow(sigma, 2))**0.5
     return pow(math.e, exponent) / denominator
+
+
 np.random.seed(314)
 M = 80
 winparam = 5

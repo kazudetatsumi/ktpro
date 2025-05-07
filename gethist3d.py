@@ -224,7 +224,7 @@ def run_tst3d():
 def run_bi():
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
-    outtifffile = "233/" + tifffile.split(".")[0]+"_233.tiff"
+    outtifffile = "211/" + tifffile.split(".")[0]+"_211.tiff"
     # Note that the obtained experimental data type is float32.
     # The data type should be converted as float64 so as to keep the numbers in
     # the cummulative sum matrix.
@@ -232,7 +232,7 @@ def run_bi():
     condition = np.ones(data.shape, dtype=bool)
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
     print("A is obtained")
-    k,__,__,__, kcond = calc_hist3d_f90(A, 2, 3, 3, condition)
+    k,__,__,__, kcond = calc_hist3d_f90(A, 2, 1, 1, condition)
     #k, kcond = calc_hist3d(A, 4, 3, 3, condition)
     print(k.shape)
     imwrite(outtifffile, k)
@@ -246,7 +246,7 @@ def get_k(data, bins):
 
 
 def run_bi_with_stride():
-    bins = [2, 3, 3]
+    bins = [2, 5, 5]
     _bins = f'{bins[0]}{bins[1]}{bins[2]}'
     from tifffile import imread, imwrite
     tifffile = sys.argv[1]
@@ -312,8 +312,8 @@ def run_bi_with_stride():
 
 
 #run_simu3d()
-#run_bi()
-run_bi_with_stride()
+run_bi()
+#run_bi_with_stride()
 #run_tst3d()
 #lib.delete_array.restype = None
 #lib.delete_array.argtypes = [ctypes.POINTER(ctypes.c_int), np.ctypeslib.ndpointer(dtype=np.float64, ndim=1)]
