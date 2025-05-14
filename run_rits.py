@@ -285,6 +285,67 @@ def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
         pickle.dump(x, f, 4)
 
 
+def resample_mpi(testdata, pklfile, ns=10):
+    # bootstrapping for a large number of counts by using mpi
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    psize = comm.Get_size()
+    import gc
+
+    from numpy.random import Generator, PCG64, SeedSequence
+    # for restart job
+    if os.path.isfile(pklfile):
+        if rank == 0:
+            with open(pklfile, 'rb') as f:
+                data = pickle.load(f)
+                rgs = pickle.load(f)
+            data = None
+            del data
+            gc.collect()
+        else:
+            rgs = None
+        comm.barrier()
+        rg = comm.scatter(rgs, root=0)
+    else:
+        sg = SeedSequence(1234)
+        ss = sg.spawn(psize)
+        rg = Generator(PCG64(ss[rank]))
+    data = np.int64(testdata.flatten())
+    datasize = data.shape[0]
+    x = np.array([idx for idx in range(datasize) for num_repeat in range(data[idx])])
+    rebuild_data_sets = []
+    for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
+        Nb = rg.poisson(lam=len(x))
+        idx = rg.integers(0, len(x), Nb)
+        xb = x[idx]
+        _rebuild_data, bin_edge = np.histogram(xb, bins=datasize, range=(0, datasize))
+        rebuild_data_sets.append(_rebuild_data)
+    comm.barrier()
+    rebuild_data_sets_sets = np.array(comm.gather(rebuild_data_sets, root=0))
+    rg_sets = comm.gather(rg, root=0)
+    if rank == 0:
+        if os.path.isfile(pklfile):
+            with open(pklfile, 'rb') as f:
+                _rebuild_data_sets_sets = pickle.load(f)
+        rebuild_data_sets_sets = rebuild_data_sets_sets.reshape((ns,) + testdata.shape)
+        rebuild_data_sets_sets = np.vstack(rebuild_data_sets_sets, _rebuild_data_sets_sets)
+        with open(pklfile, 'wb') as f:
+            pickle.dump(rebuild_data_sets_sets, f, 4)
+            pickle.dump(rg_sets, f, 4)
+    
+
+def run_resample_mpi(ns=4):
+    with open('/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
+              'rb') as f:
+        openbeamexp = pickle.load(f)
+        openbeamexp_noisy = pickle.load(f)
+        sampleexp = pickle.load(f)
+        sampleexp_noisy = pickle.load(f)
+    resample_mpi(openbeamexp, 'openbeam_resample.pkl', ns=ns)
+    resample_mpi(sampleexp, 'sample_resample.pkl', ns=ns)
+
+
 def synthesize_bi3ddata():
     with open('/home/kazu/desktop/240424/uNID_data_KO/433/openbeam.pkl',
               'rb') as f:
@@ -631,7 +692,7 @@ def check_data():
 #cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
+#single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
@@ -640,3 +701,4 @@ single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #select_bi2d()
 #check_data()
 #crude_parallel_computation()
+run_resample_mpi(ns=32)
