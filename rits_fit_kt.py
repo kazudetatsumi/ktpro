@@ -1,14 +1,12 @@
 import sys
 import os
 import numpy as np
-sys.path.append("/home/kazu/desktop/240424/rits/src/cpp/rietveldcc/Linux")
-from AdvRits import AdvRietveld
 
-os.environ['LD_LIBRARY_PATH'] = '/home/kazu/desktop/240424/rits/src/cpp/rietveldcc/Linux'
-sys.path.append("/home/kazu/desktop/240424/rits/src/cpp/rietveldcc/Linux")
 np.random.seed(222)
 
 def get_sim_spectrum(inpfile='rits_initial.inp'):
+    sys.path.append("/home/kazu/desktop/240424/rits/src/cpp/rietveldcc/Linux")
+    from AdvRits import AdvRietveld
     rits = AdvRietveld()
     if not os.path.exists("spgra"):
         print("'spgra' dose not exist.")
@@ -23,7 +21,25 @@ def get_sim_spectrum(inpfile='rits_initial.inp'):
 
     rits.Fit()
 
-    return np.array(rits.PutObservedLambda()), np.array(rits.PutFittedIntensity())
+    return np.array(rits.PutObservedLambda()),\
+        np.array(rits.PutFittedIntensity())
+
+
+def get_sim_edgespectrum(inpfile='edge_3.inp'):
+    sys.path.append("/home/kazu/desktop/240424/rits/src/cpp/edgecc/Linux")
+    from AdvEdge import AdvEdge
+    rits = AdvEdge()
+    rits.SetInitialFileName(inpfile)
+    rits.ReadInitialFile()
+    rits.SetDataFileName('fit_results.dat.tmp')
+    rits.ReadDataFile()
+    rits.SetFittingResultDataFileName('fit_func.data')
+    rits.SetFittingResultParamFileName('fit_para.data')
+
+    rits.Fit()
+
+    return np.array(rits.PutObservedLambda()),\
+        np.array(rits.PutFittedIntensity())
 
 #x, y = get_sim_spectrum()
 #x = np.array(x)

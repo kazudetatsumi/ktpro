@@ -9,7 +9,7 @@ import copy
 import datetime
 sys.path.append("/home/kazu/ktpro")
 from gp_nrca import draw_sample, draw_sample2d, draw_sample2d_mpi
-from rits_fit_kt import get_sim_spectrum
+from rits_fit_kt import get_sim_spectrum, get_sim_edgespectrum
 sys.path.append("/home/kazu/denoise")
 import bi2d
 np.random.seed(129)
@@ -214,6 +214,27 @@ def run_rits(params, strings, inpfile='rits_initial.inp'):
     return bi2d_true, x
 
 
+def run_edge(paramimage, inpfile='edge_3.inp.phantom'):
+    # paramimage[paramidx, posidx1, posidx2]]
+    counter = 0
+    shape = paramimage.shape
+    for p1idx in range(shape[1]):
+        for p2idx in range(shape[2]):
+            if np.sum(np.abs(paramimage[:, p1idx, p2idx])) > 0.:
+                counter += 1
+                params = paramimage[:, p1idx, p2idx]
+                os.system('cp edge_3.inp.temp '+inpfile)
+                for sidx, string in enumerate(["A0", "B0", "AHKL", "BHKL",
+                                               "DHKL", "SIGMA_0"]):
+                    _param = "{:.4f}".format(params[sidx])
+                    textfile.replace(inpfile, string, _param)
+                x, y = get_sim_edgespectrum(inpfile=inpfile)
+                if counter == 1:
+                    bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
+                bi2d_true[p1idx, p2idx] = y
+    return bi2d_true, x
+
+
 def get_noisydata(bi2d, x, timescale):
     return np.random.poisson(bi2d*timescale*x)/x
 
@@ -285,6 +306,16 @@ def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
         pickle.dump(x, f, 4)
 
 
+def single_edgecomputation(pklfile='paramimage.pkl'):
+    # for constructing phantom data from the result of the rits edge fitting.
+    with open(pklfile, 'rb') as f:
+        paramimage = pickle.load(f)
+    inpfile = 'edge_3.inp.phantom'
+    bi3d_true, x = run_edge(paramimage, inpfile=inpfile)
+    with open('bi2dsingle.pkl.phantom', 'wb') as f:
+        pickle.dump(bi3d_true, f, 4)
+        pickle.dump(x, f, 4)
+
 def resample_mpi(testdata, pklfile, ns=10):
     # bootstrapping for a large number of counts by using mpi
     from mpi4py import MPI
@@ -311,29 +342,34 @@ def resample_mpi(testdata, pklfile, ns=10):
         sg = SeedSequence(1234)
         ss = sg.spawn(psize)
         rg = Generator(PCG64(ss[rank]))
-    data = np.int64(testdata.flatten())
+    data = np.int32(testdata.flatten())
     datasize = data.shape[0]
-    x = np.array([idx for idx in range(datasize) for num_repeat in range(data[idx])])
+    x = np.array([idx for idx in range(datasize)
+                  for num_repeat in range(data[idx])], dtype=np.int32)
     rebuild_data_sets = []
     for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
         Nb = rg.poisson(lam=len(x))
-        idx = rg.integers(0, len(x), Nb)
+        idx = rg.integers(0, len(x), Nb, dtype=np.int32)
         xb = x[idx]
-        _rebuild_data, bin_edge = np.histogram(xb, bins=datasize, range=(0, datasize))
+        _rebuild_data, bin_edge = np.histogram(xb, bins=datasize,
+                                               range=(0, datasize))
         rebuild_data_sets.append(_rebuild_data)
     comm.barrier()
     rebuild_data_sets_sets = np.array(comm.gather(rebuild_data_sets, root=0))
     rg_sets = comm.gather(rg, root=0)
     if rank == 0:
+        rebuild_data_sets_sets = rebuild_data_sets_sets.astype('int32')
+        rebuild_data_sets_sets = rebuild_data_sets_sets.reshape((ns,) +
+                                                                testdata.shape)
         if os.path.isfile(pklfile):
             with open(pklfile, 'rb') as f:
                 _rebuild_data_sets_sets = pickle.load(f)
-        rebuild_data_sets_sets = rebuild_data_sets_sets.reshape((ns,) + testdata.shape)
-        rebuild_data_sets_sets = np.vstack(rebuild_data_sets_sets, _rebuild_data_sets_sets)
+            rebuild_data_sets_sets = np.vstack((rebuild_data_sets_sets,
+                                                _rebuild_data_sets_sets))
         with open(pklfile, 'wb') as f:
             pickle.dump(rebuild_data_sets_sets, f, 4)
             pickle.dump(rg_sets, f, 4)
-    
+
 
 def run_resample_mpi(ns=4):
     with open('/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
@@ -693,6 +729,7 @@ def check_data():
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
+single_edgecomputation()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
@@ -701,4 +738,4 @@ def check_data():
 #select_bi2d()
 #check_data()
 #crude_parallel_computation()
-run_resample_mpi(ns=32)
+#run_resample_mpi(ns=32)
