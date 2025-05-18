@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import sys
 home = os.path.expanduser("~")
 sys.path.append(home+"/ktpro")
-from gp_nrca import GaussanProcessRegression as gpr
+from gp_nrca import GaussianProcessRegression as gpr
 
 
 def searchrun2dnrca():
@@ -50,6 +50,7 @@ def searchrun2dnrca():
 
     for itry in range(0, 101):
         prj = gpr(x, x_train, y_train, noiselevel)
+        prj.new()
         if itry % 10 == 0:
             print('itry:', itry)
             plt.subplot(1, 2, 1)

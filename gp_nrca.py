@@ -29,7 +29,7 @@ class GaussianProcessRegression:
         self.noise_mat = self.noiselevel*np.eye(self.x_train.shape[0])
         self.K_I = self.K + self.noise_mat
         self.L = np.linalg.cholesky(self.K_I)
-        print("calclulating f_bar")
+        print("calculating f_bar")
         self.f_bar = self.K_astarisc @\
             np.linalg.lstsq(self.L.T, np.linalg.lstsq(self.L, self.y_train,
                                                       rcond=None)[0],
@@ -38,7 +38,7 @@ class GaussianProcessRegression:
         self.K_double_astarisc = self.kernel(self.x, self.x)
         print("calculating V")
         self.V = np.linalg.lstsq(self.L, self.K_astarisc.T, rcond=None)[0]
-        print("caluclating cov")
+        print("calculating cov")
         self.conv = self.K_double_astarisc - self.V.T @ self.V
         print("calculating std")
         self.std = np.diag(self.conv)**0.5
@@ -76,6 +76,7 @@ class GaussianProcessRegression:
         test_x2 = np.repeat(np.expand_dims(x2, 2), x1.shape[0],
                             axis=2).transpose(2, 1, 0)
         K = np.exp(-0.5*np.sum(((test_x1 - test_x2)/5.)**2, axis=1))
+        #K = np.exp(-0.5*np.sum(((test_x1 - test_x2)/15)**2, axis=1))
         return(K)
 
     def savedata(self, base=None):
