@@ -151,7 +151,7 @@ def cycles_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d.pkl'):
         ss = sg.spawn(psize)
         rg = Generator(PCG64(ss[rank]))
     _param_sets_sets = []
-    param_sets = get_params(wpkl='param_sets_bccrev22.pkl')
+    param_sets = get_params(wpkl='param_sets_bccrev2.pkl')
     param_sets = get_params()
     for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
         print('rank=', rank, 'ins=', ins)
@@ -726,11 +726,11 @@ def check_data():
 
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
-#cycles_mpi(ns=1000, dim=2, pklfile='param_sets_sets_bccrev22_2d_single_edge_rsize.pkl')
+cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev22_2d_single_edge_rsize.pkl')
-single_edgecomputation()
+#single_edgecomputation()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
