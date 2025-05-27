@@ -307,13 +307,13 @@ def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
         pickle.dump(x, f, 4)
 
 
-def single_edgecomputation(pklfile='paramimage.pkl'):
+def single_edgecomputation(pklfile='paramimage_d.pkl'):
     # for constructing phantom data from the result of the rits edge fitting.
     with open(pklfile, 'rb') as f:
         paramimage = pickle.load(f)
     inpfile = 'edge_3.inp.phantom'
     bi3d_true, x = run_edge(paramimage, inpfile=inpfile)
-    with open('bi2dsingle.pkl.phantom', 'wb') as f:
+    with open('bi2dsingle_d.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
         pickle.dump(x, f, 4)
 
@@ -729,8 +729,8 @@ def check_data():
 #cycles_mpi(ns=1000, dim=2, pklfile='param_sets_sets_bccrev22_2d_single_edge_rsize.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev22_2d_single_edge_rsize.pkl')
-#single_edgecomputation()
+#single_computation(pklfile='param_sets_sets_bccrev22_2d_single_edge_rsize.pkl')
+single_edgecomputation()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
