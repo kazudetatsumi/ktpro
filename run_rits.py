@@ -151,8 +151,7 @@ def cycles_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d.pkl'):
         ss = sg.spawn(psize)
         rg = Generator(PCG64(ss[rank]))
     _param_sets_sets = []
-    param_sets = get_params(wpkl='param_sets_bccrev2.pkl')
-    param_sets = get_params()
+    param_sets = get_params(rpkl='param_sets_bccrev2.pkl')
     for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
         print('rank=', rank, 'ins=', ins)
         _param_sets_sets.append(draw_params_mpi(rg, param_sets, dim=dim))
@@ -175,6 +174,56 @@ def cycles_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d.pkl'):
                 pickle.dump(__param_sets_sets, f, 4)
                 pickle.dump(rg_sets, f, 4)
         print(datetime.datetime.now(), pklfile, ' is saved')
+
+
+def cycles_mpi_div(nss=10, ns=10, dim=2,
+                   orgpklfile='param_sets_sets_bccrev2_2d.pkl'):
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    psize = comm.Get_size()
+    import gc
+    # for restart job
+    param_sets = get_params(rpkl='param_sets_bccrev2.pkl')
+    for inss in range(nss):
+        pklfile = orgpklfile + "." + str(inss+1)
+        outpklfile = orgpklfile + "." + str(inss+2)
+        #if os.path.isfile(pklfile):
+        if rank == 0:
+            with open(pklfile, 'rb') as f:
+                data = pickle.load(f)
+                rgs = pickle.load(f)
+            data = None
+            del data
+            gc.collect()
+        else:
+            rgs = None
+        comm.barrier()
+        rg = comm.scatter(rgs, root=0)
+        #else:
+        #    from numpy.random import Generator, PCG64, SeedSequence
+        #    sg = SeedSequence(1234)
+        #    ss = sg.spawn(psize)
+        #    rg = Generator(PCG64(ss[rank]))
+        _param_sets_sets = []
+        for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
+            print('rank=', rank, 'ins=', ins)
+            _param_sets_sets.append(draw_params_mpi(rg, param_sets, dim=dim))
+        comm.barrier()
+        param_sets_sets = comm.gather(_param_sets_sets, root=0)
+        rg_sets = comm.gather(rg, root=0)
+        if rank == 0:
+            __param_sets_sets = [__cont for _cont in param_sets_sets for
+                                 __cont in _cont]
+            if dim == 1:
+                with open(outpklfile, 'wb') as f:
+                    pickle.dump(param_sets_sets, f, 4)
+            elif dim == 2:
+                with open(outpklfile, 'wb') as f:
+                    pickle.dump(__param_sets_sets, f, 4)
+                    pickle.dump(rg_sets, f, 4)
+            print(datetime.datetime.now(), outpklfile, ' is saved')
+        comm.barrier()
 
 
 def divide_paramdata(pklfile='param_sets_sets_2dlarge.pkl'):
@@ -305,6 +354,21 @@ def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
     with open('bi2dsingle.pkl.'+str(iniidx), 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
         pickle.dump(x, f, 4)
+
+
+#def single_computation_div(pklfile='param_sets_sets_bccrev.pkl'):
+#    # USAGE: run_rits.py [iniidx, int] [tag, str]
+#    # EXAMPLE: run_rits.py 0 3-1
+#    iniidx = int(sys.argv[1])
+#    tag = str(sys.argv[2])
+#    pklfile = pklfile + "." + tag
+#    param_sets = load_param_sets_sets(param_sets_sets_file=pklfile)[iniidx]
+#    inpfile = 'rits_initial.inp.' + tag + "." + str(iniidx)
+#    bi3d_true, x = run_rits(param_sets['params'],  param_sets['string'],
+#                            inpfile=inpfile)
+#    with open('bi2dsingle.pkl.' + tag + "." + str(iniidx), 'wb') as f:
+#        pickle.dump(bi3d_true, f, 4)
+#        pickle.dump(x, f, 4)
 
 
 def single_edgecomputation(pklfile='paramimage_d.pkl'):
@@ -726,10 +790,12 @@ def check_data():
 
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
-cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
+#cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
+#cycles_mpi_div(nss=10, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-#single_computation(pklfile='param_sets_sets_bccrev22_2d_single_edge_rsize.pkl')
+single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl.11')
+#single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_edgecomputation()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
