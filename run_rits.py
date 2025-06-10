@@ -85,20 +85,25 @@ def draw_params_mpi(rg, param_sets, dim=1):
         lims_mean = param_sets['lims_mean'][pidx]
         lims_scale = param_sets['lims_scale'][pidx]
         lims_xlim = param_sets['lims_xlim'][pidx]
-        mean = rg.uniform(low=lims_mean[0], high=lims_mean[1])
-        scale = rg.uniform(low=lims_scale[0], high=lims_scale[1])
-        xlim = rg.uniform(low=lims_xlim[0], high=lims_xlim[1])
-        if dim == 1:
-            _params = draw_sample(mean=mean, numsample=1, scale=scale,
-                                  xlim=xlim)
-        elif dim == 2:
-            _params = draw_sample2d_mpi(rg, mean=mean, numsample=1,
-                                    scale=scale, xlim=xlim, xsize=72,
-                                    ysize=192, rsize=1)
+        while True:
+            mean = rg.uniform(low=lims_mean[0], high=lims_mean[1])
+            scale = rg.uniform(low=lims_scale[0], high=lims_scale[1])
+            xlim = rg.uniform(low=lims_xlim[0], high=lims_xlim[1])
+            if dim == 1:
+                _params = draw_sample(mean=mean, numsample=1, scale=scale,
+                                      xlim=xlim)
+            elif dim == 2:
+                _params = draw_sample2d_mpi(rg, mean=mean, numsample=1,
+                                        scale=scale, xlim=xlim, xsize=72,
+                                        ysize=192, rsize=1)
+            if pidx != 3 and np.min(_params) > 0.:
+                break
+            elif np.min(_params) > 0.35:
+                break
         #if pidx==0:
         #    print(param_sets['param_name'][pidx], param_sets['lims_mean'][pidx], mean, _params)
-        if np.min(_params) < 0.:
-            _params -= np.min(_params)
+        #if np.min(_params) < 0.:
+        #    _params -= np.min(_params)
         if pidx == 0:
             _param_sets = copy.deepcopy(param_sets)
             _param_sets['mean'] = [mean]
@@ -794,7 +799,7 @@ def check_data():
 #cycles_mpi_div(nss=10, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl.11')
+single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_edgecomputation()
 #gather_bi2d(timescale=1, nidx=300)
