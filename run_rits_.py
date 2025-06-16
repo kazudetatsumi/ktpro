@@ -63,9 +63,9 @@ def get_params_edge(rpkl=None, wpkl=None):
         param_sets['lims_mean'] = [[0.3, 1.0]]
         param_sets['lims_scale'] = [[0.001, 0.01]]
         param_sets['lims_xlim'] = [[10., 30.]]
-        param_sets['param_name'].append("Tiext")
-        param_sets['string'].append("Tiext")
-        param_sets['lims_mean'].append([0.3, 1.0])
+        param_sets['param_name'].append("Alpha")
+        param_sets['string'].append("alpha")
+        param_sets['lims_mean'].append([0.5, 1.5])
         param_sets['lims_scale'].append([0.001, 0.01])
         param_sets['lims_xlim'].append([10., 30.])
         param_sets['param_name'].append("Beta")
@@ -520,9 +520,10 @@ def reform_param_sets(param_sets_sets):
         _params.append(param_sets['params'])
     _params = np.array(_params)
     Te = _params[:, 0]
-    Tiext = _params[:, 1]
+    alpha = _params[:, 1]
     beta = _params[:, 2]
     gamma = _params[:, 3]
+    Tiext = alpha*Te
     Ti = beta*Tiext
     Teext = gamma*Te
     tini = 23000.
@@ -995,10 +996,10 @@ def check_data():
 #cycles(ns=2, dim=2)
 #cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #cycles_edge_mpi(ns=8, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
-cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
+#cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-#single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
+single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl.5')
 #single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_edgecomputation(pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
 #single_edgecomputation_phantom()
