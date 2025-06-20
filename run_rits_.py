@@ -999,7 +999,7 @@ def check_data():
 #cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
-single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl.5')
+single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl.10')
 #single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_edgecomputation(pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
 #single_edgecomputation_phantom()
