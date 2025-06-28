@@ -70,8 +70,8 @@ def get_params_edge(rpkl=None, wpkl=None):
         param_sets['lims_xlim'].append([10., 30.])
         param_sets['param_name'].append("Beta")
         param_sets['string'].append("beta")
-        param_sets['lims_mean'].append([0.7, 1.0])
-        param_sets['lims_scale'].append([0.001, 0.03])
+        param_sets['lims_mean'].append([0.4, 1.0])
+        param_sets['lims_scale'].append([0.01, 0.04])
         param_sets['lims_xlim'].append([10., 30.])
         param_sets['param_name'].append("Gamma")
         param_sets['string'].append("gamma")
@@ -93,7 +93,7 @@ def get_params_edge(rpkl=None, wpkl=None):
         param_sets['lims_mean'].append([0.51, 0.52])
         param_sets['lims_scale'].append([0.01, 0.03])
         param_sets['lims_xlim'].append([5., 10.])
-        param_sets['maskparams'] = [1.05, 2, 10]
+        param_sets['maskparams'] = [0.9, 2, 4]
         if wpkl:
             with open(wpkl, 'wb') as f:
                 pickle.dump(param_sets, f, 4)
@@ -316,6 +316,7 @@ def cycles_edge_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d_edge.pkl')
     if rank == 0:
         __param_sets_sets = [__cont for _cont in param_sets_sets for
                              __cont in _cont]
+        __param_sets_sets = reform_param_sets(__param_sets_sets)
         if os.path.isfile(pklfile):
             with open(pklfile, 'rb') as f:
                 data = pickle.load(f)
@@ -329,6 +330,52 @@ def cycles_edge_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d_edge.pkl')
                 pickle.dump(__param_sets_sets, f, 4)
                 pickle.dump(rg_sets, f, 4)
         print(datetime.datetime.now(), pklfile, ' is saved')
+
+
+def cycles_edge_mpi_div(nss=10, ns=10, dim=2,
+                        orgpklfile='param_sets_sets_bccrev2_2d_edge.pkl'):
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    psize = comm.Get_size()
+    import gc
+    # for restart job
+    param_sets = get_params(rpkl='param_sets_bccrev2_edge.pkl')
+    for inss in range(nss):
+        pklfile = orgpklfile + "." + str(inss+1)
+        outpklfile = orgpklfile + "." + str(inss+2)
+        #if os.path.isfile(pklfile):
+        if rank == 0:
+            with open(pklfile, 'rb') as f:
+                data = pickle.load(f)
+                rgs = pickle.load(f)
+            data = None
+            del data
+            gc.collect()
+        else:
+            rgs = None
+        comm.barrier()
+        rg = comm.scatter(rgs, root=0)
+        _param_sets_sets = []
+        for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
+            print('rank=', rank, 'ins=', ins)
+            _param_sets_sets.append(draw_params_edge_mpi(rg, param_sets, dim=dim))
+        comm.barrier()
+        param_sets_sets = comm.gather(_param_sets_sets, root=0)
+        rg_sets = comm.gather(rg, root=0)
+        if rank == 0:
+            __param_sets_sets = [__cont for _cont in param_sets_sets for
+                                 __cont in _cont]
+            __param_sets_sets = reform_param_sets(__param_sets_sets)
+            if dim == 1:
+                with open(outpklfile, 'wb') as f:
+                    pickle.dump(param_sets_sets, f, 4)
+            elif dim == 2:
+                with open(outpklfile, 'wb') as f:
+                    pickle.dump(__param_sets_sets, f, 4)
+                    pickle.dump(rg_sets, f, 4)
+            print(datetime.datetime.now(), outpklfile, ' is saved')
+        comm.barrier()
 
 
 def cycles_mpi_div(nss=10, ns=10, dim=2,
@@ -529,7 +576,7 @@ def single_computation(pklfile='param_sets_sets_bccrev.pkl'):
 
 def single_edgecomputation(pklfile='param_sets_sets_bccrev_edge.pkl'):
     param_sets_sets = load_param_sets_sets(param_sets_sets_file=pklfile)
-    param_sets_sets = reform_param_sets(param_sets_sets)
+    #param_sets_sets = reform_param_sets(param_sets_sets)
     iniidx = int(sys.argv[1])
     param_sets = param_sets_sets[iniidx]
     inpfile = 'edge_3.inp.' + str(iniidx)
@@ -549,6 +596,7 @@ def single_edgecomputation(pklfile='param_sets_sets_bccrev_edge.pkl'):
 
 
 def reform_param_sets(param_sets_sets):
+    from scipy.ndimage import gaussian_filter
     _params = []
     for param_sets in param_sets_sets:
         _params.append(param_sets['params'])
@@ -559,11 +607,14 @@ def reform_param_sets(param_sets_sets):
     gamma = _params[:, 3]
     mask = _params[:, 6]
     maskparams = param_sets_sets[0]['maskparams']
-    mask[mask > np.average(mask)*maskparams[0]] = 1.
-    mask[mask <= np.average(mask)*maskparams[0]] = 0.
-    from scipy.ndimage import gaussian_filter
-    mask = gaussian_filter(mask, sigma=np.random.uniform(low=maskparams[1],
-                                                         high=maskparams[2]))
+    print("CHK", mask.shape)
+    for didx in range(mask.shape[0]):
+        ave = np.average(mask[didx])
+        mask[didx][mask[didx] > ave*maskparams[0]] = 1.
+        mask[didx][mask[didx] <= ave*maskparams[0]] = 0.
+        mask[didx] = gaussian_filter(mask[didx], sigma=np.random.uniform(low=maskparams[1],
+                                                                         high=maskparams[2]))
+
     Tiext = alpha*Te
     Ti = beta*Tiext
     Teext = gamma*Ti
@@ -588,7 +639,6 @@ def reform_param_sets(param_sets_sets):
         param_sets_sets[idx]['param_name'][1] = "b0"
         param_sets_sets[idx]['param_name'][2] = "ahkl"
         param_sets_sets[idx]['param_name'][3] = "bhkl"
-
     return param_sets_sets
     #print('chk', np.min(a0, axis=(1,2)) < 0.)
     #print('chk', np.min(b0, axis=(1,2))<0.)
@@ -1039,8 +1089,9 @@ def check_data():
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
 #cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-cycles_edge_mpi(ns=1280, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
+#cycles_edge_mpi(ns=1280, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
 #cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
+cycles_edge_mpi_div(nss=11, ns=1280, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
