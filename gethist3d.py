@@ -285,6 +285,33 @@ def run_bi_with_stride_phantom():
         pickle.dump(op_255_strd, f, 4)
 
 
+def run_bi_with_stride_phantom_sampled10():
+    bins = [1, 5, 5]
+    for sidx in range(10):
+        with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_testbcc_simudata_rev2_lim_single_resize_full_255_d_phantom.pkl.' + str(sidx+1), 'rb') as f:
+            sample = pickle.load(f).astype(np.float64)
+            op = pickle.load(f).astype(np.float64)
+        sample_255_strd = binning_and_stride(sample, bins)
+        op_255_strd = binning_and_stride(op, bins)
+        with open('/home/kazu/desktop/240424/connect2d/sampled/openbeam_255_strd_d_phantom.pkl.' + str(sidx+1), 'wb') as f:
+            pickle.dump(sample_255_strd, f, 4)
+            pickle.dump(op_255_strd, f, 4)
+
+
+def run_bi_with_stride_phantom_resampled10():
+    bins = [1, 5, 5]
+    with open('/home/kazu/desktop/240424/connect2d/sampled/sample_resample_d_phantom.pkl', 'rb') as f:
+        sample = pickle.load(f).astype(np.float64)
+    with open('/home/kazu/desktop/240424/connect2d/sampled/openbeam_resample_d_phantom.pkl', 'rb') as f:
+        op = pickle.load(f).astype(np.float64)
+    for sidx in range(10):
+        sample_255_strd = binning_and_stride(sample[sidx], bins)
+        op_255_strd = binning_and_stride(op[sidx], bins)
+        with open('/home/kazu/desktop/240424/connect2d/sampled/openbeam_resample_255_strd_d_phantom.pkl.' + str(sidx+1), 'wb') as f:
+            pickle.dump(sample_255_strd, f, 4)
+            pickle.dump(op_255_strd, f, 4)
+
+
 def get_k(data, bins):
     condition = np.ones(data.shape, dtype=bool)
     A = np.cumsum(np.cumsum(np.cumsum(data, axis=0), axis=1), axis=2)
@@ -361,7 +388,9 @@ def run_bi_with_stride():
 
 
 #run_simu3d()
-run_bi_with_stride_phantom()
+#run_bi_with_stride_phantom()
+#run_bi_with_stride_phantom_sampled10()
+run_bi_with_stride_phantom_resampled10()
 #run_bi_with_stride()
 #run_tst3d()
 #lib.delete_array.restype = None

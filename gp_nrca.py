@@ -72,11 +72,41 @@ class GaussianProcessRegression:
         return(K)
 
     def kernel(self, x1, x2):
+        el = 5.
         test_x1 = np.repeat(np.expand_dims(x1, 2), x2.shape[0], axis=2)
         test_x2 = np.repeat(np.expand_dims(x2, 2), x1.shape[0],
                             axis=2).transpose(2, 1, 0)
-        K = np.exp(-0.5*np.sum(((test_x1 - test_x2)/5.)**2, axis=1))
+        d2 = np.sum((test_x1 - test_x2)**2, axis=1)
+        #K = np.exp(-0.5*np.sum(((test_x1 - test_x2)/5.)**2, axis=1))
+        K = np.exp(-1/(2.*el)*d2)
         #K = np.exp(-0.5*np.sum(((test_x1 - test_x2)/15)**2, axis=1))
+        return(K)
+
+    def kernel_single(self, x1, x2):
+        el = 5.
+        test_x1 = np.repeat(np.expand_dims(x1, 2), x2.shape[0], axis=2)
+        test_x2 = np.repeat(np.expand_dims(x2, 2), x1.shape[0],
+                            axis=2).transpose(2, 1, 0)
+        d = np.sum((test_x1 - test_x2)**2, axis=1)**0.5
+        K = np.exp(-(1./el*d))
+        return(K)
+
+    def kernel_third(self, x1, x2):
+        el = 5.
+        test_x1 = np.repeat(np.expand_dims(x1, 2), x2.shape[0], axis=2)
+        test_x2 = np.repeat(np.expand_dims(x2, 2), x1.shape[0],
+                            axis=2).transpose(2, 1, 0)
+        d = np.sum((test_x1 - test_x2)**2, axis=1)**0.5
+        K = (1. + (3)**0.5/el*d)*np.exp(-(3)**0.5/el*d)
+        return(K)
+
+    def kernel_fifth(self, x1, x2):
+        el = 5.
+        test_x1 = np.repeat(np.expand_dims(x1, 2), x2.shape[0], axis=2)
+        test_x2 = np.repeat(np.expand_dims(x2, 2), x1.shape[0],
+                            axis=2).transpose(2, 1, 0)
+        d = np.sum((test_x1 - test_x2)**2, axis=1)**0.5
+        K = (1. + (5)**0.5/el*d + 5/3.*d**2/el**2)*np.exp(-(5)**0.5/el*d)
         return(K)
 
     def savedata(self, base=None):
@@ -270,7 +300,7 @@ def draw_sample2d(mean=4.5, scale=1., numsample=5, xlim=10., xsize=32,
 
 
 def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32, ysize=32,
-                  rsize=1):
+                  rsize=1, kerneltype='square'):
     ylim = xlim*ysize/xsize
     X, Y = np.meshgrid(np.linspace(-xlim, xlim, xsize),
                        np.linspace(-ylim, ylim, ysize))
@@ -285,7 +315,14 @@ def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32, y
     noiselevel = 0.000000000001
     prj = GaussianProcessRegression(x, x_train, y_train, noiselevel)
     #print(datetime.datetime.now(), 'before getting K')
-    K = prj.kernel(x, x)*scale
+    if kerneltype == 'square':
+        K = prj.kernel(x, x)*scale
+    elif kerneltype == 'single':
+        K = prj.kernel_single(x, x)*scale
+    elif kerneltype == 'third':
+        K = prj.kernel_third(x, x)*scale
+    elif kerneltype == 'fifth':
+        K = prj.kernel_fifth(x, x)*scale
     #print(datetime.datetime.now(), 'got K')
     #y = np.random.multivariate_normal(
     #y = rg.multivariate_normal(mean=np.zeros(x.shape[0])+mean, cov=K,
@@ -294,7 +331,9 @@ def draw_sample2d_mpi(rg, mean=4.5, scale=1., numsample=5, xlim=10., xsize=32, y
     #_K = np.array(K, dtype='float32')
     #L = np.linalg.cholesky(_K+np.min(np.diag(_K))*0.0001*np.eye(_K.shape[0], dtype='float32'))
     #z = rg.standard_normal(len(_K), dtype='float32')
-    L = np.linalg.cholesky(K+np.min(np.diag(K))*1e-3*np.eye(K.shape[0]))
+    ## Small diagonal components are needed for cholesky. 1e-3 still put noises. 1e-6 is OK.
+    ##L = np.linalg.cholesky(K+np.min(np.diag(K))*1e-3*np.eye(K.shape[0]))
+    L = np.linalg.cholesky(K+np.min(np.diag(K))*1e-6*np.eye(K.shape[0]))
     z = rg.standard_normal(len(K))
     y = np.dot(L, z) + mean
 

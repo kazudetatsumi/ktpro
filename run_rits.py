@@ -80,7 +80,8 @@ def get_params_edge(rpkl=None, wpkl=None):
         param_sets['lims_xlim'].append([10., 30.])
         param_sets['param_name'].append("dhkl")
         param_sets['string'].append("DHKL")
-        param_sets['lims_mean'].append([2.025, 2.038])
+        #param_sets['lims_mean'].append([2.025, 2.038])
+        param_sets['lims_mean'].append([2.025-0.063, 2.038+0.02])
         param_sets['lims_scale'].append([0.0, 0.000035])
         param_sets['lims_xlim'].append([5., 25.])
         param_sets['param_name'].append("sigma_0")
@@ -142,9 +143,9 @@ def draw_params_mpi(rg, param_sets, dim=1):
                 _params = draw_sample(mean=mean, numsample=1, scale=scale,
                                       xlim=xlim)
             elif dim == 2:
-                _params = draw_sample2d_mpi(rg, mean=mean, numsample=1,
-                                            scale=scale, xlim=xlim, xsize=72,
-                                            ysize=192, rsize=1)
+                _params, _kerneltype = draw_sample2d_mpi(
+                        rg, mean=mean, numsample=1, scale=scale, xlim=xlim,
+                        xsize=72, ysize=192, rsize=1)
             if pidx != 3 and np.min(_params) > 0.:
                 break
             if pidx == 3 and np.min(_params) > 0.35:
@@ -167,7 +168,12 @@ def draw_params_mpi(rg, param_sets, dim=1):
     return _param_sets
 
 
-def draw_params_edge_mpi(rg, param_sets, dim=1):
+def draw_params_edge_mpi(rg, param_sets, dim=1, kerneltype='square'):
+    if kerneltype == 'random':
+        kerneltypes = ['square', 'single', 'third', 'fifth']
+        _kerneltype = kerneltypes[rg.integers(4)]
+    else:
+        _kerneltype = kerneltype
     for pidx in range(len(param_sets['param_name'])):
         lims_mean = param_sets['lims_mean'][pidx]
         lims_scale = param_sets['lims_scale'][pidx]
@@ -179,9 +185,9 @@ def draw_params_edge_mpi(rg, param_sets, dim=1):
             _params = draw_sample(mean=mean, numsample=1, scale=scale,
                                   xlim=xlim)
         elif dim == 2:
-            _params = draw_sample2d_mpi(rg, mean=mean, numsample=1,
-                                        scale=scale, xlim=xlim, xsize=72,
-                                        ysize=192, rsize=1)
+            _params = draw_sample2d_mpi(
+                    rg, mean=mean, numsample=1, scale=scale, xlim=xlim,
+                    xsize=72, ysize=192, rsize=1, kerneltype=_kerneltype)
         if pidx == 5 and np.min(_params) < 0.: # sigma0
             _params -= np.min(_params)
         if pidx == 0 and np.min(_params) < 0.: # Te
@@ -210,11 +216,13 @@ def draw_params_edge_mpi(rg, param_sets, dim=1):
             _param_sets['scale'] = [scale]
             _param_sets['xlim'] = [xlim]
             _param_sets['params'] = [_params[0]]
+            _param_sets['kerneltype'] = [_kerneltype]
         else:
             _param_sets['mean'].append(mean)
             _param_sets['scale'].append(scale)
             _param_sets['xlim'].append(xlim)
             _param_sets['params'].append(_params[0])
+            _param_sets['kerneltype'].append(_kerneltype)
     return _param_sets
 
 
@@ -281,7 +289,8 @@ def cycles_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d.pkl'):
         print(datetime.datetime.now(), pklfile, ' is saved')
 
 
-def cycles_edge_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d_edge.pkl'):
+def cycles_edge_mpi(ns=10, dim=2, kerneltype='square',
+                    pklfile='param_sets_sets_bccrev2_2d_edge.pkl'):
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -306,10 +315,11 @@ def cycles_edge_mpi(ns=10, dim=2, pklfile='param_sets_sets_bccrev2_2d_edge.pkl')
         ss = sg.spawn(psize)
         rg = Generator(PCG64(ss[rank]))
     _param_sets_sets = []
-    param_sets = get_params_edge(wpkl='param_sets_bccrev2_edge.pkl')
+    param_sets = get_params_edge(rpkl='param_sets_bccrev2_edge.pkl')
     for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
         print('rank=', rank, 'ins=', ins)
-        _param_sets_sets.append(draw_params_edge_mpi(rg, param_sets, dim=dim))
+        _param_sets_sets.append(draw_params_edge_mpi(rg, param_sets, dim=dim,
+                                                     kerneltype=kerneltype))
     comm.barrier()
     param_sets_sets = comm.gather(_param_sets_sets, root=0)
     rg_sets = comm.gather(rg, root=0)
@@ -735,14 +745,18 @@ def resample_mpi(testdata, pklfile, ns=10):
 
 
 def run_resample_mpi(ns=4):
-    with open('/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
+    #with open('/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
+    #          'rb') as f:
+    #    openbeamexp = pickle.load(f)
+    #    openbeamexp_noisy = pickle.load(f)
+    #    sampleexp = pickle.load(f)
+    #    sampleexp_noisy = pickle.load(f)
+    with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_testbcc_simudata_rev2_lim_single_resize_full_255_d_phantom.pkl',
               'rb') as f:
-        openbeamexp = pickle.load(f)
-        openbeamexp_noisy = pickle.load(f)
-        sampleexp = pickle.load(f)
-        sampleexp_noisy = pickle.load(f)
-    resample_mpi(openbeamexp, 'openbeam_resample.pkl', ns=ns)
-    resample_mpi(sampleexp, 'sample_resample.pkl', ns=ns)
+        sample = pickle.load(f)
+        op = pickle.load(f)
+    resample_mpi(sample, 'sample_resample_d_phantom.pkl', ns=ns)
+    resample_mpi(op, 'openbeam_resample_d_phantom.pkl', ns=ns)
 
 
 def synthesize_bi3ddata():
@@ -1089,9 +1103,9 @@ def check_data():
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
 #cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-#cycles_edge_mpi(ns=1280, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
+cycles_edge_mpi(ns=1280, dim=2, kerneltype='random', pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand.pkl')
 #cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-cycles_edge_mpi_div(nss=11, ns=1280, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
+#cycles_edge_mpi_div(nss=11, ns=1280, dim=2, orgpklfile='param_sets_sets_bccrev3_2d_single_edge_true_edge.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
@@ -1106,4 +1120,4 @@ cycles_edge_mpi_div(nss=11, ns=1280, dim=2, orgpklfile='param_sets_sets_bccrev2_
 #select_bi2d()
 #check_data()
 #crude_parallel_computation()
-#run_resample_mpi(ns=32)
+#run_resample_mpi(ns=10)
