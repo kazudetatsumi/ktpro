@@ -342,7 +342,7 @@ def cycles_edge_mpi(ns=10, dim=2, kerneltype='square',
         print(datetime.datetime.now(), pklfile, ' is saved')
 
 
-def cycles_edge_mpi_div(nss=10, ns=10, dim=2,
+def cycles_edge_mpi_div(nss=10, ns=10, dim=2, kerneltype='square',
                         orgpklfile='param_sets_sets_bccrev2_2d_edge.pkl'):
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
@@ -369,7 +369,8 @@ def cycles_edge_mpi_div(nss=10, ns=10, dim=2,
         _param_sets_sets = []
         for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
             print('rank=', rank, 'ins=', ins)
-            _param_sets_sets.append(draw_params_edge_mpi(rg, param_sets, dim=dim))
+            _param_sets_sets.append(draw_params_edge_mpi(rg, param_sets,
+                                    dim=dim, kerneltype=kerneltype))
         comm.barrier()
         param_sets_sets = comm.gather(_param_sets_sets, root=0)
         rg_sets = comm.gather(rg, root=0)
@@ -511,7 +512,8 @@ def run_edge_phantom(paramimage, inpfile='edge_3.inp.phantom'):
                 x, y = get_sim_edgespectrum(inpfile=inpfile)
                 if counter == 1:
                     bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
-                bi2d_true[p1idx, p2idx] = y
+                if y.shape[0] == bi2d_true.shape[2]:
+                    bi2d_true[p1idx, p2idx] = y
     return bi2d_true, x
 
 
@@ -679,13 +681,13 @@ def reform_param_sets(param_sets_sets):
 #        pickle.dump(x, f, 4)
 
 
-def single_edgecomputation_phantom(pklfile='paramimage_d.pkl'):
+def single_edgecomputation_phantom(pklfile='paramimage_211_d2_5models.pkl'):
     # for constructing phantom data from the result of the rits edge fitting.
     with open(pklfile, 'rb') as f:
         paramimage = pickle.load(f)
     inpfile = 'edge_3.inp.phantom'
     bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
-    with open('bi2dsingle_d.pkl.phantom', 'wb') as f:
+    with open('bi2dsingle_211_d2_5models.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
         pickle.dump(x, f, 4)
 
@@ -1103,15 +1105,15 @@ def check_data():
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
 #cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-cycles_edge_mpi(ns=1280, dim=2, kerneltype='random', pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand.pkl')
+#cycles_edge_mpi(ns=1280, dim=2, kerneltype='random', pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand.pkl')
 #cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-#cycles_edge_mpi_div(nss=11, ns=1280, dim=2, orgpklfile='param_sets_sets_bccrev3_2d_single_edge_true_edge.pkl')
+#cycles_edge_mpi_div(nss=11, ns=1280, dim=2, kerneltype='random', orgpklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_edgecomputation(pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
-#single_edgecomputation_phantom()
+single_edgecomputation_phantom()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)

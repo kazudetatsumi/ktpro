@@ -1096,7 +1096,7 @@ def check_data():
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
-single_edgecomputation(pklfile='param_sets_sets_bccrev3_2d_single_edge_true_edge.pkl.9')
+single_edgecomputation(pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand.pkl.12')
 #single_edgecomputation_phantom()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)

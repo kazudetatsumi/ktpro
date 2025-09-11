@@ -275,12 +275,13 @@ def binning_and_stride(data, bins):
 
 def run_bi_with_stride_phantom():
     bins = [1, 5, 5]
-    with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_testbcc_simudata_rev2_lim_single_resize_full_255_d_phantom.pkl', 'rb') as f:
+    #with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_testbcc_simudata_rev2_lim_single_resize_full_255_denoised_5models_phantom.pkl', 'rb') as f:
+    with open('/home/kazu/desktop/240424/connect2d/test_single_edge/openbeam_d_5models_phantom.pkl', 'rb') as f:
         sample = pickle.load(f).astype(np.float64)
         op = pickle.load(f).astype(np.float64)
     sample_255_strd = binning_and_stride(sample, bins)
     op_255_strd = binning_and_stride(op, bins)
-    with open('/home/kazu/desktop/240424/connect2d/sampled/openbeam_255_strd_d_phantom.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/connect2d/sampled/openbeam_strd_from_211_d_5models_phantom.pkl', 'wb') as f:
         pickle.dump(sample_255_strd, f, 4)
         pickle.dump(op_255_strd, f, 4)
 
@@ -388,9 +389,9 @@ def run_bi_with_stride():
 
 
 #run_simu3d()
-#run_bi_with_stride_phantom()
+run_bi_with_stride_phantom()
 #run_bi_with_stride_phantom_sampled10()
-run_bi_with_stride_phantom_resampled10()
+#run_bi_with_stride_phantom_resampled10()
 #run_bi_with_stride()
 #run_tst3d()
 #lib.delete_array.restype = None
