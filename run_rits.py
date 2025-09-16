@@ -170,8 +170,9 @@ def draw_params_mpi(rg, param_sets, dim=1):
 
 def draw_params_edge_mpi(rg, param_sets, dim=1, kerneltype='square'):
     if kerneltype == 'random':
-        kerneltypes = ['square', 'single', 'third', 'fifth']
-        _kerneltype = kerneltypes[rg.integers(4)]
+        #kerneltypes = ['square', 'single', 'third', 'fifth']
+        kerneltypes = ['square', 'third', 'fifth']
+        _kerneltype = kerneltypes[rg.integers(3)]
     else:
         _kerneltype = kerneltype
     for pidx in range(len(param_sets['param_name'])):
@@ -1105,15 +1106,15 @@ def check_data():
 #gather_bi2d(timescale=50)
 #cycles(ns=2, dim=2)
 #cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-#cycles_edge_mpi(ns=1280, dim=2, kerneltype='random', pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand.pkl')
+#cycles_edge_mpi(ns=1280, dim=2, kerneltype='random', pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand_wosingle.pkl')
 #cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-#cycles_edge_mpi_div(nss=11, ns=1280, dim=2, kerneltype='random', orgpklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand.pkl')
+cycles_edge_mpi_div(nss=11, ns=1280, dim=2, kerneltype='random', orgpklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand_wosingle.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_edgecomputation(pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
-single_edgecomputation_phantom()
+#single_edgecomputation_phantom()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
