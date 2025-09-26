@@ -692,6 +692,15 @@ def single_edgecomputation_phantom(pklfile='paramimage_211_d2_5models.pkl'):
         pickle.dump(bi3d_true, f, 4)
         pickle.dump(x, f, 4)
 
+
+def png2paramimage(pklfile='paramimage_from_png.pkl'):
+    from PIL import Image
+    ptn1 = np.array(Image.open('denoise_pattern.png'))
+    ptn2 = np.array(Image.open('denoise_pattern2.png'))
+
+
+
+
 def resample_mpi(testdata, pklfile, ns=10):
     # bootstrapping for a large number of counts by using mpi
     from mpi4py import MPI
