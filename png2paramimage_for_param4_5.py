@@ -32,38 +32,42 @@ def modify_params(ptn, orgv, params, paramvs,  inner_idx, outer_idx, area_idx, o
 
 
 def run():
-    ptn1 = np.array(Image.open('denoise_pattern_rev.png'))
-    ptn2 = np.array(Image.open('denoise_pattern2_rev.png'))[:283]
+    #ptn1 = np.array(Image.open('denoise_pattern_rev2.png'))[:283, :768]
+    #ptn2 = np.array(Image.open('denoise_pattern2_rev.png'))[:283]
+    ptn1 = np.array(Image.open('denoise_pattern_rev2.png'))
+    ptn2 = np.array(Image.open('denoise_pattern2_rev2.png'))
 
-    #plt.imshow(ptn2, cmap='gray')
-    #plt.savefig('org_2d.png')
-    #plt.show()
-    #plt.plot(ptn2[200])
-    #plt.savefig('org_1d.png')
-    #plt.show()
+    plt.imshow(ptn1, cmap='gray')
+    plt.savefig('org_2d.png')
+    plt.show()
+    plt.plot(ptn1[200])
+    plt.savefig('org_1d.png')
+    plt.show()
     print(ptn1.shape, ptn2.shape)
 
 
-    param_values = np.zeros((6, 5))
+    param_values = np.zeros((6, 6))
     params = np.zeros(((6,)+ptn2.shape))
     #param_values[0] = np.array([0.05, 0.2, 0.15, 0.2, 0.])
     #param_values[1] = np.array([0.05, 0.2, 0.15, 0.2, 0.])*(-0.33)
     #param_values[2] = np.array([1.0, 0.5, -0.05, 0.7, 0.])
     #param_values[3] = np.array([1.0, 0.5, -0.05, 0.7, 0.])*(-1.)
-    param_values[0] = np.array([0.05, 0.2, 0.15, 0.2, 0.])*4.
+    #param_values[0] = np.array([0.05, 0.2, 0.15, 0.2, 0.])*4.
+    param_values[0] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*4.
     param_values[1] = param_values[0]*(-0.25)
     param_values[2] = param_values[0]*(-3.0) + 2.
     param_values[3] = param_values[2]*(-0.333)
-    param_values[4] = np.array([2.028, 2.036, 2.032, 2.024, 2.020])
-    param_values[5] = np.array([30.0, 25.0, 15.0, 7., 2.])
+    param_values[4, :-1] = np.array([2.028, 2.036, 2.032, 2.024, 2.020])
+    param_values[5, :-1] = np.array([30.0, 25.0, 15.0, 7., 2.])
 
     edgepos = np.array([[188, 103], [101, 675]])
     det_grad = (edgepos[1, 0] - edgepos[1, 1])/(edgepos[0, 0] - edgepos[1, 0])
     det_ysec = -edgepos[0, 0]*det_grad + edgepos[0, 1]
 
-    #orgvalues = np.unique(ptn2)
-    #print(orgvalues)
-    # [  0 100 120 145 255]
+    orgvalues = np.unique(ptn1)
+    print(orgvalues)
+    # [  0  75 100 120 145 255]
+    ## [  0 100 120 145 255]
     # [  0  75 100 235 255]
     for sidx in range(6):
         if sidx >= 4:
@@ -77,14 +81,20 @@ def run():
     modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 1, 4, 0)
     modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 2, 0, 1)
     modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 3, 1, 2)
-    modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 2, 0, 3, outer_not_area=True)
-    modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 0, 4, 1)
+    modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 1, 5, 2)
+    modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 0, 2, 1)
+    modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 3, 0, 4, outer_not_area=True)
+    plt.imshow(params[0])
+    plt.show()
+    plt.plot(params[0, 200])
+    plt.show()
+
     for _params, _param_values in zip(params, param_values):
         for _x in range(_params.shape[0]):
             for _y in range(_params.shape[1]):
                 if det_grad*_x + det_ysec < _y:
                     _params[_x, _y] = _param_values[-1]
-    y = params[:, 40:-100, 100:400]
+    y = params[:, 48:-100+8, 100:400]
     print(y.shape)
     #print(y.shape)
     y = y[np.newaxis]
