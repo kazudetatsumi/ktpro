@@ -682,13 +682,14 @@ def reform_param_sets(param_sets_sets):
 #        pickle.dump(x, f, 4)
 
 
-def single_edgecomputation_phantom(pklfile='paramimage_211_d2_5models.pkl'):
+#def single_edgecomputation_phantom(pklfile='paramimage_211_d2_5models.pkl'):
+def single_edgecomputation_phantom(pklfile='../params_scratch.pkl'):
     # for constructing phantom data from the result of the rits edge fitting.
     with open(pklfile, 'rb') as f:
         paramimage = pickle.load(f)
     inpfile = 'edge_3.inp.phantom'
     bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
-    with open('bi2dsingle_211_d2_5models.pkl.phantom', 'wb') as f:
+    with open('bi2dsingle_scrach.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
         pickle.dump(x, f, 4)
 
@@ -1117,13 +1118,13 @@ def check_data():
 #cycles_mpi(ns=2560, dim=2, pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #cycles_edge_mpi(ns=1280, dim=2, kerneltype='random', pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand_wosingle.pkl')
 #cycles_mpi_div(nss=11, ns=2560, dim=2, orgpklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
-cycles_edge_mpi_div(nss=11, ns=1280, dim=2, kerneltype='random', orgpklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand_wosingle.pkl')
+#cycles_edge_mpi_div(nss=11, ns=1280, dim=2, kerneltype='random', orgpklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge_ktrand_wosingle.pkl')
 #divide_paramdata()
 #mpi_parallel_computation(pklfile='param_sets_sets_2dlarge.pkl')
 #single_computation(pklfile='param_sets_sets_bccrev2_2d_single_edge_MDCoeffrev.pkl')
 #single_computation_div(pklfile='param_sets_sets_bccrev2_2d_single_edge_rsize.pkl')
 #single_edgecomputation(pklfile='param_sets_sets_bccrev2_2d_single_edge_true_edge.pkl')
-#single_edgecomputation_phantom()
+single_edgecomputation_phantom()
 #gather_bi2d(timescale=1, nidx=300)
 #gather_bi2d_mpi(timescale=1, nidx=300)
 #gather_bi2d_only_cond(timescale=1, nidx=300)
