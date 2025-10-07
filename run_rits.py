@@ -691,7 +691,6 @@ def single_edgecomputation_phantom(pklfile='../params_scratch.pkl'):
     bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
     with open('bi2dsingle_scrach.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
-        pickle.dump(x, f, 4)
 
 
 def png2paramimage(pklfile='paramimage_from_png.pkl'):

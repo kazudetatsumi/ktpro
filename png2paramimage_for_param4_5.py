@@ -57,8 +57,8 @@ def run():
     param_values[1] = param_values[0]*(-0.25)
     param_values[2] = param_values[0]*(-3.0) + 2.
     param_values[3] = param_values[2]*(-0.333)
-    param_values[4, :-1] = np.array([2.028, 2.036, 2.032, 2.024, 2.020])
-    param_values[5, :-1] = np.array([30.0, 25.0, 15.0, 7., 2.])
+    param_values[4] = np.array([2.028, 2.036, 2.032, 2.024, 2.020, 2.020])
+    param_values[5] = np.array([30.0, 25.0, 15.0, 7., 2., 2.])
 
     edgepos = np.array([[188, 103], [101, 675]])
     det_grad = (edgepos[1, 0] - edgepos[1, 1])/(edgepos[0, 0] - edgepos[1, 0])
@@ -76,6 +76,8 @@ def run():
             ptn = ptn1
         for ovidx, orgv in enumerate(np.unique(ptn)):
             params[sidx][ptn == orgv] = param_values[sidx, ovidx]
+    plt.imshow(params[4], origin='lower')
+    plt.show()
     #cpos = np.array(ptn2.shape)/2-1
 
     modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 1, 4, 0)
@@ -84,9 +86,9 @@ def run():
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 1, 5, 2)
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 0, 2, 1)
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 3, 0, 4, outer_not_area=True)
-    plt.imshow(params[0])
+    plt.imshow(params[4])
     plt.show()
-    plt.plot(params[0, 200])
+    plt.plot(params[4, 200])
     plt.show()
 
     for _params, _param_values in zip(params, param_values):
@@ -95,6 +97,8 @@ def run():
                 if det_grad*_x + det_ysec < _y:
                     _params[_x, _y] = _param_values[-1]
     y = params[:, 48:-100+8, 100:400]
+    plt.imshow(y[4], origin='lower')
+    plt.show()
     print(y.shape)
     #print(y.shape)
     y = y[np.newaxis]
