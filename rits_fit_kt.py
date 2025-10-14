@@ -1,6 +1,8 @@
 import sys
 import os
 import numpy as np
+import scipy.special as sp
+import scipy.optimize as so
 
 np.random.seed(222)
 
@@ -41,6 +43,147 @@ def get_sim_edgespectrum(inpfile='edge_3.inp'):
     return np.array(rits.PutObservedLambda()),\
         np.array(rits.PutFittedIntensity())
 
+
+def get_sim_edgespectrum_local(inpfile='edge_3.inp'):
+    para = get_para(inpfile)
+    flight = para[15]
+    thkl = 2.*para[4]*flight*1.0E6/3956.
+    sigm, alph, beta = setFacilityParameter(para)
+    tofIn = np.arange(152)*20+23000
+    delt = tofIn - thkl
+    Pu = 0.5 * alph * (alph*sigm*sigm + 2.*delt)
+    Pv = 0.5 * beta * (beta*sigm*sigm - 2.*delt)
+    Py = (alph*sigm*sigm + delt) / (np.sqrt(2.) * sigm)
+    Pz = (beta*sigm*sigm - delt) / (np.sqrt(2.) * sigm)
+    Pw = delt / (np.sqrt(2.) * sigm)
+    # I heared that the latest rits uses double precision and approximationexperfc is not needed.
+    #exp_erf1 = ApproximationExpErfc(Py, Pu)
+    #exp_erf2 = ApproximationExpErfc(Pz, Pv)
+    #step = 0.5*sp.erfc(Pw) - 0.5 * (beta*exp_erf1 - alph * exp_erf2) / (alph + beta)
+    step = 0.5*sp.erfc(Pw) - 0.5 * (beta*np.exp(Pu)*sp.erfc(Py) - alph * np.exp(Pv)*sp.erfc(Pz)) / (alph + beta)
+    yCalc = np.exp((-1.) * ((step*(para[2] + para[3] * (1.0E-4)*tofIn)) + (para[0] + para[1] * (1.0E-4)*tofIn)))
+    return tofIn, yCalc
+
+
+def get_sim_edgespectrum_local2(para):
+    flight = para[15]
+    thkl = 2.*para[4]*flight*1.0E6/3956.
+    sigm, alph, beta = setFacilityParameter(para)
+    tofIn = np.arange(152)*20+23000
+    delt = tofIn - thkl
+    Pu = 0.5 * alph * (alph*sigm*sigm + 2.*delt)
+    Pv = 0.5 * beta * (beta*sigm*sigm - 2.*delt)
+    Py = (alph*sigm*sigm + delt) / (np.sqrt(2.) * sigm)
+    Pz = (beta*sigm*sigm - delt) / (np.sqrt(2.) * sigm)
+    Pw = delt / (np.sqrt(2.) * sigm)
+    # I heared that the latest rits uses double precision and approximationexperfc is not needed.
+    #exp_erf1 = ApproximationExpErfc(Py, Pu)
+    #exp_erf2 = ApproximationExpErfc(Pz, Pv)
+    #step = 0.5*sp.erfc(Pw) - 0.5 * (beta*exp_erf1 - alph * exp_erf2) / (alph + beta)
+    step = 0.5*sp.erfc(Pw) - 0.5 * (beta*np.exp(Pu)*sp.erfc(Py) - alph * np.exp(Pv)*sp.erfc(Pz)) / (alph + beta)
+    yCalc = np.exp((-1.) * ((step*(para[2] + para[3] * (1.0E-4)*tofIn)) + (para[0] + para[1] * (1.0E-4)*tofIn)))
+    return tofIn, yCalc
+
+
+#def test_fit(inpfile, y):
+#    para = get_para(inpfile)
+#    variables = para[4:6]
+#    results = so.least_squares(res, variables, para, y)
+#    print(results)
+
+
+#def res(variables, para, y):
+#    para[4] = variables[0]
+#    para[5] = variables[1]
+#    flight = para[15]
+#    thkl = 2.*para[4]*flight*1.0E6/3956.
+#    sigm, alph, beta = setFacilityParameter(para)
+#    tofIn = np.arange(152)*20+23000
+#    delt = tofIn - thkl
+#    Pu = 0.5 * alph * (alph*sigm*sigm + 2.*delt)
+#    Pv = 0.5 * beta * (beta*sigm*sigm - 2.*delt)
+#    Py = (alph*sigm*sigm + delt) / (np.sqrt(2.) * sigm)
+#    Pz = (beta*sigm*sigm - delt) / (np.sqrt(2.) * sigm)
+#    Pw = delt / (np.sqrt(2.) * sigm)
+#    step = 0.5*sp.erfc(Pw) - 0.5 * (beta*np.exp(Pu)*sp.erfc(Py) - alph * np.exp(Pv)*sp.erfc(Pz)) / (alph + beta)
+#    yCalc = np.exp((-1.) * ((step*(para[2] + para[3] * (1.0E-4)*tofIn)) + (para[0] + para[1] * (1.0E-4)*tofIn)))
+#    return np.sum(((yCalc - y[0])/y[1])**2)
+
+
+def get_para(inpfile):
+    para = []
+    for il, line in enumerate(open(inpfile)):
+        if "?" in line:
+            para.append(float(line.split()[0][1:]))
+        else:
+            para.append(float(line.split()[0]))
+    return np.array(para)
+
+
+def ApproximationExpErfc_(x, y):
+    CfOrder = 20
+    CfThres = 2.4
+    func = np.zeros_like(x) + 0.01
+    area1 = np.abs(x) < CfThres
+    area2 = (np.abs(x) > 1.0e50) & (x > 0.)
+    area3 = (np.abs(x) > 1.0e50) & (x <= 0.)
+    area4 = (np.abs(x) <= 1.0e50) & (np.abs(x) >= CfThres) & (x >= 0.)
+    area5 = (np.abs(x) <= 1.0e50) & (np.abs(x) >= CfThres) & (x < 0.)
+    func[area1] = np.exp(y[area1])*sp.erfc(x[area1])
+    func[area2] = 0.
+    func[area3] = -2.*np.exp(y[area3])
+    d = np.abs(x[area4])*np.sqrt(2.)
+    a = np.zeros_like(x[area4])
+    for n in np.arange(CfOrder, 0, -1):
+        a = n / (d + a)
+    a = np.sqrt(2./np.pi)*np.exp(y[area4]-x[area4]*x[area4])/(d+a)
+    func[area4] = a
+    d = np.abs(x[area5])*np.sqrt(2.)
+    a = np.zeros_like(x[area5])
+    for n in np.arange(CfOrder, 0, -1):
+        a = n / (d + a)
+    a = np.sqrt(2./np.pi)*np.exp(y[area5]-x[area5]*x[area5])/(d+a)
+    func[area5] = 2.*np.exp(y[area5]) - a
+    return func
+
+
+def ApproximationExpErfc(x, y):
+    CfOrder = 20
+    CfThres = 2.4
+    func = np.zeros_like(x) + 0.01
+    area1 = np.abs(x) < CfThres
+    area2 = (np.abs(x) > 1.0e50) & (x > 0.)
+    area3 = (np.abs(x) > 1.0e50) & (x <= 0.)
+    area4 = (np.abs(x) <= 1.0e50) & (np.abs(x) >= CfThres)
+    area41 = (np.abs(x) <= 1.0e50) & (np.abs(x) >= CfThres) & (x >= 0.)
+    area42 = (np.abs(x) <= 1.0e50) & (np.abs(x) >= CfThres) & (x < 0.)
+    _area41 = x[area4] >= 0.
+    _area42 = x[area4] < 0.
+    func[area1] = np.exp(y[area1])*sp.erfc(x[area1])
+    func[area2] = 0.
+    func[area3] = -2.*np.exp(y[area3])
+    d = np.abs(x[area4])*np.sqrt(2.)
+    a = np.zeros_like(x[area4])
+    for n in np.arange(CfOrder, 0, -1):
+        a = n / (d + a)
+    a = np.sqrt(2./np.pi)*np.exp(y[area4]-x[area4]*x[area4])/(d+a)
+    func[area41] = a[_area41]
+    func[area42] = 2.*np.exp(y[area42]) - a[_area42]
+    return func
+
+
+def setFacilityParameter(para):
+    sigm1 = para[5] * 10.
+    sigm2 = para[6] * 10.
+    alph = para[7] * 0.01
+    beta = para[8] * 0.01
+    sigm = np.sqrt(sigm1**2 + sigm2**2)
+    return sigm, alph, beta
+
+
+
+
+
 #x, y = get_sim_spectrum()
 #x = np.array(x)
 #y = np.array(y)
@@ -55,3 +198,5 @@ def get_sim_edgespectrum(inpfile='edge_3.inp'):
 #plt.plot(x, y - _y) 
 #plt.xlim([1, 5.1])
 #plt.show()
+
+

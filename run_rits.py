@@ -9,7 +9,7 @@ import copy
 import datetime
 sys.path.append("/home/kazu/ktpro")
 from gp_nrca import draw_sample, draw_sample2d, draw_sample2d_mpi
-from rits_fit_kt import get_sim_spectrum, get_sim_edgespectrum
+from rits_fit_kt import get_sim_spectrum, get_sim_edgespectrum, get_sim_edgespectrum_local, get_sim_edgespectrum_local2
 sys.path.append("/home/kazu/denoise")
 import bi2d
 np.random.seed(129)
@@ -518,6 +518,79 @@ def run_edge_phantom(paramimage, inpfile='edge_3.inp.phantom'):
     return bi2d_true, x
 
 
+def run_edge_local_phantom(paramimage, inpfile='edge_3.inp.phantom'):
+    # This is for recalculating the rits edge spectra from fitted params.
+    # paramimage[paramidx, posidx1, posidx2]]
+    # Simulated spectra are obtained by python methods wo the rits code.
+    counter = 0
+    shape = paramimage.shape
+    for p1idx in range(shape[1]):
+        for p2idx in range(shape[2]):
+            if np.sum(np.abs(paramimage[:, p1idx, p2idx])) > 0.:
+                counter += 1
+                params = paramimage[:, p1idx, p2idx]
+                os.system('cp edge_3.inp.temp '+inpfile)
+                for sidx, string in enumerate(["A0", "B0", "AHKL", "BHKL",
+                                               "DHKL", "SIGMA_0"]):
+                    _param = "{:.4f}".format(params[sidx])
+                    textfile.replace(inpfile, string, _param)
+                x, y = get_sim_edgespectrum_local(inpfile=inpfile)
+                if counter == 1:
+                    bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
+                if y.shape[0] == bi2d_true.shape[2]:
+                    bi2d_true[p1idx, p2idx] = y
+    return bi2d_true, x
+
+
+def run_edge_local2_phantom(paramimage, inpfile='edge_3.inp.phantom'):
+    # This is for recalculating the rits edge spectra from fitted params.
+    # paramimage[paramidx, posidx1, posidx2]]
+    # Simulated spectra are obtained by python methods wo the rits code.
+    para = get_para(inpfile)
+    counter = 0
+    shape = paramimage.shape
+    for p1idx in range(shape[1]):
+        for p2idx in range(shape[2]):
+            if np.sum(np.abs(paramimage[:, p1idx, p2idx])) > 0.:
+                counter += 1
+                para[0:6] = paramimage[0:6, p1idx, p2idx]
+                x, y = get_sim_edgespectrum_local2(para)
+                if counter == 1:
+                    bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
+                if y.shape[0] == bi2d_true.shape[2]:
+                    bi2d_true[p1idx, p2idx] = y
+    return bi2d_true, x
+
+
+def run_edge_local2_phantom_mean(paramimage, inpfile='edge_3.inp.phantom'):
+    para = get_para(inpfile)
+    counter = 0
+    for i in range(4):
+        paramimage[i][paramimage[i]!=0] = np.round(np.mean(paramimage[i][paramimage[i]!=0]), 2)
+    shape = paramimage.shape
+    for p1idx in range(shape[1]):
+        for p2idx in range(shape[2]):
+            if np.sum(np.abs(paramimage[:, p1idx, p2idx])) > 0.:
+                counter += 1
+                para[0:6] = paramimage[0:6, p1idx, p2idx]
+                x, y = get_sim_edgespectrum_local2(para)
+                if counter == 1:
+                    bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
+                if y.shape[0] == bi2d_true.shape[2]:
+                    bi2d_true[p1idx, p2idx] = y
+    return bi2d_true, x
+
+
+def get_para(inpfile):
+    para = []
+    for il, line in enumerate(open(inpfile)):
+        if "?" in line:
+            para.append(float(line.split()[0][1:]))
+        else:
+            para.append(float(line.split()[0]))
+    return np.array(para)
+
+
 def get_noisydata(bi2d, x, timescale):
     return np.random.poisson(bi2d*timescale*x)/x
 
@@ -688,8 +761,10 @@ def single_edgecomputation_phantom(pklfile='../params_scratch.pkl'):
     with open(pklfile, 'rb') as f:
         paramimage = pickle.load(f)
     inpfile = 'edge_3.inp.phantom'
-    bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
-    with open('bi2dsingle_scrach.pkl.phantom', 'wb') as f:
+    bi3d_true, x = run_edge_local2_phantom_mean(paramimage, inpfile=inpfile)
+    #bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
+    with open('bi2dsingle_scratch.pkl.phantom_local_mean', 'wb') as f:
+        #with open('bi2dsingle_scratch.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
 
 

@@ -53,10 +53,12 @@ def run():
     #param_values[2] = np.array([1.0, 0.5, -0.05, 0.7, 0.])
     #param_values[3] = np.array([1.0, 0.5, -0.05, 0.7, 0.])*(-1.)
     #param_values[0] = np.array([0.05, 0.2, 0.15, 0.2, 0.])*4.
-    param_values[0] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*4.
-    param_values[1] = param_values[0]*(-0.25)
-    param_values[2] = param_values[0]*(-3.0) + 2.
-    param_values[3] = param_values[2]*(-0.333)
+    param_values[0] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*4.   # A0
+    param_values[1] = param_values[0]*(-0.25)                          # B0
+    #param_values[2] = param_values[0]*(-3.0) + 2.                      # Ahkl
+    #param_values[2] = param_values[0]*1.5                               # Ahkl
+    param_values[2] = param_values[0]*2.0                               # Ahkl
+    param_values[3] = param_values[2]*(-0.333)                         # Bhkl
     param_values[4] = np.array([2.028, 2.036, 2.032, 2.024, 2.020, 2.020])
     param_values[5] = np.array([30.0, 25.0, 15.0, 7., 2., 2.])
 
