@@ -44,27 +44,6 @@ def get_sim_edgespectrum(inpfile='edge_3.inp'):
         np.array(rits.PutFittedIntensity())
 
 
-def get_sim_edgespectrum_local(inpfile='edge_3.inp'):
-    para = get_para(inpfile)
-    flight = para[15]
-    thkl = 2.*para[4]*flight*1.0E6/3956.
-    sigm, alph, beta = setFacilityParameter(para)
-    tofIn = np.arange(152)*20+23000
-    delt = tofIn - thkl
-    Pu = 0.5 * alph * (alph*sigm*sigm + 2.*delt)
-    Pv = 0.5 * beta * (beta*sigm*sigm - 2.*delt)
-    Py = (alph*sigm*sigm + delt) / (np.sqrt(2.) * sigm)
-    Pz = (beta*sigm*sigm - delt) / (np.sqrt(2.) * sigm)
-    Pw = delt / (np.sqrt(2.) * sigm)
-    # I heared that the latest rits uses double precision and approximationexperfc is not needed.
-    #exp_erf1 = ApproximationExpErfc(Py, Pu)
-    #exp_erf2 = ApproximationExpErfc(Pz, Pv)
-    #step = 0.5*sp.erfc(Pw) - 0.5 * (beta*exp_erf1 - alph * exp_erf2) / (alph + beta)
-    step = 0.5*sp.erfc(Pw) - 0.5 * (beta*np.exp(Pu)*sp.erfc(Py) - alph * np.exp(Pv)*sp.erfc(Pz)) / (alph + beta)
-    yCalc = np.exp((-1.) * ((step*(para[2] + para[3] * (1.0E-4)*tofIn)) + (para[0] + para[1] * (1.0E-4)*tofIn)))
-    return tofIn, yCalc
-
-
 def get_sim_edgespectrum_local2(para):
     flight = para[15]
     thkl = 2.*para[4]*flight*1.0E6/3956.
@@ -85,6 +64,11 @@ def get_sim_edgespectrum_local2(para):
     return tofIn, yCalc
 
 
+def get_sim_edgespectrum_local(inpfile='edge_3.inp'):
+    para = get_para(inpfile)
+    return get_sim_edgespectrum_local2(para)
+
+
 def err_transmission(sample, openbeam, fac):
     err_sample = sample**0.5
     err_openbeam = openbeam**0.5
@@ -99,55 +83,43 @@ def test_fit(inpfile):
         op = pickle.load(f)
     with open('../params_scratch.pkl', 'rb') as f:
         params = pickle.load(f)
+    for i in range(4):
+        params[i][params[i]!=0] = np.round(np.mean(params[i][params[i]!=0]), 2)
     #print(sample.shape)
-    #print(params[4:6, 30, 100])
-    y = ((sample/op)[:, 100, 30], err_transmission(sample[:, 100, 30], op[:, 100, 30], 1.))
+    hpos=100
+    vpos=30
+    y = ((sample/op)[:, hpos, vpos], err_transmission(sample[:, hpos, vpos], op[:, hpos, vpos], 1.))
     para = get_para(inpfile)
-    variables = para[4:6]
+    para[:4] = params[0:4, vpos, hpos]
+    print(params[4:6, vpos, hpos])
+    variables = para[4:6]+0.05
+    print(variables)
     checkres(variables, para, y)
-    #print(variables)
     #results = so.least_squares(res, variables, loss='linear', f_scale=0.1, args=(para, y))
-    #print(results)
+    results = so.least_squares(res, variables, args=(para, y))
+    print(results.x)
+    checkres(results.x, para, y)
+    Jacobian = results.jac
+    cov_matrix = np.linalg.inv(Jacobian.T @ Jacobian)
+    errorbars = np.sqrt(np.diag(cov_matrix))
+    print(errorbars)
 
 
 def checkres(variables, para, y):
     import matplotlib.pyplot as plt
     para[4] = variables[0]
     para[5] = variables[1]
-    flight = para[15]
-    thkl = 2.*para[4]*flight*1.0E6/3956.
-    sigm, alph, beta = setFacilityParameter(para)
-    tofIn = np.arange(152)*20+23000
-    delt = tofIn - thkl
-    Pu = 0.5 * alph * (alph*sigm*sigm + 2.*delt)
-    Pv = 0.5 * beta * (beta*sigm*sigm - 2.*delt)
-    Py = (alph*sigm*sigm + delt) / (np.sqrt(2.) * sigm)
-    Pz = (beta*sigm*sigm - delt) / (np.sqrt(2.) * sigm)
-    Pw = delt / (np.sqrt(2.) * sigm)
-    step = 0.5*sp.erfc(Pw) - 0.5 * (beta*np.exp(Pu)*sp.erfc(Py) - alph * np.exp(Pv)*sp.erfc(Pz)) / (alph + beta)
-    yCalc = np.exp((-1.) * ((step*(para[2] + para[3] * (1.0E-4)*tofIn)) + (para[0] + para[1] * (1.0E-4)*tofIn)))
+    tofIn, yCalc = get_sim_edgespectrum_local2(para)
     plt.plot(yCalc)
     plt.plot(y[0])
     plt.ylim([0, 1])
     plt.show()
-    #return (yCalc - y[0])/y[1]
 
 
 def res(variables, para, y):
     para[4] = variables[0]
     para[5] = variables[1]
-    flight = para[15]
-    thkl = 2.*para[4]*flight*1.0E6/3956.
-    sigm, alph, beta = setFacilityParameter(para)
-    tofIn = np.arange(152)*20+23000
-    delt = tofIn - thkl
-    Pu = 0.5 * alph * (alph*sigm*sigm + 2.*delt)
-    Pv = 0.5 * beta * (beta*sigm*sigm - 2.*delt)
-    Py = (alph*sigm*sigm + delt) / (np.sqrt(2.) * sigm)
-    Pz = (beta*sigm*sigm - delt) / (np.sqrt(2.) * sigm)
-    Pw = delt / (np.sqrt(2.) * sigm)
-    step = 0.5*sp.erfc(Pw) - 0.5 * (beta*np.exp(Pu)*sp.erfc(Py) - alph * np.exp(Pv)*sp.erfc(Pz)) / (alph + beta)
-    yCalc = np.exp((-1.) * ((step*(para[2] + para[3] * (1.0E-4)*tofIn)) + (para[0] + para[1] * (1.0E-4)*tofIn)))
+    tofIn, yCalc = get_sim_edgespectrum_local2(para)
     return (yCalc - y[0])/y[1]
 
 
