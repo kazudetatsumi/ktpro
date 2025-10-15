@@ -149,18 +149,11 @@ def get_bi3d_and_their_params():
 def plot_results4(results_x, params, y, hpos):
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(8, 1)
-    ax[0].plot(np.abs(results_x[:, 4]))
-    ax[0].plot(params[4, 4:34, hpos])
-    ax[1].plot(np.abs(results_x[:, 5]))
-    ax[1].plot(params[5, 4:34, hpos])
-    ax[2].plot(np.abs(results_x[:, 0]))
-    ax[2].plot(params[0, 4:34, hpos])
-    ax[3].plot(results_x[:, 1])
-    ax[3].plot(params[1, 4:34, hpos])
-    ax[4].plot(np.abs(results_x[:, 2]))
-    ax[4].plot(params[2, 4:34, hpos])
-    ax[5].plot(results_x[:, 3])
-    ax[5].plot(params[3, 4:34, hpos])
+    for aidx, pidx in enumerate([4, 5, 0, 1, 2, 3]):
+        ax[aidx].plot(results_x[:, pidx])
+        ax[aidx].plot(params[pidx, :, hpos])
+        ax[aidx].set_ylim([np.min(np.unique(results_x[:, pidx])[1:]), np.max(np.unique(results_x[:, pidx])[1:])])
+        ax[aidx].set_xlim([0, results_x.shape[0]])
     ax[6].imshow(np.sum(y[0], axis=0), origin='lower')
     ax[7].imshow(params[4, :, :], origin='lower')
     plt.show()
@@ -275,50 +268,49 @@ def test_fit123(inpfile):
     plot_results3(results_x, params, y, hpos)
 
 
-def test_fit1234(inpfile):
+def fit123(para, y):
+    postedgearea = get_postedgearea(para)
+    preedgearea = get_preedgearea(para)
+    edgearea = get_edgearea(para)
+    variables = para[0:2]
+    results = so.least_squares(res1, variables, method='trf', args=(para, (y[0][postedgearea], y[1][postedgearea]), postedgearea))
+    para[0:2] = results.x
+    variables = para[2:4]
+    results = so.least_squares(res2, variables, method='trf', args=(para, (y[0][preedgearea], y[1][preedgearea]), preedgearea))
+    para[2:4] = results.x
+    variables = para[4:6]
+    results = so.least_squares(res3, variables, method='trf', args=(para, (y[0][edgearea], y[1][edgearea]), edgearea))
+    para[4:6] = results.x
+    return para
+
+
+def fit4(para, y):
+    fulledgearea = get_fulledgearea(para)
+    variables = para[:6]
+    results = so.least_squares(res4, variables, method='trf', args=(para, (y[0][fulledgearea], y[1][fulledgearea]), fulledgearea))
+    para[:6] = results.x
+    return para
+
+
+def test_fit1234(inpfile, numoftrials):
     y, params = get_bi3d_and_their_params()
+    mask = get_mask(y[0])
     hpos = 30
-    for vpos in range(4, 34):
-        print(vpos)
-        para = get_para(inpfile)
-        postedgearea = get_postedgearea(para)
-        preedgearea = get_preedgearea(para)
-        edgearea = get_edgearea(para)
-
-        variables = para[0:2]
-        results = so.least_squares(res1, variables, method='trf', args=(para, (y[0][postedgearea, vpos, hpos], y[1][postedgearea, vpos, hpos]), postedgearea))
-        para[0:2] = results.x
-        variables = para[2:4]
-        results = so.least_squares(res2, variables, method='trf', args=(para, (y[0][preedgearea, vpos, hpos], y[1][preedgearea, vpos, hpos]), preedgearea))
-        para[2:4] = results.x
-        variables = para[4:6]
-        results = so.least_squares(res3, variables, method='trf', args=(para, (y[0][edgearea, vpos, hpos], y[1][edgearea, vpos, hpos]), edgearea))
-        para[4:6] = results.x
-
-        postedgearea = get_postedgearea(para)
-        preedgearea = get_preedgearea(para)
-        edgearea = get_edgearea(para)
-
-        variables = para[0:2]
-        results = so.least_squares(res1, variables, method='trf', args=(para, (y[0][postedgearea, vpos, hpos], y[1][postedgearea, vpos, hpos]), postedgearea))
-        para[0:2] = results.x
-        variables = para[2:4]
-        results = so.least_squares(res2, variables, method='trf', args=(para, (y[0][preedgearea, vpos, hpos], y[1][preedgearea, vpos, hpos]), preedgearea))
-        para[2:4] = results.x
-        variables = para[4:6]
-        results = so.least_squares(res3, variables, method='trf', args=(para, (y[0][edgearea, vpos, hpos], y[1][edgearea, vpos, hpos]), edgearea))
-        para[4:6] = results.x
-
-        fulledgearea = get_fulledgearea(para)
-        variables = para[:6]
-        results = so.least_squares(res4, variables, method='trf', args=(para, (y[0][fulledgearea, vpos, hpos], y[1][fulledgearea, vpos, hpos]), fulledgearea))
-        para[:6] = results.x
-
-        if vpos == 4:
-            results_x = results.x
-        else:
-            results_x = np.vstack((results_x, results.x))
+    results_x = np.zeros((y[0].shape[1], 6))
+    for vpos in range(y[0].shape[1]):
+        if not mask[vpos, hpos]:
+            print(vpos)
+            para = get_para(inpfile)
+            for nt in range(numoftrials):
+                para = fit123(para, (y[0][:, vpos, hpos], y[1][:, vpos, hpos]))
+            para = fit4(para, (y[0][:, vpos, hpos], y[1][:, vpos, hpos]))
+            results_x[vpos] = para[:6]
     plot_results4(results_x, params, y, hpos)
+
+
+def get_mask(transmission):
+    _transmission = np.average(transmission[90:], axis=0)
+    return _transmission >= 0.95
 
 
 def test_fit(inpfile):
@@ -487,4 +479,4 @@ def setFacilityParameter(para):
 #plt.xlim([1, 5.1])
 #plt.show()
 
-test_fit1234('edge_3.inp.phantom')
+test_fit1234('edge_3.inp.phantom', 2)
