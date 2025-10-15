@@ -79,30 +79,46 @@ def err_transmission(sample, openbeam, fac):
 def test_fit(inpfile):
     import pickle
     with open('bi3d_scratch_255_partial_phantom_local_mean.pkl', 'rb') as f:
-        sample = pickle.load(f)
-        op = pickle.load(f)
+        sample = pickle.load(f).transpose((0, 2, 1))
+        op = pickle.load(f).transpose((0, 2, 1))
     with open('../params_scratch.pkl', 'rb') as f:
-        params = pickle.load(f)
+        params = pickle.load(f)[:, ::-1, :]
     for i in range(4):
         params[i][params[i]!=0] = np.round(np.mean(params[i][params[i]!=0]), 2)
-    #print(sample.shape)
-    hpos=100
-    vpos=30
-    y = ((sample/op)[:, hpos, vpos], err_transmission(sample[:, hpos, vpos], op[:, hpos, vpos], 1.))
     para = get_para(inpfile)
-    para[:4] = params[0:4, vpos, hpos]
-    print(params[4:6, vpos, hpos])
-    variables = para[4:6]+0.05
-    print(variables)
-    checkres(variables, para, y)
+    variables = para[4:6]
+    #print(sample.shape)
+    for vpos in range(sample.shape[1]):
+        #hpos=100
+        hpos=31
+        y = ((sample/op)[:, vpos, hpos], err_transmission(sample[:, vpos, hpos], op[:, vpos, hpos], 1.))
+        para[:4] = params[:4, vpos, hpos]
+    #checkres(variables, para, y)
     #results = so.least_squares(res, variables, loss='linear', f_scale=0.1, args=(para, y))
-    results = so.least_squares(res, variables, args=(para, y))
-    print(results.x)
-    checkres(results.x, para, y)
-    Jacobian = results.jac
-    cov_matrix = np.linalg.inv(Jacobian.T @ Jacobian)
-    errorbars = np.sqrt(np.diag(cov_matrix))
-    print(errorbars)
+        results = so.least_squares(res, variables, args=(para, y))
+        print('vpos=', vpos, 'optimized')
+        #print(results.message)
+        if vpos == 0:
+            results_x = results.x
+        else:
+            results_x = np.vstack((results_x, results.x))
+    print(results_x.shape)
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(3, 1)
+    ax[0].plot(np.abs(results_x[:, 1]))
+    ax[0].plot(params[5, :, hpos])
+    #plt.plot(np.sum((sample/op)[:, vpos, :], axis=0))
+    #ax[0].set_ylim([np.min(results_x[:, 0]), np.max(params[4, vpos])])
+    ax[1].imshow(np.sum(sample/op, axis=0), origin='lower')
+    #ax[1].imshow(params[4], origin='lower')
+    ax[2].imshow(params[4, :, :], origin='lower')
+    plt.show()
+    #print(results)
+    #checkres(results.x, para, y)
+    #Jacobian = results.jac
+    #cov_matrix = np.linalg.inv(Jacobian.T @ Jacobian)
+    #errorbars = np.sqrt(np.diag(cov_matrix))
+    #print(errorbars)
 
 
 def checkres(variables, para, y):
