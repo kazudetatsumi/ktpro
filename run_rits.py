@@ -761,9 +761,10 @@ def single_edgecomputation_phantom(pklfile='../params_scratch.pkl'):
     with open(pklfile, 'rb') as f:
         paramimage = pickle.load(f)
     inpfile = 'edge_3.inp.phantom'
-    bi3d_true, x = run_edge_local2_phantom_mean(paramimage, inpfile=inpfile)
+    #bi3d_true, x = run_edge_local2_phantom_mean(paramimage, inpfile=inpfile)
+    bi3d_true, x = run_edge_local2_phantom(paramimage, inpfile=inpfile)
     #bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
-    with open('bi2dsingle_scratch.pkl.phantom_local_mean', 'wb') as f:
+    with open('bi2dsingle_scratch.pkl.phantom_local', 'wb') as f:
         #with open('bi2dsingle_scratch.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
 
