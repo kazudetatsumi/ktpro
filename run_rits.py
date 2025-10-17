@@ -9,7 +9,7 @@ import copy
 import datetime
 sys.path.append("/home/kazu/ktpro")
 from gp_nrca import draw_sample, draw_sample2d, draw_sample2d_mpi
-from rits_fit_kt import get_sim_spectrum, get_sim_edgespectrum, get_sim_edgespectrum_local, get_sim_edgespectrum_local2
+from rits_fit_kt import get_sim_spectrum, get_sim_edgespectrum, get_sim_edgespectrum_local
 sys.path.append("/home/kazu/denoise")
 import bi2d
 np.random.seed(129)
@@ -536,10 +536,10 @@ def run_edge_local_phantom(paramimage, inpfile='edge_3.inp.phantom'):
                     textfile.replace(inpfile, string, _param)
                 x, y = get_sim_edgespectrum_local(inpfile=inpfile)
                 if counter == 1:
-                    bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
+                    bi2d_true = np.ones((shape[1], shape[2], y.shape[0]))
                 if y.shape[0] == bi2d_true.shape[2]:
                     bi2d_true[p1idx, p2idx] = y
-    return bi2d_true, x
+    return bi2d_true
 
 
 def run_edge_local2_phantom(paramimage, inpfile='edge_3.inp.phantom'):
@@ -554,12 +554,13 @@ def run_edge_local2_phantom(paramimage, inpfile='edge_3.inp.phantom'):
             if np.sum(np.abs(paramimage[:, p1idx, p2idx])) > 0.:
                 counter += 1
                 para[0:6] = paramimage[0:6, p1idx, p2idx]
-                x, y = get_sim_edgespectrum_local2(para)
+                y = get_sim_edgespectrum_local(para)
                 if counter == 1:
-                    bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
-                if y.shape[0] == bi2d_true.shape[2]:
-                    bi2d_true[p1idx, p2idx] = y
-    return bi2d_true, x
+                    bi2d_true = np.ones((shape[1], shape[2], y.shape[0]))
+                #if y.shape[0] == bi2d_true.shape[2]:
+                #    bi2d_true[p1idx, p2idx] = y
+                bi2d_true[p1idx, p2idx] = y
+    return bi2d_true
 
 
 def run_edge_local2_phantom_mean(paramimage, inpfile='edge_3.inp.phantom'):
@@ -573,7 +574,7 @@ def run_edge_local2_phantom_mean(paramimage, inpfile='edge_3.inp.phantom'):
             if np.sum(np.abs(paramimage[:, p1idx, p2idx])) > 0.:
                 counter += 1
                 para[0:6] = paramimage[0:6, p1idx, p2idx]
-                x, y = get_sim_edgespectrum_local2(para)
+                x, y = get_sim_edgespectrum_local(para)
                 if counter == 1:
                     bi2d_true = np.ones((shape[1], shape[2], x.shape[0]))
                 if y.shape[0] == bi2d_true.shape[2]:
@@ -762,7 +763,7 @@ def single_edgecomputation_phantom(pklfile='../params_scratch.pkl'):
         paramimage = pickle.load(f)
     inpfile = 'edge_3.inp.phantom'
     #bi3d_true, x = run_edge_local2_phantom_mean(paramimage, inpfile=inpfile)
-    bi3d_true, x = run_edge_local2_phantom(paramimage, inpfile=inpfile)
+    bi3d_true = run_edge_local2_phantom(paramimage, inpfile=inpfile)
     #bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
     with open('bi2dsingle_scratch.pkl.phantom_local', 'wb') as f:
         #with open('bi2dsingle_scratch.pkl.phantom', 'wb') as f:

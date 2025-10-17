@@ -479,4 +479,4 @@ def setFacilityParameter(para):
 #plt.xlim([1, 5.1])
 #plt.show()
 
-test_fit1234('edge_3.inp.phantom', 2)
+#test_fit1234('edge_3.inp.phantom', 2)

@@ -95,14 +95,15 @@ def err_transmission(sample, openbeam, fac):
 
 def get_bi3d_and_their_params():
     import pickle
-    with open('bi3d_scratch_255_partial_phantom_local_mean.pkl', 'rb') as f:
+    with open('bi3d_scratch_255_partial_phantom_local.pkl', 'rb') as f:
+        #with open('bi3d_scratch_255_partial_phantom_local_mean.pkl', 'rb') as f:
         sample = pickle.load(f).transpose((0, 2, 1))
         op = pickle.load(f).transpose((0, 2, 1))
     with open('params_scratch_for_class.pkl', 'rb') as f:
         params = pickle.load(f)
-    for i in range(4):
-        params[i][params[i] != 0] = np.round(np.mean(params[i][params[i] != 0]
-                                                     ), 2)
+    #for i in range(4):
+    #    params[i][params[i] != 0] = np.round(np.mean(params[i][params[i] != 0]
+    #                                                 ), 2)
     y = (sample/op, err_transmission(sample, op, 1.))
     return y, params
 
@@ -136,86 +137,6 @@ def plot_results3(results_x, params, y, hpos):
     plt.show()
 
 
-def plot_results1(results_x, params, y, hpos):
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(3, 1)
-    ax[0].plot(results_x[:, 0])
-    ax[0].plot(params[0, :, hpos])
-    ax[1].imshow(np.sum(y[0], axis=0), origin='lower')
-    ax[2].imshow(params[0, :, :], origin='lower')
-    plt.show()
-
-
-def plot_results12(results_x, params, y, hpos):
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(3, 1)
-    ax[0].plot(results_x[:, 1])
-    ax[0].plot(params[3, :, hpos])
-    ax[1].imshow(np.sum(y[0], axis=0), origin='lower')
-    ax[2].imshow(params[3, :, :], origin='lower')
-    plt.show()
-
-
-def test_fit1(inpfile):
-    y, params = get_bi3d_and_their_params()
-    para = get_para(inpfile)
-    variables = para[0:2]
-    postedgearea = get_postedgearea(para)
-    hpos = 31
-    for vpos in range(y[0].shape[1]):
-        results = so.least_squares(res1, variables,
-                                   args=(para,
-                                         (y[0][postedgearea, vpos, hpos],
-                                          y[1][postedgearea, vpos, hpos]
-                                          ), postedgearea))
-        if vpos == 0:
-            results_x = results.x
-        else:
-            results_x = np.vstack((results_x, results.x))
-    plot_results1(results_x, params, y, hpos)
-
-
-def test_fit12(inpfile):
-    y, params = get_bi3d_and_their_params()
-    para = get_para(inpfile)
-    variables = para[0:2]
-    postedgearea = get_postedgearea(para)
-    preedgearea = get_preedgearea(para)
-    hpos = 31
-    for vpos in range(y[0].shape[1]):
-        results = so.least_squares(res1, variables,
-                                   args=(para, (y[0][postedgearea, vpos, hpos],
-                                                y[1][postedgearea, vpos, hpos]
-                                                ), postedgearea))
-        para[0:2] = results.x
-        variables = para[2:4]
-        results = so.least_squares(res2, variables,
-                                   args=(para, (y[0][preedgearea, vpos, hpos],
-                                                y[1][preedgearea, vpos, hpos]
-                                                ), preedgearea))
-        para[2:4] = results.x
-        if vpos == 0:
-            results_x = results.x
-        else:
-            results_x = np.vstack((results_x, results.x))
-    plot_results12(results_x, params, y, hpos)
-
-
-def test_fit123(inpfile, numoftrials):
-    y, params = get_bi3d_and_their_params()
-    mask = get_mask(y[0])
-    hpos = 30
-    results_x = np.zeros((y[0].shape[1], 6))
-    for vpos in range(y[0].shape[1]):
-        if not mask[vpos, hpos]:
-            print(vpos)
-            para = get_para(inpfile)
-            for nt in range(numoftrials):
-                para = fit123(para, (y[0][:, vpos, hpos], y[1][:, vpos, hpos]))
-            results_x[vpos] = para[:6]
-    plot_results4(results_x, params, y, hpos)
-
-
 def fit123(para, y):
     postedgearea = get_postedgearea(para)
     preedgearea = get_preedgearea(para)
@@ -241,14 +162,20 @@ def fit123(para, y):
 def fit4(para, y):
     fulledgearea = get_fulledgearea(para)
     variables = para[:6]
-    results = so.least_squares(res4, variables, method='trf',
-                               args=(para, (y[0][fulledgearea],
-                                            y[1][fulledgearea]), fulledgearea))
-    para[:6] = results.x
+    try:
+        results = so.least_squares(res4, variables, method='trf',
+                                   args=(para, (y[0][fulledgearea],
+                                                y[1][fulledgearea]),
+                                         fulledgearea))
+        para[:6] = results.x
+    except ValueError:
+        print('ValueError in fit4')
     return para
 
 
 def test_fit1234(inpfile, numoftrials):
+    # The three stage fitting is repeated numoftrials times
+    # and then the parameters are fitted over the full range. 
     y, params = get_bi3d_and_their_params()
     mask = get_mask(y[0])
     hpos = 30
@@ -290,34 +217,10 @@ def test_fit(inpfile):
     plot_results3(results_x, params, y, hpos)
     ## for fitting error estimation
     #print(results)
-    #checkres(results.x, para, y)
     #Jacobian = results.jac
     #cov_matrix = np.linalg.inv(Jacobian.T @ Jacobian)
     #errorbars = np.sqrt(np.diag(cov_matrix))
     #print(errorbars)
-
-
-def checkres(variables, para, y):
-    import matplotlib.pyplot as plt
-    para[4] = variables[0]
-    para[5] = variables[1]
-    tofIn, yCalc = get_sim_edgespectrum_local(para)
-    plt.plot(yCalc)
-    plt.plot(y[0])
-    plt.ylim([0, 1])
-    plt.show()
-
-
-def checkres1(variables, para, y, postedgearea):
-    import matplotlib.pyplot as plt
-    para[0] = variables[0]
-    para[1] = variables[1]
-    print(variables)
-    yCalc = get_sim_edgespectrum_local1(para, postedgearea)
-    plt.plot(yCalc)
-    plt.plot(y[postedgearea])
-    #plt.ylim([0, 1])
-    plt.show()
 
 
 def res(variables, para, y):
@@ -373,6 +276,5 @@ def setFacilityParameter(para):
     return sigm, alph, beta
 
 
-#test_fit1234('edge_3.inp.phantom', 2)
-#test_fit123('edge_3.inp.phantom', 2)
-test_fit('edge_3.inp.phantom')
+test_fit1234('edge_3.inp.phantom', 2)
+#test_fit('edge_3.inp.phantom')
