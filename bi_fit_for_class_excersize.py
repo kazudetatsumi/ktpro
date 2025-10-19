@@ -110,30 +110,50 @@ def get_bi3d_and_their_params():
 
 def plot_results4(results_x, params, y, hpos):
     import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(8, 1)
-    for aidx, pidx in enumerate([4, 5, 0, 1, 2, 3]):
-        ax[aidx].plot(results_x[:, pidx])
-        ax[aidx].plot(params[pidx, :, hpos])
-        ax[aidx].set_ylim([np.min(np.unique(results_x[:, pidx])[1:]),
-                           np.max(np.unique(results_x[:, pidx])[1:])])
-        ax[aidx].set_xlim([0, results_x.shape[0]])
-    ax[6].imshow(np.sum(y[0], axis=0), origin='lower')
-    ax[7].imshow(params[4, :, :], origin='lower')
+    fig, ax = plt.subplots(6, 2, figsize=(6, 9))
+    for aidx, (pidx, pstr) in enumerate(zip([4, 5, 0, 1, 2, 3], ['dhkl', 'sigma', 'a0', 'b0', 'ahkl', 'bhkl'])):
+        vmin = np.min(np.unique(results_x[:, pidx])[2:])
+        vmax = np.max(np.unique(results_x[:, pidx])[1:])
+        ax[aidx, 0].plot(results_x[:, pidx])
+        ax[aidx, 0].plot(params[pidx, :, hpos])
+        ax[aidx, 0].text(40, (vmax+vmin)/2., 'at x='+str(hpos)+' / ch')
+        ax[aidx, 0].set_ylim([vmin, vmax])
+        ax[aidx, 0].set_xlim([0, results_x.shape[0]])
+        ax[aidx, 0].set_ylabel(pstr)
+        ax[aidx, 0].set_xlabel('y / ch')
+        ax[aidx, 1].imshow(params[pidx], vmin=vmin, vmax=vmax, origin='lower')
+        ax[aidx, 1].set_ylabel('y / ch')
+        ax[aidx, 1].set_xlabel('x / ch')
+        ax[aidx, 1].axvline(hpos, color='w', linestyle='--', lw=1)
+        ax[aidx, 1].set_title('distribution of ' + pstr)
+    plt.tight_layout()
+    plt.savefig('test_result4.png')
     plt.show()
 
 
 def plot_results3(results_x, params, y, hpos):
     import matplotlib.pyplot as plt
     print(results_x.shape)
-    fig, ax = plt.subplots(4, 1)
-    for aidx, pidx in enumerate([4, 5]):
-        ax[aidx].plot(results_x[:, pidx-4])
-        ax[aidx].plot(params[pidx, :, hpos])
-        ax[aidx].set_ylim([np.min(np.unique(results_x[:, pidx-4])[1:]),
-                           np.max(np.unique(results_x[:, pidx-4])[1:])])
+    fig, ax = plt.subplots(4, 1, figsize=(4, 8))
+    for aidx, (pidx, pstr) in enumerate(zip([4, 5], ['dhkl', 'sigma'])):
+        vmin = np.min(np.unique(results_x[:, pidx-4])[1:])
+        vmax = np.max(np.unique(results_x[:, pidx-4])[1:])
+        ax[aidx].plot(results_x[:, pidx-4], label='estimated')
+        ax[aidx].plot(params[pidx, :, hpos], label='ground truth')
+        ax[aidx].text(45, (vmax+vmin)/2., 'at x='+str(hpos)+' / ch')
+        ax[aidx].set_ylim([vmin, vmax])
         ax[aidx].set_xlim([0, results_x.shape[0]])
-    ax[2].imshow(np.sum(y[0], axis=0), origin='lower')
-    ax[3].imshow(params[4, :, :], origin='lower')
+        ax[aidx].set_ylabel(pstr)
+        ax[aidx].set_xlabel('y / ch')
+        ax[aidx].legend()
+        ax[aidx+2].imshow(params[pidx], vmin=vmin, vmax=vmax, origin='lower')
+        ax[aidx+2].set_ylabel('y / ch')
+        ax[aidx+2].set_xlabel('x / ch')
+        ax[aidx+2].axvline(hpos, color='w', linestyle='--', lw=1)
+        ax[aidx+2].set_title('distribution of ' + pstr)
+
+    plt.tight_layout()
+    plt.savefig('test_result.png')
     plt.show()
 
 
@@ -205,7 +225,7 @@ def test_fit(inpfile):
     mask = get_mask(y[0])
     para = get_para(inpfile)
     variables = para[4:6]
-    hpos = 31
+    hpos = 30
     results_x = np.zeros((y[0].shape[1], 2))
     for vpos in range(y[0].shape[1]):
         if not mask[vpos, hpos]:
@@ -214,7 +234,7 @@ def test_fit(inpfile):
                                        args=(para, (y[0][:, vpos, hpos],
                                                     y[1][:, vpos, hpos])))
             results_x[vpos] = results.x
-    plot_results3(results_x, params, y, hpos)
+    plot_results3(np.abs(results_x), params, y, hpos)
     ## for fitting error estimation
     #print(results)
     #Jacobian = results.jac
