@@ -140,16 +140,17 @@ def err_transmission(sample, openbeam, fac):
 
 def get_bi3d_and_their_params():
     import pickle
-    #with open('bi3d_scratch_255_partial_phantom_local.pkl', 'rb') as f:
-    with open('bi3d_scratch_255_partial_phantom_local_mean.pkl', 'rb') as f:
+    with open('bi3d_scratch_255_partial_phantom_local.pkl', 'rb') as f:
+    #with open('bi3d_scratch_255_phantom_local_mean.pkl', 'rb') as f:
+    #with open('bi3d_scratch_255_partial_phantom_local_mean.pkl', 'rb') as f:
         sample = pickle.load(f).transpose((0, 2, 1))
         op = pickle.load(f).transpose((0, 2, 1))
     with open('params_scratch_for_class.pkl', 'rb') as f:
         params = pickle.load(f)
-    for i in range(4):
-        params[i][params[i] != 0] = np.round(np.mean(params[i][params[i] != 0]
-                                                     ), 2)
-        print(np.round(np.mean(params[i][params[i] != 0]), 2))
+    #for i in range(4):
+    #    params[i][params[i] != 0] = np.round(np.mean(params[i][params[i] != 0]
+    #                                                 ), 2)
+    #    print(np.round(np.mean(params[i][params[i] != 0]), 2))
     y = (sample/op, err_transmission(sample, op, 1.))
     return y, params
 
@@ -163,15 +164,16 @@ def read_flnames(flname='temp_edge_list.dat'):
 
 
 def get_paramimage(fname, flname):
-    #param_name = ['a0', 'b0', 'a_hkl', 'b_hkl', 'd_hkl', 'sigma0']
-    param_name = ['d_hkl', 'sigma0']
+    param_name = ['a0', 'b0', 'a_hkl', 'b_hkl', 'd_hkl', 'sigma0']
+    #param_name = ['d_hkl', 'sigma0']
     result = np.genfromtxt(fname)
     y, params = get_bi3d_and_their_params()
     pos = read_flnames(flname=flname)
-    results_x = np.zeros((y[0].shape[1], 2))
+    results_x = np.zeros((len(param_name),)+y[0].shape[1:])
     for pidx, param in enumerate(param_name):
         for fidx in range(pos.shape[0]):
-            results_x[pos[fidx, 1], pidx] = result[fidx, pidx]
+            results_x[pidx, pos[fidx, 1], pos[fidx, 0]] = result[fidx, pidx]
+    return results_x
 
 
 def write_rits_inputfiles_with_error():
@@ -190,17 +192,65 @@ def write_rits_inputfiles_with_error():
                        output.T)
 
 
+#def plot_results4(results_x, params, y, hpos):
+#    import matplotlib.pyplot as plt
+#    fig, ax = plt.subplots(8, 1)
+#    for aidx, pidx in enumerate([4, 5, 0, 1, 2, 3]):
+#        ax[aidx].plot(results_x[:, pidx])
+#        ax[aidx].plot(params[pidx, :, hpos])
+#        ax[aidx].set_ylim([np.min(np.unique(results_x[:, pidx])[1:]),
+#                           np.max(np.unique(results_x[:, pidx])[1:])])
+#        ax[aidx].set_xlim([0, results_x.shape[0]])
+#    ax[6].imshow(np.sum(y[0], axis=0), origin='lower')
+#    ax[7].imshow(params[4, :, :], origin='lower')
+#    plt.show()
+
+
 def plot_results4(results_x, params, y, hpos):
     import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(8, 1)
-    for aidx, pidx in enumerate([4, 5, 0, 1, 2, 3]):
-        ax[aidx].plot(results_x[:, pidx])
-        ax[aidx].plot(params[pidx, :, hpos])
-        ax[aidx].set_ylim([np.min(np.unique(results_x[:, pidx])[1:]),
-                           np.max(np.unique(results_x[:, pidx])[1:])])
-        ax[aidx].set_xlim([0, results_x.shape[0]])
-    ax[6].imshow(np.sum(y[0], axis=0), origin='lower')
-    ax[7].imshow(params[4, :, :], origin='lower')
+    fig, ax = plt.subplots(6, 2, figsize=(6, 9))
+    for aidx, (pidx, pstr) in enumerate(zip([4, 5, 0, 1, 2, 3], ['dhkl', 'sigma', 'a0', 'b0', 'ahkl', 'bhkl'])):
+        vmin = np.min(np.unique(results_x[:, pidx])[2:])
+        vmax = np.max(np.unique(results_x[:, pidx])[1:])
+        ax[aidx, 0].plot(results_x[:, pidx])
+        ax[aidx, 0].plot(params[pidx, :, hpos])
+        ax[aidx, 0].text(40, (vmax+vmin)/2., 'at x='+str(hpos)+' / ch')
+        ax[aidx, 0].set_ylim([vmin, vmax])
+        ax[aidx, 0].set_xlim([0, results_x.shape[0]])
+        ax[aidx, 0].set_ylabel(pstr)
+        ax[aidx, 0].set_xlabel('y / ch')
+        ax[aidx, 1].imshow(params[pidx], vmin=vmin, vmax=vmax, origin='lower')
+        ax[aidx, 1].set_ylabel('y / ch')
+        ax[aidx, 1].set_xlabel('x / ch')
+        ax[aidx, 1].axvline(hpos, color='w', linestyle='--', lw=1)
+        ax[aidx, 1].set_title('distribution of ' + pstr)
+    plt.tight_layout()
+    plt.savefig('test_result4.png')
+    plt.show()
+
+
+def plot_results5(results_x, params_ext, params, y, hpos):
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(6, 2, figsize=(6, 9))
+    for aidx, (pidx, pstr) in enumerate(zip([4, 5, 0, 1, 2, 3], ['dhkl', 'sigma', 'a0', 'b0', 'ahkl', 'bhkl'])):
+        vmin = np.min(np.unique(results_x[:, pidx])[2:])
+        vmax = np.max(np.unique(results_x[:, pidx])[1:])
+        ax[aidx, 0].plot(results_x[:, pidx], label='local')
+        ax[aidx, 0].plot(params_ext[pidx, :, hpos], label='rits')
+        ax[aidx, 0].plot(params[pidx, :, hpos], label='gt')
+        ax[aidx, 0].legend(loc='right')
+        ax[aidx, 0].text(0, vmax, 'at x='+str(hpos)+' / ch')
+        ax[aidx, 0].set_ylim([vmin, vmax])
+        ax[aidx, 0].set_xlim([0, results_x.shape[0]])
+        ax[aidx, 0].set_ylabel(pstr)
+        ax[aidx, 0].set_xlabel('y / ch')
+        ax[aidx, 1].imshow(params[pidx], vmin=vmin, vmax=vmax, origin='lower')
+        ax[aidx, 1].set_ylabel('y / ch')
+        ax[aidx, 1].set_xlabel('x / ch')
+        ax[aidx, 1].axvline(hpos, color='w', linestyle='--', lw=1)
+        ax[aidx, 1].set_title('distribution of ' + pstr)
+    plt.tight_layout()
+    plt.savefig('test_result4.png')
     plt.show()
 
 
@@ -303,19 +353,19 @@ def test_fit123(inpfile):
         edgearea = get_edgearea(para)
 
         variables = para[0:2]
-        results = so.least_squares(res1, variables, method='trf',
+        results = so.least_squares(res1, variables, method='lm',
                                    args=(para, (y[0][postedgearea, vpos, hpos],
                                          y[1][postedgearea, vpos, hpos]),
                                          postedgearea))
         para[0:2] = results.x
         variables = para[2:4]
-        results = so.least_squares(res2, variables, method='trf',
+        results = so.least_squares(res2, variables, method='lm',
                                    args=(para, (y[0][preedgearea, vpos, hpos],
                                                 y[1][preedgearea, vpos, hpos]),
                                          preedgearea))
         para[2:4] = results.x
         variables = para[4:6]
-        results = so.least_squares(res3, variables, method='trf',
+        results = so.least_squares(res3, variables, method='lm',
                                    args=(para, (y[0][edgearea, vpos, hpos],
                                                 y[1][edgearea, vpos, hpos]),
                                          edgearea))
@@ -326,20 +376,20 @@ def test_fit123(inpfile):
         edgearea = get_edgearea(para)
 
         variables = para[0:2]
-        results = so.least_squares(res1, variables, method='trf',
+        results = so.least_squares(res1, variables, method='lm',
                                    args=(para,
                                          (y[0][postedgearea, vpos, hpos],
                                           y[1][postedgearea, vpos, hpos]),
                                          postedgearea))
         para[0:2] = results.x
         variables = para[2:4]
-        results = so.least_squares(res2, variables, method='trf',
+        results = so.least_squares(res2, variables, method='lm',
                                    args=(para, (y[0][preedgearea, vpos, hpos],
                                                 y[1][preedgearea, vpos, hpos]),
                                          preedgearea))
         para[2:4] = results.x
         variables = para[4:6]
-        results = so.least_squares(res3, variables, method='trf',
+        results = so.least_squares(res3, variables, method='lm',
                                    args=(para, (y[0][edgearea, vpos, hpos],
                                                 y[1][edgearea, vpos, hpos]),
                                          edgearea))
@@ -357,17 +407,17 @@ def fit123(para, y):
     preedgearea = get_preedgearea(para)
     edgearea = get_edgearea(para)
     variables = para[0:2]
-    results = so.least_squares(res1, variables, method='trf',
+    results = so.least_squares(res1, variables, method='lm',
                                args=(para, (y[0][postedgearea],
                                             y[1][postedgearea]), postedgearea))
     para[0:2] = results.x
     variables = para[2:4]
-    results = so.least_squares(res2, variables, method='trf',
+    results = so.least_squares(res2, variables, method='lm',
                                args=(para, (y[0][preedgearea],
                                             y[1][preedgearea]), preedgearea))
     para[2:4] = results.x
     variables = para[4:6]
-    results = so.least_squares(res3, variables, method='trf',
+    results = so.least_squares(res3, variables, method='lm',
                                args=(para, (y[0][edgearea],
                                             y[1][edgearea]), edgearea))
     para[4:6] = results.x
@@ -377,10 +427,14 @@ def fit123(para, y):
 def fit4(para, y):
     fulledgearea = get_fulledgearea(para)
     variables = para[:6]
-    results = so.least_squares(res4, variables, method='trf',
-                               args=(para, (y[0][fulledgearea],
-                                            y[1][fulledgearea]), fulledgearea))
-    para[:6] = results.x
+    try:
+        results = so.least_squares(res4, variables, method='lm',
+                                   args=(para, (y[0][fulledgearea],
+                                                y[1][fulledgearea]),
+                                         fulledgearea))
+        para[:6] = results.x
+    except ValueError:
+        print('ValueError in fit4')
     return para
 
 
@@ -400,6 +454,28 @@ def test_fit1234(inpfile, numoftrials):
             para = fit4(para, (y[0][:, vpos, hpos], y[1][:, vpos, hpos]))
             results_x[vpos] = para[:6]
     plot_results4(results_x, params, y, hpos)
+
+
+def test_fit1234_with_ext(inpfile, numoftrials):
+    # The three stage fitting is repeated numoftrials times
+    # and then the parameters are fitted over the full range.
+    y, params = get_bi3d_and_their_params()
+    mask = get_mask(y[0])
+    hpos = 30
+    results_x = np.zeros((y[0].shape[1], 6))
+    for vpos in range(y[0].shape[1]):
+        if not mask[vpos, hpos]:
+            print(vpos)
+            para = get_para(inpfile)
+            for nt in range(numoftrials):
+                para = fit123(para, (y[0][:, vpos, hpos], y[1][:, vpos, hpos]))
+            para = fit4(para, (y[0][:, vpos, hpos], y[1][:, vpos, hpos]))
+            results_x[vpos] = para[:6]
+    ext_dir = '2D-BI-OUT/'
+    fname = ext_dir + 'edge_3.out'
+    flname = ext_dir + 'temp_edge_list.dat'
+    params_ext = get_paramimage(fname, flname)
+    plot_results5(results_x, params_ext, params,  y, hpos)
 
 
 def get_mask(transmission):
@@ -580,5 +656,6 @@ def setFacilityParameter(para):
 #plt.show()
 
 #test_fit1234('edge_3.inp.phantom', 2)
-test_fit('edge_3.inp.phantom')
+#test_fit1234_with_ext('2D-BI-OUT/edge_3.inp', 2)
+#test_fit('edge_3.inp.phantom')
 #write_rits_inputfiles_with_error()
