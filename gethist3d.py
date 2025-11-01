@@ -273,18 +273,65 @@ def binning_and_stride(data, bins):
     return totdata
 
 
-def run_bi_with_stride_phantom():
-    bins = [1, 11, 11]
+def run_bi_with_stride_from_pkl():
+    bins = [1, 5, 5]
     #with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_testbcc_simudata_rev2_lim_single_resize_full_255_denoised_5models_phantom.pkl', 'rb') as f:
-    with open('/home/kazu/desktop/240424/connect2d/test_single_edge/bi3d_scratch_255_partial_phantom_local.pkl', 'rb') as f:
+    with open('/home/kazu/desktop/240424/uNID_data_KO/255/openbeamstrd.pkl', 'rb') as f:
+        #sample = pickle.load(f).astype(np.float64)
+        #op = pickle.load(f).astype(np.float64)
+        op = pickle.load(f).astype(np.float64)
+        op_noisy = pickle.load(f).astype(np.float64)
+        sample = pickle.load(f).astype(np.float64)
+        sample_noisy = pickle.load(f).astype(np.float64)
+    print(sample.shape)
+    sample_255_strd = binning_and_stride(sample, bins)
+    op_255_strd = binning_and_stride(op, bins)
+    sample_noisy_255_strd = binning_and_stride(sample_noisy, bins)
+    op_noisy_255_strd = binning_and_stride(op_noisy, bins)
+    with open('/home/kazu/desktop/240424/uNID_data_KO/255/openbeamstrdx2.pkl', 'wb') as f:
+        pickle.dump(op_255_strd, f, 4)
+        pickle.dump(op_noisy_255_strd, f, 4)
+        pickle.dump(sample_255_strd, f, 4)
+        pickle.dump(sample_noisy_255_strd, f, 4)
+
+
+def run_bi_with_stride_phantom():
+    bins = [1, 5, 5]
+    #with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_testbcc_simudata_rev2_lim_single_resize_full_255_denoised_5models_phantom.pkl', 'rb') as f:
+    with open('/home/kazu/desktop/240424/connect2d/test_single_edge/bi3d_scratch_211_phantom_local_stride155.pkl', 'rb') as f:
         sample = pickle.load(f).astype(np.float64)
         op = pickle.load(f).astype(np.float64)
     print(sample.shape)
     sample_255_strd = binning_and_stride(sample, bins)
     op_255_strd = binning_and_stride(op, bins)
-    with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_scratch_255_partial_phantom_local_stride11111.pkl', 'wb') as f:
+    with open('/home/kazu/desktop/240424/connect2d/test_single_edge/bi3d_scratch_211_phantom_local_stride155x2.pkl', 'wb') as f:
         pickle.dump(sample_255_strd, f, 4)
         pickle.dump(op_255_strd, f, 4)
+
+
+def check_bi_with_stride_phantom():
+    bins = [1, 5, 5]
+    with open('/home/kazu/desktop/240424/connect2d/params_scratch_rev.pkl', 'rb') as f:
+        params = pickle.load(f).astype(np.float64)
+    sample = np.zeros((10, params.shape[1], params.shape[2]))
+    for i in range(10):
+        sample[i] = params[5]
+    sample_255_strd = binning_and_stride(sample, bins)
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(4, 1)
+    sumsample = np.sum(sample, axis=0)
+    sumsamplestrd = np.sum(sample_255_strd, axis=0)/5**2
+    ax[0].imshow(sumsample)
+    ax[1].imshow(sumsamplestrd)
+    ax[2].plot(sumsample[30])
+    ax[2].plot(sumsamplestrd[30])
+    ax[3].plot(sumsample[:, 170])
+    ax[3].plot(sumsamplestrd[:, 170])
+    plt.show()
+    #op_255_strd = binning_and_stride(op, bins)
+    #with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_scratch_211_partial_phantom_local_x25_stride155.pkl', 'wb') as f:
+    #    pickle.dump(sample_255_strd, f, 4)
+    #    pickle.dump(op_255_strd, f, 4)
 
 
 def run_bi_with_stride_phantom_sampled10():
@@ -390,7 +437,9 @@ def run_bi_with_stride():
 
 
 #run_simu3d()
-run_bi_with_stride_phantom()
+#run_bi_with_stride_phantom()
+run_bi_with_stride_from_pkl()
+#check_bi_with_stride_phantom()
 #run_bi_with_stride_phantom_sampled10()
 #run_bi_with_stride_phantom_resampled10()
 #run_bi_with_stride()

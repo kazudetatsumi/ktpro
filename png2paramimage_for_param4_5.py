@@ -35,7 +35,7 @@ def run():
     #ptn1 = np.array(Image.open('denoise_pattern_rev2.png'))[:283, :768]
     #ptn2 = np.array(Image.open('denoise_pattern2_rev.png'))[:283]
     ptn1 = np.array(Image.open('denoise_pattern_rev2.png'))
-    ptn2 = np.array(Image.open('denoise_pattern2_rev2.png'))
+    ptn2 = np.array(Image.open('denoise_pattern2_rev4.png'))
 
     plt.imshow(ptn1, cmap='gray')
     plt.savefig('org_2d.png')
@@ -59,18 +59,19 @@ def run():
     #param_values[2] = param_values[0]*1.5                               # Ahkl
     param_values[2] = param_values[0]*2.0                               # Ahkl
     param_values[3] = param_values[2]*(-0.333)                         # Bhkl
-    param_values[4] = np.array([2.028, 2.036, 2.032, 2.024, 2.020, 2.020])
-    param_values[5] = np.array([30.0, 25.0, 15.0, 7., 2., 2.])
+    param_values[4] = np.array([2.036, 2.034, 2.031, 2.028, 2.024, 2.020])
+    param_values[5] = np.array([30.0, 25.0, 15.0, 18., 7., 2.])
 
     edgepos = np.array([[188, 103], [101, 675]])
     det_grad = (edgepos[1, 0] - edgepos[1, 1])/(edgepos[0, 0] - edgepos[1, 0])
     det_ysec = -edgepos[0, 0]*det_grad + edgepos[0, 1]
 
-    orgvalues = np.unique(ptn1)
+    orgvalues = np.unique(ptn2)
     print(orgvalues)
     # [  0  75 100 120 145 255]
     ## [  0 100 120 145 255]
     # [  0  75 100 235 255]
+    # [  0  30  55 215 235 255]
     for sidx in range(6):
         if sidx >= 4:
             ptn = ptn2
@@ -82,15 +83,16 @@ def run():
     plt.show()
     #cpos = np.array(ptn2.shape)/2-1
 
-    modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 1, 4, 0)
-    modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 2, 0, 1)
-    modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 3, 1, 2)
+    modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 3, 5, 0)
+    modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 1, 3, 2, outer_not_area=True)
+    modify_params(ptn2, np.unique(ptn2), params[4:6], param_values[4:6], 4, 2, 1)
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 1, 5, 2)
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 0, 2, 1)
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 3, 0, 4, outer_not_area=True)
-    plt.imshow(params[4])
-    plt.show()
-    plt.plot(params[4, 200])
+    fig, ax = plt.subplots(6, 2)
+    for pidx, prm in enumerate(params):
+        ax[pidx, 0].imshow(prm)
+        ax[pidx, 1].plot(prm[200])
     plt.show()
 
     for _params, _param_values in zip(params, param_values):
@@ -121,7 +123,7 @@ def run():
     #plt.savefig('modified_1d.png')
     #plt.show()
     import pickle
-    with open('params_scratch.pkl', 'wb') as f:
+    with open('params_scratch_rev.pkl', 'wb') as f:
         y[:, y[5] < 3] = 0.
         pickle.dump(y, f, 4)
 

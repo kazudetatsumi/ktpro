@@ -42,10 +42,10 @@ for (dispmax1, dispmax2) in zip(np.linspace(0, dispmax[0], 2)[1:],
         st_sup_dispd.positions = get_displacedpos(st_sup.positions,
                                                   st_sup.types,
                                                   np.array([dispmax1, dispmax2]))
-        write_poscar_file(st_sup_dispd, filename="POSCAR_disp"+str(no))
-        subprocess.run('sed -e s/A/Pd/g POSCAR_disp'+str(no)+' > POSCAR_disp0'+str(no), shell=True)
-        subprocess.run('sed -e s/B/H/g POSCAR_disp0'+str(no)+' > POSCAR_disp'+str(no), shell=True)
-        subprocess.run('rm POSCAR_disp0'+str(no), shell=True)
+        write_poscar_file(st_sup_dispd, filename="POSCAR_"+str(no+1).zfill(4))
+        subprocess.run('sed -e s/A/Pd/g POSCAR_'+str(no+1).zfill(4)+' > POSCAR_0'+str(no+1).zfill(4), shell=True)
+        subprocess.run('sed -e s/B/H/g POSCAR_0'+str(no+1).zfill(4)+' > POSCAR_'+str(no+1).zfill(4), shell=True)
+        subprocess.run('rm POSCAR_0'+str(no+1).zfill(4), shell=True)
         #st_sup_dispd_list.append(copy.deepcopy(st_sup_dispd))
 
 
