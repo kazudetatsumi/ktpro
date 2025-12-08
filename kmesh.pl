@@ -4,7 +4,12 @@ $bin=$ARGV[0];
 open(IN,"$infile")||die "Cannot open $infile ";
  chomp($line=<IN>); @values=split(/ +/, $line);
  chomp($line=<IN>); @values=split(/ +/, $line);
-    $fac=$values[1];
+ if ( $values[0]=~ /[0-9]/ ) {
+    $fac=$values[0];
+}
+ else {
+    $fac=$values[1]
+}
  chomp($line=<IN>); @values=split(/ +/, $line);
 	$ax=$values[1]*$fac;$ay=$values[2]*$fac;$az=$values[3]*$fac;
  chomp($line=<IN>); @values=split(/ +/, $line);

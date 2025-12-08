@@ -559,7 +559,10 @@ def run_edge_local2_phantom(paramimage, inpfile='edge_3.inp.phantom'):
                     bi2d_true = np.ones((shape[1], shape[2], y.shape[0]))
                 #if y.shape[0] == bi2d_true.shape[2]:
                 #    bi2d_true[p1idx, p2idx] = y
-                bi2d_true[p1idx, p2idx] = y
+                if np.sum(np.isnan(y)) > 0:
+                    bi2d_true[p1idx, p2idx] = np.ones_like(y) 
+                else:
+                    bi2d_true[p1idx, p2idx] = y
     return bi2d_true
 
 
@@ -757,18 +760,20 @@ def reform_param_sets(param_sets_sets):
 
 
 #def single_edgecomputation_phantom(pklfile='paramimage_211_d2_5models.pkl'):
-def single_edgecomputation_phantom(pklfile='../params_scratch_rev.pkl'):
+#def single_edgecomputation_phantom(pklfile='../params_scratch_rev.pkl'):
+def single_edgecomputation_phantom(pklfile='paramimage_5models.pkl'):
     # for constructing phantom data from the result of the rits edge fitting.
     with open(pklfile, 'rb') as f:
         paramimage = pickle.load(f)
     inpfile = 'edge_3.inp.phantom'
     #bi3d_true, x = run_edge_local2_phantom_mean(paramimage, inpfile=inpfile)
-    import matplotlib.pyplot as plt
-    plt.imshow(np.sum(np.abs(paramimage), axis=0))
-    plt.show()
+    #import matplotlib.pyplot as plt
+    #plt.imshow(np.sum(np.abs(paramimage), axis=0))
+    #plt.show()
     bi3d_true = run_edge_local2_phantom(paramimage, inpfile=inpfile)
     #bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
-    with open('bi2dsingle_scratch_rev.pkl.phantom_local', 'wb') as f:
+    #with open('bi2dsingle_scratch_rev.pkl.phantom_local', 'wb') as f:
+    with open('bi2dsingle_denoised_5models.pkl.phantom_local', 'wb') as f:
         #with open('bi2dsingle_scratch.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
 
