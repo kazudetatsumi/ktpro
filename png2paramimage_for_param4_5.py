@@ -37,13 +37,13 @@ def run():
     ptn1 = np.array(Image.open('denoise_pattern_rev2.png'))
     ptn2 = np.array(Image.open('denoise_pattern2_rev4.png'))
 
-    plt.imshow(ptn1, cmap='gray')
-    plt.savefig('org_2d.png')
-    plt.show()
-    plt.plot(ptn1[200])
-    plt.savefig('org_1d.png')
-    plt.show()
-    print(ptn1.shape, ptn2.shape)
+    #plt.imshow(ptn1, cmap='gray')
+    #plt.savefig('org_2d.png')
+    #plt.show()
+    #plt.plot(ptn1[200])
+    #plt.savefig('org_1d.png')
+    #plt.show()
+    #print(ptn1.shape, ptn2.shape)
 
 
     param_values = np.zeros((6, 6))
@@ -53,11 +53,16 @@ def run():
     #param_values[2] = np.array([1.0, 0.5, -0.05, 0.7, 0.])
     #param_values[3] = np.array([1.0, 0.5, -0.05, 0.7, 0.])*(-1.)
     #param_values[0] = np.array([0.05, 0.2, 0.15, 0.2, 0.])*4.
-    param_values[0] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*4.   # A0
-    param_values[1] = param_values[0]*(-0.25)                          # B0
+    #param_values[0] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*4.   # A0
+    #param_values[1] = param_values[0]*(-0.25)                          # B0
+    #param_values[0] = (np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.2001])*(-1.) + 0.2001 )*0.1  # A0
+    param_values[0] = np.array([0.0150, 0.0100, 0.02000, -0.0200, -0.0200, 0.])*2  # A0
+    param_values[1] = np.array([0.05, 0.1, 0.000, 0.2, 0.2, 0.])*4*0.1 # B0
     #param_values[2] = param_values[0]*(-3.0) + 2.                      # Ahkl
     #param_values[2] = param_values[0]*1.5                               # Ahkl
-    param_values[2] = param_values[0]*2.0                               # Ahkl
+    #param_values[2] = param_values[0]*2.0                               # Ahkl
+    #param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*8.0    # Ahkl
+    param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*10.0    # Ahkl
     param_values[3] = param_values[2]*(-0.333)                         # Bhkl
     param_values[4] = np.array([2.036, 2.034, 2.031, 2.028, 2.024, 2.020])
     param_values[5] = np.array([30.0, 25.0, 15.0, 18., 7., 2.])
@@ -66,12 +71,12 @@ def run():
     det_grad = (edgepos[1, 0] - edgepos[1, 1])/(edgepos[0, 0] - edgepos[1, 0])
     det_ysec = -edgepos[0, 0]*det_grad + edgepos[0, 1]
 
+    orgvalues = np.unique(ptn1)
+    print(orgvalues)
     orgvalues = np.unique(ptn2)
     print(orgvalues)
-    # [  0  75 100 120 145 255]
-    ## [  0 100 120 145 255]
-    # [  0  75 100 235 255]
-    # [  0  30  55 215 235 255]
+    # [  0  75 100 120 145 255] ptn1
+    # [  0  30  55 215 235 255] ptn2
     for sidx in range(6):
         if sidx >= 4:
             ptn = ptn2
@@ -79,7 +84,7 @@ def run():
             ptn = ptn1
         for ovidx, orgv in enumerate(np.unique(ptn)):
             params[sidx][ptn == orgv] = param_values[sidx, ovidx]
-    plt.imshow(params[4], origin='lower')
+    plt.imshow(params[0], origin='lower')
     plt.show()
     #cpos = np.array(ptn2.shape)/2-1
 
@@ -89,11 +94,11 @@ def run():
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 1, 5, 2)
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 0, 2, 1)
     modify_params(ptn1, np.unique(ptn1), params[0:4], param_values[0:4], 3, 0, 4, outer_not_area=True)
-    fig, ax = plt.subplots(6, 2)
-    for pidx, prm in enumerate(params):
-        ax[pidx, 0].imshow(prm)
-        ax[pidx, 1].plot(prm[200])
-    plt.show()
+    #fig, ax = plt.subplots(6, 2)
+    #for pidx, prm in enumerate(params):
+    #    ax[pidx, 0].imshow(prm)
+    #    ax[pidx, 1].plot(prm[200])
+    #plt.show()
 
     for _params, _param_values in zip(params, param_values):
         for _x in range(_params.shape[0]):
@@ -101,7 +106,7 @@ def run():
                 if det_grad*_x + det_ysec < _y:
                     _params[_x, _y] = _param_values[-1]
     y = params[:, 48:-100+8, 100:400]
-    plt.imshow(y[1], origin='lower')
+    plt.imshow(y[0], origin='lower')
     plt.show()
     print(y.shape)
     #print(y.shape)
@@ -123,23 +128,23 @@ def run():
     #plt.savefig('modified_1d.png')
     #plt.show()
     import pickle
-    with open('params_scratch_rev2.pkl', 'wb') as f:
-        plt.imshow(y[1])
-        plt.show()
+    with open('params_scratch_rev3.pkl', 'wb') as f:
+        #plt.imshow(y[1])
+        #plt.show()
         y[:, y[5] < 3] = 0.
         ## rev2
-        tmp = y[0].copy()  # 1番目のスライスだけコピー
-        plt.imshow(y[1])
-        plt.show()
-        y[0] = y[1]
-        y[1] = tmp*0.1
-        y[0] += 0.3
-        y[:, y[5] < 3] = 0.
-        plt.imshow(y[0])
-        y[0] *= 0.1
-        y[:, y[5] < 3] = 0.
-        plt.imshow(y[0])
-        plt.show()
+        #tmp = y[0].copy()  # 1番目のスライスだけコピー
+        #plt.imshow(y[1])
+        #plt.show()
+        #y[0] = y[1]
+        #y[1] = tmp*0.1
+        #y[0] += 0.3
+        #y[:, y[5] < 3] = 0.
+        #plt.imshow(y[0])
+        #y[0] *= 0.1
+        #y[:, y[5] < 3] = 0.
+        #plt.imshow(y[0])
+        #plt.show()
         pickle.dump(y, f, 4)
 
 
