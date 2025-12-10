@@ -101,7 +101,7 @@ def run():
                 if det_grad*_x + det_ysec < _y:
                     _params[_x, _y] = _param_values[-1]
     y = params[:, 48:-100+8, 100:400]
-    plt.imshow(y[4], origin='lower')
+    plt.imshow(y[1], origin='lower')
     plt.show()
     print(y.shape)
     #print(y.shape)
@@ -123,10 +123,24 @@ def run():
     #plt.savefig('modified_1d.png')
     #plt.show()
     import pickle
-    with open('params_scratch_rev.pkl', 'wb') as f:
+    with open('params_scratch_rev2.pkl', 'wb') as f:
+        plt.imshow(y[1])
+        plt.show()
         y[:, y[5] < 3] = 0.
+        ## rev2
+        tmp = y[0].copy()  # 1番目のスライスだけコピー
+        plt.imshow(y[1])
+        plt.show()
+        y[0] = y[1]
+        y[1] = tmp*0.1
+        y[0] += 0.3
+        y[:, y[5] < 3] = 0.
+        plt.imshow(y[0])
+        y[0] *= 0.1
+        y[:, y[5] < 3] = 0.
+        plt.imshow(y[0])
+        plt.show()
         pickle.dump(y, f, 4)
-
 
 
 run()
