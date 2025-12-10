@@ -56,13 +56,13 @@ def run():
     #param_values[0] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*4.   # A0
     #param_values[1] = param_values[0]*(-0.25)                          # B0
     #param_values[0] = (np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.2001])*(-1.) + 0.2001 )*0.1  # A0
-    param_values[0] = np.array([0.0150, 0.0100, 0.02000, -0.0200, -0.0200, 0.])*2  # A0
+    param_values[0] = np.array([0.0400, 0.0350, 0.04500, 0.0050, 0.0050, 0.])*2  # A0
     param_values[1] = np.array([0.05, 0.1, 0.000, 0.2, 0.2, 0.])*4*0.1 # B0
     #param_values[2] = param_values[0]*(-3.0) + 2.                      # Ahkl
     #param_values[2] = param_values[0]*1.5                               # Ahkl
     #param_values[2] = param_values[0]*2.0                               # Ahkl
     #param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*8.0    # Ahkl
-    param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*10.0    # Ahkl
+    param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*12.0    # Ahkl
     param_values[3] = param_values[2]*(-0.333)                         # Bhkl
     param_values[4] = np.array([2.036, 2.034, 2.031, 2.028, 2.024, 2.020])
     param_values[5] = np.array([30.0, 25.0, 15.0, 18., 7., 2.])
