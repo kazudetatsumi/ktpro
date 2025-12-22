@@ -4,6 +4,7 @@ import spglib
 import matplotlib.pyplot as plt
 import pickle
 import scipy.optimize as so
+import scipy.linalg as sl
 
 
 class change_hpos():
@@ -665,10 +666,28 @@ class change_hpos():
                 V = self.z[dg[0], dg[1], dg[2]]
                 self.H[i, j] = K + V
 
-    def GetEigen(self, Issave=False):
-        self.E, self.U = np.linalg.eigh(self.H)
-        self.E *= self.Eh * 1000.
-        print(self.E[0:15] - np.min(self.E))
+    def GetEigen(self, Issave=False, Compress=False):
+        if Compress and not hasattr(self, 'v'):
+            print('Compression is used in Eigenvalue solution')
+            print('Calculating v matrix of 200 eigen vectors..')
+            dummy, self.v = sl.eigh(self.H, subset_by_index=[0, 199],
+                                    driver='evr')
+        if Compress and hasattr(self, 'v'):
+            print('Compressing H by v.')
+            self.H_comp = self.v.conj().T @ self.H @ self.v
+            print('Calculating 30 eigen from the compressed H')
+            self.E_comp, self.U_comp = sl.eigh(self.H_comp,
+                                               subset_by_index=[0, 29],
+                                               driver='evr')
+            self.E_comp *= self.Eh * 1000.
+            print(np.min(self.E_comp))
+            print(self.E_comp[0:15] - np.min(self.E_comp))
+        if not Compress:
+            print('No compression is used in Eigenvalue solution')
+            self.E, self.U = sl.eigh(self.H, subset_by_index=[0, 29])
+            self.E *= self.Eh * 1000.
+            print(np.min(self.E))
+            print(self.E[0:15] - np.min(self.E))
         #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
         #plt.show()
         if Issave:
