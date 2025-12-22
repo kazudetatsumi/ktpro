@@ -40,19 +40,19 @@ no = 0
 #for (dispmax1, dispmax2) in zip(dispmax[0]*np.exp(-np.linspace(0, 10, 11)*np.log(1.5))[:-1],
 print(np.linspace(dispmax[0], 0, 101)[:-1])
 print(dispmax[0]*np.exp(-np.linspace(0, 100, 101)*np.log(1.5))[:-1])
-#for (dispmax1, dispmax2) in zip(np.linspace(dispmax[0], 0, 101)[:-1],
-#                                np.linspace(dispmax[1], 0, 101)[:-1]):
-#    print(dispmax1, dispmax2)
-#    for didxo in range(ndisps):
-#        st_sup_dispd.positions = get_displacedpos(st_sup.positions,
-#                                                  st_sup.types,
-#                                                  np.array([dispmax1, dispmax2]))
-#        write_poscar_file(st_sup_dispd, filename="POSCAR_"+str(no+1).zfill(4))
-#        subprocess.run('sed -e s/A/Pd/g POSCAR_'+str(no+1).zfill(4)+' > POSCAR_0'+str(no+1).zfill(4), shell=True)
-#        subprocess.run('sed -e s/B/H/g POSCAR_0'+str(no+1).zfill(4)+' > POSCAR_'+str(no+1).zfill(4), shell=True)
-#        subprocess.run('rm POSCAR_0'+str(no+1).zfill(4), shell=True)
-#        no += 1
-#        #st_sup_dispd_list.append(copy.deepcopy(st_sup_dispd))
+for (dispmax1, dispmax2) in zip(np.linspace(dispmax[0], 0, 101)[:-1],
+                                np.linspace(dispmax[1], 0, 101)[:-1]):
+    print(dispmax1, dispmax2)
+    for didxo in range(ndisps):
+        st_sup_dispd.positions = get_displacedpos(st_sup.positions,
+                                                  st_sup.types,
+                                                  np.array([dispmax1, dispmax2]))
+        write_poscar_file(st_sup_dispd, filename="POSCAR_"+str(no+1).zfill(4))
+        subprocess.run('sed -e s/A/Pd/g POSCAR_'+str(no+1).zfill(4)+' > POSCAR_0'+str(no+1).zfill(4), shell=True)
+        subprocess.run('sed -e s/B/H/g POSCAR_0'+str(no+1).zfill(4)+' > POSCAR_'+str(no+1).zfill(4), shell=True)
+        subprocess.run('rm POSCAR_0'+str(no+1).zfill(4), shell=True)
+        no += 1
+        #st_sup_dispd_list.append(copy.deepcopy(st_sup_dispd))
 
 
 #write_poscar_file(st_sup, filename="SPOSCAR")

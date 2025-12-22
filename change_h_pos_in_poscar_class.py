@@ -640,7 +640,8 @@ class change_hpos():
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1., 0])))
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0., 1])))
 
-    def GetH(self):
+
+    def GetH(self, issave=False):
         self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
                           )
         for i, gi in enumerate(self.Gs):
@@ -665,6 +666,9 @@ class change_hpos():
                 dg = (gi - gj) % self.nx
                 V = self.z[dg[0], dg[1], dg[2]]
                 self.H[i, j] = K + V
+        if issave:
+            with open("./save_H.npy", 'wb') as f:
+                np.save(f, self.H)
 
     def GetEigen(self, Issave=False, Compress=False):
         if Compress and not hasattr(self, 'v'):

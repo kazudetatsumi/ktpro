@@ -56,13 +56,14 @@ def run():
     #param_values[0] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*4.   # A0
     #param_values[1] = param_values[0]*(-0.25)                          # B0
     #param_values[0] = (np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.2001])*(-1.) + 0.2001 )*0.1  # A0
-    param_values[0] = np.array([0.0400, 0.0350, 0.04500, 0.0050, 0.0050, 0.])*2  # A0
-    param_values[1] = np.array([0.05, 0.1, 0.000, 0.2, 0.2, 0.])*4*0.1 # B0
+    #param_values[0] = np.array([0.0400, 0.0350, 0.04500, 0.0050, 0.0050, 0.])*2  # A0
+    param_values[0] = np.array([0.0400, 0.0100, 0.0450, 0.0150, 0.0150, 0.])*2  # A0
+    param_values[1] = np.array([0.05, 0.1, 0.000, 0.3, 0.3, 0.])*4*0.1 # B0
     #param_values[2] = param_values[0]*(-3.0) + 2.                      # Ahkl
     #param_values[2] = param_values[0]*1.5                               # Ahkl
     #param_values[2] = param_values[0]*2.0                               # Ahkl
     #param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*8.0    # Ahkl
-    param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*12.0    # Ahkl
+    param_values[2] = np.array([0.05, 0.1, 0.0001, 0.2, 0.2, 0.])*8.5    # Ahkl
     param_values[3] = param_values[2]*(-0.333)                         # Bhkl
     param_values[4] = np.array([2.036, 2.034, 2.031, 2.028, 2.024, 2.020])
     param_values[5] = np.array([30.0, 25.0, 15.0, 18., 7., 2.])
@@ -128,7 +129,7 @@ def run():
     #plt.savefig('modified_1d.png')
     #plt.show()
     import pickle
-    with open('params_scratch_rev3.pkl', 'wb') as f:
+    with open('params_scratch_rev4.pkl', 'wb') as f:
         #plt.imshow(y[1])
         #plt.show()
         y[:, y[5] < 3] = 0.
