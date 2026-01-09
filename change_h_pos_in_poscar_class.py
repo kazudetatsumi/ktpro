@@ -9,7 +9,7 @@ import scipy.linalg as sl
 
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
-                 shift=[0., 0., 0.], hshift=[0., 0., 0.], rg=None, prim=True,
+                 shift=[0., 0., 0.], hshift=[0., 0., 0.], prim=True,
                  oldedgelength=False, deuterium=False):
         self.infile = infile
         if type(std) is list:
@@ -22,7 +22,8 @@ class change_hpos():
         self.shift = np.array(shift)
         # print(shift)
         self.hshift = np.array(hshift)
-        self.rg = rg
+        ## To avoid wrap-around-errors, the cutoff of G is hard-coded.
+        self.rg = (nx -1) // 2 - 1
         self.a0 = 0.5291772
         if deuterium:
             self.mh = 1836*2
@@ -113,6 +114,7 @@ class change_hpos():
         #     print('Not shifted!')
 
     def GetRefineCell(self):
+        print("K", self.cell[1])
         if self.prim:
             lattice, positions, numbers = spglib.find_primitive(self.cell)
         else:
@@ -121,20 +123,29 @@ class change_hpos():
         sorted_positions = positions[np.argsort(numbers)]
         sorted_positions[np.abs(sorted_positions) < 1e-10] = 0.
         self.cell = (lattice, sorted_positions, sorted_numbers)
+        # Probably the below comment should be removed for consistency.
+        # But, the previous work did not do so and still leave as is.
+        #self.positions = sorted_positions
+        #self.lattice = lattice
+        #self.numbers = sorted_numbers
 
-    def GetSym(self):
-        self.GetCrystalParamsFromPoscar()
-        self.cell = (self.lattice, self.positions, self.numbers)
-        print("CHK", self.positions.shape, self.positions)
+    def GetSym(self, refine=True):
+        if 'cell' not in dir(self):
+            self.GetCrystalParamsFromPoscar()
+            self.cell = (self.lattice, self.positions, self.numbers)
+        else:
+            print('skipping')
+        #print("CHK", self.positions.shape, self.positions)
         self.ShiftAllAtompos()
-        self.GetRefineCell()
+        if refine:
+            self.GetRefineCell()
         print(spglib.get_spacegroup(self.cell, symprec=1e-5))
-        tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
-        print(tmpsym['rotations'].shape)
-        for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
-            print(rot, trans)
+        #tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        #print(tmpsym['rotations'].shape)
+        #for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
+        #    print(rot, trans)
         rpositions = np.zeros((self.positions.shape[0]-1, 3))
-        print(rpositions)
+        #print(rpositions)
         rnumbers = []
         irp = 0
         for ipos, pos in enumerate(self.positions):
@@ -318,6 +329,7 @@ class change_hpos():
         # print((np.matmul(hpos, sym['rotations']).transpose(1, 0, 2)
         # + sym['translations']).shape)
         irr_hpos = np.array(self.hpos)
+        print('chkchk, irr_hpos',irr_hpos.shape)
         isym = 0
         for rot, trans in zip(self.sym['rotations'][1:],
                               self.sym['translations'][1:]):
@@ -587,11 +599,12 @@ class change_hpos():
             #    np.fft.fftn((self.potential-np.min(self.potential))
             #                / self.Eh, norm='forward')
             print('But here I do not correct the volumetric differnce')
-            self.z = np.fft.fftn((self.potential-np.min(self.potential))
+            self.z = np.fft.fftn((self.potential-np.mean(self.potential))
                                  / self.Eh, norm='forward')
         else:
-            self.z = np.fft.fftn((self.potential-np.min(self.potential))
-                                 / self.Eh, norm='forward')
+            #self.z = np.fft.fftn((self.potential-np.mean(self.potential))
+            print('mean pot:', np.mean(self.potential))
+            self.z = np.fft.fftn(self.potential / self.Eh, norm='forward')
 
     def GetG(self):
         print("GetG")
@@ -640,8 +653,34 @@ class change_hpos():
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1., 0])))
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0., 1])))
 
+    def GetK(self):
+        if self.oldedgelength:
+            if 'hlat' in dir(self):
+                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0 /
+                                               (self.nx-1)*self.nx).T,
+                                 self.Gs.T)).T
+            else:
+                _Gs = self.Gs/(self.edgelengthina0/(self.nx-1)*self.nx)
+        else:
+            if 'hlat' in dir(self):
+                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0).T,
+                                 self.Gs.T)).T
+            else:
+                _Gs = self.Gs/self.edgelengthina0
+        self.K = np.diag((2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh))
 
-    def GetH(self, issave=False):
+    def GetV(self):
+        # Full vectorized version for faster calculation,
+        # by using broadcasting and fancy indexing.
+        dg = (self.Gs[:, None, :] - self.Gs[None, :, :]) % self.nx
+        self.V = self.z[dg[..., 0], dg[..., 1], dg[..., 2]]
+
+        print('diag(V) unique:', np.unique(np.round(np.diag(self.V), 12)))
+
+        #for idx in range(self.V.shape[0]):
+        #    print(self.V[idx, idx])
+
+    def _GetH(self, issave=False):
         self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
                           )
         for i, gi in enumerate(self.Gs):
@@ -670,30 +709,55 @@ class change_hpos():
             with open("./save_H.npy", 'wb') as f:
                 np.save(f, self.H)
 
+    def GetH(self, issave=False):
+        if 'K' not in dir(self):
+            self.GetK()
+        self.GetV()
+        self.H = self.K + self.V
+        if issave:
+            with open("./save_H.npy", 'wb') as f:
+                np.save(f, self.H)
+
     def GetEigen(self, Issave=False, Compress=False):
+        import time
+        time1 = time.time()
         if Compress and not hasattr(self, 'v'):
             print('Compression is used in Eigenvalue solution')
             print('Calculating v matrix of 200 eigen vectors..')
             dummy, self.v = sl.eigh(self.H, subset_by_index=[0, 199],
                                     driver='evr')
+            dummy *= self.Eh * 1000.
+            print(np.min(dummy))
+            print(dummy[0:15] - np.min(dummy))
+        time2 = time.time()
         if Compress and hasattr(self, 'v'):
             print('Compressing H by v.')
             self.H_comp = self.v.conj().T @ self.H @ self.v
+            time3 = time.time()
             print('Calculating 30 eigen from the compressed H')
             self.E_comp, self.U_comp = sl.eigh(self.H_comp,
                                                subset_by_index=[0, 29],
                                                driver='evr')
+            time4 = time.time()
             self.E_comp *= self.Eh * 1000.
-            print(np.min(self.E_comp))
+            print(np.min(self.E_comp), np.min(self.potential))
             print(self.E_comp[0:15] - np.min(self.E_comp))
+            self.U = self.v @ self.U_comp
         if not Compress:
             print('No compression is used in Eigenvalue solution')
-            self.E, self.U = sl.eigh(self.H, subset_by_index=[0, 29])
+            print(self.H[0,0])
+            self.E, self.U = sl.eigh(self.H+np.eye(self.H.shape[0])*3./self.Eh, subset_by_index=[0, 29])
+            #self.E, self.U = np.linalg.eigh(self.H)
             self.E *= self.Eh * 1000.
             print(np.min(self.E))
             print(self.E[0:15] - np.min(self.E))
         #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
         #plt.show()
+        #print('time in sec.')
+        #print(time2-time1, 'solving H')
+        #print(time3-time2, 'preparing H_comp')
+        #print(time4-time3, 'solving H_comp')
+
         if Issave:
             dataset = {}
             dataset['E'] = self.E
@@ -709,7 +773,8 @@ class change_hpos():
 
     def GetWavefuncs(self):
         print("GetWavefuncs")
-        nmesh = self.nx*2
+        #nmesh = self.nx*2
+        nmesh = self.nx
         a = np.arange(nmesh)
         pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
                                                        ).reshape((3, -1))
@@ -721,10 +786,10 @@ class change_hpos():
         self.GetWavefuncs()
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
         #plt.pcolor(self.densities[0, 10, :, :])
-        print(np.unravel_index(np.argmax(self.densities[7, :, :, :]),
-                               self.densities[7, :, :, :].shape))
-        plt.plot(self.densities[1, :, 10, 10])
-        plt.show()
+        #print(np.unravel_index(np.argmax(self.densities[7, :, :, :]),
+        #                       self.densities[7, :, :, :].shape))
+        #plt.plot(self.densities[1, :, 10, 10])
+        #plt.show()
         #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
         #for ix in range(self.nx):
         #    for iy in range(self.nx):
