@@ -70,20 +70,21 @@ def do_opt(positions, atomslist, prj, case):
     print("success:", res.success, "f*:", res.fun, "nit:", res.nit)
 
 
-def _getene_wstr(hposs, positions, atomslist, case):
+def getene_wstr(hposs, positions, atomslist, case):
+    case.structures[0].positions[:, atomslist] = positions.T
     new_structs = []
     for hpos in hposs:
-        s = copy.deepcopy(case.structures[0])  
-        s.positions[:, -1] = hpos      
+        s = copy.deepcopy(case.structures[0])
+        s.positions[:, -1] = hpos
         new_structs.append(s)
-    case.structures = new_structs  
-    eval_out = case.eval() 
+    case.structures = new_structs
+    eval_out = case.eval()
     energies = np.asarray(eval_out[0])
     case.structures = case.structures[0]
     return energies
 
 
-def getene_wstr(hposs, positions, atomslist, case):
+def _getene_wstr(hposs, positions, atomslist, case):
     ene = []
     case.structures[0].positions[:, atomslist] = positions.T
     for hpos in hposs:
@@ -107,13 +108,13 @@ def get_E0(positions, prj, atomslist, case):
     return prj.E_comp[0]
 
 
-def get_grad(positions, prj, atomslist, case):
+def _get_grad(positions, prj, atomslist, case):
     fx = []
     positions = positions.reshape((-1, 3))
     if np.max(np.abs(positions - prj.positions[atomslist])) > 1e-15 or 'E_comp' not in dir(prj):
         print('**get_grad: processeses from potential to GetEigen are to be done')
         prj.positions[atomslist] = positions
-        prj.potential = getene_wstr(prj.hpos, positions, case).reshape((prj.nx, prj.nx, prj.nx))
+        prj.potential = getene_wstr(prj.hpos, positions, atomslist, case).reshape((prj.nx, prj.nx, prj.nx))
         prj.GetVG()
         prj.GetH()
         prj.GetEigen(Issave=False, Compress=True)
@@ -132,13 +133,13 @@ def get_grad(positions, prj, atomslist, case):
     return f_meV_per_frac
 
 
-def _get_grad(positions, prj, atomslist, case):
+def get_grad(positions, prj, atomslist, case):
     fx = []
     positions = positions.reshape((-1, 3))
     if np.max(np.abs(positions - prj.positions[atomslist])) > 1e-15 or 'E_comp' not in dir(prj):
         print('**get_grad: processeses from potential to GetEigen are to be done')
         prj.positions[atomslist] = positions
-        prj.potential = getene_wstr(prj.hpos, positions, case).reshape((prj.nx, prj.nx, prj.nx))
+        prj.potential = getene_wstr(prj.hpos, positions, atomslist, case).reshape((prj.nx, prj.nx, prj.nx))
         prj.GetVG()
         prj.GetH()
         prj.GetEigen(Issave=False, Compress=True)
