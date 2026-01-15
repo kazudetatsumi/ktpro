@@ -1,15 +1,7 @@
+#!/usr/bin/env python
+# file: demo_inch_layout_example.py
 import numpy as np
 import matplotlib.pyplot as plt
-
-import matplotlib as mpl
-
-# Make Arial the default font for all text
-mpl.rcParams['font.family'] = 'Arial'         # primary family
-mpl.rcParams['font.sans-serif'] = ['Arial']   # optional: ensure sans-serif points to Arial
-
-# Optional: math text style (see section 4)
-mpl.rcParams['mathtext.fontset'] = 'dejavusans'  # keeps math readable with a sans style
-
 
 def get_data():
     import pickle
@@ -34,7 +26,6 @@ def get_data():
     return transmission_noisy, transmission, transmission_noisy_strd,\
         transmission_strd
 
-
 def plot_expt_transmission(
     D_n: np.ndarray,
     D: np.ndarray,
@@ -42,47 +33,73 @@ def plot_expt_transmission(
     D_s: np.ndarray,
     cmap: str = "viridis",
 ) -> plt.Figure:
-    """Plot three aligned 2D maps (D-sum, P1, P2) with colorbars.
+    #def plot_inch_layout_demo(cmap="viridis"):
+    #"""
+    #4列×2行のレイアウトを inch 単位で完全制御するデモ。
+    #上段は画像 + カラーバー、下段は線グラフ。
+    #本体軸の横幅・左位置を上下で一致させる。
+    #"""
+    # -------------------- 図サイズ（inch） --------------------
+    fig_w_in = 12.0
+    fig_h_in = 3.0
+    fig = plt.figure(figsize=(fig_w_in, fig_h_in))
 
-    Layout (no 1D profiles):
-      - Top   : 2D intensity map of D (sum over z) + colorbar
-      - Middle: 2D map of P1 + colorbar (shares axes with D)
-      - Bottom: 2D map of P2 + colorbar (shares axes with D)
+    # -------------------- レイアウト寸法（inch） --------------------
+    ncols = 4
 
-    Parameters
-    ----------
-    D : np.ndarray
-        3D tensor with shape (Nx, Ny, Nz), axes (x, y, z).
-    P1 : np.ndarray
-        2D tensor with shape (Nx, Ny), axes (x, y).
-    P2 : np.ndarray
-        2D tensor with shape (Nx, Ny), axes (x, y).
-    cmap : str, optional
-        Matplotlib colormap name, by default "viridis".
+    # 余白・間隔（好みに合わせて調整可）
+    left_in   = 0.35   # 左余白
+    right_in  = 0.25   # 右余白
+    bottom_in = 0.30   # 下余白
+    top_in    = 0.20   # 上余白
+    col_gap_in = 0.40  # 列間の隙間（本体→次本体）
+    row_gap_in = 0.35  # 行間（下段→上段）
 
-    Returns
-    -------
-    matplotlib.figure.Figure
-        The rendered figure.
-    """
-    print(D_n.shape, D.shape, D_ns.shape, D_s.shape)
-    # Figure and grid (3 rows, 1 column)
-    fig = plt.figure(figsize=(24, 6))
-    grid = fig.add_gridspec(
-        nrows=2,
-        ncols=4,
-        height_ratios=[1.0, 1.5],
-        width_ratios=[1.0, 1.0, 1.0, 1.0],
-        hspace=0.35,
-        wspace=0.75,
-    )
+    # 本体の高さ（上段・下段）
+    top_h_in    = 1.10
+    bottom_h_in = 1.10
 
-    for didx, (data, dataname) in enumerate(zip([D_n, D, D_ns, D_s],
-                                                ['1/7 data ', '1/1 data', '1/7 data with binning',
-                                                  '1/1 data with binning'])):
-    # Top: D map + colorbar
-        ax = fig.add_subplot(grid[0, didx])
-        im = ax.imshow(
+    # カラーバーの太さと本体からの隙間（inch）
+    cbar_w_in   = 0.04
+    cbar_pad_in = 0.02
+
+    # -------------------- 本体の横幅（inch）を自動算出 --------------------
+    main_w_in = (
+        fig_w_in
+        - left_in
+        - right_in
+        - ncols * (cbar_w_in + cbar_pad_in)
+        - (ncols - 1) * col_gap_in
+    ) / ncols
+    if main_w_in <= 0:
+        raise ValueError("寸法の合計が図幅を超えています。余白や隙間、カラーバー寸法を見直してください。")
+
+    # inch→相対座標（0–1）変換
+    W, H = fig.get_size_inches()
+    xr = lambda inch: inch / W
+    yr = lambda inch: inch / H
+
+    # 上段・下段の y 位置
+    y_bottom = yr(bottom_in)
+    y_top    = yr(bottom_in + bottom_h_in + row_gap_in)
+
+    # ダミーデータ（上段用 2D、下段用 1D）
+    # 実データに置き換えるなら、あなたの配列に差し替えてください。
+    #rng = np.random.default_rng(0)
+    #img_shape = (80, 120)   # (y, x)
+    #line_len  = 200
+
+    labels = ['1/7 data ', '1/1 data', '1/7 data with binning', '1/1 data with binning']
+    for didx, (data, dataname) in enumerate(zip([D_n, D, D_ns, D_s], labels)):
+
+                                                    #for i, dataname in enumerate(labels):
+        x_in = left_in + didx * (main_w_in + cbar_w_in + cbar_pad_in + col_gap_in)
+
+        # --- 上段（画像） 本体 ---
+        ax_img = fig.add_axes([xr(x_in), y_top, xr(main_w_in), yr(top_h_in)])
+        #img = rng.normal(loc=0.9, scale=0.2, size=img_shape)
+        #im = ax_img.imshow(data, origin="lower", cmap=cmap, vmin=0.2, vmax=1.4, aspect="auto")
+        im = ax_img.imshow(
             data[100].T,
             origin="lower",
             cmap=cmap,
@@ -91,36 +108,39 @@ def plot_expt_transmission(
             vmin = 0.2,
             vmax = 1.4
         )
-        ax.set_ylabel('y / ch', fontsize=18)
-        ax.set_xlabel('x / ch', fontsize=18)
-        ax.set_title(dataname, fontsize=18)
-        cbar_d = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-        cbar_d.set_label("Transmission", fontsize=18)
-    #ax_dn.set_title("Crosssection of data (at t = 100 ch)", fontsize=24)
-    #ax_dn.set_xlabel("x / ch", fontsize=18)
-    #ax_dn.set_ylabel("y / ch", fontsize=18)
-    #cbar_d = fig.colorbar(im_dn, ax=ax_dn, fraction=0.046, pad=0.04)
-    #cbar_d.set_label("Neutron count", fontsize=18)
-        ax_1 = fig.add_subplot(grid[1, didx])
-        p_d = ax_1.plot(data[:, 100, 36], marker='o', lw=0)
-    #ax_d.set_title("2D Map of d$_{110}$", fontsize=24)
-    #ax_d1.set_xlabel("x / ch", fontsize=18)
-    #ax_d1.set_ylabel("y / ch", fontsize=18)
-        ax_1.set_ylim([0, 1.5])
-        ax_1.set_ylabel('Transmission', fontsize=18)
-        ax_1.set_xlabel('t / ch', fontsize=18)
-    #cbar_d = fig.colorbar(im_d, ax=ax_d, fraction=0.046, pad=0.04)
-    plt.tight_layout()
-    return fig
 
+        ax_img.set_title(dataname, fontsize=9)
+        ax_img.set_xlabel('x / ch', labelpad=1)
+        ax_img.set_ylabel('y / ch', labelpad=1)
+        ax_img.tick_params(length=2, labelsize=8, pad=1.1)
+
+        # 上段（画像） カラーバー（inch固定）
+        if didx == len(labels)-1:
+            cax = fig.add_axes([xr(x_in + main_w_in + cbar_pad_in), y_top, xr(cbar_w_in), yr(top_h_in)])
+            cbar = fig.colorbar(im, cax=cax)
+            cbar.set_label("Transmission", fontsize=8, labelpad=1)
+            cbar.ax.tick_params(direction='in', length=1.3, pad=1, labelsize=8)
+
+        # --- 下段（線グラフ） 本体（上段と同じ幅＆左位置）---
+        ax_line = fig.add_axes([xr(x_in), y_bottom, xr(main_w_in), yr(bottom_h_in)])
+        #line = rng.normal(loc=0.9, scale=0.25, size=line_len)
+        ax_line.plot(np.arange(data.shape[0])*20.+23000, data[:, 100, 36], marker='o', ms=2, lw=0)
+        ax_line.set_ylim([0, 1.5])
+        ax_line.set_xticks([23000, 24000, 25000, 26000])
+        ax_line.set_xlabel(r'TOF / $\mu$s', labelpad=1)
+        ax_line.set_ylabel('Transmission', labelpad=1)
+        ax_line.tick_params(direction="in", labelsize=8, pad=2.)
+
+    return fig
 
 
 if __name__ == "__main__":
     transmission_noisy, transmission, transmission_noisy_strd,\
             transmission_strd = get_data()
     figure = plot_expt_transmission(transmission_noisy, transmission,
-                                    transmission_noisy_strd, transmission_strd,
-                                    cmap="viridis")
-    figure.savefig("two_expt_transmission.png", dpi=160, bbox_inches="tight")
+                                   transmission_noisy_strd, transmission_strd,
+                                   cmap="viridis")
+    figure.savefig("fig_expt_transmission.eps", dpi=160, bbox_inches="tight")
     plt.show()
+    
 
