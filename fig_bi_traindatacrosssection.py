@@ -10,7 +10,8 @@ plt.rcParams['mathtext.default'] = 'regular'
 
 
 def synthesize_bi3ddata():
-    with open('bi3d_testbcc_simudata_rev2_lim_single_resize_full_211_true_edgev_ktrand_wosingle.pkl', 'rb') as f:
+    #with open('bi3d_testbcc_simudata_rev2_lim_single_resize_full_211_true_edgev_ktrand_wosingle.pkl', 'rb') as f:
+    with open('bi3d_testbcc_simudata_rev2_lim_single_resize_full_211_true_edgev_ktrand.pkl', 'rb') as f:
         sample_saved = pickle.load(f).squeeze().transpose((0, 3, 1, 2))
     _shape = sample_saved.shape
     x = np.arange(_shape[1])*20.+23000
@@ -39,7 +40,7 @@ def synthesize_bi3ddata():
     ax[1].set_xlabel(r'TOF / $\mu$s')
     ax[1].set_ylabel('Neutron Count')
     plt.tight_layout()
-    plt.savefig('bi_simulated_profile_wcb.eps')
+    #plt.savefig('bi_simulated_profile_wcb.eps')
     plt.show()
 
 synthesize_bi3ddata()
