@@ -5,7 +5,7 @@ import matplotlib.colors as colors
 from matplotlib.gridspec import GridSpec
 import numpy as np
 import os
-plt.rcParams["font.family"] = "Arial"   # 使用するフォント
+#plt.rcParams["font.family"] = "Arial"   # 使用するフォント
 plt.rcParams["font.size"] = 10
 plt.rcParams['mathtext.default'] = 'regular'
 
@@ -165,9 +165,10 @@ def check_std(
     ax2 = fig.add_axes([left, bottom2, width, h_each], sharex=ax4)
 
     # それぞれのプロット（従来の 2〜4 行目に対応）
+    x = np.arange(maxstd.shape[-1])*20 + 23000.
     for axi, pos in zip([ax2, ax3, ax4], [maxpos, maxposin, poslists[0]]):
-        axi.plot(maxstd[pos[0], pos[1]], label='maxstd')
-        axi.plot(std_sample[pos[0], pos[1]], label='std_sample')
+        axi.plot(x, maxstd[pos[0], pos[1]], label='maxstd')
+        axi.plot(x, std_sample[pos[0], pos[1]], label='std_sample')
         axi.tick_params(direction='in', top=True, right=True)
         axi.set_ylim([0., 6])
 
@@ -183,12 +184,14 @@ def check_std(
         axi.tick_params(labelsize=8)
 
     # 最下段のみ x ラベルとタイトル
-    ax4.set_xlabel('tof / ch')
+    ax4.set_xlabel(r'TOF / $\mu$s')
     ax4.tick_params(labelsize=8)
     #ax4.set_title('STD comparison (rows 2–4 visually concatenated)')
     ax2.set_ylabel('std')
     ax3.set_ylabel('std')
     ax4.set_ylabel('std')
+    #plt.savefig('check_std.png')
+    plt.savefig('check_std.eps')
 
     plt.show()
 
