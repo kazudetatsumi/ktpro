@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pickle
 import scipy.optimize as so
 import scipy.linalg as sl
+# for Krylov
+from scipy.sparse.linalg import LinearOperator, eigsh 
 
 
 class change_hpos():
@@ -718,7 +720,7 @@ class change_hpos():
             with open("./save_H.npy", 'wb') as f:
                 np.save(f, self.H)
 
-    def GetEigen(self, Issave=False, Compress=False):
+    def _GetEigen(self, Issave=False, Compress=False):
         import time
         time1 = time.time()
         if Compress and not hasattr(self, 'v'):
@@ -814,6 +816,114 @@ class change_hpos():
         out += last + "\n"
         with open(outfile, 'w') as f:
             f.write(out)
+
+    def GetKdiag(self):
+        if self.oldedgelength:
+            if 'hlat' in dir(self):
+                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0 / (self.nx-1)*self.nx).T, self.Gs.T)).T
+            else:
+                _Gs = self.Gs/(self.edgelengthina0/(self.nx-1)*self.nx)
+        else:
+            if 'hlat' in dir(self):
+                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0).T, self.Gs.T)).T
+            else:
+                _Gs = self.Gs/self.edgelengthina0
+        self.Kdiag = (2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh)
+        return self.Kdiag
+
+    def prepare_krylov_operator(self):
+        gmod = (self.Gs % self.nx).astype(int)
+        self._gidx = (gmod[:, 0], gmod[:, 1], gmod[:, 2])
+        self._V_r = self.potential / self.Eh
+        if not hasattr(self, 'Kdiag'):
+            self.GetKdiag()
+
+    def _matvec_H(self, x):
+        X = np.zeros((self.nx, self.nx, self.nx), dtype=np.complex128)
+        X[self._gidx] = x
+        phi_r = np.fft.ifftn(X)
+        Y_r = self._V_r * phi_r
+        Y_full = np.fft.fftn(Y_r)
+        y = Y_full[self._gidx]
+        y = y + self.Kdiag * x
+        return y.astype(np.complex128)
+
+    #def GetEigen(self, Issave=False, Compress=False):
+    def GetEigen(self, Issave=False, Compress=False, method='dense', k=30, which='SA', tol=1e-8, maxiter=None):
+        if method == 'krylov':
+            if 'Gs' not in dir(self):
+                self.GetG()
+            if 'z' not in dir(self):
+                self.GetVG()
+
+            self.prepare_krylov_operator()
+
+            Ng = self.Gs.shape[0]
+            A = LinearOperator(
+                shape=(Ng, Ng),
+                matvec=lambda v: self._matvec_H(v),
+                dtype=np.complex128
+            )
+
+            E_hartree, U = eigsh(A, k=k, which=which, tol=tol, maxiter=maxiter)
+
+            self.E = E_hartree * self.Eh * 1000.0
+            self.U = U
+            self.E_comp = self.E
+
+            print('Krylov (eigsh) finished: k=', k, ' min(E)[meV] =', np.min(self.E))
+            print(np.min(self.E_comp), np.min(self.potential))
+            print(self.E_comp[0:15] - np.min(self.E_comp))
+
+            if Issave:
+                import pickle
+                dataset = {'E': self.E, 'U': self.U}
+                with open("./save_eigen.pkl", 'wb') as f:
+                    pickle.dump(dataset, f, 4)
+            return
+
+        if method == 'dense':
+            if Compress and not hasattr(self, 'v'):
+                print('Compression is used in Eigenvalue solution')
+                print('Calculating v matrix of 200 eigen vectors..')
+                dummy, self.v = sl.eigh(self.H, subset_by_index=[0, 199],
+                                        driver='evr')
+                dummy *= self.Eh * 1000.
+                print(np.min(dummy))
+                print(dummy[0:15] - np.min(dummy))
+            if Compress and hasattr(self, 'v'):
+                print('Compressing H by v.')
+                self.H_comp = self.v.conj().T @ self.H @ self.v
+                print('Calculating 30 eigen from the compressed H')
+                self.E_comp, self.U_comp = sl.eigh(self.H_comp,
+                                                   subset_by_index=[0, 29],
+                                                   driver='evr')
+                self.E_comp *= self.Eh * 1000.
+                print(np.min(self.E_comp), np.min(self.potential))
+                print(self.E_comp[0:15] - np.min(self.E_comp))
+                self.U = self.v @ self.U_comp
+            if not Compress:
+                print('No compression is used in Eigenvalue solution')
+                print(self.H[0, 0])
+                self.E, self.U = sl.eigh(self.H+np.eye(self.H.shape[0])*3./self.Eh, subset_by_index=[0, 29])
+                #self.E, self.U = np.linalg.eigh(self.H)
+                self.E *= self.Eh * 1000.
+                print(np.min(self.E))
+                print(self.E[0:15] - np.min(self.E))
+        #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
+        #plt.show()
+        #print('time in sec.')
+        #print(time2-time1, 'solving H')
+        #print(time3-time2, 'preparing H_comp')
+        #print(time4-time3, 'solving H_comp')
+
+        if Issave:
+            dataset = {}
+            dataset['E'] = self.E
+            dataset['U'] = self.U
+            with open("./save_eigen.pkl", 'wb') as f:
+                pickle.dump(dataset, f, 4)
+
 
     def GetSJQFile(self, no):
         outfile = 'sjqtst' + str(no+3) + '.out'
