@@ -1,0 +1,200 @@
+*** a/sf_bi_check_std_phantom.py
+--- b/sf_bi_check_std_phantom.py
+@@
+ def check_std_phantom(sf,
+     # ===== レイアウト制御（インチ） =====
+     axes_width_in=3.0, # 1列目（マップ/各グラフ）の軸の横幅 [inch]
+     map_height_in=2.2, # 1行目（マップ）の縦幅 [inch]
+     line_height_in=1.2, # 2〜4行目の各グラフの縦幅 [inch]
+@@
+     cbar_width_in=0.05, # カラーバー幅 [inch]
+     cbar_pad_in=0.02, # マップとカラーバーの水平距離 [inch]
+     # ===== 行間の空き（マップ行とグラフブロックの間、figure 座標で指定） =====
+-    hspace=0.0
++    hspace=0.0,
++    gap_in=0.0
+ ):
+@@
+-    # ===== 2段目：グラフ領域（3つの個別軸を上下隙間ゼロで配置） =====
+-    ax_area = sf.add_subplot(gs[1, 0])
+-    area_pos = ax_area.get_position() # figure 座標での矩形
+-    sf.delaxes(ax_area) # 使わないので削除
+-    # 3等分して上下に隙間ゼロで配置
+-    h_each = area_pos.height / 3.0
+-    left = area_pos.x0
+-    width = area_pos.width
+-    bottom4 = area_pos.y0
+-    bottom3 = bottom4 + h_each
+-    bottom2 = bottom3 + h_each
+-    # 最下段を基準に share するため、先に ax4 を作成
+-    ax4 = sf.add_axes([left, bottom4, width, h_each])
+-    ax3 = sf.add_axes([left, bottom3, width, h_each], sharex=ax4)
+-    ax2 = sf.add_axes([left, bottom2, width, h_each], sharex=ax4)
++    # ===== 2段目：グラフ領域（3つの個別軸をインチ絶対で配置） =====
++    ax_area = sf.add_subplot(gs[1, 0])
++    area_pos = ax_area.get_position()  # figure 座標
++    sf.delaxes(ax_area)
++
++    # --- インチ絶対配置 ---
++    fig = sf.figure
++    fig.canvas.draw()
++    H_fig_in = fig.get_size_inches()[1]
++    sf_pos = sf.get_position()  # figure 座標
++
++    def figrect_to_sf(rect):
++        x0, y0, w, h = rect
++        return [
++            (x0 - sf_pos.x0)/sf_pos.width,
++            (y0 - sf_pos.y0)/sf_pos.height,
++            w/sf_pos.width,
++            h/sf_pos.height,
++        ]
++
++    left_fig = area_pos.x0
++    width_fig = area_pos.width
++
++    h_fig = line_height_in / H_fig_in
++    g_fig = gap_in / H_fig_in
++    total_h = 3*h_fig + 2*g_fig
++
++    # 基準は領域の下端。はみ出すときは上に寄せる。
++    bottom4_fig = area_pos.y0
++    if bottom4_fig + total_h > area_pos.y1:
++        bottom4_fig = max(area_pos.y0, area_pos.y1 - total_h)
++
++    bottom3_fig = bottom4_fig + h_fig + g_fig
++    bottom2_fig = bottom3_fig + h_fig + g_fig
++
++    ax4 = sf.add_axes(figrect_to_sf([left_fig, bottom4_fig, width_fig, h_fig]))
++    ax3 = sf.add_axes(figrect_to_sf([left_fig, bottom3_fig, width_fig, h_fig]), sharex=ax4)
++    ax2 = sf.add_axes(figrect_to_sf([left_fig, bottom2_fig, width_fig, h_fig]), sharex=ax4)
+*** a/sf_bi_check_grad_all_inch.py
+--- b/sf_bi_check_grad_all_inch.py
+@@
+-def _build_axes_in_sf_inches(
+-    sf,
+-    # 外余白 [in]：B列と帯一致（top=0.30, bottom=0.40）
+-    # 横は実測一致の right_in=1.37 を既定化
+-    left_in=0.60, right_in=1.37, top_in=0.30, bottom_in=0.40,
+-    # パネル幅・高さ [in]：横幅は B 列の 3.00 に一致
+-    # 縦合計は B 列の 5.80 (= 2.2 + 3*1.2) に一致
+-    panel_w_in=3.00,
+-    h1_in=1.50, h2_in=1.20, h3_in=1.55, h4_in=1.55, # 1.50+1.20+1.55+1.55 = 5.80
+-    # パネル間の上下スペース [in]：1→2、2→3 は密着、3→4 はわずかに確保（ラベル衝突回避）
+-    s12_in=0.00, s23_in=0.00, s34_in=0.06
+-):
+-    """
+-    SubFigure内でインチ指定→sfの0–1座標に正規化して add_axes する。
+-    返り値: [ax1, ax2, ax3, ax4] (上→下)
+-    """
+-    # 列内の「仮想図面サイズ」（inch）
+-    col_w_in = left_in + panel_w_in + right_in
+-    col_h_in = top_in + (h1_in + s12_in + h2_in + s23_in + h3_in + s34_in + h4_in) + bottom_in
+-    fx = lambda x: x / col_w_in
+-    fy = lambda y: y / col_h_in
+-    # 下から積み上げ（位置は sf の 0–1 座標）
+-    cur_y = bottom_in
+-    x0 = fx(left_in); w = fx(panel_w_in)
+-    # 最下段
+-    y0_4 = fy(cur_y); h4 = fy(h4_in)
+-    ax4 = sf.add_axes([x0, y0_4, w, h4]); cur_y += h4_in + s34_in
+-    # 3段目
+-    y0_3 = fy(cur_y); h3 = fy(h3_in)
+-    ax3 = sf.add_axes([x0, y0_3, w, h3]); cur_y += h3_in + s23_in
+-    # 2段目
+-    y0_2 = fy(cur_y); h2 = fy(h2_in)
+-    ax2 = sf.add_axes([x0, y0_2, w, h2]); cur_y += h2_in + s12_in
+-    # 最上段
+-    y0_1 = fy(cur_y); h1 = fy(h1_in)
+-    ax1 = sf.add_axes([x0, y0_1, w, h1])
+-    return [ax1, ax2, ax3, ax4]
++def _build_axes_in_sf_inches(
++    sf,
++    # 余白 [in]
++    left_in=0.60, right_in=1.37, top_in=0.30, bottom_in=0.40,
++    # パネル幅 [in]
++    panel_w_in=3.00,
++    # 各段の高さ [in]
++    h1_in=1.20, h2_in=1.20, h3_in=1.20, h4_in=1.20,
++    # 段間ギャップ [in]
++    s12_in=0.00, s23_in=0.00, s34_in=0.00,
++):
++    """SubFigure 上に、インチ絶対寸法で 4 段を配置する。"""
++    fig = sf.figure
++    fig.canvas.draw()
++    Wf_in, Hf_in = fig.get_size_inches()
++    sf_pos = sf.get_position()  # figure 座標
++
++    def figrect_to_sf(rect):
++        x0, y0, w, h = rect
++        return [
++            (x0 - sf_pos.x0)/sf_pos.width,
++            (y0 - sf_pos.y0)/sf_pos.height,
++            w/sf_pos.width,
++            h/sf_pos.height,
++        ]
++
++    # 横方向（インチ → Figure座標）
++    x0_fig = sf_pos.x0 + left_in / Wf_in
++    x1_fig = sf_pos.x1 - right_in / Wf_in
++    w_fig  = min(panel_w_in / Wf_in, max(0.0, x1_fig - x0_fig))
++
++    # 縦方向の可用域（SubFigure 内）
++    y0_avail = sf_pos.y0 + bottom_in / Hf_in
++    y1_avail = sf_pos.y1 - top_in / Hf_in
++
++    # 4 段の絶対高さとギャップ（インチ → Figure座標）
++    h1_fig = h1_in / Hf_in
++    h2_fig = h2_in / Hf_in
++    h3_fig = h3_in / Hf_in
++    h4_fig = h4_in / Hf_in
++    g12_fig = s12_in / Hf_in
++    g23_fig = s23_in / Hf_in
++    g34_fig = s34_in / Hf_in
++    total_h = h1_fig + g12_fig + h2_fig + g23_fig + h3_fig + g34_fig + h4_fig
++
++    # 下詰め配置（はみ出す場合は上に寄せて調整）
++    bottom4 = y0_avail
++    if bottom4 + total_h > y1_avail:
++        bottom4 = max(y0_avail, y1_avail - total_h)
++
++    # 下から積む
++    y4 = bottom4
++    y3 = y4 + h4_fig + g34_fig
++    y2 = y3 + h3_fig + g23_fig
++    y1 = y2 + h2_fig + g12_fig
++
++    # 生成（SubFigure座標へ変換して add_axes）
++    ax4 = sf.add_axes(figrect_to_sf([x0_fig, y4, w_fig, h4_fig]))
++    ax3 = sf.add_axes(figrect_to_sf([x0_fig, y3, w_fig, h3_fig]), sharex=ax4)
++    ax2 = sf.add_axes(figrect_to_sf([x0_fig, y2, w_fig, h2_fig]), sharex=ax4)
++    ax1 = sf.add_axes(figrect_to_sf([x0_fig, y1, w_fig, h1_fig]), sharex=ax4)
++
++    return [ax1, ax2, ax3, ax4]
+@@
+ def draw_grad_column_in_sf(
+     sf,
+     # レイアウト寸法（インチ）— 既定を上と同一に
+     left_in=0.60, right_in=1.37, top_in=0.30, bottom_in=0.40,
+     panel_w_in=3.00,
+-    #h1_in=1.50, h2_in=1.20, h3_in=1.55, h4_in=1.55,
+-    h1_in=1.2, h2_in=1.2, h3_in=1.2, h4_in=0.125,
+-    s12_in=0.00, s23_in=0.00, s34_in=0.06,
++    h1_in=1.2, h2_in=1.2, h3_in=1.2, h4_in=1.2,
++    gap_in=0.00,
+     *,
+     title_left="(C)"
+ ):
+@@
+-    axs = _build_axes_in_sf_inches(
+-        sf, left_in, right_in, top_in, bottom_in,
+-        panel_w_in, h1_in, h2_in, h3_in, h4_in,
+-        s12_in, s23_in, s34_in
+-    )
++    # gap_in を 3 箇所に適用
++    axs = _build_axes_in_sf_inches(
++        sf, left_in, right_in, top_in, bottom_in,
++        panel_w_in, h1_in, h2_in, h3_in, h4_in,
++        gap_in, gap_in, gap_in
++    )
+
