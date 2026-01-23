@@ -3,6 +3,8 @@ import numpy as np
 import pickle
 import sys
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+import matplotlib.gridspec as gridspec
 import cv2
 sys.path.append("/home/kazu/denoise")
 # fdir, df are in mlfdev61
@@ -163,6 +165,16 @@ def imshow_slice(A, llims, ulims, si=1, sj=1, origin='upper',
 
 
 def compare_images4_2d():
+    fig = plt.figure(figsize=(12, 6))
+    gs = gridspec.GridSpec(nrows=3, ncols=4, figure=fig, width_ratios=[1, ]*4,
+                           hspace=0.3, wspace=0.03)
+    axes = []
+    for i in range(3):
+        row_ax = []
+        for j in range(4):
+            a = fig.add_subplot(gs[i, j])
+            row_ax.append(a)
+        axes.append(row_ax)
     from skimage import measure
     mask = get_mask(236)
     bd = measure.find_contours(mask == 1, level=0.5)[0]
@@ -192,39 +204,46 @@ def compare_images4_2d():
         llimss.append(llims)
         ulimss.append(ulims)
     refim, denoisedim = get_images(data_names)
-    fig, ax = plt.subplots(3, 4, figsize=(11, 8), constrained_layout=False)
-    fig.subplots_adjust(hspace=0.0, wspace=0.77)
     for lidx, (ulims, llims) in enumerate(zip(ulimss, llimss)):
         true = refim[4, llims[0]:ulims[0], llims[1]:ulims[1]]
         denoise = denoisedim[4, llims[0]:ulims[0], llims[1]:ulims[1]]
         _mask = ~mask[llims[0]:ulims[0], llims[1]:ulims[1]]
         vmin = min(np.min(true[true > 0.]), np.min(denoise[denoise > 0.]))
         vmax = max(np.max(true), np.max(denoise))
-        im0, ax[lidx, 0] = imshow_slice(refim[4], llims, ulims, ax=ax[lidx, 0],
-                                      vmin=vmin, vmax=vmax)
-        im1, ax[lidx, 1] = imshow_slice(denoisedim[4], llims, ulims,
-                                      ax=ax[lidx, 1], vmin=vmin, vmax=vmax)
-        im2, ax[lidx, 2] = imshow_slice(np.abs(refim[4]-denoisedim[4]), llims,
-                                      ulims, ax=ax[lidx, 2])
-        im3, ax[lidx, 3] = imshow_slice(mask, llims, ulims, ax=ax[lidx, 3])
-        for bidx, (_im, _ax) in enumerate(zip([im0, im1, im2, im3], ax[lidx, :])):
-            cbar = fig.colorbar(_im, ax=_ax, fraction=0.031, pad=0.01, aspect=30)
-            cbar.ax.tick_params(direction='in', length=1.9)
-            if bidx == 2:
-                cbar.set_label(r'$\Delta\mathrm{d_{110}\ /\ \AA}$', labelpad=0.2)
-            elif bidx == 3:
-                cbar.set_label('mask value', labelpad=0.2)
-            else:
-                cbar.set_label(r'$\mathrm{d_{110}\ /\ \AA}$', labelpad=0.2)
+        im0, axes[lidx][0] = imshow_slice(refim[4], llims, ulims,
+                                          ax=axes[lidx][0], vmin=vmin,
+                                          vmax=vmax)
+        im1, axes[lidx][1] = imshow_slice(denoisedim[4], llims, ulims,
+                                          ax=axes[lidx][1], vmin=vmin,
+                                          vmax=vmax)
+        im2, axes[lidx][2] = imshow_slice(np.abs(refim[4]-denoisedim[4]),
+                                          llims, ulims, ax=axes[lidx][2])
+        im3, axes[lidx][3] = imshow_slice(mask, llims, ulims, ax=axes[lidx][3])
+        for iidx, (im, clabel) in enumerate(
+                zip([im0, im1, im2, im3],
+                    [r'$\mathrm{d_{110}\ /\ \AA}$',
+                     r'$\mathrm{d_{110}\ /\ \AA}$',
+                     r'$\Delta\mathrm{d_{110}\ /\ \AA}$', 'mask value'])):
+            map_pos = axes[lidx][iidx].get_position()  # figure 座標
+            cax = fig.add_axes([
+                map_pos.x1 + 0.002,  # left
+                map_pos.y0,                 # bottom（マップと一致）
+                0.005,             # width
+                map_pos.height              # height（マップと完全一致）
+            ])
+            cbar = fig.colorbar(im, cax=cax)
+            cbar.set_label(clabel, labelpad=0.2)
+            cax.tick_params(direction='in', labelsize=8, length=3)
+            cbar.locator = MaxNLocator(nbins=4)
+            cbar.update_ticks()  # これがポイント：カラーバーの
         _bds = measure.find_contours(_mask == 1, level=0.5)[0]
-        for aidx, _ax in enumerate(ax[lidx, :-1]):
+        for aidx, _ax in enumerate(axes[lidx][:-1]):
             _ax.plot(_bds[:, 1]+llims[1], _bds[:, 0]+llims[0], ls=':', c='w')
         for ridx in range(3):
             for cidx in range(4):
-                ax[ridx, cidx].set_ylabel('y / ch', labelpad=0.1)
-                ax[ridx, cidx].set_xlabel('x / ch', labelpad=0.1)
-                ax[ridx, cidx].tick_params(length=3, pad=0.1)
-    #plt.tight_layout()
+                axes[ridx][cidx].set_ylabel('y / ch', labelpad=0.1)
+                axes[ridx][cidx].set_xlabel('x / ch', labelpad=0.1)
+                axes[ridx][cidx].tick_params(length=2, pad=0.01)
     plt.show()
 
 
