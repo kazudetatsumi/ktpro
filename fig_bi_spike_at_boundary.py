@@ -164,6 +164,110 @@ def imshow_slice(A, llims, ulims, si=1, sj=1, origin='upper',
     return im, ax
 
 
+def pixel_edge_paths(mask: np.ndarray):
+    from collections import defaultdict
+    """
+    右端カラムにある 2値マスク（True/1が内部）の境界を、
+    画素格子線上の閉じたポリライン群として返す。
+    戻り値: [N_i×2] の配列のリスト。各配列は (x, y) 角点列で先頭=末尾。
+    座標系: imshow(..., origin='lower') に重ねられるように -0.5 シフト済み。
+    """
+    m = np.pad(mask.astype(np.uint8), 1, constant_values=0)
+    H, W = m.shape
+
+    # 値不一致 → エッジ（水平/垂直）
+    hor = m[1:, :] != m[:-1, :]     # (H-1, W)  上下差 ⇒ y と y+1 の間
+    ver = m[:, 1:] != m[:, :-1]     # (H, W-1)  左右差 ⇒ x と x+1 の間
+
+
+    adj = defaultdict(list)
+    edges = set()
+
+    def add_edge(p, q):
+        adj[p].append(q); adj[q].append(p)
+        key = (p, q) if p < q else (q, p)
+        edges.add(key)
+
+    # 水平エッジ
+    for y in range(H-1):
+        for x in np.flatnonzero(hor[y]):
+            p = (x,   y+1)
+            q = (x+1, y+1)
+            add_edge(p, q)
+
+    # 垂直エッジ
+    for y in range(H):
+        for x in np.flatnonzero(ver[y]):
+            p = (x+1, y)
+            q = (x+1, y+1)
+            add_edge(p, q)
+
+    # エッジ連結 → 閉路ポリライン化
+    used = set()
+    paths = []
+    for e in list(edges):
+        if e in used:
+            continue
+        start = e[0]; cur = e[0]; prev = None
+        path = [start]
+        while True:
+            nxt = []
+            for nb in adj[cur]:
+                key = (cur, nb) if cur < nb else (nb, cur)
+                if key not in used:
+                    nxt.append((nb, key))
+            if not nxt:
+                break
+            # 2本のうち前の点を避けて進む
+            if prev is None:
+                nb, key = nxt[0]
+            else:
+                cand = [c for c in nxt if c[0] != prev]
+                nb, key = cand[0] if cand else nxt[0]
+            used.add(key)
+            path.append(nb)
+            prev, cur = cur, nb
+            if nb == start:
+                break
+
+        if len(path) >= 2 and path[0] == path[-1]:
+            P = np.asarray(path, dtype=float)
+            # padding補正(-1) + 角点をimshowのピクセル境界に合わせる(-0.5)
+            P -= 1.0
+            P -= 0.5
+            paths.append(P)
+    return paths
+
+
+def on_frame_xy(p, W, H, atol=1e-9):
+    return (np.isclose(p[0], -0.5, atol=atol) or
+            np.isclose(p[0], W - 0.5, atol=atol) or
+            np.isclose(p[1], -0.5, atol=atol) or
+            np.isclose(p[1], H - 0.5, atol=atol))
+
+
+def inside_xy(p, W, H, atol=1e-9):
+    return ((p[0] > -0.5 + atol) and (p[0] < W - 0.5 - atol) and
+            (p[1] > -0.5 + atol) and (p[1] < H - 0.5 - atol))
+
+
+def get_bd(msk):
+    bd = pixel_edge_paths(msk)[0]
+    nb = bd.shape[0]
+    wps = set()
+    H, W = msk.shape
+    for bidx in range(1, nb-1):
+        if on_frame_xy(bd[bidx], W, H):
+            if inside_xy(bd[bidx-1], W, H) or inside_xy(bd[bidx+1], W, H):
+                wps.add(bidx)
+    wp = sorted(wps)
+    if on_frame_xy(bd[0], W, H):
+        _bd = bd[wp[0]:wp[1]+1]
+    else:
+        _bd = np.vstack((bd[wp[1]:], bd[0:wp[0]+1]))
+    return _bd
+
+
 def compare_images4_2d():
     fig = plt.figure(figsize=(12, 6))
     gs = gridspec.GridSpec(nrows=3, ncols=4, figure=fig, width_ratios=[1, ]*4,
@@ -236,9 +340,9 @@ def compare_images4_2d():
             cax.tick_params(direction='in', labelsize=8, length=3)
             cbar.locator = MaxNLocator(nbins=4)
             cbar.update_ticks()  # これがポイント：カラーバーの
-        _bds = measure.find_contours(_mask == 1, level=0.5)[0]
+        _bd = get_bd(_mask)
         for aidx, _ax in enumerate(axes[lidx][:-1]):
-            _ax.plot(_bds[:, 1]+llims[1], _bds[:, 0]+llims[0], ls=':', c='w')
+            _ax.plot(_bd[:, 0]+llims[1], _bd[:, 1]+llims[0], ls=':', c='w')
         for ridx in range(3):
             for cidx in range(4):
                 axes[ridx][cidx].set_ylabel('y / ch', labelpad=0.1)

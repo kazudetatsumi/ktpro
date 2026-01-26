@@ -5,31 +5,33 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import matplotlib.gridspec as gridspec
-from skimage import measure
+import cv2
 sys.path.append("/home/kazu/denoise")
 # fdir, df are in mlfdev61
 fdir = '/home/kazu/restormer_rev2_lim/bi3d/restormer_conv3d/for_single/' +\
-       'train/full/211/true_edge/nll/gau2ch/ktrand/rev4/'
-df = '/home/kazu/desktop/240424/uNID_data_KO/211/' +\
-     'bi3d_scratch_rev4_211_partial_phantom_local_with_gt.pkl'
-data_names = ['denoisedx2_5models', 'denoised_5models', 'stride155/expt']
+       'train/full/211/true_edge/nll/gau2ch/ktrand/'
+df = '/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl'
+data_names = ['stride_155/expt_nomask', 'denoised_5models_nomask']
 
 
-def get_mask(smallarea=False):
-    if not smallarea:
-        with open(fdir + 'params_scratch_rev4.pkl', 'rb') as f:
-            paramimage = pickle.load(f)
-        return paramimage[4] == 0.
-    else:
-        with open(df, 'rb') as f:
-            pickle.load(f)
-            pickle.load(f)
-            sample_gt = pickle.load(f)[:, 2:-2, 2:-2]
-            openbeam_gt = pickle.load(f)[:, 2:-2, 2:-2]
-        transmission = sample_gt/openbeam_gt
-        sumtransmission = transmission.sum(axis=0)
-        bmask = sumtransmission > 132
-        return bmask.T
+with open(df, 'rb') as f:
+    openbeam = pickle.load(f)
+    openbeam_noisy = pickle.load(f)
+    sample = pickle.load(f)
+    sample_noisy = pickle.load(f)
+    etc = pickle.load(f)
+tofini = etc['inilambda']
+toffin = etc['finlambda']
+dtof = etc['difflambda']
+x = np.arange(sample.shape[0])*dtof + tofini
+transmission = sample/openbeam*315715/553690
+__transmission = transmission.transpose((2, 1, 0))[:, np.newaxis]\
+    .astype('float32')
+
+
+def get_mask(lim):
+    return cv2.GaussianBlur(__transmission.squeeze().sum(axis=-1), (5, 5), 0
+                            ) > lim*315715/553690.
 
 
 def get_fitparams(fname='RITS32030_16_40us_Sz1.out'):
@@ -72,7 +74,7 @@ def get_paramimage4(fname, fname2, fname3, fname4, flname, maskconsider=False):
         elif fidx == 3:
             resultfinal[icol] = np.insert(np.insert(result4[icol], 5, 18.),
                                           11, 0.)
-    mask = get_mask()
+    mask = get_mask(262)
     pos = read_flnames(flname=flname)
     image = np.zeros((len(param_name)*2, mask.shape[0], mask.shape[1]))
     for fidx in range(pos.shape[0]):
@@ -101,9 +103,9 @@ def get_timage(data_names):
 
 def get_images(data_names):
     timage = get_timage(data_names)
-    #maskl = get_mask(262)
-    #timage[:, :, maskl] = 0.
-    refim = timage[2]
+    maskl = get_mask(262)
+    timage[:, :, maskl] = 0.
+    refim = timage[0]
     denoisedim = timage[1]
     return refim, denoisedim
 
@@ -169,7 +171,7 @@ def pixel_edge_paths(mask: np.ndarray):
     画素格子線上の閉じたポリライン群として返す。
     戻り値: [N_i×2] の配列のリスト。各配列は (x, y) 角点列で先頭=末尾。
     座標系: imshow(..., origin='lower') に重ねられるように -0.5 シフト済み。
-    """ 
+    """
     m = np.pad(mask.astype(np.uint8), 1, constant_values=0)
     H, W = m.shape
 
@@ -234,8 +236,8 @@ def pixel_edge_paths(mask: np.ndarray):
             P -= 1.0
             P -= 0.5
             paths.append(P)
-
     return paths
+
 
 def on_frame_xy(p, W, H, atol=1e-9):
     return (np.isclose(p[0], -0.5, atol=atol) or
@@ -266,22 +268,21 @@ def get_bd(msk):
     return _bd
 
 
-def compare_images4_2d():
-    fig = plt.figure(figsize=(12, 6))
-    gs = gridspec.GridSpec(nrows=3, ncols=4, figure=fig, width_ratios=[1, ]*4,
-                           hspace=0.3, wspace=0.03)
+def compare_images4_2d(sf):
+    gs = sf.add_gridspec(3, 4, width_ratios=[1, ]*4, hspace=0.3, wspace=0.03)
     axes = []
     for i in range(3):
         row_ax = []
         for j in range(4):
-            a = fig.add_subplot(gs[i, j])
+            a = sf.add_subplot(gs[i, j])
             row_ax.append(a)
         axes.append(row_ax)
-    mask = get_mask(smallarea=True)
+    from skimage import measure
+    mask = get_mask(236)
     bd = measure.find_contours(mask == 1, level=0.5)[0]
     edge = 16
-    bdpys = [20, 61, 53]
-    bdidids = [0, 0, 1]
+    bdpys = [55, 20, 10]
+    bdidids = [0, 0, 0]
     llimss = []
     ulimss = []
     for bdpy, bdidid in zip(bdpys, bdidids):
@@ -304,38 +305,35 @@ def compare_images4_2d():
             ulims[0] -= diff
         llimss.append(llims)
         ulimss.append(ulims)
-    with open(fdir + 'params_scratch_rev4.pkl', 'rb') as f:
-        paramimage = pickle.load(f)
-    ref = paramimage[:6]
-    _, denoised = get_images(data_names)
+    refim, denoisedim = get_images(data_names)
     for lidx, (ulims, llims) in enumerate(zip(ulimss, llimss)):
-        true = ref[4, llims[0]:ulims[0], llims[1]:ulims[1]]
-        denoise = denoised[4, llims[0]:ulims[0], llims[1]:ulims[1]]
+        true = refim[4, llims[0]:ulims[0], llims[1]:ulims[1]]
+        denoise = denoisedim[4, llims[0]:ulims[0], llims[1]:ulims[1]]
         _mask = ~mask[llims[0]:ulims[0], llims[1]:ulims[1]]
         vmin = min(np.min(true[true > 0.]), np.min(denoise[denoise > 0.]))
         vmax = max(np.max(true), np.max(denoise))
-        ims = []
-        for iidx, (data, clabel) in enumerate(
-                zip([ref[4], denoised[4], np.abs(ref[4]-denoised[4]), mask],
+        im0, axes[lidx][0] = imshow_slice(refim[4], llims, ulims,
+                                          ax=axes[lidx][0], vmin=vmin,
+                                          vmax=vmax)
+        im1, axes[lidx][1] = imshow_slice(denoisedim[4], llims, ulims,
+                                          ax=axes[lidx][1], vmin=vmin,
+                                          vmax=vmax)
+        im2, axes[lidx][2] = imshow_slice(np.abs(refim[4]-denoisedim[4]),
+                                          llims, ulims, ax=axes[lidx][2])
+        im3, axes[lidx][3] = imshow_slice(mask, llims, ulims, ax=axes[lidx][3])
+        for iidx, (im, clabel) in enumerate(
+                zip([im0, im1, im2, im3],
                     [r'$\mathrm{d_{110}\ /\ \AA}$',
                      r'$\mathrm{d_{110}\ /\ \AA}$',
                      r'$\Delta\mathrm{d_{110}\ /\ \AA}$', 'mask value'])):
-            if iidx < 2:
-                im, axes[lidx][iidx] = imshow_slice(data, llims, ulims,
-                                                    ax=axes[lidx][iidx],
-                                                    vmin=vmin, vmax=vmax)
-            else:
-                im, axes[lidx][iidx] = imshow_slice(data, llims, ulims,
-                                                    ax=axes[lidx][iidx])
-            ims.append(im)
             map_pos = axes[lidx][iidx].get_position()  # figure 座標
-            cax = fig.add_axes([
+            cax = sf.add_axes([
                 map_pos.x1 + 0.002,  # left
                 map_pos.y0,                 # bottom（マップと一致）
                 0.005,             # width
                 map_pos.height              # height（マップと完全一致）
             ])
-            cbar = fig.colorbar(im, cax=cax)
+            cbar = sf.colorbar(im, cax=cax)
             cbar.set_label(clabel, labelpad=0.2)
             cax.tick_params(direction='in', labelsize=8, length=3)
             cbar.locator = MaxNLocator(nbins=4)
@@ -348,79 +346,23 @@ def compare_images4_2d():
                 axes[ridx][cidx].set_ylabel('y / ch', labelpad=0.1)
                 axes[ridx][cidx].set_xlabel('x / ch', labelpad=0.1)
                 axes[ridx][cidx].tick_params(length=2, pad=0.01)
-    plt.show()
 
 
-def _compare_images4_2d():
-    from skimage import measure
-    timage = get_timage(['denoisedx2_5models', 'denoised_5models',
-                        'stride155/expt'])
-    mask = get_mask(smallarea=True)
-    bd = measure.find_contours(mask == 1, level=0.5)[0]
-    edge = 16
-    bdpys = [20, 61, 53]
-    bdidids = [0, 0, 1]
-    llimss = []
-    ulimss = []
-    for bdpy, bdidid in zip(bdpys, bdidids):
-        # Note that bd[:, 0] is y value.
-        bdids = np.where(bd[:, 0] == bdpy)[0][bdidid]
-        bdp = [int(bd[bdids, 1]), int(bd[bdids, 0])]
-        llims = [bdp[1]-edge, bdp[0]-edge]
-        ulims = [bdp[1]+edge, bdp[0]+edge]
-        if llims[1] < 0:
-            diff = llims[1]
-            llims[1] -= diff
-            ulims[1] -= diff
-        if ulims[0] > mask.shape[0]:
-            diff = ulims[0] - mask.shape[0]
-            llims[0] -= diff
-            ulims[0] -= diff
-        llimss.append(llims)
-        ulimss.append(ulims)
-    with open('params_scratch_rev4.pkl', 'rb') as f:
-        paramimage = pickle.load(f)
-    x_test = paramimage[:6]
-    bitest = timage[1]
-    fig, ax = plt.subplots(3, 4)
-    for lidx, (ulims, llims) in enumerate(zip(ulimss, llimss)):
-        true = x_test[4, llims[0]:ulims[0], llims[1]:ulims[1]]
-        denoise = bitest[4, llims[0]:ulims[0], llims[1]:ulims[1]]
-        _mask = ~mask[llims[0]:ulims[0], llims[1]:ulims[1]]
-        vmin = min(np.min(true[true > 0.]), np.min(denoise[denoise > 0.]))
-        vmax = max(np.max(true), np.max(denoise))
-        ax[lidx, 0].imshow(true, vmin=vmin, vmax=vmax)
-        ax[lidx, 1].imshow(denoise, vmin=vmin, vmax=vmax)
-        ax[lidx, 2].imshow(np.abs(true-denoise))
-        ax[lidx, 3].imshow(_mask)
-        _bds = measure.find_contours(_mask == 1, level=0.5)[0]
-        for aidx, _ax in enumerate(ax[lidx, :-1]):
-            _ax.plot(_bds[:, 1], _bds[:, 0], ls=':', c='w')
-    plt.show()
-
-
-def compare_images4_d():
+def compare_images4_d(sf):
     from scipy import ndimage as ndi
-    timage = get_timage(['denoisedx2_5models', 'denoised_5models',
-                        'stride155/expt'])
-    mask = get_mask(smallarea=True)
-    with open('params_scratch_rev4.pkl', 'rb') as f:
-        paramimage = pickle.load(f)
-    x_test = paramimage[:6]
-    bitest = timage[1]
+    refim, denoisedim = get_images(data_names)
+    mask = get_mask(236)
     dist_inside = ndi.distance_transform_edt(~mask)
     dist_outside = ndi.distance_transform_edt(mask)
-    abs_errors = np.abs(bitest[4]-x_test[4])
-    plt.scatter(dist_inside[dist_inside > 0.].flatten(),
-                abs_errors[dist_inside > 0.].flatten(), s=1)
-    plt.scatter(dist_outside[dist_outside > 0].flatten()*(-1),
-                abs_errors[dist_outside > 0].flatten(), s=1)
-    plt.xlim([-10, 25])
-    plt.ylabel('Absolute Errors in d$_{110}$ / $\\mathrm{\\AA}$')
-    plt.xlabel('Distance from Mask Boundary / ch')
-    plt.show()
+    abs_errors = np.abs(denoisedim[4] - refim[4])
+    ax = sf.subplots(1,1)
+    ax.scatter(dist_inside[dist_inside > 0.].flatten(),
+               abs_errors[dist_inside > 0.].flatten(), s=1)
+    ax.scatter(dist_outside[dist_outside > 0].flatten()*(-1),
+               abs_errors[dist_outside > 0].flatten(), s=1)
+    ax.set_xlim([-10, 25])
+    ax.set_ylabel('Absolute Errors in d$_{110}$ / $\\mathrm{\\AA}$')
+    ax.set_xlabel('Distance from Mask Boundary / ch')
+    ax.tick_params(direction='in')
 
 
-if __name__ == '__main__':
-    #compare_images4_d()
-    compare_images4_2d()
