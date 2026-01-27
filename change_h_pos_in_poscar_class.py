@@ -158,6 +158,7 @@ class change_hpos():
         # symmetry on the atoms without the target h atom
         rcell = (self.lattice, rpositions, rnumbers)
         #print(spglib.get_spacegroup(rcell, symprec=1e-5))
+        print(spglib.get_spacegroup(rcell, symprec=1e-5))
         self.sym = spglib.get_symmetry(rcell, symprec=1e-5)
         #print(self.sym['rotations'].shape)
         #for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
@@ -203,7 +204,6 @@ class change_hpos():
             hpos = np.matmul(np.array(hpos), rot)
             self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))
                          + self.std) % 1.0
-            print('chk', self.hpos)
             self.edgelengthina0 = self.edgelength/self.a0
         #elif type(self.edgelength) is list and cart:
         #    # use cartecian coord.
@@ -266,6 +266,7 @@ class change_hpos():
         print("edgelengths in Angs.:", edgelength)
         self.edgelengthina0 = edgelength/self.a0
         hpos = np.zeros((self.nx**3, 3))
+        print(mat)
         ih = 0
         for ix in range(0, self.nx):
             for iy in range(0, self.nx):
@@ -773,7 +774,7 @@ class change_hpos():
             self.E = dataset['E']
             self.U = dataset['U']
 
-    def GetWavefuncs(self):
+    def __GetWavefuncs(self):
         print("GetWavefuncs")
         #nmesh = self.nx*2
         nmesh = self.nx
@@ -784,7 +785,7 @@ class change_hpos():
         self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
                 (-1, nmesh, nmesh, nmesh))
 
-    def GetDensity(self):
+    def __GetDensity(self):
         self.GetWavefuncs()
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
         #plt.pcolor(self.densities[0, 10, :, :])
@@ -801,6 +802,144 @@ class change_hpos():
         #den = np.imag(phi)**2+np.real(phi)**2
         #plt.pcolor(den)
         #plt.show()
+
+
+
+
+    # --- 追加: 省メモリ ifft 用ヘルパ -------------------------------------------
+    def _ensure_gidx(self, nmesh=None):
+        """
+        G ベクトルを FFT グリッドのインデックスにマップするタプル (_gidx) を用意。
+        """
+        if nmesh is None:
+            nmesh = self.nx
+        if (not hasattr(self, '_gidx')) or (getattr(self, '_fftshape', None) != (nmesh, nmesh, nmesh)):
+            gmod = (self.Gs % nmesh).astype(int)
+            self._gidx = (gmod[:, 0], gmod[:, 1], gmod[:, 2])
+            self._fftshape = (nmesh, nmesh, nmesh)
+
+    def _ifft_from_coeff(self, coeff, nmesh=None, dtype=np.complex64):
+        """
+        G 空間係数 (shape: Ng,) を 3D ifft で実空間波動関数 (shape: nmesh^3) に変換。
+        coeff: self.U[:, n] を想定（complex）
+        """
+        if nmesh is None:
+            nmesh = self.nx
+        self._ensure_gidx(nmesh)
+        X = np.zeros(self._fftshape, dtype=np.complex128)
+        X[self._gidx] = coeff.astype(np.complex128, copy=False)
+        phi_r = np.fft.ifftn(X)  # numpy のデフォルト正規化 ('backward') に合わせる
+        return phi_r.astype(dtype, copy=False)
+
+    # --- 置換: GetWavefuncs（省メモリ & 状態選択対応） --------------------------
+    def GetWavefuncs(self, states=None, nmesh=None, store=True, dtype=np.complex64, clear_previous=True):
+        """
+        省メモリ版：exp(i G·r) の巨大行列を作らず、状態ごとに ifft で ψ(r) を生成。
+
+        Parameters
+        ----------
+        states : int | list[int] | None
+            計算する固有状態のインデックス。
+            None の場合は self.U の全列を対象（従来互換）。
+        nmesh : int | None
+            実空間グリッドの分割（None なら self.nx）。
+        store : bool
+            True のとき self.wavefuncs に (nstates, nmesh, nmesh, nmesh) を保存。
+            False のときは返り値のみ（self.wavefuncs は触らない）。
+        dtype : np.dtype
+            実空間波動関数配列の dtype（省メモリのため既定は complex64）。
+        clear_previous : bool
+            store=True のとき、既存の self.wavefuncs を上書きするかどうか。
+
+        Returns
+        -------
+        wavefuncs : np.ndarray | None
+            shape = (nstates, nmesh, nmesh, nmesh) の複素配列（store=False のときは必ず返す）。
+        """
+        if not hasattr(self, 'U'):
+            raise RuntimeError("GetWavefuncs: 自己無撞着。先に GetEigen で固有ベクトル self.U を計算してください。")
+        if nmesh is None:
+            nmesh = self.nx
+
+        # 対象状態の正規化
+        if states is None:
+            states_list = list(range(self.U.shape[1]))  # 従来互換（全状態）
+        elif isinstance(states, int):
+            states_list = [states]
+        else:
+            states_list = list(states)
+
+        # 計算
+        out = np.empty((len(states_list), nmesh, nmesh, nmesh), dtype=dtype)
+        for i, st in enumerate(states_list):
+            phi = self._ifft_from_coeff(self.U[:, st], nmesh=nmesh, dtype=dtype)
+            out[i] = phi
+
+        if store:
+            if clear_previous or (not hasattr(self, 'wavefuncs')):
+                self.wavefuncs = out
+                self.wavefunc_states = np.array(states_list, dtype=int)
+            else:
+                # 追記（同じグリッドサイズ前提）
+                self.wavefuncs = np.concatenate([self.wavefuncs, out], axis=0)
+                self.wavefunc_states = np.concatenate([self.wavefunc_states, np.array(states_list, dtype=int)])
+            return None  # 保存したので返さない
+        else:
+            return out  # 保存しない場合は返す
+
+    # --- 置換: GetDensity（省メモリ & 状態選択対応） ----------------------------
+    def GetDensity(self, states=0, nmesh=None, dtype=np.float32, store=True, clear_previous=True):
+        """
+        省メモリ版：状態ごとに ifft して |ψ|^2 を生成。単一/複数の状態を指定可能。
+
+        Parameters
+        ----------
+        states : int | list[int]
+            密度を出す固有状態（単一でも複数でも可）。既定は 0（基底状態）。
+        nmesh : int | None
+            実空間グリッドの分割（None なら self.nx）。
+        dtype : np.dtype
+            密度配列の dtype（既定 float32）。
+        store : bool
+            True のとき self.densities に保存（従来互換動作）。
+        clear_previous : bool
+            store=True のとき、既存の self.densities を上書きするか。
+
+        Returns
+        -------
+        densities : np.ndarray | None
+            shape = (nstates, nmesh, nmesh, nmesh) の実数配列（store=False のときは必ず返す）。
+        """
+        if not hasattr(self, 'U'):
+            raise RuntimeError("GetDensity: 先に GetEigen を実行して self.U を用意してください。")
+        if nmesh is None:
+            nmesh = self.nx
+
+        # 対象状態リスト
+        if isinstance(states, int):
+            states_list = [states]
+        else:
+            states_list = list(states)
+
+        # 計算（ψは保持せずに |ψ|^2 を生成）
+        out = np.empty((len(states_list), nmesh, nmesh, nmesh), dtype=dtype)
+        for i, st in enumerate(states_list):
+            phi = self._ifft_from_coeff(self.U[:, st], nmesh=nmesh, dtype=np.complex64)
+            den = (phi.real**2 + phi.imag**2).astype(dtype, copy=False)
+            out[i] = den
+
+        if store:
+            if clear_previous or (not hasattr(self, 'densities')):
+                self.densities = out
+                self.density_states = np.array(states_list, dtype=int)
+            else:
+                self.densities = np.concatenate([self.densities, out], axis=0)
+                self.density_states = np.concatenate([self.density_states, np.array(states_list, dtype=int)])
+            return None
+        else:
+            return out
+
+
 
     def GetDensityFile(self, no):
         outfile = 'density' + str(no) + '.out'
