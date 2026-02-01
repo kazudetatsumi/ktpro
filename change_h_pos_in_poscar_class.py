@@ -626,7 +626,37 @@ class change_hpos():
             print('mean pot:', np.mean(self.potential))
             self.z = np.fft.fftn(self.potential / self.Eh, norm='forward')
 
+    def Gphysicalcut(self, lattice):
+        Gs = []
+        nnyq = (self.nx - 1) // 2 - 1
+        dist = []
+        for axis in range(3):
+            vec = np.zeros(3)
+            vec[axis] = 1.
+            dist.append(np.linalg.norm(np.linalg.inv(lattice/self.a0).T @ vec))
+        mindist = min(dist)
+        r_phys = mindist * nnyq
+        for i in range(-nnyq, nnyq+1):
+            for j in range(-nnyq, nnyq + 1):
+                for k in range(-nnyq, nnyq + 1):
+                    G = np.linalg.inv(lattice/self.a0).T  @ np.array([i, j, k])
+                    if np.linalg.norm(G) < r_phys:
+                        Gs.append([i, j, k])
+        return Gs
+
     def GetG(self):
+        if type(self.edgelength) is list:
+            lattice = np.diag(self.edgelngthina0)*self.a0
+        elif 'hlat' in dir(self):
+            lattice = self.hlat
+        elif self.wholecell:
+            lattice = self.lattice
+        else:
+            lattice = np.diag(np.ones(3)*self.edgelengthina0)*self.a0
+        self.Gs = np.array(self.Gphysicalcut(lattice)).reshape((-1, 3))
+        print('chk Gs:', self.Gs.shape)
+
+    def _GetG(self):
         print("GetG")
         Gs = []
         # print("CHECK_edgelength:", type(self.edgelength))
@@ -852,8 +882,6 @@ class change_hpos():
         #den = np.imag(phi)**2+np.real(phi)**2
         #plt.pcolor(den)
         #plt.show()
-
-
 
 
     # --- 追加: 省メモリ ifft 用ヘルパ -------------------------------------------
