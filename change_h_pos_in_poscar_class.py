@@ -629,40 +629,48 @@ class change_hpos():
     def GetG(self):
         print("GetG")
         Gs = []
-        print("CHECK_edgelength:", type(self.edgelength))
-        if type(self.edgelength) is list:
-            for i in range(-self.nx//2, self.nx//2+1):
-                for j in range(-self.nx//2, self.nx//2+1):
-                    for k in range(-self.nx//2, self.nx//2+1):
-                        #if (i/self.edgelengthina0[0])**2 + (j/self.edgelengthina0[1])**2 + (k/self.edgelengthina0[2])**2 < self.rg**2:
-                        if np.sum((np.array([i, j, k])/self.edgelengthina0)**2
-                                  ) < self.rg**2:
-                            Gs.append([i, j, k])
-        elif 'hlat' in dir(self):
-            #print('check rec lat edgelength:',
-            #      ((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
-            for i in range(-self.nx//2, self.nx//2+1):
-                for j in range(-self.nx//2, self.nx//2+1):
-                    for k in range(-self.nx//2, self.nx//2+1):
-                        if (np.matmul(np.linalg.inv(self.hlat).T,
-                            np.array([i, j, k]))**2).sum(axis=0) < self.rg**2:
-                            Gs.append([i, j, k])
-            #print("CHECK rec hlat vec")
-            #_rhlat = np.linalg.inv(self.hlat).T
-            #print(np.linalg.inv(self.hlat).T[:, 0])
-            #print(np.linalg.inv(self.hlat).T[:, 1])
-            #print(np.linalg.inv(self.hlat).T[:, 2])
-            #print((_rhlat[:, 1] - _rhlat[:, 2])[0])
-            #print((_rhlat[:, 0] - (_rhlat[:, 1]- 0.5*(_rhlat[:, 1] - _rhlat[:, 2])))[1])
-            #print(((np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0, 0])))**2).sum(axis=0)**0.5)
-            #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1, 0])))
-            #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0, 1])))
-        else:
-            for i in range(-self.nx//2, self.nx//2+1):
-                for j in range(-self.nx//2, self.nx//2+1):
-                    for k in range(-self.nx//2, self.nx//2+1):
-                        if i**2 + j**2 + k**2 < self.rg**2:
-                            Gs.append([i, j, k])
+        # print("CHECK_edgelength:", type(self.edgelength))
+        # No matter cell used, rg is in idex unit and 
+        # simply distance of G in index coordination should be less than rg.
+        # The following if and elif routine did not have consistent units.
+        #if type(self.edgelength) is list:
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                #if (i/self.edgelengthina0[0])**2 + (j/self.edgelengthina0[1])**2 + (k/self.edgelengthina0[2])**2 < self.rg**2:
+        #                if np.sum((np.array([i, j, k])/self.edgelengthina0)**2
+        #                          ) < self.rg**2:
+        #                    Gs.append([i, j, k])
+        #elif 'hlat' in dir(self):
+        #    #print('check rec lat edgelength:',
+        #    #      ((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                if (np.matmul(np.linalg.inv(self.hlat).T,
+        #                    np.array([i, j, k]))**2).sum(axis=0) < self.rg**2:
+        #                    Gs.append([i, j, k])
+        #    #print("CHECK rec hlat vec")
+        #    #_rhlat = np.linalg.inv(self.hlat).T
+        #    #print(np.linalg.inv(self.hlat).T[:, 0])
+        #    #print(np.linalg.inv(self.hlat).T[:, 1])
+        #    #print(np.linalg.inv(self.hlat).T[:, 2])
+        #    #print((_rhlat[:, 1] - _rhlat[:, 2])[0])
+        #    #print((_rhlat[:, 0] - (_rhlat[:, 1]- 0.5*(_rhlat[:, 1] - _rhlat[:, 2])))[1])
+        #    #print(((np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0, 0])))**2).sum(axis=0)**0.5)
+        #    #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1, 0])))
+        #    #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0, 1])))
+        #else:
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                if i**2 + j**2 + k**2 < self.rg**2:
+        #                    Gs.append([i, j, k])
+        for i in range(-self.nx//2, self.nx//2+1):
+            for j in range(-self.nx//2, self.nx//2+1):
+                for k in range(-self.nx//2, self.nx//2+1):
+                    if i**2 + j**2 + k**2 < self.rg**2:
+                        Gs.append([i, j, k])
         self.Gs = np.array(Gs).reshape((-1, 3))
         print('chk Gs:', self.Gs.shape)
         #print(np.matmul(np.array([1, 1, 1]), np.linalg.inv(self.hlat)))
