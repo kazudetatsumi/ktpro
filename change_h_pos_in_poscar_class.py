@@ -12,7 +12,8 @@ from scipy.sparse.linalg import LinearOperator, eigsh
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
                  shift=[0., 0., 0.], hshift=[0., 0., 0.], prim=True,
-                 oldedgelength=False, deuterium=False):
+                 oldedgelength=False, deuterium=False, wholecell=False,
+                 kvec=None):
         self.infile = infile
         if type(std) is list:
             self.std = np.array(std)
@@ -42,6 +43,9 @@ class change_hpos():
             self.dx = np.array(self.edgelength)/(self.nx - 1)
         else:
             self.dx = np.array(self.edgelength)/self.nx
+        if kvec is not None:
+            self.kvec = kvec
+        self.wholecell = wholecell
 
     def GetCrystalParamsFromPoscar(self):
         with open(self.infile, 'r') as f:
@@ -303,6 +307,17 @@ class change_hpos():
                                   + (iz+self.hshift[2])*self.dx[2]) % 1.0])
             self.hpos = np.array(hpos)
 
+    def GetAllHpos_wholecell(self):
+        # Return mesh points on the whole cell whose lattice constants are
+        # equal.
+        # To be secure, the folloing bool variables are set as follows.
+        self.wholecell = True
+        self.oldedgelength = False
+        # Note endpoint=True for a periodic cell.
+        a = np.linspace(0, 1., self.nx, endpoint=False)
+        xx, yy, zz = np.meshgrid(a, a, a, indexing='ij')
+        self.hpos = np.column_stack([xx.ravel(), yy.ravel(), zz.ravel()])
+
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
         for ih, _hpos in enumerate(self.hpos):
@@ -449,7 +464,7 @@ class change_hpos():
         pairs = np.where(np.invert(cond))
         # print('chk pairs', pairs[0].shape)
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
-        print('chk, irr_idx',self.irr_idx.shape, type(self.irr_idx))
+        print('chk, irr_idx', self.irr_idx.shape, type(self.irr_idx))
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -487,7 +502,7 @@ class change_hpos():
                                     .format(ir[0], ir[1], ir[2]))
                         else:
                             f.write(line)
-    
+
     def GenerateExpandedPoscar(self):
         epsiron = 0.002
         nst = (self.nx*2+1)**2
@@ -548,6 +563,9 @@ class change_hpos():
         plt.plot(self.potential[:, self.nx // 2, self.nx // 2]
                  - np.min(self.potential))
         plt.ylim((0, 1.))
+        plt.show()
+        plt.imshow(self.potential[:, :, self.nx//2])
+        plt.show()
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
@@ -585,7 +603,6 @@ class change_hpos():
         #         for i in range(self.nx-1, 6, -1)], marker='.', label='111')
         #plt.legend()
 
-        plt.show()
 
     def WritePotential(self):
         # Write the potential in a column, which is in the Fortran order,
@@ -627,10 +644,8 @@ class change_hpos():
             for i in range(-self.nx//2, self.nx//2+1):
                 for j in range(-self.nx//2, self.nx//2+1):
                     for k in range(-self.nx//2, self.nx//2+1):
-                        glen = (np.matmul(np.linalg.inv(self.hlat).T,
-                                          np.array([i, j, k]))**2
-                                ).sum(axis=0)**0.5
-                        if glen < self.rg**2:
+                        if (np.matmul(np.linalg.inv(self.hlat).T,
+                            np.array([i, j, k]))**2).sum(axis=0) < self.rg**2:
                             Gs.append([i, j, k])
             #print("CHECK rec hlat vec")
             #_rhlat = np.linalg.inv(self.hlat).T
@@ -656,8 +671,11 @@ class change_hpos():
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1., 0])))
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0., 1])))
 
-    def GetK(self):
-        if self.oldedgelength:
+    def _Get_Gs(self):
+        if self.wholecell:
+            _Gs = (np.matmul(np.linalg.inv(self.lattice/self.a0).T,
+                             self.Gs.T)).T
+        elif self.oldedgelength:
             if 'hlat' in dir(self):
                 _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0 /
                                                (self.nx-1)*self.nx).T,
@@ -670,7 +688,30 @@ class change_hpos():
                                  self.Gs.T)).T
             else:
                 _Gs = self.Gs/self.edgelengthina0
-        self.K = np.diag((2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh))
+        return _Gs
+
+    def _k(self):
+        return (np.matmul(np.linalg.inv(self.lattice/self.a0).T, self.kvec.T)
+                ).T
+
+    def _print_expected_shift(self):
+        # A: 実格子[Bohr], B: reciprocal(2π抜き)
+        A = self.lattice / self.a0
+        B = np.linalg.inv(A).T
+        if not (hasattr(self,'kvec') and self.kvec is not None):
+            print("no kvec; Γ only"); return
+        kcart = B @ np.asarray(self.kvec, float)   # [Bohr^-1], 2π抜き
+        dE_Ha = (2.0*np.pi)**2 * (kcart @ kcart) / (2.0*self.mh)
+        print(f"[CHECK] Expected ΔE_free(k) ≈ {dE_Ha*self.Eh*1000:.3f} meV")
+
+    def GetK(self):
+        _Gs = self._Get_Gs()
+        if 'kvec' in dir(self):
+            print('kvec is considered in K, kvec=', self.kvec)
+            self.K = np.diag((2*np.pi)**2*np.sum((_Gs+self._k())**2, axis=1)
+                             / (2.*self.mh))
+        else:
+            self.K = np.diag((2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh))
 
     def GetV(self):
         # Full vectorized version for faster calculation,
@@ -713,6 +754,7 @@ class change_hpos():
                 np.save(f, self.H)
 
     def GetH(self, issave=False):
+        self._print_expected_shift()
         if 'K' not in dir(self):
             self.GetK()
         self.GetV()
@@ -939,8 +981,6 @@ class change_hpos():
         else:
             return out
 
-
-
     def GetDensityFile(self, no):
         outfile = 'density' + str(no) + '.out'
         den = self.densities[no].flatten(order='F')
@@ -957,16 +997,7 @@ class change_hpos():
             f.write(out)
 
     def GetKdiag(self):
-        if self.oldedgelength:
-            if 'hlat' in dir(self):
-                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0 / (self.nx-1)*self.nx).T, self.Gs.T)).T
-            else:
-                _Gs = self.Gs/(self.edgelengthina0/(self.nx-1)*self.nx)
-        else:
-            if 'hlat' in dir(self):
-                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0).T, self.Gs.T)).T
-            else:
-                _Gs = self.Gs/self.edgelengthina0
+        _Gs = self._Get_Gs()
         self.Kdiag = (2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh)
         return self.Kdiag
 
@@ -1375,12 +1406,13 @@ class change_hpos():
     def CheckShortAtomDistanceFlag(self):
         AtomDistanceFlag = []
         for irridx, hpos in enumerate(self.irr_hpos):
-            if self.minbondlength(hpos) < 0.1:
+            if self.minbondlength(hpos) < 0.3:
                 print(irridx+1, self.minbondlength(hpos))
                 AtomDistanceFlag.append(True)
             else:
                 AtomDistanceFlag.append(False)
         self.AtomDistanceFlag = np.array(AtomDistanceFlag)
+        print('# of AtomDistanceFlags=', np.sum(self.AtomDistanceFlag), 'out of ', self.irr_hpos.shape, 'atoms')
 
     def minbondlength(self, hpos):
         epos = self.expos(self.rcell[1])
