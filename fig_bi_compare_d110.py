@@ -172,42 +172,16 @@ def plote(data, target, pred, datae, targete, prede, savefig='dummy', time_idx=[
          q_idx=[0.2, 0.5, 0.8], param_name='Param',
          labels=['Partial', 'Full', 'Partial_denoised']):
     fig, ax = plt.subplots(3, 3, figsize=(10, 10))
-    vmax = np.max([np.max(data[:, 20:]), np.max(target[:, 20:]), np.max(pred[:, 20:])])
-    vmin = np.min([np.unique(np.sort(data))[1], np.unique(np.sort(target))[1],
-                   np.unique(np.sort(pred))[1]])
-    vmax = np.max([np.unique(np.sort(target))[-10], np.unique(np.sort(pred))[-30]])
-    vmin = np.min([np.unique(np.sort(target))[10],
-                   np.unique(np.sort(pred))[15]])
-    vmax = np.max([np.unique(np.sort(target))[-15], np.unique(np.sort(data+datae))[-15],
-                   np.unique(np.sort(pred))[-15]])
-    vmin = np.min([np.unique(np.sort(target))[5], np.unique(np.sort(data-datae))[5],
-                   np.unique(np.sort(pred))[5]])
     vmaxim = np.max([np.unique(np.sort(target))[-25], np.unique(np.sort(data))[-25],
                    np.unique(np.sort(pred))[-25]])
     vminim = np.min([np.unique(np.sort(target))[15], np.unique(np.sort(data))[15],
                    np.unique(np.sort(pred))[15]])
-    #vmax = 2.045
-    #vmin = 2.02
-    print(f'vmax={vmax}')
-    print(f'vmin={vmin}')
-    ax[0, 0].imshow(data, interpolation='none', vmin=vminim, vmax=vmaxim)
-    #ax[0, 0].imshow(data, interpolation='none')
-    ax[0, 0].set_title(labels[0], fontsize=tfs)
-    ax[0, 0].set_ylabel('y / ch', fontsize=tkfs)
-    ax[0, 0].set_xlabel('x / ch', fontsize=tkfs)
-    ax[0, 0].tick_params(axis='both', labelsize=lefs)
-    im = ax[0, 2].imshow(target,  interpolation='none', vmin=vminim, vmax=vmaxim)
-    #ax[0, 1].imshow(target,  interpolation='none')
-    ax[0, 2].set_yticks([])
-    ax[0, 2].set_title(labels[1], fontsize=tfs)
-    ax[0, 2].set_xlabel('x / ch', fontsize=tkfs)
-    ax[0, 2].tick_params(axis='both', labelsize=lefs)
-    ax[0, 1].imshow(pred, interpolation='none', vmin=vminim, vmax=vmaxim)
-    #ax[0, 2].imshow(pred, interpolation='none')
-    ax[0, 1].set_yticks([])
-    ax[0, 1].set_title(labels[2], fontsize=tfs)
-    ax[0, 1].set_xlabel('x / ch', fontsize=tkfs)
-    ax[0, 1].tick_params(axis='both', labelsize=lefs)
+    for didx, (d, label) in enumerate(zip([target, data, pred], [labels[1], labels[0], labels[2]])):
+        ax[0, didx].imshow(d, origin='lower', interpolation='none', vmin=vminim, vmax=vmaxim)
+        ax[0, didx].set_title(label, fontsize=tfs)
+        ax[0, didx].set_ylabel('y / ch', fontsize=tkfs)
+        ax[0, didx].set_xlabel('x / ch', fontsize=tkfs)
+        ax[0, didx].tick_params(axis='both', labelsize=lefs)
     #cbar = fig.colorbar(im, ax=ax[0, 2], fraction=0.046, pad=0.04)
     #cbar.ax.tick_params(labelsize=12)
     #cbar.set_label(param_name, fontsize=tfs)
@@ -216,69 +190,70 @@ def plote(data, target, pred, datae, targete, prede, savefig='dummy', time_idx=[
     N = 3
     time_idx = [int(t*data.shape[0]) for t in time_idx]
     q_idx = [int(t*data.shape[1]) for t in q_idx]
-    for i in range(0, N):
-        #ax[1, i].plot(data[time_idx[i]], 'o', ms=3, label=labels[0])
-        #ax[1, i].errorbar(range(data[time_idx[i]].shape[0]), data[time_idx[i]],
-        #                  yerr=datae[time_idx[i]], marker="o", ms=3,
-        #                  elinewidth=0.4, lw=0, capsize=2, label=labels[0], zorder=0)
-        #ax[1, i].plot(pred[time_idx[i]], label=labels[2])
-        ax[1, i].errorbar(range(pred[time_idx[i]].shape[0]), pred[time_idx[i]],
-                          yerr=prede[time_idx[i]], marker="o", ms=3,
-                          elinewidth=0.4, lw=0, capsize=3, label=labels[2], zorder=5)
-        #ax[1, i].errorbar(range(pred[time_idx[i]].shape[0]), pred[time_idx[i]],
-        #                  yerr=np.abs((data[time_idx[i]]-pred[time_idx[i]])**2+prede[time_idx[i]]**2)**0.5, marker="o", ms=3,
-        #                  elinewidth=0.4, lw=0, capsize=3, label=labels[2], zorder=5)
-        ax[1, i].plot(target[time_idx[i]], label=labels[1], zorder=10)
-        #ax[1, i].errorbar(range(target[time_idx[i]].shape[0]), target[time_idx[i]],
-        #                  yerr=targete[time_idx[i]], marker="o", ms=3,
-        #                  elinewidth=1, lw=0, capsize=3, label=labels[1])
-        ax[1, i].set_xlabel('x / ch', fontsize=tfs)
-        leg = ax[1, i].legend(frameon=False, fontsize=tkfs, handlelength=1.2,
-                        title=f'at y = {time_idx[i]}', alignment='left')
-        leg.set_title(f'at y= {time_idx[i]}', prop={'size': 12})
-        ax[1, i].set_ylim([vmin, vmax])
-        ax[1, i].tick_params(axis='both', labelsize=tkfs)
-        ax[0, 0].axhline(time_idx[i], color='r', linestyle='--', lw=1)
-        if i > 0:
-            ax[1, i].set_yticks([])
-        #ax[2, i].plot(np.array(data[:, q_idx[i]]), 'o', ms=3, label=labels[0])
-        #ax[2, i].errorbar(range(data[:, q_idx[i]].shape[0]), data[:, q_idx[i]],
-        #                  yerr=datae[:, q_idx[i]], marker="o", ms=2,
-        #                  elinewidth=0.4, lw=0, capsize=2, label=labels[0])
-        #ax[2, i].plot(np.array(pred[:, q_idx[i]]), label=labels[2])
-        ax[2, i].errorbar(range(pred[:, q_idx[i]].shape[0]), pred[:, q_idx[i]],
-                          yerr=prede[:, q_idx[i]], marker="o", ms=3,
-                          elinewidth=0.4, lw=0, capsize=3, label=labels[2])
-        #ax[2, i].errorbar(range(pred[:, q_idx[i]].shape[0]), pred[:, q_idx[i]],
-        #                  yerr=np.abs((data[:, q_idx[i]] - pred[:, q_idx[i]])**2+prede[:, q_idx[i]]**2)**0.5, marker="o", ms=3,
-        #                  elinewidth=0.4, lw=0, capsize=3, label=labels[2])
-        ax[2, i].plot(np.array(target[:, q_idx[i]]), label=labels[1])
-        #ax[2, i].errorbar(range(target[:, q_idx[i]].shape[0]), target[:, q_idx[i]],
-        #                  yerr=targete[:, q_idx[i]], marker="o", ms=3,
-        #                  elinewidth=1, lw=0, capsize=3, label=labels[1])
-        ax[2, i].set_xlabel('y / ch', fontsize=tfs)
-        leg = ax[2, i].legend(frameon=False, fontsize=tkfs, handlelength=1.2,
-                        title=f'at x= {q_idx[i]}', alignment='left')
-        leg.set_title(f'at x= {q_idx[i]}', prop={'size': 12})
-        ax[2, i].set_ylim([vmin, vmax])
-        ax[2, i].tick_params(axis='both', labelsize=tkfs)
-        ax[0, 0].axvline(q_idx[i], color='r', linestyle='--', lw=1)
-        if i > 0:
-            ax[2, i].set_yticks([])
-    ax[1, 0].set_ylabel(param_name, fontsize=tfs)
-    ax[2, 0].set_ylabel(param_name, fontsize=tfs)
-    for j in range(1, 3):
-        yrange = np.array([ax[j, i].get_ylim() for i in range(0, N)])
-        for i in range(0, N):
-            ax[j, i].set_ylim(np.min(yrange[:, 0]), np.max(yrange[:, 1]))
-    plt.tight_layout()
-    if savefig != '':
-        if not ('.png' in savefig or '.pdf' in savefig):
-            savefig += '.pdf'
-        plt.savefig(savefig)
-    else:
-        plt.show()
-    plt.close()
+    tidx = time_idx[1]
+    qidx = q_idx[1]
+    cond = np.where(data[tidx] > 0.)[0]
+    ymin1 = np.min(data[tidx][cond]-datae[tidx][cond])
+    ymax1 = np.max(data[tidx][cond]+datae[tidx][cond])
+    cond = np.where(data[:, qidx] > 0.)[0]
+    ymin2 = np.min(data[:, qidx][cond]-datae[:, qidx][cond])
+    ymax2 = np.max(data[:, qidx][cond]+datae[:, qidx][cond])
+    margin = 3
+    for (d, label) in zip([data[tidx], target[tidx], pred[tidx]], labels):
+        cond = np.where(d > 0.)[0]
+        ax[1, 0].plot(cond, d[d > 0.], label=label)
+        #ax[1, 0].set_ylim([vmin, vmax])
+        ax[1, 0].set_xlim([cond[0]-margin, cond[-1]+margin])
+    for didx, (d, de, label, c) in enumerate(zip([data[tidx], pred[tidx]],
+                                              [datae[tidx], prede[tidx]],
+                                              [labels[0], labels[2]],
+                                              ['C0', 'C2'])):
+        cond = np.where(target[tidx]>0.)[0]
+        ax[1, didx+1].plot(cond, target[tidx][cond], label=labels[1], c='C1')
+        #ax[1, didx+1].errorbar(range(d.shape[0]), d,
+        #                       yerr=de, marker="o", ms=3,
+        cond = np.where(d > 0.)[0]
+        ax[1, didx+1].errorbar(cond, d[cond],
+                               yerr=de[cond], marker="o", ms=3,
+                               elinewidth=0.4, lw=0, capsize=3, label=label, zorder=5, c=c)
+        ax[1, didx+1].set_ylim([ymin1, ymax1])
+        ax[1, didx+1].set_xlim([cond[0]-margin, cond[-1]+margin])
+    ax[0, 0].axhline(tidx, xmin=(cond[0]*1.)/d.shape[0], xmax=(cond[-1]*1.)/d.shape[0], color='w', linestyle='--', lw=1)
+    margin = 1
+    for (d, label) in zip([data[:, qidx], target[:, qidx], pred[:, qidx]], labels):
+        cond = np.where(d > 0.)[0]
+        ax[2, 0].plot(cond, d[cond], label=label)
+        ax[2, 0].set_xlim([cond[0]-margin, cond[-1]+margin])
+        #ax[2, 0].set_ylim([vmin, vmax])
+    for didx, (d, de, label, c) in enumerate(zip([data[:, qidx], pred[:, qidx]],
+                                              [datae[:, qidx], prede[:, qidx]],
+                                              [labels[0], labels[2]],
+                                              ['C0', 'C2'])):
+        cond = np.where(target[:, qidx]>0.)[0]
+        ax[2, didx+1].plot(cond, target[:, qidx][cond], label=labels[1], c='C1')
+        cond = np.where(d > 0.)[0]
+        ax[2, didx+1].errorbar(cond, d[cond],
+                             yerr=de[cond], marker="o", ms=3,
+                             elinewidth=0.4, lw=0, capsize=3, label=label, zorder=5, c=c)
+        ax[2, didx+1].set_xlim([cond[0]-margin, cond[-1]+margin])
+        ax[2, didx+1].set_ylim([ymin2, ymax2])
+        #ax[2, didx+1].set_ylim([vmin, vmax])
+    ax[0, 0].axvline(qidx, ymin=(cond[0]*1.)/d.shape[0], ymax=(cond[-1]*1.)/d.shape[0], color='w', linestyle='--', lw=1)
+    for ridx in range(1, 3):
+        for cidx in range(3):
+            #ax[ridx, cidx].set_ylim([vmin, vmax])
+            ax[ridx, cidx].set_ylabel('d$_{110}$ / $\\mathrm{\\AA}$')
+            ax[ridx, cidx].tick_params(axis='both', direction='in')
+            if ridx == 1:
+                ax[ridx, cidx].set_xlabel('x / ch')
+                #ax[ridx, cidx].set_xlim([0, data[tidx].shape[0]])
+            else:
+                ax[ridx, cidx].set_xlabel('y / ch')
+                #ax[ridx, cidx].set_xlim([0, data[:, qidx].shape[0]])
+
+    plt.show()
+
+
 
 
 def plot(data, target, pred, savefig='', time_idx=[0.2, 0.5, 0.8],
