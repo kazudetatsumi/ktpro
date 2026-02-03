@@ -12,7 +12,8 @@ from scipy.sparse.linalg import LinearOperator, eigsh
 class change_hpos():
     def __init__(self, infile, std, edgelength, nx, enefile=None,
                  shift=[0., 0., 0.], hshift=[0., 0., 0.], prim=True,
-                 oldedgelength=False, deuterium=False):
+                 oldedgelength=False, deuterium=False, wholecell=False,
+                 kvec=None):
         self.infile = infile
         if type(std) is list:
             self.std = np.array(std)
@@ -42,6 +43,9 @@ class change_hpos():
             self.dx = np.array(self.edgelength)/(self.nx - 1)
         else:
             self.dx = np.array(self.edgelength)/self.nx
+        if kvec is not None:
+            self.kvec = kvec
+        self.wholecell = wholecell
 
     def GetCrystalParamsFromPoscar(self):
         with open(self.infile, 'r') as f:
@@ -158,6 +162,7 @@ class change_hpos():
         # symmetry on the atoms without the target h atom
         rcell = (self.lattice, rpositions, rnumbers)
         #print(spglib.get_spacegroup(rcell, symprec=1e-5))
+        print(spglib.get_spacegroup(rcell, symprec=1e-5))
         self.sym = spglib.get_symmetry(rcell, symprec=1e-5)
         #print(self.sym['rotations'].shape)
         #for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
@@ -203,7 +208,6 @@ class change_hpos():
             hpos = np.matmul(np.array(hpos), rot)
             self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))
                          + self.std) % 1.0
-            print('chk', self.hpos)
             self.edgelengthina0 = self.edgelength/self.a0
         #elif type(self.edgelength) is list and cart:
         #    # use cartecian coord.
@@ -266,6 +270,7 @@ class change_hpos():
         print("edgelengths in Angs.:", edgelength)
         self.edgelengthina0 = edgelength/self.a0
         hpos = np.zeros((self.nx**3, 3))
+        print(mat)
         ih = 0
         for ix in range(0, self.nx):
             for iy in range(0, self.nx):
@@ -301,6 +306,17 @@ class change_hpos():
                                  (self.std[2] - self.edgelength[2]/2
                                   + (iz+self.hshift[2])*self.dx[2]) % 1.0])
             self.hpos = np.array(hpos)
+
+    def GetAllHpos_wholecell(self):
+        # Return mesh points on the whole cell whose lattice constants are
+        # equal.
+        # To be secure, the folloing bool variables are set as follows.
+        self.wholecell = True
+        self.oldedgelength = False
+        # Note endpoint=True for a periodic cell.
+        a = np.linspace(0, 1., self.nx, endpoint=False)
+        xx, yy, zz = np.meshgrid(a, a, a, indexing='ij')
+        self.hpos = np.column_stack([xx.ravel(), yy.ravel(), zz.ravel()])
 
     def GetIrreducibleShift_old(self):
         irr_hpos = self.hpos[0].reshape((1, 3))
@@ -448,7 +464,7 @@ class change_hpos():
         pairs = np.where(np.invert(cond))
         # print('chk pairs', pairs[0].shape)
         self.irr_idx = pairs[0][np.argsort(pairs[1])]
-        print('chk, irr_idx',self.irr_idx.shape, type(self.irr_idx))
+        print('chk, irr_idx', self.irr_idx.shape, type(self.irr_idx))
 
     def GenerateShiftedPoscar(self):
         lat = self.cell[0]
@@ -486,7 +502,7 @@ class change_hpos():
                                     .format(ir[0], ir[1], ir[2]))
                         else:
                             f.write(line)
-    
+
     def GenerateExpandedPoscar(self):
         epsiron = 0.002
         nst = (self.nx*2+1)**2
@@ -547,6 +563,9 @@ class change_hpos():
         plt.plot(self.potential[:, self.nx // 2, self.nx // 2]
                  - np.min(self.potential))
         plt.ylim((0, 1.))
+        plt.show()
+        plt.imshow(self.potential[:, :, self.nx//2])
+        plt.show()
         # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
         # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
         # y = np.zeros((self.nx))
@@ -584,7 +603,6 @@ class change_hpos():
         #         for i in range(self.nx-1, 6, -1)], marker='.', label='111')
         #plt.legend()
 
-        plt.show()
 
     def WritePotential(self):
         # Write the potential in a column, which is in the Fortran order,
@@ -608,45 +626,81 @@ class change_hpos():
             print('mean pot:', np.mean(self.potential))
             self.z = np.fft.fftn(self.potential / self.Eh, norm='forward')
 
+    def Gphysicalcut(self, lattice):
+        Gs = []
+        nnyq = (self.nx - 1) // 2 - 1
+        dist = []
+        for axis in range(3):
+            vec = np.zeros(3)
+            vec[axis] = 1.
+            dist.append(np.linalg.norm(np.linalg.inv(lattice/self.a0).T @ vec))
+        mindist = min(dist)
+        r_phys = mindist * nnyq
+        for i in range(-nnyq, nnyq+1):
+            for j in range(-nnyq, nnyq + 1):
+                for k in range(-nnyq, nnyq + 1):
+                    G = np.linalg.inv(lattice/self.a0).T  @ np.array([i, j, k])
+                    if np.linalg.norm(G) < r_phys:
+                        Gs.append([i, j, k])
+        return Gs
+
     def GetG(self):
+        if type(self.edgelength) is list:
+            lattice = np.diag(self.edgelngthina0)*self.a0
+        elif 'hlat' in dir(self):
+            lattice = self.hlat
+        elif self.wholecell:
+            lattice = self.lattice
+        else:
+            lattice = np.diag(np.ones(3)*self.edgelengthina0)*self.a0
+        self.Gs = np.array(self.Gphysicalcut(lattice)).reshape((-1, 3))
+        print('chk Gs:', self.Gs.shape)
+
+    def _GetG(self):
         print("GetG")
         Gs = []
-        print("CHECK_edgelength:", type(self.edgelength))
-        if type(self.edgelength) is list:
-            for i in range(-self.nx//2, self.nx//2+1):
-                for j in range(-self.nx//2, self.nx//2+1):
-                    for k in range(-self.nx//2, self.nx//2+1):
-                        #if (i/self.edgelengthina0[0])**2 + (j/self.edgelengthina0[1])**2 + (k/self.edgelengthina0[2])**2 < self.rg**2:
-                        if np.sum((np.array([i, j, k])/self.edgelengthina0)**2
-                                  ) < self.rg**2:
-                            Gs.append([i, j, k])
-        elif 'hlat' in dir(self):
-            #print('check rec lat edgelength:',
-            #      ((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
-            for i in range(-self.nx//2, self.nx//2+1):
-                for j in range(-self.nx//2, self.nx//2+1):
-                    for k in range(-self.nx//2, self.nx//2+1):
-                        glen = (np.matmul(np.linalg.inv(self.hlat).T,
-                                          np.array([i, j, k]))**2
-                                ).sum(axis=0)**0.5
-                        if glen < self.rg**2:
-                            Gs.append([i, j, k])
-            #print("CHECK rec hlat vec")
-            #_rhlat = np.linalg.inv(self.hlat).T
-            #print(np.linalg.inv(self.hlat).T[:, 0])
-            #print(np.linalg.inv(self.hlat).T[:, 1])
-            #print(np.linalg.inv(self.hlat).T[:, 2])
-            #print((_rhlat[:, 1] - _rhlat[:, 2])[0])
-            #print((_rhlat[:, 0] - (_rhlat[:, 1]- 0.5*(_rhlat[:, 1] - _rhlat[:, 2])))[1])
-            #print(((np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0, 0])))**2).sum(axis=0)**0.5)
-            #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1, 0])))
-            #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0, 1])))
-        else:
-            for i in range(-self.nx//2, self.nx//2+1):
-                for j in range(-self.nx//2, self.nx//2+1):
-                    for k in range(-self.nx//2, self.nx//2+1):
-                        if i**2 + j**2 + k**2 < self.rg**2:
-                            Gs.append([i, j, k])
+        # print("CHECK_edgelength:", type(self.edgelength))
+        # No matter cell used, rg is in idex unit and 
+        # simply distance of G in index coordination should be less than rg.
+        # The following if and elif routine did not have consistent units.
+        #if type(self.edgelength) is list:
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                #if (i/self.edgelengthina0[0])**2 + (j/self.edgelengthina0[1])**2 + (k/self.edgelengthina0[2])**2 < self.rg**2:
+        #                if np.sum((np.array([i, j, k])/self.edgelengthina0)**2
+        #                          ) < self.rg**2:
+        #                    Gs.append([i, j, k])
+        #elif 'hlat' in dir(self):
+        #    #print('check rec lat edgelength:',
+        #    #      ((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                if (np.matmul(np.linalg.inv(self.hlat).T,
+        #                    np.array([i, j, k]))**2).sum(axis=0) < self.rg**2:
+        #                    Gs.append([i, j, k])
+        #    #print("CHECK rec hlat vec")
+        #    #_rhlat = np.linalg.inv(self.hlat).T
+        #    #print(np.linalg.inv(self.hlat).T[:, 0])
+        #    #print(np.linalg.inv(self.hlat).T[:, 1])
+        #    #print(np.linalg.inv(self.hlat).T[:, 2])
+        #    #print((_rhlat[:, 1] - _rhlat[:, 2])[0])
+        #    #print((_rhlat[:, 0] - (_rhlat[:, 1]- 0.5*(_rhlat[:, 1] - _rhlat[:, 2])))[1])
+        #    #print(((np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0, 0])))**2).sum(axis=0)**0.5)
+        #    #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1, 0])))
+        #    #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0, 1])))
+        #else:
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                if i**2 + j**2 + k**2 < self.rg**2:
+        #                    Gs.append([i, j, k])
+        for i in range(-self.nx//2, self.nx//2+1):
+            for j in range(-self.nx//2, self.nx//2+1):
+                for k in range(-self.nx//2, self.nx//2+1):
+                    if i**2 + j**2 + k**2 < self.rg**2:
+                        Gs.append([i, j, k])
         self.Gs = np.array(Gs).reshape((-1, 3))
         print('chk Gs:', self.Gs.shape)
         #print(np.matmul(np.array([1, 1, 1]), np.linalg.inv(self.hlat)))
@@ -655,8 +709,11 @@ class change_hpos():
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1., 0])))
         #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0., 1])))
 
-    def GetK(self):
-        if self.oldedgelength:
+    def _Get_Gs(self):
+        if self.wholecell:
+            _Gs = (np.matmul(np.linalg.inv(self.lattice/self.a0).T,
+                             self.Gs.T)).T
+        elif self.oldedgelength:
             if 'hlat' in dir(self):
                 _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0 /
                                                (self.nx-1)*self.nx).T,
@@ -669,7 +726,30 @@ class change_hpos():
                                  self.Gs.T)).T
             else:
                 _Gs = self.Gs/self.edgelengthina0
-        self.K = np.diag((2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh))
+        return _Gs
+
+    def _k(self):
+        return (np.matmul(np.linalg.inv(self.lattice/self.a0).T, self.kvec.T)
+                ).T
+
+    def _print_expected_shift(self):
+        # A: 実格子[Bohr], B: reciprocal(2π抜き)
+        A = self.lattice / self.a0
+        B = np.linalg.inv(A).T
+        if not (hasattr(self,'kvec') and self.kvec is not None):
+            print("no kvec; Γ only"); return
+        kcart = B @ np.asarray(self.kvec, float)   # [Bohr^-1], 2π抜き
+        dE_Ha = (2.0*np.pi)**2 * (kcart @ kcart) / (2.0*self.mh)
+        print(f"[CHECK] Expected ΔE_free(k) ≈ {dE_Ha*self.Eh*1000:.3f} meV")
+
+    def GetK(self):
+        _Gs = self._Get_Gs()
+        if 'kvec' in dir(self):
+            print('kvec is considered in K, kvec=', self.kvec)
+            self.K = np.diag((2*np.pi)**2*np.sum((_Gs+self._k())**2, axis=1)
+                             / (2.*self.mh))
+        else:
+            self.K = np.diag((2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh))
 
     def GetV(self):
         # Full vectorized version for faster calculation,
@@ -712,6 +792,7 @@ class change_hpos():
                 np.save(f, self.H)
 
     def GetH(self, issave=False):
+        self._print_expected_shift()
         if 'K' not in dir(self):
             self.GetK()
         self.GetV()
@@ -773,7 +854,7 @@ class change_hpos():
             self.E = dataset['E']
             self.U = dataset['U']
 
-    def GetWavefuncs(self):
+    def __GetWavefuncs(self):
         print("GetWavefuncs")
         #nmesh = self.nx*2
         nmesh = self.nx
@@ -784,7 +865,7 @@ class change_hpos():
         self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
                 (-1, nmesh, nmesh, nmesh))
 
-    def GetDensity(self):
+    def __GetDensity(self):
         self.GetWavefuncs()
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
         #plt.pcolor(self.densities[0, 10, :, :])
@@ -802,6 +883,140 @@ class change_hpos():
         #plt.pcolor(den)
         #plt.show()
 
+
+    # --- 追加: 省メモリ ifft 用ヘルパ -------------------------------------------
+    def _ensure_gidx(self, nmesh=None):
+        """
+        G ベクトルを FFT グリッドのインデックスにマップするタプル (_gidx) を用意。
+        """
+        if nmesh is None:
+            nmesh = self.nx
+        if (not hasattr(self, '_gidx')) or (getattr(self, '_fftshape', None) != (nmesh, nmesh, nmesh)):
+            gmod = (self.Gs % nmesh).astype(int)
+            self._gidx = (gmod[:, 0], gmod[:, 1], gmod[:, 2])
+            self._fftshape = (nmesh, nmesh, nmesh)
+
+    def _ifft_from_coeff(self, coeff, nmesh=None, dtype=np.complex64):
+        """
+        G 空間係数 (shape: Ng,) を 3D ifft で実空間波動関数 (shape: nmesh^3) に変換。
+        coeff: self.U[:, n] を想定（complex）
+        """
+        if nmesh is None:
+            nmesh = self.nx
+        self._ensure_gidx(nmesh)
+        X = np.zeros(self._fftshape, dtype=np.complex128)
+        X[self._gidx] = coeff.astype(np.complex128, copy=False)
+        phi_r = np.fft.ifftn(X)  # numpy のデフォルト正規化 ('backward') に合わせる
+        return phi_r.astype(dtype, copy=False)
+
+    # --- 置換: GetWavefuncs（省メモリ & 状態選択対応） --------------------------
+    def GetWavefuncs(self, states=None, nmesh=None, store=True, dtype=np.complex64, clear_previous=True):
+        """
+        省メモリ版：exp(i G·r) の巨大行列を作らず、状態ごとに ifft で ψ(r) を生成。
+
+        Parameters
+        ----------
+        states : int | list[int] | None
+            計算する固有状態のインデックス。
+            None の場合は self.U の全列を対象（従来互換）。
+        nmesh : int | None
+            実空間グリッドの分割（None なら self.nx）。
+        store : bool
+            True のとき self.wavefuncs に (nstates, nmesh, nmesh, nmesh) を保存。
+            False のときは返り値のみ（self.wavefuncs は触らない）。
+        dtype : np.dtype
+            実空間波動関数配列の dtype（省メモリのため既定は complex64）。
+        clear_previous : bool
+            store=True のとき、既存の self.wavefuncs を上書きするかどうか。
+
+        Returns
+        -------
+        wavefuncs : np.ndarray | None
+            shape = (nstates, nmesh, nmesh, nmesh) の複素配列（store=False のときは必ず返す）。
+        """
+        if not hasattr(self, 'U'):
+            raise RuntimeError("GetWavefuncs: 自己無撞着。先に GetEigen で固有ベクトル self.U を計算してください。")
+        if nmesh is None:
+            nmesh = self.nx
+
+        # 対象状態の正規化
+        if states is None:
+            states_list = list(range(self.U.shape[1]))  # 従来互換（全状態）
+        elif isinstance(states, int):
+            states_list = [states]
+        else:
+            states_list = list(states)
+
+        # 計算
+        out = np.empty((len(states_list), nmesh, nmesh, nmesh), dtype=dtype)
+        for i, st in enumerate(states_list):
+            phi = self._ifft_from_coeff(self.U[:, st], nmesh=nmesh, dtype=dtype)
+            out[i] = phi
+
+        if store:
+            if clear_previous or (not hasattr(self, 'wavefuncs')):
+                self.wavefuncs = out
+                self.wavefunc_states = np.array(states_list, dtype=int)
+            else:
+                # 追記（同じグリッドサイズ前提）
+                self.wavefuncs = np.concatenate([self.wavefuncs, out], axis=0)
+                self.wavefunc_states = np.concatenate([self.wavefunc_states, np.array(states_list, dtype=int)])
+            return None  # 保存したので返さない
+        else:
+            return out  # 保存しない場合は返す
+
+    # --- 置換: GetDensity（省メモリ & 状態選択対応） ----------------------------
+    def GetDensity(self, states=0, nmesh=None, dtype=np.float32, store=True, clear_previous=True):
+        """
+        省メモリ版：状態ごとに ifft して |ψ|^2 を生成。単一/複数の状態を指定可能。
+
+        Parameters
+        ----------
+        states : int | list[int]
+            密度を出す固有状態（単一でも複数でも可）。既定は 0（基底状態）。
+        nmesh : int | None
+            実空間グリッドの分割（None なら self.nx）。
+        dtype : np.dtype
+            密度配列の dtype（既定 float32）。
+        store : bool
+            True のとき self.densities に保存（従来互換動作）。
+        clear_previous : bool
+            store=True のとき、既存の self.densities を上書きするか。
+
+        Returns
+        -------
+        densities : np.ndarray | None
+            shape = (nstates, nmesh, nmesh, nmesh) の実数配列（store=False のときは必ず返す）。
+        """
+        if not hasattr(self, 'U'):
+            raise RuntimeError("GetDensity: 先に GetEigen を実行して self.U を用意してください。")
+        if nmesh is None:
+            nmesh = self.nx
+
+        # 対象状態リスト
+        if isinstance(states, int):
+            states_list = [states]
+        else:
+            states_list = list(states)
+
+        # 計算（ψは保持せずに |ψ|^2 を生成）
+        out = np.empty((len(states_list), nmesh, nmesh, nmesh), dtype=dtype)
+        for i, st in enumerate(states_list):
+            phi = self._ifft_from_coeff(self.U[:, st], nmesh=nmesh, dtype=np.complex64)
+            den = (phi.real**2 + phi.imag**2).astype(dtype, copy=False)
+            out[i] = den
+
+        if store:
+            if clear_previous or (not hasattr(self, 'densities')):
+                self.densities = out
+                self.density_states = np.array(states_list, dtype=int)
+            else:
+                self.densities = np.concatenate([self.densities, out], axis=0)
+                self.density_states = np.concatenate([self.density_states, np.array(states_list, dtype=int)])
+            return None
+        else:
+            return out
+
     def GetDensityFile(self, no):
         outfile = 'density' + str(no) + '.out'
         den = self.densities[no].flatten(order='F')
@@ -818,16 +1033,7 @@ class change_hpos():
             f.write(out)
 
     def GetKdiag(self):
-        if self.oldedgelength:
-            if 'hlat' in dir(self):
-                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0 / (self.nx-1)*self.nx).T, self.Gs.T)).T
-            else:
-                _Gs = self.Gs/(self.edgelengthina0/(self.nx-1)*self.nx)
-        else:
-            if 'hlat' in dir(self):
-                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0).T, self.Gs.T)).T
-            else:
-                _Gs = self.Gs/self.edgelengthina0
+        _Gs = self._Get_Gs()
         self.Kdiag = (2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh)
         return self.Kdiag
 
@@ -1236,12 +1442,13 @@ class change_hpos():
     def CheckShortAtomDistanceFlag(self):
         AtomDistanceFlag = []
         for irridx, hpos in enumerate(self.irr_hpos):
-            if self.minbondlength(hpos) < 0.1:
+            if self.minbondlength(hpos) < 0.3:
                 print(irridx+1, self.minbondlength(hpos))
                 AtomDistanceFlag.append(True)
             else:
                 AtomDistanceFlag.append(False)
         self.AtomDistanceFlag = np.array(AtomDistanceFlag)
+        print('# of AtomDistanceFlags=', np.sum(self.AtomDistanceFlag), 'out of ', self.irr_hpos.shape, 'atoms')
 
     def minbondlength(self, hpos):
         epos = self.expos(self.rcell[1])
