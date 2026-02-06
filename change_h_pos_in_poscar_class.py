@@ -56,6 +56,7 @@ class change_hpos():
             lattice[ivec] = np.array((self.lines[ivec+2].split()[0:3]),
                                      dtype=float)
         self.lattice = lattice * latmag
+        print('real space lattice in Angs :', self.lattice)
         #if type(self.edgelength) is list:
         #    self.a = np.sum(self.lattice[0, :]**2)**0.5/self.a0*self.edgelength[0]
         #    self.b = np.sum(self.lattice[1, :]**2)**0.5/self.a0*self.edgelength[1]
@@ -137,6 +138,7 @@ class change_hpos():
 
     def GetSym(self, refine=True):
         if 'cell' not in dir(self):
+            print("CHK, cell is not found!")
             self.GetCrystalParamsFromPoscar()
             self.cell = (self.lattice, self.positions, self.numbers)
         else:
@@ -169,6 +171,7 @@ class change_hpos():
         #    print(rot, trans)
         #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
         self.rcell = rcell
+        print(self.cell[0])
 
     def GetAllHpos(self, cart=False, rot=np.array([[1, 0, 0], [0, 1, 0],
                                                    [0, 0, 1]])):
@@ -470,6 +473,8 @@ class change_hpos():
         lat = self.cell[0]
         pos = self.cell[1]
         lines = self.lines
+        #print(pos)
+        #print(lines)
         for il in range(3):
             lines[il+2] = "     {:.16f}    {:.16f}    {:.16f} \n"\
                 .format(lat[il, 0], lat[il, 1], lat[il, 2])
@@ -562,7 +567,8 @@ class change_hpos():
         #plt.plot(self.potential[self.nx // 2, self.nx // 2, :]
         plt.plot(self.potential[:, self.nx // 2, self.nx // 2]
                  - np.min(self.potential))
-        plt.ylim((0, 1.))
+        print(np.min(self.potential))
+        #plt.ylim((0, 1.))
         plt.show()
         plt.imshow(self.potential[:, :, self.nx//2])
         plt.show()
@@ -650,6 +656,7 @@ class change_hpos():
         elif 'hlat' in dir(self):
             lattice = self.hlat
         elif self.wholecell:
+            print('Gs with lattice vector')
             lattice = self.lattice
         else:
             lattice = np.diag(np.ones(3)*self.edgelengthina0)*self.a0
@@ -1442,7 +1449,7 @@ class change_hpos():
     def CheckShortAtomDistanceFlag(self):
         AtomDistanceFlag = []
         for irridx, hpos in enumerate(self.irr_hpos):
-            if self.minbondlength(hpos) < 0.3:
+            if self.minbondlength(hpos) < 0.5:
                 print(irridx+1, self.minbondlength(hpos))
                 AtomDistanceFlag.append(True)
             else:

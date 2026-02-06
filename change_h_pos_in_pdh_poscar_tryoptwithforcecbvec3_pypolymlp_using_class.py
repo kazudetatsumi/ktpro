@@ -45,7 +45,8 @@ def make_callback(log: LogCache):
         g_eV_per_Angs = g_meV_per_frac / 1000.0 / conv
         #print(f"[cycle {k:3d}] f = {f_meV:.6f} meV, "
         #      f"grad = {g_meV_per_frac:.6e} meV/frac, {g_eV_per_Angs:.6e} eV/Å")
-        print(f"[cycles {k:3d}] f = {f_meV:.6f} meV",  g_meV_per_frac, "meV/frac", g_eV_per_Angs, "eV/Å")
+        #print(f"[cycles {k:3d}] f = {f_meV:.6f} meV",  g_meV_per_frac, "meV/frac", g_eV_per_Angs, "eV/Å")
+        print(f"[cycles {k:3d}] f = {f_meV:.6f} meV",  g_eV_per_Angs, "eV/Å")
     return cb
 
 
@@ -106,6 +107,7 @@ def get_E0(positions, prj, atomslist, case):
     else:
         print('**get_E0: processes from potential to GetEigen are skipped')
     return prj.E_comp[0]
+    #return prj.E_comp[1]
 
 
 def _get_grad(positions, prj, atomslist, case):
@@ -143,10 +145,12 @@ def get_grad(positions, prj, atomslist, case):
         prj.GetVG()
         prj.GetH()
         prj.GetEigen(Issave=False, Compress=True)
-        prj.GetDensity()
+        #prj.GetDensity()
+        prj.GetDensity(states=1)
     else:
         print('**get_grad: processeses from potential to GetEigen are skipped')
         prj.GetDensity()
+        #prj.GetDensity(states=1)
     case.structures[0].positions[:, atomslist] = positions.T
     new_structs = []
     for hpos in prj.hpos:
@@ -160,7 +164,7 @@ def get_grad(positions, prj, atomslist, case):
     case.structures = case.structures[0]
     f_meV_per_frac = -np.sum(np.array(fx).T.reshape((-1,) + prj.densities[0].shape) * prj.densities[0], axis=(1,2,3)) / np.sum(prj.densities[0]) \
                      * 7.8968828318389797 * 1000.0
-    print(f_meV_per_frac)
+    #print(f_meV_per_frac)
     return f_meV_per_frac
 
 

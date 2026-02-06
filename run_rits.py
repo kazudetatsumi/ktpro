@@ -765,7 +765,7 @@ def reform_param_sets(param_sets_sets):
 #def single_edgecomputation_phantom(pklfile='../params_scratch_rev2.pkl'):
 #def single_edgecomputation_phantom(pklfile='paramimage_rev2_5models.pkl'):
 #def single_edgecomputation_phantom(pklfile='../params_scratch_rev4.pkl'):
-def single_edgecomputation_phantom(pklfile='paramimage_rev4_5models_ktrand.pkl'):
+def single_edgecomputation_phantom(pklfile='paramimage_expt_5models.pkl'):
     # for constructing phantom data from the result of the rits edge fitting.
     with open(pklfile, 'rb') as f:
         paramimage = pickle.load(f)
@@ -781,7 +781,7 @@ def single_edgecomputation_phantom(pklfile='paramimage_rev4_5models_ktrand.pkl')
     #with open('bi2dsingle_scratch_rev2.pkl.phantom_local', 'wb') as f:
     #with open('bi2dsingle_denoised_rev2_5models.pkl.phantom_local', 'wb') as f:
     #with open('bi2dsingle_scratch_rev3.pkl.phantom_local', 'wb') as f:
-    with open('bi2dsingle_denoised_rev4_5models_ktrand.pkl.phantom_local', 'wb') as f:
+    with open('bi2dsingle_denoised_5models_ktrand.pkl.phantom_local', 'wb') as f:
         #with open('bi2dsingle_scratch_rev4.pkl.phantom_local', 'wb') as f:
         #with open('bi2dsingle_scratch.pkl.phantom', 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
