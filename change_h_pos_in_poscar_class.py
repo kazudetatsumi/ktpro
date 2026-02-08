@@ -1449,7 +1449,7 @@ class change_hpos():
     def CheckShortAtomDistanceFlag(self):
         AtomDistanceFlag = []
         for irridx, hpos in enumerate(self.irr_hpos):
-            if self.minbondlength(hpos) < 0.5:
+            if self.minbondlength(hpos) < 0.6:
                 print(irridx+1, self.minbondlength(hpos))
                 AtomDistanceFlag.append(True)
             else:
