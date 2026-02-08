@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional, Union
 import numpy as np
 import spglib
 from scipy.sparse.linalg import LinearOperator, eigsh
@@ -37,33 +37,30 @@ class PoscarReader:
     """Read POSCAR/CONTCAR and return a normalized Structure (fractional)."""
 
     def read(self, path: str) -> Tuple[Structure, dict]:
-        lines = open(path).read().splitlines()
+        with open(path, 'r') as f:
+            lines = f.readlines()
+        #lines = open(path).read().splitlines()
         scale = float(lines[1].split()[0])
         lat = np.array(
             [list(map(float, lines[2 + i].split()[:3])) for i in range(3)]
         ) * scale
 
         nspc = np.asarray(lines[6].split(), dtype=int)
-        numbers = np.array([i + 1 for i, c in enumerate(nspc) for _ in range(c)])
+        numbers = np.array([i + 1 for i, c in enumerate(nspc)
+                            for _ in range(c)])
 
-        # Detect "Direct/Cartesian" and Selective Dynamics
-        if any(k in lines[7] for k in ("Di", "di", "Dir", "dir")):
-            head, frac = 8, True
-        elif any(k in lines[7] for k in ("Car", "car")):
-            head, frac = 8, False
-        else:
-            head = 9
-            frac = not any(k in lines[7] for k in ("Car", "car"))
+        if "Di" in lines[7] or "di" in lines[7]:
+            iniline = 8
+        elif "Sel" in lines[7] or "sel" in lines[7]:
+            iniline = 9
 
         pos = np.array(
-            [list(map(float, lines[head + i].split()[:3])) for i in range(numbers.size)]
+            [list(map(float, lines[iniline + i].split()[:3]))
+                for i in range(numbers.size)]
         )
-        if not frac:
-            # Cartesian -> fractional
-            pos = (np.linalg.inv(lat).T @ pos.T).T
 
         s = Structure(axis=lat, positions=pos, numbers=numbers)
-        meta = {"lines": lines, "coord_head": head, "frac": frac}
+        meta = {"lines": lines, "iniline": iniline, }
         return s, meta
 
 
@@ -95,10 +92,11 @@ class SymmetryAnalyzer:
 
 def strip_target_H(s: Structure, center_frac: Iterable[float],
                    tol: float = 1e-5) -> Structure:
-    """Remove the H located at center_frac (fractional basis) from Structure."""
+    """Remove the H at center_frac (fractional basis) from Structure."""
     c = np.asarray(center_frac, float)
     keep = np.sum(np.abs((s.positions - c) % 1.0), axis=1) >= tol
-    return Structure(axis=s.axis, positions=s.positions[keep], numbers=s.numbers[keep])
+    return Structure(axis=s.axis, positions=s.positions[keep],
+                     numbers=s.numbers[keep])
 
 
 # --------------------------------- H-grid ------------------------------------
@@ -151,7 +149,7 @@ def get_irreducible_points(hpos: np.ndarray,
       - keep self-point at each step
     """
     irr_hpos = np.array(hpos)
-    print('chkchk, irr_hpos',irr_hpos.shape)
+    print('chkchk, irr_hpos', irr_hpos.shape)
     isym = 0
     for rot, trans in zip(rotations[1:], translations[1:]):
         isym += 1
@@ -164,12 +162,12 @@ def get_irreducible_points(hpos: np.ndarray,
                                axis=1) >= 1e-5
                 cond[i] = True
         irr_hpos = irr_hpos[cond]
-    print('chk, irr_hpos',irr_hpos.shape)
+    print('chk, irr_hpos', irr_hpos.shape)
     # print(irr_hpos)
     return irr_hpos
 
 
-# -------- Mapping all-points -> rep index (from original GetDataOverAllHpos4) -
+# ------- Mapping all-points -> rep index (from original GetDataOverAllHpos4) -
 def get_mapping(hpos: np.ndarray,
                 irr_hpos: np.ndarray,
                 rotations: np.ndarray,
@@ -212,42 +210,40 @@ def get_mapping(hpos: np.ndarray,
     #return irr_idx
 
 
-# ----- Write shifted POSCAR files by replacing the target H with each irreducible position -----
+# ----- Write POSCAR files with target H at each irreducible position -----
 def generate_shifted_poscar(structure: Structure,
-                          irr_hpos: np.ndarray,
-                          meta: dict,
-                          center_frac,
-                          fix_flags_first_n: int = 4) -> None:
+                            irr_hpos: np.ndarray,
+                            meta: dict,
+                            center_frac) -> None:
     """
     Write POSCAR_### by replacing the target H (at center_frac, fractional)
     with each irreducible position in `irr_hpos`.
     Only this function is added/modified to minimize diffs.
     """
     lines = list(meta['lines'])
-    head = int(meta['coord_head'])
+    head = int(meta['iniline'])
     # Update lattice vectors
     lat = np.asarray(structure.axis, float)
     for il in range(3):
-        lines[il+2] = ' {:.16f} {:.16f} {:.16f}
-'.format(lat[il,0], lat[il,1], lat[il,2])
-    # Overwrite positions and flags (fractional)
+        lines[il+2] = "     {:.16f}    {:.16f}    {:.16f} \n"\
+                      .format(lat[il, 0], lat[il, 1], lat[il, 2])
+        # Overwrite positions and flags (fractional)
     pos = np.asarray(structure.positions, float)
     for il in range(pos.shape[0]):
-        flag = 'F F F' if il < fix_flags_first_n else 'T T T'
-        lines[head+il] = ' {:.16f} {:.16f} {:.16f} {}
-'.format(pos[il,0], pos[il,1], pos[il,2], flag)
-    # locate target H index
+        lines[head+il] = "  {:.16f}  {:.16f}  {:.16f} \n"\
+                         .format(pos[il, 0], pos[il, 1], pos[il, 2])
+        # locate target H index
     c = np.asarray(center_frac, float)
     diffs = np.sum(np.abs((pos - c) % 1.0), axis=1)
     hits = np.where(diffs < 1e-5)[0]
-    h_idx = int(hits[0]) if hits.size>0 else int(np.argmin(diffs))
+    h_idx = int(hits[0]) if hits.size > 0 else int(np.argmin(diffs))
     # filename width
     nd = int(irr_hpos.shape[0])
-    width = 5 if nd>9999 else (4 if nd>999 else 3)
+    width = 5 if nd > 9999 else (4 if nd > 999 else 3)
     for iridx, ir in enumerate(irr_hpos):
         out_lines = lines.copy()
-        out_lines[head+h_idx] = ' {:.16f} {:.16f} {:.16f} F F F
-'.format(ir[0], ir[1], ir[2])
+        out_lines[head+h_idx] = "  {:.16f}  {:.16f}  {:.16f} \n"\
+                                .format(ir[0], ir[1], ir[2])
         outfile = 'POSCAR_{}'.format(str(iridx+1).zfill(width))
         with open(outfile, 'w') as f:
             f.writelines(out_lines)
