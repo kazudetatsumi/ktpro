@@ -618,8 +618,8 @@ class change_hpos():
     def GetVG(self):
         if 'hlat' in dir(self):
             edgelength = ((self.hlat**2).sum(axis=0))**0.5
-            #print('FUCK', np.prod(edgelength))
-            #print('FUCK', np.linalg.det(self.hlat))
+            print('CHK', np.prod(edgelength))
+            print('CHK', np.linalg.det(self.hlat))
 
             #self.z = np.prod(edgelength)/np.linalg.det(self.hlat) *\
             #    np.fft.fftn((self.potential-np.min(self.potential))
