@@ -130,6 +130,7 @@ class change_hpos():
         sorted_positions = positions[np.argsort(numbers)]
         sorted_positions[np.abs(sorted_positions) < 1e-10] = 0.
         self.cell = (lattice, sorted_positions, sorted_numbers)
+
         # Probably the below comment should be removed for consistency.
         # But, the previous work did not do so and still leave as is.
         #self.positions = sorted_positions
@@ -405,7 +406,7 @@ class change_hpos():
                     break
             if not MatchFound:
                 self.irr_idx[ih] = 999
-                print('FUCK!! not mached', _hpos)
+                print('CHECK!! not mached', _hpos)
                 #for iridx, ir in enumerate(self.irr_hpos):
                 #    for rot, trans in zip(self.sym['rotations'],
                 #                          self.sym['translations']):
