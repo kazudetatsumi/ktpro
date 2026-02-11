@@ -18,6 +18,8 @@ import numpy as np
 import spglib
 from scipy.sparse.linalg import LinearOperator, eigsh
 from scipy.linalg import eigh
+from collections import Counter, defaultdict
+from itertools import permutations
 # convergence exception
 from scipy.sparse.linalg._eigen.arpack.arpack import (
     ArpackNoConvergence,
@@ -30,31 +32,6 @@ MH_H: float = 1836.0  # proton mass [me]
 
 
 # ------------------------------ Data container ------------------------------
-#@dataclass(frozen=True)
-#class OldStructure:
-#    """Lightweight container for a crystal structure.
-#
-#    Attributes
-#    ----------
-#    axis : ndarray, shape (3, 3)
-#        Lattice vectors in Å (rows).
-#    positions : ndarray, shape (N, 3)
-#        Fractional coordinates.
-#    types : list[int], len=N
-#        Species indices
-#    n_atoms : list[int], len=T
-#        Species-wise counts
-#    elements_by_types: list[str] len=T
-#        Elements name list
-#    """
-#
-#    axis: np.ndarray
-#    positions: np.ndarray
-#    types: list[int]
-#    n_atoms: list[int]
-#    elements_by_types: list[str]
-#
-#
 @dataclass(frozen=True)
 class Structure:
     """Lightweight container for a crystal structure.
@@ -101,22 +78,28 @@ class PoscarReader:
         with open(path, "r", encoding="utf-8") as f:
             lines = f.readlines()
         scale = float(lines[1].split()[0])
+        print(scale)
         lat = (
             np.array(
                 [list(map(float, lines[2 + i].split()[:3])) for i in range(3)]
             )
             * scale
         )
+        lines[1] = "   1.00000000000000\n"
         elements_by_types = lines[5].split()
         n_atoms = list(map(int, lines[6].split()))
-        elements = [e for i, e in enumerate(elements_by_types) for _ in range(n_atoms[i])]
+        elements = [e for i, e in enumerate(elements_by_types)
+                    for _ in range(n_atoms[i])]
         types = [i for i, c in enumerate(n_atoms) for _ in range(c)]
-        if "Di" in lines[7] or "di" in lines[7]:
-            iniline = 8
-        elif "Sel" in lines[7] or "sel" in lines[7]:
-            iniline = 9
-        else:
-            iniline = 8  # default fallback
+        #if "Di" in lines[7] or "di" in lines[7]:
+        #    iniline = 8
+        #elif "Sel" in lines[7] or "sel" in lines[7]:
+        #    iniline = 9
+        #else:
+        #    iniline = 8  # default fallback
+        if "Sel" in lines[7] or "sel" in lines[7]:
+            del lines[7]
+        iniline = 8
         pos = np.array(
             [
                 list(map(float, lines[iniline + i].split()[:3]))
@@ -193,8 +176,6 @@ def strip_target_H(
     old2new = {old: new for new, old in enumerate(unique_old)}
     types_new = np.fromiter((old2new[t] for t in _types), int)
 
-    #elements_new = np.array(s.elements, dtype=object)[
-    #        unique_old].tolist()
     elements_new = np.asarray(s.elements)[keep].tolist()
 
     _, counts = np.unique(types_new, return_counts=True)
@@ -288,7 +269,8 @@ def get_mapping(
     test[np.abs(test - 1.0) <= 1.0e-15] = 0.0
     test2 = np.repeat(np.expand_dims(test, 2), hpos.shape[0], axis=2)
     cond = np.prod(
-        np.sum(np.abs(hpos - test2) % 1.0, axis=3) >= tol,
+        # np.sum(np.abs(hpos - test2) % 1.0, axis=3) >= tol,
+        np.sum(((hpos - test2 + 0.5) % 1.0 - 0.5)**2, axis=3) >= tol,
         axis=1,
         dtype=bool,
     )
@@ -320,8 +302,10 @@ def generate_shifted_poscar(structure: Structure,
                          .format(pos[il, 0], pos[il, 1], pos[il, 2])
         # locate target H index
     c = np.asarray(center_frac, float)
-    diffs = np.sum(np.abs((pos - c) % 1.0), axis=1)
-    hits = np.where(diffs < 1e-5)[0]
+    #diffs = np.sum(np.abs((pos - c) % 1.0), axis=1)
+    #hits = np.where(diffs < 1e-5)[0]
+    diffs = np.sum(((pos - c + 0.5) % 1.0 - 0.5)**2, axis=1)
+    hits = np.where(diffs < 1e-10)[0]
     h_idx = int(hits[0]) if hits.size > 0 else int(np.argmin(diffs))
     # filename width
     nd = int(irr_hpos.shape[0])
@@ -336,7 +320,7 @@ def generate_shifted_poscar(structure: Structure,
     return None
 
 
-# ---------------------------- Adiabatic potential data -----------------------
+# ------------------------ Adiabatic potential data ---------------------------
 def load_energies(path: str, *, relax: bool = False) -> np.ndarray:
     """Load ``ENERGIES`` as a 1D float array.
 
@@ -363,7 +347,8 @@ def expand_positions_3x3x3(frac_pos: np.ndarray) -> np.ndarray:
     """Expand fractional coords (M, 3) into 27 periodic images."""
     pos = np.asarray(frac_pos, float)
     shifts = np.array(
-        [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)],
+        [(i, j, k) for i in (-1, 0, 1)
+            for j in (-1, 0, 1) for k in (-1, 0, 1)],
         float,
     )
     return shifts[:, None, :] + pos[None, :, :]
@@ -402,20 +387,30 @@ def assemble_potential_3d(
 
 # ==== minimal additions for three-way energies backend ====
 
-# ---- pypolymlp hooks (safe stubs; replace later) ----
+def invoke_polymlp(polymlp_opts: dict, r_st: Structure,
+                   center_frac,
+                   ) -> (PypolymlpCalc, int):
+    c = np.asarray(center_frac, float)
+    diff = np.sum(((r_st.positions - c + 0.5) % 1.0 - 0.5)**2, axis=1)
+    hidx = np.where(diff < 0.0001)[0][0]
+    polymlp = PypolymlpCalc(**polymlp_opts, verbose=True, require_mlp=True)
+    polymlp.structures = copy.deepcopy([r_st.to_polymlp()])
+    return polymlp, hidx
+
+
+# ---------------- total energies calculation by pypolymlp ------------------
 def polymlp_eval_batch(polymlp_opts: dict, r_st: Structure,
                        irr_pts: np.ndarray,
                        center_frac,
                        ) -> np.ndarray:
     """
-    TODO: 実装時に pypolymlp を呼ぶ。
-    ひとまず ‘未実装’ エラーで明確に落とす（VASP ルートはこの関数を通らない）。
+    Total energies of the structues with the target H atom at the mesh points
+    are calculated by pypolymlp. The structures are stored in a list of
+    pypolymlp structure dataclass and their energies are obtained at one
+    execution of pypolymlp.
     """
-    c = np.asarray(center_frac, float)
-    hidx = np.where(np.sum(((r_st.positions - c + 0.5) % 1.0 - 0.5)**2, axis=1) < 0.0001)[0][0]
-    polymlp = PypolymlpCalc(**polymlp_opts, verbose=True, require_mlp=True)
     polymlporgstructures = [r_st.to_polymlp()]
-    polymlp.structures = copy.deepcopy([r_st.to_polymlp()])
+    polymlp, hidx = invoke_polymlp(polymlp_opts, r_st, center_frac)
     new_structs = []
     for hpos in irr_pts:
         s = copy.deepcopy(polymlp.structures[0])
@@ -426,13 +421,15 @@ def polymlp_eval_batch(polymlp_opts: dict, r_st: Structure,
     energies = np.asarray(eval_out[0])
     polymlp.structures = polymlporgstructures
     return energies
-#raise NotImplementedError("polymlp_eval_batch is not implemented yet. Provide model & eval logic.")
 
 
-def polymlp_relax(polymlp_opts: dict, woH_structure: Structure, irr_pts: np.ndarray, nx: int) -> np.ndarray:
+def polymlp_relax(polymlp_opts: dict, org_st: Structure,
+                  hpoints: np.ndarray, center_frac, nx: int) -> np.ndarray:
     """
     TODO: 実装時に pypolymlp + forces + L-BFGS-B を呼ぶ。
     """
+    polymlporgstructures = [org_st.to_polymlp()]
+    polymlp, hidx = invoke_polymlp(polymlp_opts, org_st, center_frac)
     raise NotImplementedError("polymlp_relax is not implemented yet. Provide relax logic.")
 
 
@@ -440,8 +437,10 @@ def get_energies(
     backend: str,
     *,
     irr_pts: np.ndarray,
+    hpoints: np.ndarray,
     r_st: Structure,            # refined 構造（r_st）`
-    center_frac: tuple[float,float,float],
+    org_st: Structure,
+    center_frac: tuple[float, float, float],
     nx: int,
     energies_path: str = "ENERGIES",
     polymlp_opts: Optional[dict] = None,
@@ -467,7 +466,7 @@ def get_energies(
 
     if backend == "polymlp-relax":
         # TODO: pypolymlp+forces の緩和実装を後で差し込み
-        return polymlp_relax(polymlp_opts or {}, r_st, irr_pts, nx)
+        return polymlp_relax(polymlp_opts or {}, org_st, hpoints, nx)
 
     raise ValueError("backend must be 'polymlp-batch' | 'polymlp-relax' | 'vasp'")
 
@@ -514,7 +513,7 @@ def kinetic_diag(
     return (2 * np.pi) ** 2 * np.sum(Gcart ** 2, axis=1) / (2.0 * mh)
 
 
-# ------------------------------ V operator (FFT) ------------------------------
+# ----------------------------- V operator (FFT) ------------------------------
 def fft_coeff(
     V3d: np.ndarray, *, Eh: float = EH, subtract_mean: bool = True
 ) -> np.ndarray:
@@ -645,7 +644,7 @@ class NQEKrylovSolver:
         return E_meV, U
 
 
-# ------------------------------ Solvers (Dense path) ---------------------------
+# ---------------------------- Solvers (Dense path) ---------------------------
 def solve_dense_H(
     H: np.ndarray, Compress: bool = False, v: Optional[np.ndarray] = None,
     verbose: bool = True
@@ -666,7 +665,8 @@ def solve_dense_H(
         H_comp = v.conj().T @ H @ v
         if verbose:
             print("Calculating 30 eigen from the compressed H")
-            E_comp, U_comp = eigh(H_comp, subset_by_index=[0, 29], driver="evr")
+            E_comp, U_comp = eigh(H_comp, subset_by_index=[0, 29],
+                                  driver="evr")
             E_comp *= EH * 1000.0
         if verbose:
             print(np.min(E_comp))
@@ -686,8 +686,6 @@ def solve_dense_H(
 # =============================
 # A-1/A-2/B/C: consistency checks
 # =============================
-from collections import Counter, defaultdict
-from itertools import permutations
 #from typing import Dict, Optional, Tuple
 
 #import numpy as np
@@ -1099,18 +1097,13 @@ def main(
     irr_pts = get_irreducible_points(hpoints, Rot, Trans)
     irr_idx = get_mapping(hpoints, irr_pts, Rot, Trans)
 
-    # (4)' POSCARS_xxxx if you do not have a file of total energies
-    #      You should generate POSCARS_xxxx and do happy vasping first.
-    #      generate_shifted_poscar(r_st, irr_pts, meta, center_frac)
-
     # (5) Potential reconstruction from irreducible energies
-    # (4) Irreps は既にあると仮定: irr_pts, irr_idx
-    # energies を取得
-
     ene = get_energies(
-        backend="polymlp-batch",  # "vasp"/"polymlp-batch"/"polymlp-relax"
+        backend="vasp",  # "vasp"/"polymlp-batch"/"polymlp-relax"
+        hpoints=hpoints,
         irr_pts=irr_pts,
         r_st=r_st,
+        org_st=org_st,
         center_frac=center_frac,
         nx=nx,
         energies_path=energies_path,
@@ -1124,7 +1117,6 @@ def main(
     short_atom_distance_flags = check_short_atom_distance_flags(
         irr_pts, woH_st
     )
-    #ene = load_energies(energies_path)
     if short_atom_distance_flags.any():
         ene = replace_ene_with_flags(ene, short_atom_distance_flags)
     V3d = assemble_potential_3d(ene, irr_idx, nx)
