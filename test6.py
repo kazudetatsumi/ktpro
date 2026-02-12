@@ -20,6 +20,7 @@ from scipy.sparse.linalg import LinearOperator, eigsh
 from scipy.linalg import eigh
 from collections import Counter, defaultdict
 from itertools import permutations
+from scipy.optimize import minimize, Bounds
 # convergence exception
 from scipy.sparse.linalg._eigen.arpack.arpack import (
     ArpackNoConvergence,
@@ -438,6 +439,58 @@ def pypolymlp_relax(polymlp_opts: dict, org_st: Structure,
     raise NotImplementedError("polymlp_relax is not implemented yet. Provide relax logic.")
 
 
+def get_energies_from_vasp_or_prepare_its_poscars(
+    irr_pts: np.ndarray,
+    r_st: Structure,            # refined 構造（r_st）`
+    center_frac: tuple[float, float, float],
+    energies_path: str = "ENERGIES",
+    meta: Optional[dict] = None,      # VASP で POSCAR 出力が必要なときだけ渡す
+) -> np.ndarray | None:
+    """
+    Return:
+      np.ndarray(shape=(N_irrep,))  … energy array
+      None … VASP initial run (POSCARs are generated and end temporaly）
+    """
+    p = Path(energies_path)
+    if p.exists():
+        return load_energies(str(p))
+    if meta is None:
+        raise ValueError("VASP ルートで POSCAR を出すには meta が必要です。")
+    generate_shifted_poscar(r_st, irr_pts, meta, center_frac)
+    print("[INFO] POSCAR_### を生成。VASP 実行後に同じコマンドで再実行してください。")
+    return None
+
+
+def get_energies_from_pypolymlp(
+    irr_pts: np.ndarray,
+    r_st: Structure,            # refined 構造（r_st）`
+    center_frac: tuple[float, float, float],
+    polymlp_opts: Optional[dict] = None,
+) -> np.ndarray | None:
+    """
+    Return:
+      np.ndarray(shape=(N_irrep,))  … energy array
+    Total energies of the structues with the target H atom at the mesh points
+    are calculated by pypolymlp. The structures are stored in a list of
+    pypolymlp structure dataclass and their energies are obtained at one
+    execution of pypolymlp.
+    """
+    hidx = get_hindex(r_st, center_frac)
+    pypolymlporgstructures = [r_st.to_pypolymlp()]
+    polymlp = invoke_polymlp(polymlp_opts, r_st)
+    new_structs = []
+    for hpos in irr_pts:
+        s = copy.deepcopy(polymlp.structures[0])
+        s.positions[:, hidx] = hpos
+        new_structs.append(s)
+    polymlp.structures = new_structs
+    eval_out = polymlp.eval()
+    energies = np.asarray(eval_out[0])
+    #forces = np.asarray(eval_out[1])
+    polymlp.structures = pypolymlporgstructures
+    return energies
+
+
 def get_energies(
     backend: str,
     *,
@@ -677,7 +730,7 @@ def solve_dense_H(
             print(np.min(E_comp))
             print(E_comp[0:15] - np.min(E_comp))
         U = v @ U_comp
-        return E_comp, U
+        return E_comp, U, v
     if not Compress:
         E, U = eigh(H, subset_by_index=[0, 29])
         E *= EH * 1000.0
@@ -686,6 +739,146 @@ def solve_dense_H(
             print(np.min(E))
             print(E[0:15] - np.min(E))
         return E, U
+
+
+# -------------------------- Geometry optimization ----------------------------
+@dataclass
+class LogCache:
+    E: float | None = None
+    u: np.ndarray | None = None
+    v: np.ndarray | None = None
+    g_meV_per_frac: np.ndarray | None = None
+    f_meV: float | None = None
+
+
+def fun(x, case, atomslist, hpoints, nx, hlat, sidx, log: LogCache):
+    f = float(get_E0(x, case, atomslist, hpoints, nx, hlat, sidx, log))
+    log.f_meV = f
+    return f
+
+
+def jac(x, case, atomslist, hpoints, nx, hlat, sidx, log: LogCache):
+    g = get_grad(x, case, atomslist, hpoints, nx, hlat, sidx, log)
+    log.g_meV_per_frac = g
+    return np.array(g, dtype=float)
+
+
+def make_callback(log: LogCache):
+    k = 0
+    conv = 7.8968828318389797
+
+    def cb(xk):
+        nonlocal k
+        k += 1
+        f_meV = log.f_meV
+        g_meV_per_frac = log.g_meV_per_frac
+        if g_meV_per_frac is None:
+            print(f"[cycle {k:3d}] f = {f_meV:.6f} meV, grad = (not computed yet)")
+            return
+        g_eV_per_Angs = g_meV_per_frac / 1000.0 / conv
+        print(f"[cycles {k:3d}] f = {f_meV:.6f} meV",  g_meV_per_frac, "meV/frac", g_eV_per_Angs, "eV/Å")
+    return cb
+
+
+def do_opt(positions, atomslist, case, hpoints, nx, hlat, sidx):
+    x0 = positions[atomslist].flatten()
+    d_cart = 0.06
+    bounds = [(x0[i] - d_cart, x0[i] + d_cart) for i in range(len(x0))]
+
+    log = LogCache()
+    cb = make_callback(log)
+
+    res = minimize(
+        fun, x0,
+        jac=jac,  # jac is almost necessary
+        args=(case, atomslist, hpoints, nx, hlat, sidx, log),
+        bounds=bounds,
+        method="L-BFGS-B",
+        callback=cb,
+        options={'ftol': 1e-9, 'gtol': 1e-7, 'maxiter': 500},
+    )
+    print("success:", res.success, "f*:", res.fun, "nit:", res.nit)
+
+
+def getene_wstr(hpoints, positions, case):
+    new_structs = []
+    caseorgstructures = copy.deepcopy(case.structures)
+    for hpos in hpoints:
+        s = copy.deepcopy(case.structures[0])
+        s.positions[:, -1] = hpos
+        new_structs.append(s)
+    case.structures = new_structs
+    eval_out = case.eval()
+    energies = np.asarray(eval_out[0])
+    case.structures = caseorgstructures
+    return energies
+
+
+def get_E0(positions, case, atomslist, hpoints, nx, hlat, sidx, log):
+    positions = positions.reshape((-1, 3))
+    difmax = np.max(np.abs(positions - case.structures[0].positions[:, atomslist].T))
+    if difmax > 1e-15 or log.E == None:
+        print('**get_E0: processes from potential to GetEigen are to be done')
+        case.structures[0].positions[:, atomslist] = positions.T
+        difmax = np.max(np.abs(positions - case.structures[0].positions[:, atomslist].T))
+        V3d = getene_wstr(hpoints, positions, case).reshape((nx, nx, nx))
+        Gs = cut_Gs_physically(hlat, nx)
+        Kdiag = kinetic_diag(Gs, lattice=hlat)
+        z = fft_coeff(V3d, subtract_mean=False)
+        V = get_V(Gs, nx, z)
+        H = np.diag(Kdiag) + V
+        E, U, log.v = solve_dense_H(H, Compress=True, v=log.v)
+        log.E = E[sidx]
+        log.u = U[:, sidx]
+        return log.E
+    else:
+        print('**get_E0: processes from potential to GetEigen are skipped')
+    return log.E
+
+
+def get_grad(positions, case, atomslist, hpoints, nx, hlat, sidx, log):
+    fx = []
+    positions = positions.reshape((-1, 3))
+    difmax = np.max(np.abs(positions - case.structures[0].positions[:, atomslist].T))
+    if difmax > 1e-15 or log.E == None:
+        print('**get_grad: processeses from potential to GetEigen are to be done')
+        case.structures[0].positions[:, atomslist] = positions.T
+        V3d = getene_wstr(hpoints, positions, case).reshape((nx, nx, nx))
+        Gs = cut_Gs_physically(hlat, nx)
+        Kdiag = kinetic_diag(Gs, lattice=hlat)
+        z = fft_coeff(V3d, subtract_mean=False)
+        V = get_V(Gs, nx, z)
+        H = np.diag(Kdiag) + V
+        E, U, log.v = solve_dense_H(H, Compress=True, v=log.v)
+        log.E = E[sidx]
+        log.u = U[:, sidx]
+        density = densities_from_states(log.u[:, np.newaxis], [0], Gs, nx)[0]
+    else:
+        print('**get_grad: processeses from potential to GetEigen are skipped')
+        Gs = cut_Gs_physically(hlat, nx)
+        density = densities_from_states(log.u[:, np.newaxis], [0], Gs, nx)[0]
+    for hpos in hpoints:
+        case.structures[0].positions[:, -1] = hpos
+        fx.append(case.eval()[1][0][:, atomslist])
+
+    f_meV_per_frac = -np.sum(np.array(fx).T.reshape((-1,) + density.shape) * density, axis=(1,2,3)) / np.sum(density) \
+        * 7.8968828318389797 * 1000.0
+    return f_meV_per_frac
+
+
+# -------------------lapper of optimization----------------------------------
+def run_opt(
+    hpoints: np.ndarray,        # the entire h points
+    org_st: Structure,          # orginal structure (org_st)
+    nx: int,
+    hlat: np.ndarray,
+    sidx: int = 0,
+    polymlp_opts: Optional[dict] = {'pot': "/home/kazu/WORK/pypolymlp/pd32h1/polymlp.yaml"},
+):
+    positions = copy.deepcopy(org_st.positions[:-1])
+    polymlp = invoke_polymlp(polymlp_opts, org_st)
+    atomslist = range(positions.shape[0])
+    do_opt(positions, atomslist, polymlp, hpoints, nx, hlat, sidx)
 
 
 # ------------------------------------ Post -----------------------------------
@@ -726,6 +919,7 @@ def densities_from_states(
         out[i] = np.real(psi_r * np.conj(psi_r))
 
     return out
+
 
 # =============================
 # A-1/A-2/B/C: consistency checks
@@ -1075,6 +1269,7 @@ def reorder_like(
 
 
 # ---------------------------- CLI entry (original flow preserved) ------------
+# vasp single-point
 def _main(
     mode: str = "Dense",  # "Dense" or "Krylov"
     infile: str = "CONTCAR",
@@ -1087,7 +1282,6 @@ def _main(
     kvec: Optional[Iterable[float]] = None,
     subtract_mean: bool = True,
     mh: float = MH_H,
-    backend: str = "vasp",  # "vasp" or "pypolymlp-batch" or "pypolymlp-relax"
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Minimal pipeline: POSCAR → symmetry → H-grid → irreps → eigenpairs.
        Note that thsi assumes total energies of vasp are stored in
@@ -1104,7 +1298,6 @@ def _main(
     nx = 20
     prim = False
     kvec = None
-    backend = "pypolymlp-batch"
     # --------------------------------------------------------------------
 
     # (1) POSCAR → Structure
@@ -1141,16 +1334,11 @@ def _main(
     irr_idx = get_mapping(hpoints, irr_pts, Rot, Trans)
 
     # (5) Potential reconstruction from irreducible energies
-    ene = get_energies(
-        backend=backend,
-        hpoints=hpoints,
+    ene = get_energies_from_vasp_or_prepare_its_poscars(
         irr_pts=irr_pts,
         r_st=r_st,
-        org_st=org_st,
         center_frac=center_frac,
-        nx=nx,
         energies_path=energies_path,
-        polymlp_opts={'pot': "/home/kazu/WORK/pypolymlp/pdh/222/three_lattices/polymlp.yaml"},
         meta=meta                         # Only for outputtin VASP POSCAR
     )
 
@@ -1182,10 +1370,10 @@ def _main(
     return E, U
 
 
-def main(
+# pypolymlp-singlepoint
+def __main(
     mode: str = "Dense",  # "Dense" or "Krylov"
     infile: str = "CONTCAR",
-    energies_path: str = "ENERGIES",
     center_frac: Iterable[float] = (0.5, 0.5, 0.5),
     edge_len_frac: float = 0.64,
     nx: int = 20,
@@ -1194,7 +1382,6 @@ def main(
     kvec: Optional[Iterable[float]] = None,
     subtract_mean: bool = True,
     mh: float = MH_H,
-    backend: str = "pypolymlp-batch",  # "vasp" or "pypolymlp-batch" or "pypolymlp-relax"
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Minimal pipeline: POSCAR → symmetry → H-grid → irreps → eigenpairs.
        Note that thsi assumes total energies of vasp are stored in
@@ -1205,13 +1392,11 @@ def main(
     # --------- IMPORTANT: keep exactly as in your original file ----------
     mode = "Dense"  # "Dense" or "Krylov"
     infile = "CONTCAR"
-    energies_path: str = "ENERGIES"
     center_frac = (0.5, 0.5, 0.5)
     edge_len_frac = 0.64
     nx = 20
     prim = False
     kvec = None
-    backend = "pypolymlp-batch"
     # --------------------------------------------------------------------
 
     # (1) POSCAR → Structure
@@ -1248,21 +1433,12 @@ def main(
     irr_idx = get_mapping(hpoints, irr_pts, Rot, Trans)
 
     # (5) Potential reconstruction from irreducible energies
-    ene = get_energies(
-        backend=backend,
-        hpoints=hpoints,
+    ene = get_energies_from_pypolymlp(
         irr_pts=irr_pts,
         r_st=r_st,
-        org_st=org_st,
         center_frac=center_frac,
-        nx=nx,
-        energies_path=energies_path,
         polymlp_opts={'pot': "/home/kazu/WORK/pypolymlp/pdh/222/three_lattices/polymlp.yaml"},
-        meta=meta                         # Only for outputtin VASP POSCAR
     )
-
-    if ene is None:
-        return None, None  # ここで一旦終了（VASP を回してから同じコマンドを再実行）
 
     short_atom_distance_flags = check_short_atom_distance_flags(
         irr_pts, woH_st
@@ -1289,9 +1465,52 @@ def main(
     return E, U
 
 
+# pypolymlp-geometry-optimization
+def main(
+    infile: str = "CONTCAR",
+    center_frac: Iterable[float] = (0.5, 0.5, 0.5),
+    edge_len_frac: float = 0.32,
+    nx: int = 20,
+    prim: bool = False,
+    sidx: int = 0,
+    subtract_mean: bool = True,
+    mh: float = MH_H,
+) -> Tuple[np.ndarray, np.ndarray]:
+    # --------- IMPORTANT: keep exactly as in your original file ----------
+    infile = "CONTCAR"
+    center_frac = (0.5, 0.5, 0.5)
+    edge_len_frac = 0.32
+    nx = 20
+    prim = False
+    sidx = 0
+    # --------------------------------------------------------------------
+
+    # (1) POSCAR → Structure
+    org_st, meta = PoscarReader().read(infile)
+
+    # (2) H-grid (fractional)
+    hpoints, hlat = make_hgrid_and_hlat_cube(
+        org_st,
+        center_frac=center_frac,
+        edge_len_frac=edge_len_frac,
+        nx=nx,
+    )
+
+    # (3) Geometry optimization
+    run_opt(
+        hpoints=hpoints,
+        org_st=org_st,
+        nx=nx,
+        hlat=hlat,
+        sidx=sidx,
+        polymlp_opts={'pot': "/home/kazu/WORK/pypolymlp/pd32h1/polymlp.yaml"},
+    )
+
+
 if __name__ == "__main__":  # pragma: no cover
     e, _u = main()
     if e is None:
-        print("POSCAR_XXX are generated.")
+        print("POSCAR_XXX are generated, otherwise, geometry optimization is done")
     else:
         print("min(E) [meV]:", float(np.min(e)))
+
