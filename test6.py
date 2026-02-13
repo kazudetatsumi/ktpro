@@ -21,6 +21,7 @@ from scipy.linalg import eigh
 from collections import Counter, defaultdict
 from itertools import permutations
 from scipy.optimize import minimize, Bounds
+from structure_compare import check_structure_consistency_full
 # convergence exception
 from scipy.sparse.linalg._eigen.arpack.arpack import (
     ArpackNoConvergence,
@@ -91,12 +92,6 @@ class PoscarReader:
         elements = [e for i, e in enumerate(elements_by_types)
                     for _ in range(n_atoms[i])]
         types = [i for i, c in enumerate(n_atoms) for _ in range(c)]
-        #if "Di" in lines[7] or "di" in lines[7]:
-        #    iniline = 8
-        #elif "Sel" in lines[7] or "sel" in lines[7]:
-        #    iniline = 9
-        #else:
-        #    iniline = 8  # default fallback
         if "Sel" in lines[7] or "sel" in lines[7]:
             del lines[7]
         iniline = 8
@@ -158,17 +153,6 @@ def strip_target_H(
     ``s``. Selection uses the smallest periodic distance within a
     tolerance.
     """
-    #c = np.asarray(center_frac, float)
-    #keep = np.sum(((s.positions - c + 0.5) % 1.0 - 0.5)**2, axis=1) >= tol
-
-    #_types = np.asarray(s.types)[keep]
-    #_, n_atoms_new = np.unique(_types, return_counts=True)
-    #n_atoms_new = n_atoms_new.tolist()
-    #types_new = [idx for idx, _nan in enumerate(n_atoms_new)
-    #             for _ in range(_nan)]
-    #elements_by_types_new = np.as_array(s.elements_by_types)[
-    #        np.unique(_types)].tolist()
-
     c = np.asarray(center_frac, float)
     keep = np.sum(((s.positions - c + 0.5) % 1.0 - 0.5)**2, axis=1) >= tol
     _types = np.asarray(s.types, int)[keep]
@@ -269,7 +253,6 @@ def get_mapping(
     test[np.abs(test - 1.0) <= 1.0e-15] = 0.0
     test2 = np.repeat(np.expand_dims(test, 2), hpos.shape[0], axis=2)
     cond = np.prod(
-        # np.sum(np.abs(hpos - test2) % 1.0, axis=3) >= tol,
         np.sum(((hpos - test2 + 0.5) % 1.0 - 0.5)**2, axis=3) >= tol,
         axis=1,
         dtype=bool,
@@ -310,8 +293,6 @@ def generate_shifted_poscar(structure: Structure,
                          .format(pos[il, 0], pos[il, 1], pos[il, 2])
         # locate target H index
     c = np.asarray(center_frac, float)
-    #diffs = np.sum(np.abs((pos - c) % 1.0), axis=1)
-    #hits = np.where(diffs < 1e-5)[0]
     diffs = np.sum(((pos - c + 0.5) % 1.0 - 0.5)**2, axis=1)
     hits = np.where(diffs < 1e-10)[0]
     h_idx = int(hits[0]) if hits.size > 0 else int(np.argmin(diffs))
@@ -396,7 +377,7 @@ def assemble_potential_3d(
 # ==== minimal additions for three-way energies backend ====
 
 def invoke_polymlp(polymlp_opts: dict, r_st: Structure,
-                   ) -> (PypolymlpCalc, int):
+                   ) -> PypolymlpCalc:
     polymlp = PypolymlpCalc(**polymlp_opts, verbose=True, require_mlp=True)
     polymlp.structures = copy.deepcopy([r_st.to_pypolymlp()])
     return polymlp
@@ -427,16 +408,6 @@ def pypolymlp_eval_batch(polymlp_opts: dict, r_st: Structure,
     forces = np.asarray(eval_out[1])
     polymlp.structures = pypolymlporgstructures
     return energies, forces
-
-
-def pypolymlp_relax(polymlp_opts: dict, org_st: Structure,
-                  hpoints: np.ndarray, center_frac, nx: int) -> np.ndarray:
-    """
-    TODO: 実装時に pypolymlp + forces + L-BFGS-B を呼ぶ。
-    """
-    polymlporgstructures = [org_st.to_pypolymlp()]
-    polymlp, hidx = invoke_polymlp(polymlp_opts, org_st, center_frac)
-    raise NotImplementedError("polymlp_relax is not implemented yet. Provide relax logic.")
 
 
 def get_energies_from_vasp_or_prepare_its_poscars(
@@ -489,44 +460,6 @@ def get_energies_from_pypolymlp(
     #forces = np.asarray(eval_out[1])
     polymlp.structures = pypolymlporgstructures
     return energies
-
-
-def get_energies(
-    backend: str,
-    *,
-    irr_pts: np.ndarray,
-    hpoints: np.ndarray,
-    r_st: Structure,            # refined 構造（r_st）`
-    org_st: Structure,
-    center_frac: tuple[float, float, float],
-    nx: int,
-    energies_path: str = "ENERGIES",
-    polymlp_opts: Optional[dict] = None,
-    meta: Optional[dict] = None,      # VASP で POSCAR 出力が必要なときだけ渡す
-) -> np.ndarray | None:
-    """
-    Return:
-      np.ndarray(shape=(N_irrep,))  … energy array
-      None … VASP initial run (POSCARs are generated and end temporaly）
-    """
-    if backend == "vasp":
-        p = Path(energies_path)
-        if p.exists():
-            return load_energies(str(p))
-        if meta is None:
-            raise ValueError("VASP ルートで POSCAR を出すには meta が必要です。")
-        generate_shifted_poscar(r_st, irr_pts, meta, center_frac)
-        print("[INFO] POSCAR_### を生成。VASP 実行後に同じコマンドで再実行してください。")
-        return None
-
-    if backend == "pypolymlp-batch":
-        return pypolymlp_eval_batch(polymlp_opts, r_st, irr_pts, center_frac)[0]
-
-    if backend == "pypolymlp-relax":
-        # TODO: pypolymlp+forces の緩和実装を後で差し込み
-        return pypolymlp_relax(polymlp_opts or {}, org_st, hpoints, nx)
-
-    raise ValueError("backend must be 'polymlp-batch' | 'polymlp-relax' | 'vasp'")
 
 
 # ----------------------------- G-space utilities -----------------------------
@@ -1471,7 +1404,6 @@ def main(
     center_frac: Iterable[float] = (0.5, 0.5, 0.5),
     edge_len_frac: float = 0.32,
     nx: int = 20,
-    prim: bool = False,
     sidx: int = 0,
     subtract_mean: bool = True,
     mh: float = MH_H,
@@ -1481,7 +1413,6 @@ def main(
     center_frac = (0.5, 0.5, 0.5)
     edge_len_frac = 0.32
     nx = 20
-    prim = False
     sidx = 0
     # --------------------------------------------------------------------
 
@@ -1513,4 +1444,3 @@ if __name__ == "__main__":  # pragma: no cover
         print("POSCAR_XXX are generated, otherwise, geometry optimization is done")
     else:
         print("min(E) [meV]:", float(np.min(e)))
-
