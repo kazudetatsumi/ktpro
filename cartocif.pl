@@ -20,7 +20,7 @@ close(ELE);
 # getting the number of Oxygen and Hydrogen atoms
 open(POS,"$posfile");
 chomp($line=<POS>);
-chomp($line=<POS>);@values=split(/\ +/,$line);$amplitude=$values[1];
+chomp($line=<POS>);@values=split(/\ +/,$line);foreach  (@values){if(/[0-9]/) { $amplitude=$_;}}
 chomp($line=<POS>);@values=split(/\ +/,$line);
   $ax=$values[1]*$amplitude;$ay=$values[2]*$amplitude;$az=$values[3]*$amplitude;
   $A=sqrt($ax**2+$ay**2+$az**2);

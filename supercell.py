@@ -23,7 +23,7 @@ def get_displacedpos(atompos, atomtyp, dispmax):
 
 file = 'POSCAR'
 st = Poscar(file).structure
-st_sup = supercell_diagonal(st, [2, 2, 2])
+st_sup = supercell_diagonal(st, [3, 3, 2])
 #st_sup.elements[st_sup.elements == 'A'] = 'Pd'
 #st_sup.elements[st_sup.elements == 'B'] = 'H'
 st_sup_dispd = copy.deepcopy(st_sup)

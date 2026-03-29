@@ -84,13 +84,14 @@ def samplerun():
     eigenvalues = mesh_dict['frequencies']*hplanc
     eigenvectors = mesh_dict['eigenvectors']
     Q = np.array([1., 0., 0.])
-    terms = np.sum(np.abs((Q*eigenvectors[:, :, -3:]))**2, axis=-1) \
+    #terms = np.sum(np.abs((Q*eigenvectors[:, :, -3:]))**2, axis=-1) \
+    terms = np.sum(np.abs((Q*eigenvectors[:, -3:, :].transpose((0, 2, 1))))**2, axis=-1) \
          / eigenvalues * coth_from_bose(eigenvalues, kb*temperature)
     terms *= weights[:, np.newaxis]
     ene = np.arange(300)
     spec = np.zeros(300)
     for (dE, t) in zip(eigenvalues.flatten(), terms.flatten()):
-        sigma = dE*0.03
+        sigma = dE*0.08
         spec += t*np.exp(-(ene - dE)**2/sigma**2)
 
 

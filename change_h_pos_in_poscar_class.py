@@ -862,7 +862,7 @@ class change_hpos():
             self.E = dataset['E']
             self.U = dataset['U']
 
-    def __GetWavefuncs(self):
+    def GetWavefuncs(self):
         print("GetWavefuncs")
         #nmesh = self.nx*2
         nmesh = self.nx
@@ -873,7 +873,7 @@ class change_hpos():
         self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
                 (-1, nmesh, nmesh, nmesh))
 
-    def __GetDensity(self):
+    def GetDensity(self):
         self.GetWavefuncs()
         self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
         #plt.pcolor(self.densities[0, 10, :, :])
@@ -918,7 +918,7 @@ class change_hpos():
         return phi_r.astype(dtype, copy=False)
 
     # --- 置換: GetWavefuncs（省メモリ & 状態選択対応） --------------------------
-    def GetWavefuncs(self, states=None, nmesh=None, store=True, dtype=np.complex64, clear_previous=True):
+    def __GetWavefuncs(self, states=None, nmesh=None, store=True, dtype=np.complex64, clear_previous=True):
         """
         省メモリ版：exp(i G·r) の巨大行列を作らず、状態ごとに ifft で ψ(r) を生成。
 
@@ -974,7 +974,7 @@ class change_hpos():
             return out  # 保存しない場合は返す
 
     # --- 置換: GetDensity（省メモリ & 状態選択対応） ----------------------------
-    def GetDensity(self, states=0, nmesh=None, dtype=np.float32, store=True, clear_previous=True):
+    def __GetDensity(self, states=0, nmesh=None, dtype=np.float32, store=True, clear_previous=True):
         """
         省メモリ版：状態ごとに ifft して |ψ|^2 を生成。単一/複数の状態を指定可能。
 
