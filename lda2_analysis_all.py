@@ -46,7 +46,6 @@ def preprocess2(textstring):
 
 
 def do_initial_setup():
-    # 最初に実行する。時間がかかるので、それ以降は保存したデータから読み込む。
     nltk.download('punkt_tab')
     df = pd.read_csv('Neutron.csv')
     df.Abstract = df.Abstract.apply(preprocess).apply(preprocess2)
@@ -61,12 +60,12 @@ def plot_number_of_papers_per_year(
     for year in range(1991, 2027):
         N_paper_year.append([year, len(df_pre[df_pre.Year == year])])
     df_N_paper_year = pd.DataFrame(N_paper_year)
-    print(df_N_paper_year.sum(axis=0))
-    print(df_N_paper_year)
+    #print(df_N_paper_year.sum(axis=0))
+    #print(df_N_paper_year)
     plt.subplots(figsize=(5, 5))
     plt.plot(df_N_paper_year.iloc[:-1, 0], df_N_paper_year.iloc[:-1, 1],
              marker='o', color='black', markersize=8)
-    plt.legend(bbox_to_anchor=(1, 1), fontsize=14)
+    # plt.legend(bbox_to_anchor=(1, 1), fontsize=14)
     plt.xlabel('Year', fontsize=20)
     plt.ylabel('Number of papers', fontsize=20)
     plt.tick_params(which='minor', width=1, length=4)
@@ -77,78 +76,41 @@ def plot_number_of_papers_per_year(
     plt.show()
 
 
-def perpare_necessary_quantities_for_lda_on_titles(
-    df_pre,
-):
-    # dfの時はast.literal_evalが不要 (pandasのcsvファイル経由による処理)
-    frequency_title = defaultdict(int)
-
-    # count the number of occurrences of the word
-    for text in df_pre.Title:
-        for token in ast.literal_eval(text):
-            frequency_title[token] += 1
-
-    # build only words above 30 into an array
-    texts_title = [[token for token in ast.literal_eval(text)
-                   if frequency_title[token] > 30] for text in df_pre.Title]
-    #print(texts_title)
-    dictionary_title = Dictionary(texts_title)
-    dictionary_title.filter_extremes(no_below=5, no_above=0.8)
-    corpus_title = [dictionary_title.doc2bow(ast.literal_eval(summary))
-                    for summary in df_pre.Title.values]
-    #print(corpus_title)
-    id2word_title = dict(dictionary_title.items())
-    #print(id2word_title)
-    #corpusにtfidfという指標もあるが、今回は使わない
-    #tfidf_title = TfidfModel(corpus_title)
-    #corpus_tfidf_title = tfidf_title[corpus_title]
-    #corpus_tfidf_title
-
-    #dfの時はast.literal_evalが不要 (pandasのcsvファイル経由による処理)
-    return corpus_title, id2word_title, texts_title, dictionary_title,
-
-
-def perpare_necesarry_quantities_for_lda_on_abstracts(
-    df_pre,
+def prepare_necesarry_quantities_for_lda_from_data(
+    data,
 ):
     frequency = defaultdict(int)
 
     # count the number of occurrences of the word
-    for text in df_pre.Abstract:
+    for text in data:
         for token in ast.literal_eval(text):
             frequency[token] += 1
 
     # build only words above 30 into an array
-    texts_abstract = [[token for token in ast.literal_eval(text)
-                      if frequency[token] > 30] for text in df_pre.Abstract]
+    texts = [[token for token in ast.literal_eval(text)
+              if frequency[token] > 30] for text in data]
 
-    #print(texts_abstract[0])
-    dictionary_abstract = Dictionary(texts_abstract)
-    dictionary_abstract.filter_extremes(no_below=5, no_above=0.8)
-    corpus_abstract = [dictionary_abstract.doc2bow(ast.literal_eval(summary))
-                       for summary in df_pre.Abstract.values]
-    #print(corpus_abstract)
-    id2word_abstract = dict(dictionary_abstract.items())
-    #print(id2word_abstract)
-    return corpus_abstract, id2word_abstract, texts_abstract,\
-        dictionary_abstract,
+    #print(texts[0])
+    dictionary = Dictionary(texts)
+    dictionary.filter_extremes(no_below=5, no_above=0.8)
+    # For fast computation, I modified to use texts instead of data.values.
+    # corpus = [dictionary.doc2bow(ast.literal_eval(summary))
+    #           for summary in data.values]
+    corpus = [dictionary.doc2bow(text) for text in texts]
+    #print(corpus)
+    id2word = dict(dictionary.items())
+    #print(id2word)
+    return corpus, id2word, texts, dictionary,
 
 
 def count_number_of_words(
-    corpus_title,
-    corpus_abstract,
+    corpus,
+    target: str,
 ):
-    #タイトルにおける単語数
-    count_word_num_title = 0
-    for i in range(len(corpus_title)):
-        count_word_num_title += len(corpus_title[i])
-    print("# of words in titles:", count_word_num_title)
-    #アブストラクトにおける単語数
     count_word_num = 0
-    for i in range(len(corpus_abstract)):
-        count_word_num += len(corpus_abstract[i])
-    print("# of words in abstracts", count_word_num)
-    #dfの時はast.literal_evalが不要 (pandasのcsvファイル経由による処理)
+    for i in range(len(corpus)):
+        count_word_num += len(corpus[i])
+    print("# of words in "+target+":", count_word_num)
 
 
 def perpare_quantities_for_authors(
@@ -182,44 +144,31 @@ def perpare_quantities_for_authors(
                 author2doc[each_author] = [docid]
 
 
-def get_num_of_topics_dependence_of_coherence_and_preplexity_for_lda_title(
-    corpus_title,
-    id2word_title,
-    texts_title,
-    dictionary_title,
-    cptitlefile,
+def get_num_of_topics_dependence_of_cp(
+    corpus,
+    id2word,
+    texts,
+    dictionary,
+    cpfile,
 ):
     # https://qiita.com/Spooky_Maskman/items/0d03ea499b88abf56819
-    coherence_perplexity_title = []
-    coherence_perplexity_title.append(['n_topic', 'perplexity', 'coherence'])
-
+    coherence_perplexity = []
+    coherence_perplexity.append(['n_topic', 'perplexity', 'coherence'])
     for n_topic in range(1, 21):
-        lda_model = LdaModel(corpus=corpus_title, id2word=id2word_title,
-                             num_topics=n_topic, random_state=0)
+        lda_model = LdaModel(
+            corpus=corpus, id2word=id2word, num_topics=n_topic, random_state=0)
         coherence_model_lda = CoherenceModel(
-                model=lda_model, texts=texts_title,
-                dictionary=dictionary_title, coherence='c_v')
-        print(n_topic, np.exp2(-lda_model.log_perplexity(corpus_title)),
+            model=lda_model, texts=texts,
+            dictionary=dictionary, coherence='c_v')
+        print(n_topic, np.exp2(-lda_model.log_perplexity(corpus)),
               coherence_model_lda.get_coherence())
-        coherence_perplexity_title.append(
-                [n_topic, np.exp2(-lda_model.log_perplexity(corpus_title)),
-                    coherence_model_lda.get_coherence()])
-    pd.DataFrame(coherence_perplexity_title).to_csv(cptitlefile)
+        coherence_perplexity.append(
+            [n_topic, np.exp2(-lda_model.log_perplexity(corpus)),
+             coherence_model_lda.get_coherence()])
+    pd.DataFrame(coherence_perplexity).to_csv(cpfile, header=None)
 
 
-def get_coherence_perplexity_title_from_file(cptitlefile):
-    # 1. 保存時についた余計な列(0,1,2..)をスキップして読み込む
-    df_read = pd.read_csv(cptitlefile, index_col=0, skiprows=[0], header=None)
-    # 2. 1行目（見出しの文字列）をリストとして取り出す
-    header = df_read.iloc[0].tolist()
-    # 3. 2行目以降（本来のデータ）を「数値（float）」に変換してリスト化
-    data = df_read.iloc[1:].astype(float).values.tolist()
-    # 4. くっつけると、計算直後と「全く同じリスト」が完成します
-    coherence_perplexity_title = [header] + data
-    return coherence_perplexity_title
-
-
-def plot_coherence_and_preplrexity_of_lda_model(
+def plot_coherence_and_preplrexity(
     df_coherence_perplexity,
 ):
     fig = plt.figure()
@@ -250,49 +199,26 @@ def get_model(
                      iterations=400, num_topics=num_topics, random_state=0)
     pickle.dump(model, open(savefile, 'wb'))
     # top_topics = list(model.top_topics(corpus))
-    # print(top_topics_abstract)
+    # print(top_topics)
     return model
 
 
-def plot_word_cloud_on_model_title(
-    model_title
+def color_func(word, font_size, position, orientation, random_state,
+               font_path):
+    return 'darkturquoise'
+
+
+def plot_word_cloud(
+    model,
+    target: str,
 ):
-    fig, axs = plt.subplots(ncols=3, nrows=math.ceil(model_title.num_topics/3),
-                            figsize=(9.5, 15))
-    axs = axs.flatten()
-
-    def color_func(
-            word, font_size, position, orientation, random_state, font_path):
-        return 'darkturquoise'
-
-    for i, t in enumerate(range(model_title.num_topics)):
-        x = dict(model_title.show_topic(t, 30))
-        im = WordCloud(
-            background_color='black',
-            color_func=color_func,
-            max_words=4000,
-            width=300, height=300,
-            random_state=0
-        ).generate_from_frequencies(x)
-        axs[i].imshow(im.recolor(colormap='Paired_r', random_state=244),
-                      alpha=0.98)
-        axs[i].axis('off')
-        axs[i].set_title('Topic '+str(t+1), size=17)
-
-    # vis
-    fig.suptitle('LDA, Title', size=20)
-    fig.tight_layout()
-    #fig.tight_layout(rect=[0, 0, 1, 0.93])
-    plt.subplots_adjust(wspace=-0.2, hspace=0.25)
-    plt.show()
-
     n_components = 12
     fig, axs = plt.subplots(ncols=4, nrows=math.ceil(n_components/4),
                             figsize=(10, 8))
     axs = axs.flatten()
 
-    for i, t in enumerate(range(model_title.num_topics)):
-        x = dict(model_title.show_topic(t, 30))
+    for i, t in enumerate(range(model.num_topics)):
+        x = dict(model.show_topic(t, 30))
         im = WordCloud(
             background_color='black',
             color_func=color_func,
@@ -304,107 +230,30 @@ def plot_word_cloud_on_model_title(
                       alpha=0.98)
         axs[i].axis('off')
         axs[i].set_title('Topic '+str(t+1), size=25)
-    fig.suptitle('LDA, Title', size=35)
+    fig.suptitle('LDA, '+target, size=35)
     #fig.tight_layout()
     plt.subplots_adjust(wspace=-0.2, hspace=0.25)
     plt.show()
 
 
-def plot_word_cloud_on_model_abstract(
-    model_abstract,
-):
-    fig, axs = plt.subplots(
-        ncols=3, nrows=math.ceil(model_abstract.num_topics/3),
-        figsize=(9.5, 15))
-    axs = axs.flatten()
-
-    def color_func(word, font_size, position, orientation, random_state,
-                   font_path):
-        return 'darkturquoise'
-
-    for i, t in enumerate(range(model_abstract.num_topics)):
-        x = dict(model_abstract.show_topic(t, 30))
-        im = WordCloud(
-            background_color='black',
-            color_func=color_func,
-            max_words=4000,
-            width=300, height=300,
-            random_state=0
-        ).generate_from_frequencies(x)
-        axs[i].imshow(im.recolor(colormap='Paired_r', random_state=244),
-                      alpha=0.98)
-        axs[i].axis('off')
-        axs[i].set_title('Topic '+str(t+1), size=35)
-
-    fig.suptitle('LDA, Abstract', size=40)
-    fig.tight_layout()
-    plt.show()
-
-    n_components = 12
-    # WordCloud
-    fig, axs = plt.subplots(ncols=4, nrows=math.ceil(n_components/4), figsize=(10, 8))
-    axs = axs.flatten()
-
-    #def color_func(word, font_size, position, orientation, random_state, font_path):
-    #    return 'darkturquoise'
-
-    for i, t in enumerate(range(model_abstract.num_topics)):
-        x = dict(model_abstract.show_topic(t, 30))
-        im = WordCloud(
-            background_color='black',
-            color_func=color_func,
-            max_words=4000,
-            width=300, height=300,
-            random_state=0
-        ).generate_from_frequencies(x)
-        axs[i].imshow(im.recolor(colormap='Paired_r', random_state=244),
-                      alpha=0.98)
-        axs[i].axis('off')
-        axs[i].set_title('Topic '+str(t+1), size=25)
-
-    fig.suptitle('LDA, Abstract', size=35)
-    #fig.tight_layout()
-    plt.subplots_adjust(wspace=-0.2, hspace=0.25)
-    plt.show()
-
-
-def get_topics_sum_title(
-        df_pre,
-        model_title,
-        corpus_title,
-        num_topics_title=12,
-):
-    topics_sum_title = []
-    for year in range(1991, 2024):
-        topics_year = np.zeros(num_topics_title)
-        count = 0
-        for index in df_pre[df_pre['Year'] == year].index:
-            count += 1
-            topics = model_title.get_document_topics(corpus_title[index])
-            for i in range(len(topics)):
-                topics_year[topics[i][0]] += topics[i][1]
-        topics_sum_title.append(np.hstack([year, topics_year/count]))
-        print(year, np.sum(topics_year/count))
-    return topics_sum_title
-
-
-def get_topics_sum_abstract(
+def get_topics_sum(
         df_pre,
         model,
-        corpus_abstract,
+        corpus,
         num_topics=12,
 ):
     topics_sum = []
-    for year in range(1994, 2026):
+    for year in range(1991, 2024):
         topics_year = np.zeros(num_topics)
         count = 0
         for index in df_pre[df_pre['Year'] == year].index:
             count += 1
-            topics = model.get_document_topics(corpus_abstract[index])
+            topics = model.get_document_topics(corpus[index])
             for i in range(len(topics)):
                 topics_year[topics[i][0]] += topics[i][1]
-        topics_sum.append(np.hstack([year, topics_year/count]))
-        print(year, np.sum(topics_year/count))
+        if count != 0:
+            topics_sum.append(np.hstack([year, topics_year/count]))
+        #print(year, np.sum(topics_year/count))
     return topics_sum
 
 
@@ -427,34 +276,8 @@ def plot_year(
     plt.xlim(1993.5, 2023.5)
     plt.minorticks_on()
     #plt.title('Title', fontsize=40)
+    plt.tight_layout()
     plt.show()
-
-
-def get_num_of_topics_dependence_of_cp_for_lda_abstract(
-    corpus_abstract,
-    id2word_abstract,
-    texts_abstract,
-    dictionary_abstract,
-    cpabstractfile,
-):
-    # https://qiita.com/Spooky_Maskman/items/0d03ea499b88abf56819
-    coherence_perplexity_abstract = []
-    coherence_perplexity_abstract.append(['n_topic', 'perplexity', 'coherence']
-                                         )
-    for n_topic in range(1, 21):
-        lda_model = LdaModel(
-            corpus=corpus_abstract, id2word=id2word_abstract,
-            num_topics=n_topic, random_state=0)
-        coherence_model_lda = CoherenceModel(
-            model=lda_model, texts=texts_abstract,
-            dictionary=dictionary_abstract, coherence='c_v')
-        print(n_topic, np.exp2(-lda_model.log_perplexity(corpus_abstract)),
-              coherence_model_lda.get_coherence())
-        coherence_perplexity_abstract.append(
-            [n_topic, np.exp2(-lda_model.log_perplexity(corpus_abstract)),
-             coherence_model_lda.get_coherence()])
-    pd.DataFrame(coherence_perplexity_abstract).to_csv(cpabstractfile,
-                                                       header=None)
 
 
 def show_largest_10_phis(model):
@@ -464,33 +287,55 @@ def show_largest_10_phis(model):
         print(pd.DataFrame.from_dict(dict(x), orient='index'))
 
 
+def get_theta_matrix(
+        df_pre,
+        model,
+        corpus,
+        num_topics=12):
+    thetas = np.zeros((len(df_pre), num_topics))
+    for d_idx, crp in enumerate(corpus):
+        # d番目の文書の事後分布 θ_d を計算
+        theta_d = model.get_document_topics(crp, minimum_probability=0)
+        for k_idx, prob in theta_d:
+            thetas[d_idx][k_idx] = prob
+    return thetas
+
+
 def do_unknown_things(
         df_pre, model,
         corpus_abstract,
         num_topics=12,
 ):
-    topics_prev = np.zeros((len(df_pre), num_topics))
-    for i in range(len(corpus_abstract)):
-        topics = model.get_document_topics(corpus_abstract[i])
-        for j in range(len(topics)):
-            topics_prev[i][topics[j][0]] += topics[j][1]
+    #topics_prev = np.zeros((len(df_pre), num_topics))
+    #print("CHK", corpus_abstract[0:100])
+    #for i in range(len(corpus_abstract)):
+    #    topics = model.get_document_topics(corpus_abstract[i])
+    #    for j in range(len(topics)):
+    #        topics_prev[i][topics[j][0]] += topics[j][1]
+    thetas = get_theta_matrix(df_pre, model, corpus_abstract, num_topics=num_topics)
 
-    for topic_No in range(num_topics):
-        print('---------------------'+str(topic_No+1)+'---------------------')
-        for i in range(10):
-            No_doc = np.arange(len(topics_prev))[
-                    topics_prev[:, topic_No] ==
-                    np.sort(topics_prev[:, topic_No])[-(i+1)]]
-            if len(No_doc) != 1:
-                print('There are more than two documents', i, j)
-            print(No_doc[0], np.sort(topics_prev[:, topic_No])[-(i+1)],
-                  df_pre.loc[No_doc[0]].Title)
+    #for topic_No in range(num_topics):
+    #    print('---------------------'+str(topic_No+1)+'---------------------')
+    #    for i in range(10):
+    #        No_doc = np.arange(len(topics_prev))[
+    #                topics_prev[:, topic_No] ==
+    #                np.sort(topics_prev[:, topic_No])[-(i+1)]]
+    #        if len(No_doc) != 1:
+    #            print('There are more than two documents', i, j)
+    #        print(No_doc[0], np.sort(topics_prev[:, topic_No])[-(i+1)],
+    #              df_pre.loc[No_doc[0]].Title)
+    for k_idx in range(num_topics):
+        print(f"\n{'='*20} Topic {k_idx+1} {'='*20}")
+        # 確率が高い順にインデックスを10個取得
+        top10_didxs = np.argsort(thetas[:, k_idx])[::-1][:10]
+        for d_idx in top10_didxs:
+            print(f"[{d_idx:d}][{thetas[d_idx, k_idx]:.4f}] {df_pre.iloc[d_idx].Title}")
 
     issn_dic = Counter(df_pre.ISSN)
-    print(issn_dic)
+    #print(issn_dic)
     df_issn_dic = pd.DataFrame(issn_dic, index=['abc']).T.sort_values(
         'abc', ascending=False)
-    print(df_issn_dic)
+    #print(df_issn_dic)
     Journal_list = []
     for i in range(0, len(df_issn_dic)):
         num_paper = df_issn_dic.iloc[i].values[0]
@@ -555,44 +400,56 @@ def do_unknown_things(
     plt.show()
 
 
-def run(
-    dffile,
-    cptitlefile,
-    cpabstractfile,
+def get_df_pre(
+    dffile: str,
+    debug: bool = True,
 ):
     if not os.path.exists(dffile):
         do_initial_setup()
     df_pre = pd.read_csv(dffile)
-    plot_number_of_papers_per_year(df_pre)
-    corpus_title, id2word_title, texts_title, dictionary_title =\
-        perpare_necessary_quantities_for_lda_on_titles(df_pre)
-    corpus_abstract, id2word_abstract, texts_abstract, dictionary_abstract =\
-        perpare_necesarry_quantities_for_lda_on_abstracts(df_pre)
-    count_number_of_words(corpus_title, corpus_abstract,)
-    if not os.path.exists(cptitlefile):
-        get_num_of_topics_dependence_of_coherence_and_preplexity_for_lda_title(
-            corpus_title, id2word_title, texts_title, dictionary_title,
-            cptitlefile)
-    df_coherence_perplexity_title = pd.read_csv(cptitlefile)
-    plot_coherence_and_preplrexity_of_lda_model(df_coherence_perplexity_title)
-    model_title = get_model(corpus_title, id2word_title, 'lda_title.sav',
-                            num_topics=12,)
-    plot_word_cloud_on_model_title(model_title)
-    topics_sum_title = get_topics_sum_title(
-            df_pre, model_title, corpus_title, num_topics_title=12,)
+    if debug:
+        plot_number_of_papers_per_year(df_pre)
+    return df_pre
+
+
+def run_LDA(
+    df_pre,
+    data,
+    cpfile: str,
+    savfile: str,
+    target: str,
+):
+    corpus, id2word, texts, dictionary =\
+        prepare_necesarry_quantities_for_lda_from_data(data)
+    count_number_of_words(corpus, target)
+    if not os.path.exists(cpfile):
+        get_num_of_topics_dependence_of_cp(
+            corpus, id2word, texts, dictionary, cpfile)
+    df_coherence_perplexity_title = pd.read_csv(cpfile)
+    plot_coherence_and_preplrexity(df_coherence_perplexity_title)
+    model = get_model(corpus, id2word, savfile, num_topics=12,)
+    plot_word_cloud(model, target)
+    topics_sum_title = get_topics_sum(
+            df_pre, model, corpus, num_topics=12,)
     plot_year(topics_sum_title, num_topics_title=12,)
-    if not os.path.exists(cpabstractfile):
-        get_num_of_topics_dependence_of_cp_for_lda_abstract(
-            corpus_abstract, id2word_abstract, texts_abstract,
-            dictionary_abstract, cpabstractfile)
-    df_coherence_perplexity_abst = pd.read_csv(cpabstractfile)
-    print(df_coherence_perplexity_abst)
-    plot_coherence_and_preplrexity_of_lda_model(df_coherence_perplexity_abst)
-    model_abstract = get_model(corpus_abstract, id2word_abstract,
-                               'lda_abstract.sav', num_topics=12,)
-    plot_word_cloud_on_model_abstract(model_abstract)
+    return corpus, model
+
+
+def run(
+    dffile: str,
+    cptitlefile: str,
+    cpabstractfile: str,
+    savtitlefile: str = 'lda_title.sav',
+    savabstractfile: str = 'lda_abstract.sav',
+    debug: bool = True,
+):
+    df_pre = get_df_pre(dffile, debug=debug)
+    #corpus_title, model_title = run_LDA(
+    #    df_pre, df_pre.Title, cptitlefile, savtitlefile, 'Title')
+    corpus_abstract, model_abstract = run_LDA(
+        df_pre, df_pre.Abstract, cpabstractfile, savabstractfile, 'Abstract')
     show_largest_10_phis(model_abstract)
-    topics_sum_abstract = get_topics_sum_abstract(
+    topics_sum_abstract = get_topics_sum(
         df_pre, model_abstract, corpus_abstract, num_topics=12)
     plot_year(topics_sum_abstract, num_topics_title=12,)
     do_unknown_things(df_pre, model_abstract, corpus_abstract, num_topics=12)
