@@ -6,7 +6,7 @@
 %Control: page (0) single
 %Control: year (1) truncated
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{44}%
+\begin{thebibliography}{45}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -70,7 +70,7 @@
   {2011})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Hirao}\ \emph {et~al.}(2001)\citenamefont {Hirao},
   \citenamefont {Watari}, \citenamefont {Hayashi},\ and\ \citenamefont
-  {Kitayama}}]{hirao}%
+  {Kitayama}}]{hirao-rev}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
   {Hirao}}, \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Watari}},
@@ -98,23 +98,24 @@
   {journal} {\bibinfo  {journal} {Journal of the Ceramic Society of Japan}\
   }\textbf {\bibinfo {volume} {104}},\ \bibinfo {pages} {49} (\bibinfo {year}
   {1996})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hirosaki}\ \emph {et~al.}(2002)\citenamefont
+  {Hirosaki}, \citenamefont {Ogata}, \citenamefont {Kocer}, \citenamefont
+  {Kitagawa},\ and\ \citenamefont {Nakamura}}]{hirosaki-md}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
+  {Hirosaki}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Ogata}},
+  \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Kocer}}, \bibinfo
+  {author} {\bibfnamefont {H.}~\bibnamefont {Kitagawa}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {Y.}~\bibnamefont {Nakamura}},\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
+  {\bibinfo {volume} {65}},\ \bibinfo {pages} {134110} (\bibinfo {year}
+  {2002})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Riley}(2000)}]{riley}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {F.~L.}\ \bibnamefont
   {Riley}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Journal
   of the American Ceramic Society}\ }\textbf {\bibinfo {volume} {83}},\
   \bibinfo {pages} {245} (\bibinfo {year} {2000})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Hampshire}\ \emph {et~al.}(1978)\citenamefont
-  {Hampshire}, \citenamefont {Park}, \citenamefont {Thompson},\ and\
-  \citenamefont {Jack}}]{hampshire}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
-  {Hampshire}}, \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Park}},
-  \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Thompson}}, \ and\
-  \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Jack}},\ }\href@noop {}
-  {\bibfield  {journal} {\bibinfo  {journal} {Nature}\ }\textbf {\bibinfo
-  {volume} {274}},\ \bibinfo {pages} {880} (\bibinfo {year}
-  {1978})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Yashima}\ \emph {et~al.}(2007)\citenamefont
   {Yashima}, \citenamefont {Ando},\ and\ \citenamefont {Tabira}}]{yashima}%
   \BibitemOpen
@@ -138,6 +139,67 @@
   {journal} {\bibinfo  {journal} {Acta Crystallographica Section B: Structural
   Science}\ }\textbf {\bibinfo {volume} {60}},\ \bibinfo {pages} {388}
   (\bibinfo {year} {2004})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hampshire}\ \emph {et~al.}(1978)\citenamefont
+  {Hampshire}, \citenamefont {Park}, \citenamefont {Thompson},\ and\
+  \citenamefont {Jack}}]{hampshire}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Hampshire}}, \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont {Park}},
+  \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Thompson}}, \ and\
+  \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Jack}},\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Nature}\ }\textbf {\bibinfo
+  {volume} {274}},\ \bibinfo {pages} {880} (\bibinfo {year}
+  {1978})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hahn}(2011)}]{inttableA}%
+  \BibitemOpen
+  \bibinfo {editor} {\bibfnamefont {T.}~\bibnamefont {Hahn}},\ ed.,\ \href@noop
+  {} {\emph {\bibinfo {title} {International tables for crystallography}}},\
+  Vol.~\bibinfo {volume} {A}\ (\bibinfo  {publisher} {John Wiley \& Sons,
+  Inc.},\ \bibinfo {year} {2011})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hirai}\ \emph {et~al.}(1978)\citenamefont {Hirai},
+  \citenamefont {Hayashi},\ and\ \citenamefont {Niihara}}]{hirai}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Hirai}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Hayashi}}, \
+  and\ \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Niihara}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {AM. CERAM. SOC.
+  BULL. Am. Ceram. Soc. Bull.}\ }\textbf {\bibinfo {volume} {57}},\ \bibinfo
+  {pages} {1126} (\bibinfo {year} {1978})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Li}\ \emph {et~al.}(1999)\citenamefont {Li},
+  \citenamefont {Pottier}, \citenamefont {Roger}, \citenamefont {Fournier},
+  \citenamefont {Watari},\ and\ \citenamefont {Hirao}}]{li}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
+  {Li}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont {Pottier}},
+  \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Roger}}, \bibinfo
+  {author} {\bibfnamefont {D.}~\bibnamefont {Fournier}}, \bibinfo {author}
+  {\bibfnamefont {K.}~\bibnamefont {Watari}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {K.}~\bibnamefont {Hirao}},\ }\href@noop {} {\bibfield
+  {journal} {\bibinfo  {journal} {Journal of the european ceramic society}\
+  }\textbf {\bibinfo {volume} {19}},\ \bibinfo {pages} {1631} (\bibinfo {year}
+  {1999})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Vashishta}\ \emph {et~al.}(1996)\citenamefont
+  {Vashishta}, \citenamefont {Kalia}, \citenamefont {Nakano},\ and\
+  \citenamefont {Ebbs{\"o}}}]{vashishta}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
+  {Vashishta}}, \bibinfo {author} {\bibfnamefont {R.~K.}\ \bibnamefont
+  {Kalia}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Nakano}}, \
+  and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Ebbs{\"o}}},\
+  }\href@noop {} {\emph {\bibinfo {title} {Amorphous Insulators and
+  Semiconductor}}},\ edited by\ \bibinfo {editor} {\bibfnamefont {M.~F.}\
+  \bibnamefont {Thorpe}}\ and\ \bibinfo {editor} {\bibfnamefont {M.~I.}\
+  \bibnamefont {Mitkova}}\ (\bibinfo  {publisher} {Kluwer},\ \bibinfo {year}
+  {1996})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Togo}\ \emph {et~al.}(2015)\citenamefont {Togo},
+  \citenamefont {Chaput},\ and\ \citenamefont {Tanaka}}]{phono3py}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Togo}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont {Chaput}}, \ and\
+  \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
+  {\bibinfo {volume} {91}},\ \bibinfo {pages} {094306} (\bibinfo {year}
+  {2015})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Zerr}\ \emph {et~al.}(1999)\citenamefont {Zerr},
   \citenamefont {Miehe}, \citenamefont {Serghiou}, \citenamefont {Schwarz},
   \citenamefont {Kroke}, \citenamefont {Riedel}, \citenamefont {Fue\ss},
@@ -163,76 +225,18 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Journal of
   materials research}\ }\textbf {\bibinfo {volume} {21}},\ \bibinfo {pages}
   {41} (\bibinfo {year} {2006})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Li}\ \emph {et~al.}(1999)\citenamefont {Li},
-  \citenamefont {Pottier}, \citenamefont {Roger}, \citenamefont {Fournier},
-  \citenamefont {Watari},\ and\ \citenamefont {Hirao}}]{li}%
+\bibitem [{\citenamefont {Xu}\ \emph {et~al.}(2011)\citenamefont {Xu},
+  \citenamefont {Dong}, \citenamefont {McMillan}, \citenamefont {Shebanova},\
+  and\ \citenamefont {Salamat}}]{xu}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
-  {Li}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont {Pottier}},
-  \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Roger}}, \bibinfo
-  {author} {\bibfnamefont {D.}~\bibnamefont {Fournier}}, \bibinfo {author}
-  {\bibfnamefont {K.}~\bibnamefont {Watari}}, \ and\ \bibinfo {author}
-  {\bibfnamefont {K.}~\bibnamefont {Hirao}},\ }\href@noop {} {\bibfield
-  {journal} {\bibinfo  {journal} {Journal of the european ceramic society}\
-  }\textbf {\bibinfo {volume} {19}},\ \bibinfo {pages} {1631} (\bibinfo {year}
-  {1999})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Takahashi}\ \emph {et~al.}(2016)\citenamefont
-  {Takahashi}, \citenamefont {Sado}, \citenamefont {Sugimoto}, \citenamefont
-  {Tatami}, \citenamefont {Iijima}, \citenamefont {Inagaki}, \citenamefont
-  {Kubota}, \citenamefont {Yamamoto},\ and\ \citenamefont
-  {Tanaka}}]{takahashi}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
-  {Takahashi}}, \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Sado}},
-  \bibinfo {author} {\bibfnamefont {N.}~\bibnamefont {Sugimoto}}, \bibinfo
-  {author} {\bibfnamefont {J.}~\bibnamefont {Tatami}}, \bibinfo {author}
-  {\bibfnamefont {M.}~\bibnamefont {Iijima}}, \bibinfo {author} {\bibfnamefont
-  {S.}~\bibnamefont {Inagaki}}, \bibinfo {author} {\bibfnamefont
-  {Y.}~\bibnamefont {Kubota}}, \bibinfo {author} {\bibfnamefont
-  {I.}~\bibnamefont {Yamamoto}}, \ and\ \bibinfo {author} {\bibfnamefont
-  {S.}~\bibnamefont {Tanaka}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo
-  {journal} {Advanced Powder Technology}\ }\textbf {\bibinfo {volume} {27}},\
-  \bibinfo {pages} {2005} (\bibinfo {year} {2016})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Yamamoto}\ \emph {et~al.}(2000)\citenamefont
-  {Yamamoto}, \citenamefont {Hirosaki}, \citenamefont {Ishikawa}, \citenamefont
-  {YE}, \citenamefont {Matsuo}, \citenamefont {Furuya}, \citenamefont
-  {Munakata},\ and\ \citenamefont {Akimune}}]{yamamoto}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Y.}~\bibnamefont
-  {Yamamoto}}, \bibinfo {author} {\bibfnamefont {N.}~\bibnamefont {Hirosaki}},
-  \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Ishikawa}}, \bibinfo
-  {author} {\bibfnamefont {J.}~\bibnamefont {YE}}, \bibinfo {author}
-  {\bibfnamefont {K.}~\bibnamefont {Matsuo}}, \bibinfo {author} {\bibfnamefont
-  {K.}~\bibnamefont {Furuya}}, \bibinfo {author} {\bibfnamefont
-  {F.}~\bibnamefont {Munakata}}, \ and\ \bibinfo {author} {\bibfnamefont
-  {Y.}~\bibnamefont {Akimune}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo
-   {journal} {Journal of the Ceramic Society of Japan}\ }\textbf {\bibinfo
-  {volume} {108}},\ \bibinfo {pages} {515} (\bibinfo {year}
-  {2000})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Watari}\ \emph {et~al.}(2000)\citenamefont {Watari},
-  \citenamefont {Pottier}, \citenamefont {Li}, \citenamefont {Fournier},\ and\
-  \citenamefont {Toriyama}}]{watari-trans}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
-  {Watari}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont {Pottier}},
-  \bibinfo {author} {\bibfnamefont {B.}~\bibnamefont {Li}}, \bibinfo {author}
-  {\bibfnamefont {D.}~\bibnamefont {Fournier}}, \ and\ \bibinfo {author}
-  {\bibfnamefont {M.}~\bibnamefont {Toriyama}},\ }\href@noop {} {\bibfield
-  {journal} {\bibinfo  {journal} {Ceramic Transactions(USA)}\ }\textbf
-  {\bibinfo {volume} {118}},\ \bibinfo {pages} {341} (\bibinfo {year}
-  {2000})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Hirosaki}\ \emph {et~al.}(2002)\citenamefont
-  {Hirosaki}, \citenamefont {Ogata}, \citenamefont {Kocer}, \citenamefont
-  {Kitagawa},\ and\ \citenamefont {Nakamura}}]{hirosaki-md}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {N.}~\bibnamefont
-  {Hirosaki}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Ogata}},
-  \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {Kocer}}, \bibinfo
-  {author} {\bibfnamefont {H.}~\bibnamefont {Kitagawa}}, \ and\ \bibinfo
-  {author} {\bibfnamefont {Y.}~\bibnamefont {Nakamura}},\ }\href@noop {}
-  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
-  {\bibinfo {volume} {65}},\ \bibinfo {pages} {134110} (\bibinfo {year}
-  {2002})}\BibitemShut {NoStop}%
+  {Xu}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Dong}}, \bibinfo
+  {author} {\bibfnamefont {P.~F.}\ \bibnamefont {McMillan}}, \bibinfo {author}
+  {\bibfnamefont {O.}~\bibnamefont {Shebanova}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {A.}~\bibnamefont {Salamat}},\ }\href@noop {} {\bibfield
+  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf {\bibinfo
+  {volume} {84}},\ \bibinfo {pages} {014113} (\bibinfo {year}
+  {2011})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Morelli}\ and\ \citenamefont
   {Heremans}(2002)}]{morelli}%
   \BibitemOpen
@@ -241,83 +245,6 @@
   {Heremans}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Applied physics letters}\ }\textbf {\bibinfo {volume} {81}},\ \bibinfo
   {pages} {5126} (\bibinfo {year} {2002})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Broido}\ \emph {et~al.}(2007)\citenamefont {Broido},
-  \citenamefont {Malorny}, \citenamefont {Birner}, \citenamefont {Mingo},\ and\
-  \citenamefont {Stewart}}]{broido}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.}~\bibnamefont
-  {Broido}}, \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Malorny}},
-  \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Birner}}, \bibinfo
-  {author} {\bibfnamefont {N.}~\bibnamefont {Mingo}}, \ and\ \bibinfo {author}
-  {\bibfnamefont {D.}~\bibnamefont {Stewart}},\ }\href@noop {} {\bibfield
-  {journal} {\bibinfo  {journal} {Applied Physics Letters}\ }\textbf {\bibinfo
-  {volume} {91}},\ \bibinfo {pages} {231922} (\bibinfo {year}
-  {2007})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Thomas}\ and\ \citenamefont
-  {Srivastava}(2012)}]{thomas}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {I.~O.}\ \bibnamefont
-  {Thomas}}\ and\ \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont
-  {Srivastava}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
-  {Physical Review B}\ }\textbf {\bibinfo {volume} {86}},\ \bibinfo {pages}
-  {045205} (\bibinfo {year} {2012})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Ward}\ and\ \citenamefont {Broido}(2010)}]{ward-ltc}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
-  {Ward}}\ and\ \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Broido}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
-  B}\ }\textbf {\bibinfo {volume} {81}},\ \bibinfo {pages} {085205} (\bibinfo
-  {year} {2010})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Esfarjani}\ \emph {et~al.}(2011)\citenamefont
-  {Esfarjani}, \citenamefont {Chen},\ and\ \citenamefont
-  {Stokes}}]{esfarjani-ltc}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
-  {Esfarjani}}, \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Chen}}, \
-  and\ \bibinfo {author} {\bibfnamefont {H.~T.}\ \bibnamefont {Stokes}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
-  B}\ }\textbf {\bibinfo {volume} {84}},\ \bibinfo {pages} {085204} (\bibinfo
-  {year} {2011})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Togo}\ \emph {et~al.}(2015)\citenamefont {Togo},
-  \citenamefont {Chaput},\ and\ \citenamefont {Tanaka}}]{phono3py}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
-  {Togo}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont {Chaput}}, \ and\
-  \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\ }\href@noop {}
-  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf
-  {\bibinfo {volume} {91}},\ \bibinfo {pages} {094306} (\bibinfo {year}
-  {2015})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Hirai}\ \emph {et~al.}(1978)\citenamefont {Hirai},
-  \citenamefont {Hayashi},\ and\ \citenamefont {Niihara}}]{hirai}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
-  {Hirai}}, \bibinfo {author} {\bibfnamefont {S.}~\bibnamefont {Hayashi}}, \
-  and\ \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Niihara}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {AM. CERAM. SOC.
-  BULL. Am. Ceram. Soc. Bull.}\ }\textbf {\bibinfo {volume} {57}},\ \bibinfo
-  {pages} {1126} (\bibinfo {year} {1978})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Mukhopadhyay}\ \emph {et~al.}(2016)\citenamefont
-  {Mukhopadhyay}, \citenamefont {Lindsay},\ and\ \citenamefont
-  {Singh}}]{mukhopadhyay-ltc}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
-  {Mukhopadhyay}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
-  {Lindsay}}, \ and\ \bibinfo {author} {\bibfnamefont {D.~J.}\ \bibnamefont
-  {Singh}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
-  {Scientific reports}\ }\textbf {\bibinfo {volume} {6}} (\bibinfo {year}
-  {2016})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Chaput}(2013)}]{chaput-direct}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
-  {Chaput}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
-  {Physical review letters}\ }\textbf {\bibinfo {volume} {110}},\ \bibinfo
-  {pages} {265506} (\bibinfo {year} {2013})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Tamura}(1983)}]{tamura}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.-i.}\ \bibnamefont
-  {Tamura}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
-  {Physical Review B}\ }\textbf {\bibinfo {volume} {27}},\ \bibinfo {pages}
-  {858} (\bibinfo {year} {1983})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Togo}\ and\ \citenamefont {Tanaka}(2015)}]{phonopy}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
@@ -325,6 +252,27 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Scripta
   Materialia}\ }\textbf {\bibinfo {volume} {108}},\ \bibinfo {pages} {1}
   (\bibinfo {year} {2015})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Chaput}(2013)}]{chaput-direct}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
+  {Chaput}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physical review letters}\ }\textbf {\bibinfo {volume} {110}},\ \bibinfo
+  {pages} {265506} (\bibinfo {year} {2013})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Mizokami}\ \emph {et~al.}(2018)\citenamefont
+  {Mizokami}, \citenamefont {Togo},\ and\ \citenamefont {Tanaka}}]{sio2}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {K.}~\bibnamefont
+  {Mizokami}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Togo}}, \
+  and\ \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Tanaka}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. B}\
+  }\textbf {\bibinfo {volume} {97}},\ \bibinfo {pages} {224306} (\bibinfo
+  {year} {2018})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Tamura}(1983)}]{tamura}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.-i.}\ \bibnamefont
+  {Tamura}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physical Review B}\ }\textbf {\bibinfo {volume} {27}},\ \bibinfo {pages}
+  {858} (\bibinfo {year} {1983})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Bl{\"o}chl}(1994)}]{paw}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.~E.}\ \bibnamefont
@@ -357,14 +305,14 @@
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.~P.}\ \bibnamefont
   {Perdew}}, \bibinfo {author} {\bibfnamefont {K.}~\bibnamefont {Burke}}, \
   and\ \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Ernzerhof}},\
-  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical review
-  letters}\ }\textbf {\bibinfo {volume} {77}},\ \bibinfo {pages} {3865}
-  (\bibinfo {year} {1996})}\BibitemShut {NoStop}%
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. Lett.}\
+  }\textbf {\bibinfo {volume} {77}},\ \bibinfo {pages} {3865} (\bibinfo {year}
+  {1996})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Paszkowicz}\ \emph {et~al.}(2004)\citenamefont
   {Paszkowicz}, \citenamefont {Minikayev}, \citenamefont {Piszora},
   \citenamefont {Knapp}, \citenamefont {B{\"a}htz}, \citenamefont {Recio},
   \citenamefont {Marques}, \citenamefont {Mori-S{\'a}nchez}, \citenamefont
-  {Gerward},\ and\ \citenamefont {Jiang}}]{paszkowicz-gSi3N4}%
+  {Gerward},\ and\ \citenamefont {Jiang}}]{paszkowicz}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {W.}~\bibnamefont
   {Paszkowicz}}, \bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
@@ -376,7 +324,7 @@
   {P.}~\bibnamefont {Mori-S{\'a}nchez}}, \bibinfo {author} {\bibfnamefont
   {L.}~\bibnamefont {Gerward}}, \ and\ \bibinfo {author} {\bibfnamefont
   {J.}~\bibnamefont {Jiang}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo
-  {journal} {Physical Review B}\ }\textbf {\bibinfo {volume} {69}},\ \bibinfo
+  {journal} {Phys. Rev. B}\ }\textbf {\bibinfo {volume} {69}},\ \bibinfo
   {pages} {052103} (\bibinfo {year} {2004})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Ceperley}\ and\ \citenamefont {Alder}(1980)}]{lda}%
   \BibitemOpen
@@ -385,6 +333,13 @@
   {Alder}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Physical Review Letters}\ }\textbf {\bibinfo {volume} {45}},\ \bibinfo
   {pages} {566} (\bibinfo {year} {1980})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Perdew}\ and\ \citenamefont {Zunger}(1981)}]{lda-pz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.~P.}\ \bibnamefont
+  {Perdew}}\ and\ \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Zunger}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Physical Review B}\ }\textbf {\bibinfo {volume} {23}},\ \bibinfo {pages}
+  {5048} (\bibinfo {year} {1981})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Wei}\ and\ \citenamefont
   {Chou}(1992)}]{wei-supercell}%
   \BibitemOpen
@@ -393,21 +348,74 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical review
   letters}\ }\textbf {\bibinfo {volume} {69}},\ \bibinfo {pages} {2799}
   (\bibinfo {year} {1992})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Dove}(1993{\natexlab{a}})}]{dove-p76}%
+\bibitem [{\citenamefont {Wang}\ \emph {et~al.}(2010)\citenamefont {Wang},
+  \citenamefont {Wang}, \citenamefont {Wang}, \citenamefont {Mei},
+  \citenamefont {Shang}, \citenamefont {Chen},\ and\ \citenamefont
+  {Liu}}]{wang}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Y.}~\bibnamefont
+  {Wang}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Wang}}, \bibinfo
+  {author} {\bibfnamefont {W.}~\bibnamefont {Wang}}, \bibinfo {author}
+  {\bibfnamefont {Z.}~\bibnamefont {Mei}}, \bibinfo {author} {\bibfnamefont
+  {S.}~\bibnamefont {Shang}}, \bibinfo {author} {\bibfnamefont
+  {L.}~\bibnamefont {Chen}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {Z.}~\bibnamefont {Liu}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo
+  {journal} {J. Phys.: Condens. Matter}\ }\textbf {\bibinfo {volume} {22}},\
+  \bibinfo {pages} {202201} (\bibinfo {year} {2010})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Gajdo\v{s}}\ \emph {et~al.}(2006)\citenamefont
+  {Gajdo\v{s}}, \citenamefont {Hummer}, \citenamefont {Kresse}, \citenamefont
+  {Furthm{\"u}ller},\ and\ \citenamefont {F}}]{vasp-lepsiron}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Gajdo\v{s}}}, \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Hummer}},
+  \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont {Kresse}}, \bibinfo
+  {author} {\bibfnamefont {J.}~\bibnamefont {Furthm{\"u}ller}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {B.}~\bibnamefont {F}},\ }\href@noop {} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. B}\ }\textbf {\bibinfo {volume}
+  {73}},\ \bibinfo {pages} {045112} (\bibinfo {year} {2006})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Wu}\ \emph {et~al.}(2005)\citenamefont {Wu},
+  \citenamefont {Vanderbilt},\ and\ \citenamefont {Hamann}}]{lepsiron}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {X.}~\bibnamefont
+  {Wu}}, \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Vanderbilt}}, \
+  and\ \bibinfo {author} {\bibfnamefont {D.~R.}\ \bibnamefont {Hamann}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. B}\
+  }\textbf {\bibinfo {volume} {72}},\ \bibinfo {pages} {035105} (\bibinfo
+  {year} {2005})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Dove}(1993)}]{dove-p76}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.~T.}\ \bibnamefont
   {Dove}},\ }\href@noop {} {\emph {\bibinfo {title} {Introduction to lattice
   dynamics}}},\ Vol.~\bibinfo {volume} {4}\ (\bibinfo  {publisher} {Cambridge
   university press},\ \bibinfo {year} {1993})\ pp.\ \bibinfo {pages}
   {76--77}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {R.~Minikayev}\ and\ \citenamefont
-  {B{\"a}htz}(2007)}]{minikayev-alpha}%
+\bibitem [{\citenamefont {Ward}\ and\ \citenamefont {Broido}(2010)}]{ward-ltc}%
   \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.~P. M.~K.}\
-  \bibnamefont {R.~Minikayev}, \bibfnamefont {W.~Paszkowicz}}\ and\ \bibinfo
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Ward}}\ and\ \bibinfo {author} {\bibfnamefont {D.}~\bibnamefont {Broido}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
+  B}\ }\textbf {\bibinfo {volume} {81}},\ \bibinfo {pages} {085205} (\bibinfo
+  {year} {2010})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Minikayev}\ \emph {et~al.}(2007)\citenamefont
+  {Minikayev}, \citenamefont {Paszkowicz}, \citenamefont {Piszora},
+  \citenamefont {Knapp},\ and\ \citenamefont {B{\"a}htz}}]{minikayev-alpha}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
+  {Minikayev}}, \bibinfo {author} {\bibfnamefont {W.}~\bibnamefont
+  {Paszkowicz}}, \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Piszora}},
+  \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont {Knapp}}, \ and\ \bibinfo
   {author} {\bibfnamefont {C.}~\bibnamefont {B{\"a}htz}},\ }\href@noop {}
-  {\enquote {\bibinfo {title} {Thermal expansion of ƒ¿ and ƒÀ silicon
+  {\enquote {\bibinfo {title} {Thermal expansion of Î± and Î² silicon
   nitride},}\ } (\bibinfo {year} {2007})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Paszkowicz}\ and\ \citenamefont
+  {Minikayev}(2004)}]{gamma-expand}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {W.}~\bibnamefont
+  {Paszkowicz}}\ and\ \bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
+  {Minikayev}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Rev. B}\ }\textbf {\bibinfo {volume} {69}},\ \bibinfo {pages} {052103}
+  (\bibinfo {year} {2004})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Andersson}(1985)}]{andersson-pressure}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.}~\bibnamefont
@@ -429,17 +437,23 @@
   {Hardy}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
   {Physical Review B}\ }\textbf {\bibinfo {volume} {2}},\ \bibinfo {pages}
   {1193} (\bibinfo {year} {1970})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Slack}\ \emph {et~al.}(1987)\citenamefont {Slack},
-  \citenamefont {Tanzilli}, \citenamefont {Pohl},\ and\ \citenamefont
-  {Vandersande}}]{slack-aln}%
+\bibitem [{\citenamefont {Mukhopadhyay}\ \emph {et~al.}(2016)\citenamefont
+  {Mukhopadhyay}, \citenamefont {Lindsay},\ and\ \citenamefont
+  {Singh}}]{mukhopadhyay-ltc}%
   \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {G.~A.}\ \bibnamefont
-  {Slack}}, \bibinfo {author} {\bibfnamefont {R.~A.}\ \bibnamefont {Tanzilli}},
-  \bibinfo {author} {\bibfnamefont {R.}~\bibnamefont {Pohl}}, \ and\ \bibinfo
-  {author} {\bibfnamefont {J.}~\bibnamefont {Vandersande}},\ }\href@noop {}
-  {\bibfield  {journal} {\bibinfo  {journal} {Journal of Physics and Chemistry
-  of Solids}\ }\textbf {\bibinfo {volume} {48}},\ \bibinfo {pages} {641}
-  (\bibinfo {year} {1987})}\BibitemShut {NoStop}%
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {S.}~\bibnamefont
+  {Mukhopadhyay}}, \bibinfo {author} {\bibfnamefont {L.}~\bibnamefont
+  {Lindsay}}, \ and\ \bibinfo {author} {\bibfnamefont {D.~J.}\ \bibnamefont
+  {Singh}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal}
+  {Scientific reports}\ }\textbf {\bibinfo {volume} {6}} (\bibinfo {year}
+  {2016})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Page}\ and\ \citenamefont {Saxe}(2002)}]{elastic}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Y.~L.}\ \bibnamefont
+  {Page}}\ and\ \bibinfo {author} {\bibfnamefont {P.}~\bibnamefont {Saxe}},\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. B}\
+  }\textbf {\bibinfo {volume} {65}},\ \bibinfo {pages} {104104} (\bibinfo
+  {year} {2002})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Kuwabara}\ \emph {et~al.}(2008)\citenamefont
   {Kuwabara}, \citenamefont {Matsunaga},\ and\ \citenamefont
   {Tanaka}}]{kuwabara}%
@@ -450,23 +464,4 @@
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
   B}\ }\textbf {\bibinfo {volume} {78}},\ \bibinfo {pages} {064104} (\bibinfo
   {year} {2008})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Xu}\ \emph {et~al.}(2011)\citenamefont {Xu},
-  \citenamefont {Dong}, \citenamefont {McMillan}, \citenamefont {Shebanova},\
-  and\ \citenamefont {Salamat}}]{xu}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.}~\bibnamefont
-  {Xu}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Dong}}, \bibinfo
-  {author} {\bibfnamefont {P.~F.}\ \bibnamefont {McMillan}}, \bibinfo {author}
-  {\bibfnamefont {O.}~\bibnamefont {Shebanova}}, \ and\ \bibinfo {author}
-  {\bibfnamefont {A.}~\bibnamefont {Salamat}},\ }\href@noop {} {\bibfield
-  {journal} {\bibinfo  {journal} {Physical Review B}\ }\textbf {\bibinfo
-  {volume} {84}},\ \bibinfo {pages} {014113} (\bibinfo {year}
-  {2011})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Dove}(1993{\natexlab{b}})}]{dove-p30}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.~T.}\ \bibnamefont
-  {Dove}},\ }\href@noop {} {\emph {\bibinfo {title} {Introduction to lattice
-  dynamics}}},\ Vol.~\bibinfo {volume} {4}\ (\bibinfo  {publisher} {Cambridge
-  university press},\ \bibinfo {year} {1993})\ pp.\ \bibinfo {pages}
-  {30--31}\BibitemShut {NoStop}%
 \end{thebibliography}%

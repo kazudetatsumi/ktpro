@@ -1,0 +1,1516 @@
+#i!/usr/bin/env python
+import numpy as np
+import spglib
+import matplotlib.pyplot as plt
+import pickle
+import scipy.optimize as so
+import scipy.linalg as sl
+# for Krylov
+from scipy.sparse.linalg import LinearOperator, eigsh 
+
+
+class change_hpos():
+    def __init__(self, infile, std, edgelength, nx, enefile=None,
+                 shift=[0., 0., 0.], hshift=[0., 0., 0.], prim=True,
+                 oldedgelength=False, deuterium=False, wholecell=False,
+                 kvec=None):
+        self.infile = infile
+        if type(std) is list:
+            self.std = np.array(std)
+        else:
+            self.std = np.array([std, std, std])
+        self.edgelength = edgelength
+        self.nx = nx
+        self.enefile = enefile
+        self.shift = np.array(shift)
+        # print(shift)
+        self.hshift = np.array(hshift)
+        ## To avoid wrap-around-errors, the cutoff of G is hard-coded.
+        self.rg = (nx -1) // 2 - 1
+        self.a0 = 0.5291772
+        if deuterium:
+            self.mh = 1836*2
+        else:
+            self.mh = 1836
+        self.Eh = 27.211
+        self.prim = prim
+        self.oldedgelength = oldedgelength
+        ## dx is set as follows since 2022/10/05
+        ## note that this is formally the same for all of the fractional/cartecian
+        ## and scalar/list self.edgelength.
+        print('check"edgelength',self.edgelength)
+        if self.oldedgelength:
+            self.dx = np.array(self.edgelength)/(self.nx - 1)
+        else:
+            self.dx = np.array(self.edgelength)/self.nx
+        if kvec is not None:
+            self.kvec = kvec
+        self.wholecell = wholecell
+
+    def GetCrystalParamsFromPoscar(self):
+        with open(self.infile, 'r') as f:
+            self.lines = f.readlines()
+        latmag = float(self.lines[1].split()[0])
+        lattice = np.zeros((3, 3))
+        for ivec in range(0, 3):
+            lattice[ivec] = np.array((self.lines[ivec+2].split()[0:3]),
+                                     dtype=float)
+        self.lattice = lattice * latmag
+        print('real space lattice in Angs :', self.lattice)
+        #if type(self.edgelength) is list:
+        #    self.a = np.sum(self.lattice[0, :]**2)**0.5/self.a0*self.edgelength[0]
+        #    self.b = np.sum(self.lattice[1, :]**2)**0.5/self.a0*self.edgelength[1]
+        #    self.c = np.sum(self.lattice[2, :]**2)**0.5/self.a0*self.edgelength[2]
+        #    self.edgelengthina0 = np.sum(self.lattice**2, axis=1)**0.5 /\
+        #            self.a0*np.array(self.edgelength)
+        #else:
+            #self.a = np.sum(self.lattice[0, :]**2)**0.5/self.a0*self.edgelength
+            #self.b = np.sum(self.lattice[1, :]**2)**0.5/self.a0*self.edgelength
+            #self.c = np.sum(self.lattice[2, :]**2)**0.5/self.a0*self.edgelength
+        self.edgelengthina0 = np.sum(self.lattice**2, axis=1)**0.5/self.a0 *\
+            np.array(self.edgelength)
+        #print("chk, a=", self.a)
+        #print("chk, b=", self.b)
+        #print("chk, c=", self.c)
+        # print("chk, test", self.edgelengthina0)
+        self.nspc = np.asarray((self.lines[6].split()), dtype=int)
+        self.numbers = [i+1 for i in range(0, self.nspc.shape[0])
+                        for j in range(0, self.nspc[i])]
+        self.positions = np.zeros((np.sum(self.nspc), 3))
+        if "Di" in self.lines[7] or "di" in self.lines[7] or\
+           "Car" in self.lines[7] or "car" in self.lines[7]:
+            self.iniline = 8
+        elif "Sel" in self.lines[7] or "sel" in self.lines[7]:
+            self.iniline = 9
+        for ipos in range(0, np.sum(self.nspc)):
+            self.positions[ipos] = np.asarray((self.lines[self.iniline+ipos]
+                                               .split()[0:3][0:4]
+                                               ), dtype=float)
+
+    def GetCartecianCoord(self):
+        #print(self.positions.shape)
+        #print(self.lattice.shape)
+        #print(np.matmul(self.positions, self.lattice))
+        lat = self.cell[0]
+        positions = self.cell[1]
+        # print(lat)
+        # print(positions.shape)
+        # print(self.cell[1])
+        carts = np.matmul(positions, lat)
+        lines = self.lines
+        outfile = 'POSCAR_chk'
+        with open(outfile, 'w') as f:
+            for il, line in enumerate(lines):
+                if il >= 9:
+                    f.write("     {:21.16f}    {:21.16f}    {:21.16f} \n"
+                            .format(carts[il-9, 0], carts[il-9, 1],
+                                    carts[il-9, 2]))
+                elif il == 8:
+                    f.write("Cartecian \n")
+                else:
+                    f.write(line)
+
+    def ShiftAllAtompos(self):
+        if np.sum(np.abs(self.shift)) > 1e-5:
+            print('All atom pos are shifted by', self.shift)
+            pos_temp = self.cell[1]
+            pos_shift = pos_temp - np.array(self.shift)
+            self.cell = (self.cell[0], pos_shift, self.cell[2])
+            self.positions = pos_shift
+        # else:
+        #     print('Not shifted!')
+
+    def GetRefineCell(self):
+        print("K", self.cell[1])
+        if self.prim:
+            lattice, positions, numbers = spglib.find_primitive(self.cell)
+        else:
+            lattice, positions, numbers = spglib.refine_cell(self.cell)
+        sorted_numbers = np.sort(numbers)
+        sorted_positions = positions[np.argsort(numbers)]
+        sorted_positions[np.abs(sorted_positions) < 1e-10] = 0.
+        self.cell = (lattice, sorted_positions, sorted_numbers)
+
+        # Probably the below comment should be removed for consistency.
+        # But, the previous work did not do so and still leave as is.
+        #self.positions = sorted_positions
+        #self.lattice = lattice
+        #self.numbers = sorted_numbers
+
+    def GetSym(self, refine=True):
+        if 'cell' not in dir(self):
+            print("CHK, cell is not found!")
+            self.GetCrystalParamsFromPoscar()
+            self.cell = (self.lattice, self.positions, self.numbers)
+        else:
+            print('skipping')
+        #print("CHK", self.positions.shape, self.positions)
+        self.ShiftAllAtompos()
+        if refine:
+            self.GetRefineCell()
+        print(spglib.get_spacegroup(self.cell, symprec=1e-5))
+        #tmpsym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        #print(tmpsym['rotations'].shape)
+        #for rot, trans in zip(tmpsym['rotations'], tmpsym['translations']):
+        #    print(rot, trans)
+        rpositions = np.zeros((self.positions.shape[0]-1, 3))
+        #print(rpositions)
+        rnumbers = []
+        irp = 0
+        for ipos, pos in enumerate(self.positions):
+            if np.sum(np.abs(pos - self.std) % 1.0) >= 1e-5:
+                rpositions[irp] = pos
+                rnumbers.append(self.numbers[ipos])
+                irp += 1
+        # symmetry on the atoms without the target h atom
+        rcell = (self.lattice, rpositions, rnumbers)
+        #print(spglib.get_spacegroup(rcell, symprec=1e-5))
+        print(spglib.get_spacegroup(rcell, symprec=1e-5))
+        self.sym = spglib.get_symmetry(rcell, symprec=1e-5)
+        #print(self.sym['rotations'].shape)
+        #for rot, trans in zip(self.sym['rotations'], self.sym['translations']):
+        #    print(rot, trans)
+        #self.sym = spglib.get_symmetry(self.cell, symprec=1e-5)
+        self.rcell = rcell
+        print(self.cell[0])
+
+    def GetAllHpos(self, cart=False, rot=np.array([[1, 0, 0], [0, 1, 0],
+                                                   [0, 0, 1]])):
+        # Obtain all H positions in a 2D np array [atomidx, x/y/z/ axis],
+        # whose 1st axis is in the C order, i.e., the z coordination is most
+        # rapidly changed.
+        hpos = []
+        if type(self.edgelength) is list and not cart:
+            ## dx was set as follows before 2022/10/05
+            #dx = np.array(self.edgelength)/self.nx
+            for ix in range(0, self.nx):
+                for iy in range(0, self.nx):
+                    for iz in range(0, self.nx):
+                        hpos.append([(self.std[0] - self.edgelength[0]/2
+                                      + (ix+self.hshift[0])*self.dx[0]) % 1.0,
+                                     (self.std[1] - self.edgelength[1]/2
+                                      + (iy+self.hshift[1])*self.dx[1]) % 1.0,
+                                     (self.std[2] - self.edgelength[2]/2
+                                      + (iz+self.hshift[2])*self.dx[2]) % 1.0])
+            self.hpos = np.array(hpos)
+        elif type(self.edgelength) is not list and cart:
+            ## use cartecian coord.
+            ## dx was set as follows before 2022/10/05
+            #dx = self.edgelength / (self.nx - 1)
+            for ix in range(0, self.nx):
+            #for ix in range(self.nx // 2, self.nx // 2 + 1):
+                for iy in range(0, self.nx):
+                #for iy in range(self.nx // 2, self.nx // 2 + 1):
+                    for iz in range(0, self.nx):
+                    #for iz in range(self.nx // 2, self.nx // 2 + 1):
+                        hpos.append([- self.edgelength/2 +
+                                     (ix+self.hshift[0])*self.dx,
+                                     - self.edgelength/2 +
+                                     (iy+self.hshift[1])*self.dx,
+                                     - self.edgelength/2 +
+                                     (iz+self.hshift[2])*self.dx])
+            hpos = np.matmul(np.array(hpos), rot)
+            self.hpos = (np.matmul(hpos, np.linalg.inv(self.cell[0]))
+                         + self.std) % 1.0
+            self.edgelengthina0 = self.edgelength/self.a0
+        #elif type(self.edgelength) is list and cart:
+        #    # use cartecian coord.
+        #    dx = self.edgelength / (self.nx - 1)
+        #    for ix in range(0, self.nx):
+        #        for iy in range(0, self.nx):
+        #            for iz in range(0, self.nx):
+        #                hpos.append([- self.edgelength[0]/2 + ix*dx,
+        #                             - self.edgelength[1]/2 + iy*dx,
+        #                             - self.edgelength[2]/2 + iz*dx])
+        #    self.hpos = np.matmul(np.array(hpos), np.linalg.inv(self.cell[0])
+        #                          ) % 1.0
+        #    self.edgelengthina0 = self.edgelength/self.a0
+        else:
+            ## dx was set as follows before 2022/10/05
+            #dx = self.edgelength/self.nx
+            for ix in range(0, self.nx):
+                for iy in range(0, self.nx):
+                    for iz in range(0, self.nx):
+                        hpos.append([(self.std[0] - self.edgelength/2
+                                      + (ix+self.hshift[0])*self.dx) % 1.0,
+                                     (self.std[1] - self.edgelength/2
+                                      + (iy+self.hshift[1])*self.dx) % 1.0,
+                                     (self.std[2] - self.edgelength/2
+                                      + (iz+self.hshift[2])*self.dx) % 1.0])
+            self.hpos = np.array(hpos)
+        print("edgelength(s) in Angs:", self.edgelengthina0*self.a0)
+
+    def GetAllHpos_vec(self, vec=[[1., -1., 0.],
+                                  [1.,  1., 0.],
+                                  [0.,  0., 1.]]):
+        vec = np.array(vec)
+        hpos = np.zeros((self.nx**3, 3))
+        ## dx was set as follows before 2022/10/05
+        #dx = np.array(self.edgelength)/(self.nx - 1)
+        ih = 0
+        for ix in range(0, self.nx):
+            for iy in range(0, self.nx):
+                for iz in range(0, self.nx):
+                    hpos[ih, :] = self.std + (((np.array([ix, iy, iz]) +
+                                              self.hshift)*self.dx -
+                                              np.array([0.5, 0.5, 0.5]) *
+                                              self.edgelength)*vec).sum(axis=1)
+                    ih += 1
+        self.hpos = np.array(hpos) % 1.0
+        hlat = np.matmul(self.lattice.T, vec)*self.edgelength
+        self.edgelengthina0 = (((hlat**2).sum(axis=0))**0.5)/self.a0
+        print("edgelengths in Angs.:", self.edgelengthina0*self.a0)
+        print("hlat", hlat)
+
+    def GetAllHpos_mat(self, mat=[[1., -1., 0.],
+                                  [1.,  1., 0.],
+                                  [0.,  0., 1.]]):
+        # Here self.edgelength is assumed in Angs.
+        mat = np.array(mat)
+        _hlat = np.matmul(self.lattice.T, mat)
+        _edgelength = ((_hlat**2).sum(axis=0))**0.5
+        hlat = np.matmul(self.lattice.T, mat)*self.edgelength/_edgelength
+        edgelength = ((hlat**2).sum(axis=0))**0.5
+        print("edgelengths in Angs.:", edgelength)
+        self.edgelengthina0 = edgelength/self.a0
+        hpos = np.zeros((self.nx**3, 3))
+        print(mat)
+        ih = 0
+        for ix in range(0, self.nx):
+            for iy in range(0, self.nx):
+                for iz in range(0, self.nx):
+                    if self.oldedgelength:
+                        hpos[ih, :] = self.std +\
+                                ((np.array([ix, iy, iz])/(self.nx - 1) +
+                                  self.hshift - np.array([0.5, 0.5, 0.5])) *
+                                 mat*self.edgelength/_edgelength).sum(axis=1)
+                    else:
+                        hpos[ih, :] = self.std +\
+                                ((np.array([ix, iy, iz])/self.nx + self.hshift
+                                    - np.array([0.5, 0.5, 0.5])) *
+                                 mat*self.edgelength/_edgelength).sum(axis=1)
+                    ih += 1
+        self.hpos = np.array(hpos) % 1.0
+        self.hpos[np.abs(self.hpos - 1.0) < 1e-14] = 0.
+        # print(self.hpos.shape)
+        # for hp in self.hpos:
+        #     print(hp)
+        self.hlat = hlat
+        print(self.hlat.T)
+
+    def GetAllHpos_nxyz(self):
+        hpos = []
+        for ix in range(0, self.nx[0]):
+            for iy in range(0, self.nx[1]):
+                for iz in range(0, self.nx[2]):
+                    hpos.append([(self.std[0] - self.edgelength[0]/2
+                                  + (ix+self.hshift[0])*self.dx[0]) % 1.0,
+                                 (self.std[1] - self.edgelength[1]/2
+                                  + (iy+self.hshift[1])*self.dx[1]) % 1.0,
+                                 (self.std[2] - self.edgelength[2]/2
+                                  + (iz+self.hshift[2])*self.dx[2]) % 1.0])
+            self.hpos = np.array(hpos)
+
+    def GetAllHpos_wholecell(self):
+        # Return mesh points on the whole cell whose lattice constants are
+        # equal.
+        # To be secure, the folloing bool variables are set as follows.
+        self.wholecell = True
+        self.oldedgelength = False
+        # Note endpoint=True for a periodic cell.
+        a = np.linspace(0, 1., self.nx, endpoint=False)
+        xx, yy, zz = np.meshgrid(a, a, a, indexing='ij')
+        self.hpos = np.column_stack([xx.ravel(), yy.ravel(), zz.ravel()])
+
+    def GetIrreducibleShift_old(self):
+        irr_hpos = self.hpos[0].reshape((1, 3))
+        for ih, _hpos in enumerate(self.hpos):
+            for rot, trans in zip(self.sym['rotations'],
+                                  self.sym['translations']):
+                __hpos = np.matmul(rot, _hpos) + trans
+                MatchFound = False
+                for ir in irr_hpos:
+                    if np.sum(np.abs(__hpos % 1.0 - ir)) < 1e-5:
+                        MatchFound = True
+                        break
+                if MatchFound:
+                    break
+            if not MatchFound:
+                irr_hpos = np.append(irr_hpos, (_hpos % 1.0).reshape((1, 3)),
+                                     axis=0)
+        print(irr_hpos.shape)
+        print(irr_hpos)
+        self.irr_hpos = irr_hpos
+
+    def GetIrreducibleShift(self):
+        # Obtain irreducible H positions w.r.t. symmetry operations.
+        # print('chk rot', self.sym['rotations'].shape)
+        # print(hpos.shape)
+        # print(np.matmul(hpos, sym['rotations']).transpose(1, 0, 2).shape)
+        # print(sym['translations'].shape)
+        # print((np.matmul(hpos, sym['rotations']).transpose(1, 0, 2)
+        # + sym['translations']).shape)
+        irr_hpos = np.array(self.hpos)
+        print('chkchk, irr_hpos',irr_hpos.shape)
+        isym = 0
+        for rot, trans in zip(self.sym['rotations'][1:],
+                              self.sym['translations'][1:]):
+            isym += 1
+            sym_hpos = ((np.matmul(rot, irr_hpos.T)).T + trans) % 1.0
+            sym_hpos[np.abs(sym_hpos - 1.0) <= 1e-14] = 0.
+            cond = np.ones((irr_hpos.shape[0]), dtype=bool)
+            for i, _irr_hpos in enumerate(irr_hpos):
+                if cond[i]:
+                    cond *= np.sum(np.abs(_irr_hpos - sym_hpos) % 1.0,
+                                   axis=1) >= 1e-5
+                    cond[i] = True
+            irr_hpos = irr_hpos[cond]
+        print('chk, irr_hpos',irr_hpos.shape)
+        # print(irr_hpos)
+        self.irr_hpos = irr_hpos
+
+    def GetIrreducibleShift2(self):
+        # this algorithm is too slow and buggy.
+        test = (np.matmul(self.hpos,
+                          self.sym['rotations'][1:]).transpose(1, 0, 2)
+                + self.sym['translations'][1:]) % 1.0
+        test2 = np.repeat(np.expand_dims(test, 2), self.hpos.shape[0], axis=2)
+        cond = np.prod(np.sum(np.abs((self.hpos - test2) % 1.0),
+                              axis=3) >= 1e-5, axis=1, dtype=bool)
+        #irr_idx = [0]
+        #for icol in range(1, cond.shape[0]):
+        #    if np.prod(cond[0:icol, icol], dtype=bool):
+        #        irr_idx.append(icol)
+        #self.irr_hpos = self.hpos[irr_idx]
+
+    def GetDataOverAllHpos(self):
+        # Inverse process to the process 'IrreducibleShift'.
+        # Here the irreducible H index for each of all the H positions is
+        # clarified.
+        # GetDataOverAllHpos4 is fastest.
+        self.irr_idx = np.zeros((self.hpos.shape[0]), dtype=int)
+        for ih, _hpos in enumerate(self.hpos):
+            MatchFound = False
+            for iridx, ir in enumerate(self.irr_hpos):
+                for rot, trans in zip(self.sym['rotations'],
+                                      self.sym['translations']):
+                    _sympos = (np.matmul(rot, ir) + trans) % 1.0
+                    _sympos[np.abs(_sympos - 1.0) <= 1e-14] = 0.
+                    #if np.sum(np.abs(_hpos - ((np.matmul(rot, ir) + trans)
+                    #                          % 1.0))) < 1e-5:
+                    if np.sum(np.abs(_hpos - _sympos)) < 1e-5:
+                        MatchFound = True
+                        self.irr_idx[ih] = iridx
+                        break
+                if MatchFound:
+                    break
+            if not MatchFound:
+                self.irr_idx[ih] = 999
+                print('CHECK!! not mached', _hpos)
+                #for iridx, ir in enumerate(self.irr_hpos):
+                #    for rot, trans in zip(self.sym['rotations'],
+                #                          self.sym['translations']):
+                #        _sympos = (np.matmul(rot, ir) + trans) % 1.0
+                #        _sympos[np.abs(_sympos - 1.0) <= 1e-7] = 0.
+                #        print(_sympos)
+        # print(self.irr_idx)
+        # print(self.irr_idx.shape)
+
+    def GetDataOverAllHpos2(self):
+        self.irr_idx = np.zeros((self.hpos.shape[0]), dtype=int)
+        for ih, _hpos in enumerate(self.hpos):
+            cond = np.ones((self.irr_hpos.shape[0]), dtype=bool)
+            for rot, trans in zip(self.sym['rotations'],
+                                  self.sym['translations']):
+                sym_irr_hpos = (np.matmul(self.irr_hpos, rot) + trans) % 1.0
+                cond *= np.sum(np.abs((_hpos - sym_irr_hpos) % 1.0),
+                               axis=1) >= 1e-5
+            self.irr_idx[ih] = np.arange(0, self.irr_hpos.shape[0]
+                                         )[np.invert(cond)]
+        # print(self.irr_idx.shape)
+
+    def GetDataOverAllHpos3(self):
+        self.irr_idx = np.zeros((self.hpos.shape[0]), dtype=int)
+        sym_irr_hpos = (np.matmul(self.irr_hpos,
+                                  self.sym['rotations']).transpose(1, 0, 2)
+                        + self.sym['translations']) % 1.0
+        for ih, _hpos in enumerate(self.hpos):
+            cond = np.prod(np.sum(np.abs((_hpos - sym_irr_hpos) % 1.0),
+                           axis=2) >= 1e-5, axis=1, dtype=bool)
+            self.irr_idx[ih] = np.arange(0, self.irr_hpos.shape[0]
+                                         )[np.invert(cond)]
+        # print(self.irr_idx)
+
+    def GetDataOverAllHpos4(self):
+        # print(self.irr_hpos.shape)
+        # print(self.sym['rotations'].shape)
+        # print(np.matmul(self.irr_hpos,
+        #       self.sym['rotations']).transpose(1, 0, 2).shape)
+        # print(np.matmul(self.sym['rotations'],
+        #                 self.irr_hpos.T).transpose(2, 0, 1).shape)
+        # print(self.sym['translations'].shape)
+        # test = (np.matmul(self.irr_hpos,
+        #                   self.sym['rotations']).transpose(1, 0, 2)
+        #         + self.sym['translations']) % 1.0
+        # print('chk rot', self.sym['rotations'].shape)
+        # print('chk hpos', self.hpos.shape)
+        # print('chk hpos', self.hpos)
+        test = (np.matmul(self.sym['rotations'],
+                          self.irr_hpos.T).transpose(2, 0, 1)
+                + self.sym['translations']) % 1.0
+        test[np.abs(test - 1.) <= 1e-15] = 0.
+        # print('chk test', test.shape)
+        test2 = np.repeat(np.expand_dims(test, 2), self.hpos.shape[0], axis=2)
+        # print('chk test2', test2.shape)
+        cond = np.prod(np.sum(np.abs(self.hpos - test2) % 1.0,
+                              axis=3) >= 1e-5, axis=1, dtype=bool)
+        # print('chk cond', cond.shape)
+        pairs = np.where(np.invert(cond))
+        # print('chk pairs', pairs[0].shape)
+        self.irr_idx = pairs[0][np.argsort(pairs[1])]
+        print('chk, irr_idx', self.irr_idx.shape, type(self.irr_idx))
+
+    def GenerateShiftedPoscar(self):
+        lat = self.cell[0]
+        pos = self.cell[1]
+        lines = self.lines
+        #print(pos)
+        #print(lines)
+        for il in range(3):
+            lines[il+2] = "     {:.16f}    {:.16f}    {:.16f} \n"\
+                .format(lat[il, 0], lat[il, 1], lat[il, 2])
+        for il in range(len(self.numbers)):
+            if il <= 3:
+                lines[il+self.iniline] =\
+                        "  {:.16f}  {:.16f}  {:.16f}   F   F   F\n"\
+                        .format(pos[il, 0], pos[il, 1], pos[il, 2])
+            else:
+                lines[il+self.iniline] =\
+                        "  {:.16f}  {:.16f}  {:.16f}   T   T   T\n"\
+                        .format(pos[il, 0], pos[il, 1], pos[il, 2])
+
+        for iridx, ir in enumerate(self.irr_hpos):
+            if self.irr_hpos.shape[0] > 9999:
+                outfile = 'POSCAR_' + str(iridx+1).zfill(5)
+            elif self.irr_hpos.shape[0] > 999:
+                outfile = 'POSCAR_' + str(iridx+1).zfill(4)
+            else:
+                outfile = 'POSCAR_' + str(iridx+1).zfill(3)
+            with open(outfile, 'w') as f:
+                for il, line in enumerate(lines):
+                    if il <= self.iniline-1 or\
+                       il >= self.iniline + self.positions.shape[0]:
+                        f.write(line)
+                    else:
+                        if np.sum(np.abs(np.asarray(line.split()[0:3],
+                                         dtype=float) - self.std)) < 1e-5:
+                            f.write("  {:.16f}  {:.16f}  {:.16f}   F   F   F\n"
+                                    .format(ir[0], ir[1], ir[2]))
+                        else:
+                            f.write(line)
+
+    def GenerateExpandedPoscar(self):
+        epsiron = 0.002
+        nst = (self.nx*2+1)**2
+        est = np.zeros((nst, 3))
+        iest = 0
+        for ix in range(-self.nx, self.nx+1):
+            for iy in range(-self.nx, self.nx+1):
+                est[iest, 0] = 1.0 + float(ix)*epsiron
+                est[iest, 1] = 1.0 + float(ix)*epsiron
+                est[iest, 2] = 1.0 + float(iy)*epsiron
+                iest += 1
+        lat = self.lattice
+        lines = self.lines
+        for iest in range(0, nst):
+            if nst > 999:
+                outfile = 'POSCAR_' + str(iest+1).zfill(4)
+            else:
+                outfile = 'POSCAR_' + str(iest+1).zfill(3)
+            with open(outfile, 'w') as f:
+                for il, line in enumerate(lines):
+                    if il >= 2 and il <= 4:
+                        f.write("     {:21.16f}    {:21.16f}    {:21.16f} \n"
+                                .format(lat[il-2, 0]*est[iest, il-2],
+                                        lat[il-2, 1]*est[iest, il-2],
+                                        lat[il-2, 2]*est[iest, il-2]))
+                    else:
+                        f.write(line)
+
+    def GetEnergies(self, relax=False, isreplace=False):
+        ene = []
+        with open(self.enefile, 'r') as f:
+            lines = f.readlines()
+        for line in lines:
+            if relax:
+                ene.append(line.split()[4])
+            else:
+                ene.append(line.split()[3])
+        self.ene = np.array(ene, dtype=float)
+        if isreplace:
+            eave = np.average(self.ene[np.invert(self.AtomDistanceFlag)])
+            self.ene[self.AtomDistanceFlag] = eave + 10.
+
+    def GetPotential(self):
+        print(self.irr_idx.shape)
+        self.potential = self.ene[self.irr_idx].reshape((self.nx, self.nx,
+                                                         self.nx))
+
+    def GetPotential_nxyz(self):
+        print(self.irr_idx.shape)
+        self.potential = self.ene[self.irr_idx].reshape((self.nx[0], self.nx[1],
+                                                         self.nx[2]))
+
+    def PlotPotential(self):
+        #plt.pcolor(self.potential[10, :, :] - np.min(self.potential))
+        #plt.colorbar()
+        print(self.nx // 2)
+        #plt.plot(self.potential[self.nx // 2, self.nx // 2, :]
+        plt.plot(self.potential[:, self.nx // 2, self.nx // 2]
+                 - np.min(self.potential))
+        print(np.min(self.potential))
+        #plt.ylim((0, 1.))
+        plt.show()
+        plt.imshow(self.potential[:, :, self.nx//2])
+        plt.show()
+        # plt.plot(self.hpos[:,0].reshape((self.nx, self.nx, self.nx))[:,7,7],
+        # self.potential[:, 7, 7] - np.min(self.potential), marker='o')
+        # y = np.zeros((self.nx))
+        # x = np.zeros((self.nx))
+        print(np.min(self.potential))
+        print(np.unravel_index(np.argmin(self.potential), self.potential.shape)
+              )
+        print(self.potential[self.nx // 2, self.nx // 2, self.nx // 2])
+        # for i in range(0, self.nx):
+        #     y[i] = self.potential[i, i, 7] - np.min(self.potential)
+        #     x[i] = ((self.hpos[:,0].reshape((self.nx, self.nx,
+        #                                      self.nx))[i, i, 7])**2 +
+        #             (self.hpos[:,1].reshape((self.nx, self.nx,
+        #                                      self.nx))[i, i, 7])**2 +
+        #             (self.hpos[:,2].reshape((self.nx, self.nx,
+        #                                      self.nx))[i, i, 7])**2 )**0.5
+        # plt.plot(x, y, marker='o')
+        #dist = ((self.hpos[:, 0].reshape((self.nx, self.nx, self.nx)) -
+        #         self.hpos[:, 0].reshape((self.nx, self.nx,
+        #                                  self.nx))[2, 2, 2])**2 +
+        #        (self.hpos[:, 1].reshape((self.nx, self.nx, self.nx)) -
+        #         self.hpos[:, 1].reshape((self.nx, self.nx,
+        #                                  self.nx))[2, 2, 2])**2 +
+        #        (self.hpos[:, 2].reshape((self.nx, self.nx, self.nx)) -
+        #         self.hpos[:, 2].reshape((self.nx, self.nx,
+        #                                  self.nx))[2, 2, 2])**2)**0.5
+        #plt.plot([dist[i, i, 7] for i in range(self.nx-1, 6, -1)],
+        #         [self.potential[i, i, 7] - np.min(self.potential)
+        #         for i in range(self.nx-1, 6, -1)], marker='o', label='110')
+        #plt.plot([dist[i, 7, 7] for i in range(self.nx-1, 6, -1)],
+        #         [self.potential[i, 7, 7] - np.min(self.potential)
+        #         for i in range(self.nx-1, 6, -1)], marker='x', label='100')
+        #plt.plot([dist[i, i, i] for i in range(self.nx-1, 6, -1)],
+        #         [self.potential[i, i, i] - np.min(self.potential)
+        #         for i in range(self.nx-1, 6, -1)], marker='.', label='111')
+        #plt.legend()
+
+
+    def WritePotential(self):
+        # Write the potential in a column, which is in the Fortran order,
+        # because Maple uses the Fortran order as its default.
+        np.savetxt('hpot.txt', self.potential.flatten(order='F'))
+
+    def GetVG(self):
+        if 'hlat' in dir(self):
+            edgelength = ((self.hlat**2).sum(axis=0))**0.5
+            print('CHK', np.prod(edgelength))
+            print('CHK', np.linalg.det(self.hlat))
+
+            #self.z = np.prod(edgelength)/np.linalg.det(self.hlat) *\
+            #    np.fft.fftn((self.potential-np.min(self.potential))
+            #                / self.Eh, norm='forward')
+            print('But here I do not correct the volumetric differnce')
+            self.z = np.fft.fftn((self.potential-np.mean(self.potential))
+                                 / self.Eh, norm='forward')
+        else:
+            #self.z = np.fft.fftn((self.potential-np.mean(self.potential))
+            print('mean pot:', np.mean(self.potential))
+            self.z = np.fft.fftn(self.potential / self.Eh, norm='forward')
+
+    def Gphysicalcut(self, lattice):
+        Gs = []
+        nnyq = (self.nx - 1) // 2 - 1
+        dist = []
+        for axis in range(3):
+            vec = np.zeros(3)
+            vec[axis] = 1.
+            dist.append(np.linalg.norm(np.linalg.inv(lattice/self.a0).T @ vec))
+        mindist = min(dist)
+        r_phys = mindist * nnyq
+        for i in range(-nnyq, nnyq+1):
+            for j in range(-nnyq, nnyq + 1):
+                for k in range(-nnyq, nnyq + 1):
+                    G = np.linalg.inv(lattice/self.a0).T  @ np.array([i, j, k])
+                    if np.linalg.norm(G) < r_phys:
+                        Gs.append([i, j, k])
+        return Gs
+
+    def GetG(self):
+        if type(self.edgelength) is list:
+            lattice = np.diag(self.edgelngthina0)*self.a0
+        elif 'hlat' in dir(self):
+            lattice = self.hlat
+        elif self.wholecell:
+            print('Gs with lattice vector')
+            lattice = self.lattice
+        else:
+            lattice = np.diag(np.ones(3)*self.edgelengthina0)*self.a0
+        self.Gs = np.array(self.Gphysicalcut(lattice)).reshape((-1, 3))
+        print('chk Gs:', self.Gs.shape)
+
+    def _GetG(self):
+        print("GetG")
+        Gs = []
+        # print("CHECK_edgelength:", type(self.edgelength))
+        # No matter cell used, rg is in idex unit and 
+        # simply distance of G in index coordination should be less than rg.
+        # The following if and elif routine did not have consistent units.
+        #if type(self.edgelength) is list:
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                #if (i/self.edgelengthina0[0])**2 + (j/self.edgelengthina0[1])**2 + (k/self.edgelengthina0[2])**2 < self.rg**2:
+        #                if np.sum((np.array([i, j, k])/self.edgelengthina0)**2
+        #                          ) < self.rg**2:
+        #                    Gs.append([i, j, k])
+        #elif 'hlat' in dir(self):
+        #    #print('check rec lat edgelength:',
+        #    #      ((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                if (np.matmul(np.linalg.inv(self.hlat).T,
+        #                    np.array([i, j, k]))**2).sum(axis=0) < self.rg**2:
+        #                    Gs.append([i, j, k])
+        #    #print("CHECK rec hlat vec")
+        #    #_rhlat = np.linalg.inv(self.hlat).T
+        #    #print(np.linalg.inv(self.hlat).T[:, 0])
+        #    #print(np.linalg.inv(self.hlat).T[:, 1])
+        #    #print(np.linalg.inv(self.hlat).T[:, 2])
+        #    #print((_rhlat[:, 1] - _rhlat[:, 2])[0])
+        #    #print((_rhlat[:, 0] - (_rhlat[:, 1]- 0.5*(_rhlat[:, 1] - _rhlat[:, 2])))[1])
+        #    #print(((np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0, 0])))**2).sum(axis=0)**0.5)
+        #    #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1, 0])))
+        #    #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0, 1])))
+        #else:
+        #    for i in range(-self.nx//2, self.nx//2+1):
+        #        for j in range(-self.nx//2, self.nx//2+1):
+        #            for k in range(-self.nx//2, self.nx//2+1):
+        #                if i**2 + j**2 + k**2 < self.rg**2:
+        #                    Gs.append([i, j, k])
+        for i in range(-self.nx//2, self.nx//2+1):
+            for j in range(-self.nx//2, self.nx//2+1):
+                for k in range(-self.nx//2, self.nx//2+1):
+                    if i**2 + j**2 + k**2 < self.rg**2:
+                        Gs.append([i, j, k])
+        self.Gs = np.array(Gs).reshape((-1, 3))
+        print('chk Gs:', self.Gs.shape)
+        #print(np.matmul(np.array([1, 1, 1]), np.linalg.inv(self.hlat)))
+        #print(((np.linalg.inv(self.hlat).T)**2).sum(axis=0)**0.5)
+        #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([1, 0., 0])))
+        #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 1., 0])))
+        #print(np.matmul(np.linalg.inv(self.hlat).T, np.array([0, 0., 1])))
+
+    def _Get_Gs(self):
+        if self.wholecell:
+            _Gs = (np.matmul(np.linalg.inv(self.lattice/self.a0).T,
+                             self.Gs.T)).T
+        elif self.oldedgelength:
+            if 'hlat' in dir(self):
+                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0 /
+                                               (self.nx-1)*self.nx).T,
+                                 self.Gs.T)).T
+            else:
+                _Gs = self.Gs/(self.edgelengthina0/(self.nx-1)*self.nx)
+        else:
+            if 'hlat' in dir(self):
+                _Gs = (np.matmul(np.linalg.inv(self.hlat/self.a0).T,
+                                 self.Gs.T)).T
+            else:
+                _Gs = self.Gs/self.edgelengthina0
+        return _Gs
+
+    def _k(self):
+        return (np.matmul(np.linalg.inv(self.lattice/self.a0).T, self.kvec.T)
+                ).T
+
+    def _print_expected_shift(self):
+        # A: 実格子[Bohr], B: reciprocal(2π抜き)
+        A = self.lattice / self.a0
+        B = np.linalg.inv(A).T
+        if not (hasattr(self,'kvec') and self.kvec is not None):
+            print("no kvec; Γ only"); return
+        kcart = B @ np.asarray(self.kvec, float)   # [Bohr^-1], 2π抜き
+        dE_Ha = (2.0*np.pi)**2 * (kcart @ kcart) / (2.0*self.mh)
+        print(f"[CHECK] Expected ΔE_free(k) ≈ {dE_Ha*self.Eh*1000:.3f} meV")
+
+    def GetK(self):
+        _Gs = self._Get_Gs()
+        if 'kvec' in dir(self):
+            print('kvec is considered in K, kvec=', self.kvec)
+            self.K = np.diag((2*np.pi)**2*np.sum((_Gs+self._k())**2, axis=1)
+                             / (2.*self.mh))
+        else:
+            self.K = np.diag((2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh))
+
+    def GetV(self):
+        # Full vectorized version for faster calculation,
+        # by using broadcasting and fancy indexing.
+        dg = (self.Gs[:, None, :] - self.Gs[None, :, :]) % self.nx
+        self.V = self.z[dg[..., 0], dg[..., 1], dg[..., 2]]
+
+        print('diag(V) unique:', np.unique(np.round(np.diag(self.V), 12)))
+
+        #for idx in range(self.V.shape[0]):
+        #    print(self.V[idx, idx])
+
+    def _GetH(self, issave=False):
+        self.H = np.zeros((self.Gs.shape[0], self.Gs.shape[0]), dtype='cdouble'
+                          )
+        for i, gi in enumerate(self.Gs):
+            for j, gj in enumerate(self.Gs):
+                if i == j:
+                    if self.oldedgelength:
+                        if 'hlat' in dir(self):
+                            _gi = np.matmul(np.linalg.inv(self.hlat/self.a0 /
+                                                          (self.nx-1)*self.nx
+                                                          ).T, gi)
+                        else:
+                            _gi = gi/(self.edgelengthina0/(self.nx-1)*self.nx)
+                    else:
+                        if 'hlat' in dir(self):
+                            _gi = np.matmul(np.linalg.inv(self.hlat/self.a0
+                                                          ).T, gi)
+                        else:
+                            _gi = gi/self.edgelengthina0
+                    K = (2*np.pi)**2*np.dot(_gi, _gi)/(2.*self.mh)
+                else:
+                    K = 0.
+                dg = (gi - gj) % self.nx
+                V = self.z[dg[0], dg[1], dg[2]]
+                self.H[i, j] = K + V
+        if issave:
+            with open("./save_H.npy", 'wb') as f:
+                np.save(f, self.H)
+
+    def GetH(self, issave=False):
+        self._print_expected_shift()
+        if 'K' not in dir(self):
+            self.GetK()
+        self.GetV()
+        self.H = self.K + self.V
+        if issave:
+            with open("./save_H.npy", 'wb') as f:
+                np.save(f, self.H)
+
+    def _GetEigen(self, Issave=False, Compress=False):
+        import time
+        time1 = time.time()
+        if Compress and not hasattr(self, 'v'):
+            print('Compression is used in Eigenvalue solution')
+            print('Calculating v matrix of 200 eigen vectors..')
+            dummy, self.v = sl.eigh(self.H, subset_by_index=[0, 199],
+                                    driver='evr')
+            dummy *= self.Eh * 1000.
+            print(np.min(dummy))
+            print(dummy[0:15] - np.min(dummy))
+        time2 = time.time()
+        if Compress and hasattr(self, 'v'):
+            print('Compressing H by v.')
+            self.H_comp = self.v.conj().T @ self.H @ self.v
+            time3 = time.time()
+            print('Calculating 30 eigen from the compressed H')
+            self.E_comp, self.U_comp = sl.eigh(self.H_comp,
+                                               subset_by_index=[0, 29],
+                                               driver='evr')
+            time4 = time.time()
+            self.E_comp *= self.Eh * 1000.
+            print(np.min(self.E_comp), np.min(self.potential))
+            print(self.E_comp[0:15] - np.min(self.E_comp))
+            self.U = self.v @ self.U_comp
+        if not Compress:
+            print('No compression is used in Eigenvalue solution')
+            print(self.H[0,0])
+            self.E, self.U = sl.eigh(self.H+np.eye(self.H.shape[0])*3./self.Eh, subset_by_index=[0, 29])
+            #self.E, self.U = np.linalg.eigh(self.H)
+            self.E *= self.Eh * 1000.
+            print(np.min(self.E))
+            print(self.E[0:15] - np.min(self.E))
+        #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
+        #plt.show()
+        #print('time in sec.')
+        #print(time2-time1, 'solving H')
+        #print(time3-time2, 'preparing H_comp')
+        #print(time4-time3, 'solving H_comp')
+
+        if Issave:
+            dataset = {}
+            dataset['E'] = self.E
+            dataset['U'] = self.U
+            with open("./save_eigen.pkl", 'wb') as f:
+                pickle.dump(dataset, f, 4)
+
+    def LoadEigen(self):
+        with open("./save_eigen.pkl", 'rb') as f:
+            dataset = pickle.load(f)
+            self.E = dataset['E']
+            self.U = dataset['U']
+
+    def GetWavefuncs(self):
+        print("GetWavefuncs")
+        #nmesh = self.nx*2
+        nmesh = self.nx
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape((3, -1))
+        arg = 1.0*np.matmul(self.Gs, pos)*2.*np.pi*1.j/nmesh
+        self.wavefuncs = np.matmul(self.U.T, np.exp(arg)).reshape(
+                (-1, nmesh, nmesh, nmesh))
+
+    def GetDensity(self):
+        self.GetWavefuncs()
+        self.densities = np.imag(self.wavefuncs)**2+np.real(self.wavefuncs)**2
+        #plt.pcolor(self.densities[0, 10, :, :])
+        #print(np.unravel_index(np.argmax(self.densities[7, :, :, :]),
+        #                       self.densities[7, :, :, :].shape))
+        #plt.plot(self.densities[1, :, 10, 10])
+        #plt.show()
+        #phi = np.zeros((self.nx, self.nx), dtype='cdouble')
+        #for ix in range(self.nx):
+        #    for iy in range(self.nx):
+        #        for ig in range(self.Gs.shape[0]):
+        #            g = self.Gs[ig]
+        #            phi[ix, iy] += self.U[ig, 0]*np.exp(-2.0*np.pi*1.j*(1.0*g[0]*ix+1.0*g[1]*iy+g[2]*7.0)/self.nx)
+        #den = np.imag(phi)**2+np.real(phi)**2
+        #plt.pcolor(den)
+        #plt.show()
+
+
+    # --- 追加: 省メモリ ifft 用ヘルパ -------------------------------------------
+    def _ensure_gidx(self, nmesh=None):
+        """
+        G ベクトルを FFT グリッドのインデックスにマップするタプル (_gidx) を用意。
+        """
+        if nmesh is None:
+            nmesh = self.nx
+        if (not hasattr(self, '_gidx')) or (getattr(self, '_fftshape', None) != (nmesh, nmesh, nmesh)):
+            gmod = (self.Gs % nmesh).astype(int)
+            self._gidx = (gmod[:, 0], gmod[:, 1], gmod[:, 2])
+            self._fftshape = (nmesh, nmesh, nmesh)
+
+    def _ifft_from_coeff(self, coeff, nmesh=None, dtype=np.complex64):
+        """
+        G 空間係数 (shape: Ng,) を 3D ifft で実空間波動関数 (shape: nmesh^3) に変換。
+        coeff: self.U[:, n] を想定（complex）
+        """
+        if nmesh is None:
+            nmesh = self.nx
+        self._ensure_gidx(nmesh)
+        X = np.zeros(self._fftshape, dtype=np.complex128)
+        X[self._gidx] = coeff.astype(np.complex128, copy=False)
+        phi_r = np.fft.ifftn(X)  # numpy のデフォルト正規化 ('backward') に合わせる
+        return phi_r.astype(dtype, copy=False)
+
+    # --- 置換: GetWavefuncs（省メモリ & 状態選択対応） --------------------------
+    def __GetWavefuncs(self, states=None, nmesh=None, store=True, dtype=np.complex64, clear_previous=True):
+        """
+        省メモリ版：exp(i G·r) の巨大行列を作らず、状態ごとに ifft で ψ(r) を生成。
+
+        Parameters
+        ----------
+        states : int | list[int] | None
+            計算する固有状態のインデックス。
+            None の場合は self.U の全列を対象（従来互換）。
+        nmesh : int | None
+            実空間グリッドの分割（None なら self.nx）。
+        store : bool
+            True のとき self.wavefuncs に (nstates, nmesh, nmesh, nmesh) を保存。
+            False のときは返り値のみ（self.wavefuncs は触らない）。
+        dtype : np.dtype
+            実空間波動関数配列の dtype（省メモリのため既定は complex64）。
+        clear_previous : bool
+            store=True のとき、既存の self.wavefuncs を上書きするかどうか。
+
+        Returns
+        -------
+        wavefuncs : np.ndarray | None
+            shape = (nstates, nmesh, nmesh, nmesh) の複素配列（store=False のときは必ず返す）。
+        """
+        if not hasattr(self, 'U'):
+            raise RuntimeError("GetWavefuncs: 自己無撞着。先に GetEigen で固有ベクトル self.U を計算してください。")
+        if nmesh is None:
+            nmesh = self.nx
+
+        # 対象状態の正規化
+        if states is None:
+            states_list = list(range(self.U.shape[1]))  # 従来互換（全状態）
+        elif isinstance(states, int):
+            states_list = [states]
+        else:
+            states_list = list(states)
+
+        # 計算
+        out = np.empty((len(states_list), nmesh, nmesh, nmesh), dtype=dtype)
+        for i, st in enumerate(states_list):
+            phi = self._ifft_from_coeff(self.U[:, st], nmesh=nmesh, dtype=dtype)
+            out[i] = phi
+
+        if store:
+            if clear_previous or (not hasattr(self, 'wavefuncs')):
+                self.wavefuncs = out
+                self.wavefunc_states = np.array(states_list, dtype=int)
+            else:
+                # 追記（同じグリッドサイズ前提）
+                self.wavefuncs = np.concatenate([self.wavefuncs, out], axis=0)
+                self.wavefunc_states = np.concatenate([self.wavefunc_states, np.array(states_list, dtype=int)])
+            return None  # 保存したので返さない
+        else:
+            return out  # 保存しない場合は返す
+
+    # --- 置換: GetDensity（省メモリ & 状態選択対応） ----------------------------
+    def __GetDensity(self, states=0, nmesh=None, dtype=np.float32, store=True, clear_previous=True):
+        """
+        省メモリ版：状態ごとに ifft して |ψ|^2 を生成。単一/複数の状態を指定可能。
+
+        Parameters
+        ----------
+        states : int | list[int]
+            密度を出す固有状態（単一でも複数でも可）。既定は 0（基底状態）。
+        nmesh : int | None
+            実空間グリッドの分割（None なら self.nx）。
+        dtype : np.dtype
+            密度配列の dtype（既定 float32）。
+        store : bool
+            True のとき self.densities に保存（従来互換動作）。
+        clear_previous : bool
+            store=True のとき、既存の self.densities を上書きするか。
+
+        Returns
+        -------
+        densities : np.ndarray | None
+            shape = (nstates, nmesh, nmesh, nmesh) の実数配列（store=False のときは必ず返す）。
+        """
+        if not hasattr(self, 'U'):
+            raise RuntimeError("GetDensity: 先に GetEigen を実行して self.U を用意してください。")
+        if nmesh is None:
+            nmesh = self.nx
+
+        # 対象状態リスト
+        if isinstance(states, int):
+            states_list = [states]
+        else:
+            states_list = list(states)
+
+        # 計算（ψは保持せずに |ψ|^2 を生成）
+        out = np.empty((len(states_list), nmesh, nmesh, nmesh), dtype=dtype)
+        for i, st in enumerate(states_list):
+            phi = self._ifft_from_coeff(self.U[:, st], nmesh=nmesh, dtype=np.complex64)
+            den = (phi.real**2 + phi.imag**2).astype(dtype, copy=False)
+            out[i] = den
+
+        if store:
+            if clear_previous or (not hasattr(self, 'densities')):
+                self.densities = out
+                self.density_states = np.array(states_list, dtype=int)
+            else:
+                self.densities = np.concatenate([self.densities, out], axis=0)
+                self.density_states = np.concatenate([self.density_states, np.array(states_list, dtype=int)])
+            return None
+        else:
+            return out
+
+    def GetDensityFile(self, no):
+        outfile = 'density' + str(no) + '.out'
+        den = self.densities[no].flatten(order='F')
+        out = ""
+        for irow in range(den.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    den[irow*5], den[irow*5+1], den[irow*5+2], den[irow*5+3],
+                    den[irow*5+4])
+        last = ""
+        for il in range(den.shape[0] % 5):
+            last += "{:.11e} ".format(den[il+(den.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
+    def GetKdiag(self):
+        _Gs = self._Get_Gs()
+        self.Kdiag = (2*np.pi)**2*np.sum(_Gs**2, axis=1)/(2.*self.mh)
+        return self.Kdiag
+
+    def prepare_krylov_operator(self):
+        gmod = (self.Gs % self.nx).astype(int)
+        self._gidx = (gmod[:, 0], gmod[:, 1], gmod[:, 2])
+        self._V_r = self.potential / self.Eh
+        if not hasattr(self, 'Kdiag'):
+            self.GetKdiag()
+
+    def _matvec_H(self, x):
+        X = np.zeros((self.nx, self.nx, self.nx), dtype=np.complex128)
+        X[self._gidx] = x
+        phi_r = np.fft.ifftn(X)
+        Y_r = self._V_r * phi_r
+        Y_full = np.fft.fftn(Y_r)
+        y = Y_full[self._gidx]
+        y = y + self.Kdiag * x
+        return y.astype(np.complex128)
+
+    #def GetEigen(self, Issave=False, Compress=False):
+    def GetEigen(self, Issave=False, Compress=False, method='dense', k=30, which='SA', tol=1e-8, maxiter=None):
+        if method == 'krylov':
+            if 'Gs' not in dir(self):
+                self.GetG()
+            if 'z' not in dir(self):
+                self.GetVG()
+
+            self.prepare_krylov_operator()
+
+            Ng = self.Gs.shape[0]
+            A = LinearOperator(
+                shape=(Ng, Ng),
+                matvec=lambda v: self._matvec_H(v),
+                dtype=np.complex128
+            )
+
+            E_hartree, U = eigsh(A, k=k, which=which, tol=tol, maxiter=maxiter)
+
+            self.E = E_hartree * self.Eh * 1000.0
+            self.U = U
+            self.E_comp = self.E
+
+            print('Krylov (eigsh) finished: k=', k, ' min(E)[meV] =', np.min(self.E))
+            print(np.min(self.E_comp), np.min(self.potential))
+            print(self.E_comp[0:15] - np.min(self.E_comp))
+
+            if Issave:
+                import pickle
+                dataset = {'E': self.E, 'U': self.U}
+                with open("./save_eigen.pkl", 'wb') as f:
+                    pickle.dump(dataset, f, 4)
+            return
+
+        if method == 'dense':
+            if Compress and not hasattr(self, 'v'):
+                print('Compression is used in Eigenvalue solution')
+                print('Calculating v matrix of 200 eigen vectors..')
+                dummy, self.v = sl.eigh(self.H, subset_by_index=[0, 199],
+                                        driver='evr')
+                dummy *= self.Eh * 1000.
+                print(np.min(dummy))
+                print(dummy[0:15] - np.min(dummy))
+            if Compress and hasattr(self, 'v'):
+                print('Compressing H by v.')
+                self.H_comp = self.v.conj().T @ self.H @ self.v
+                print('Calculating 30 eigen from the compressed H')
+                self.E_comp, self.U_comp = sl.eigh(self.H_comp,
+                                                   subset_by_index=[0, 29],
+                                                   driver='evr')
+                self.E_comp *= self.Eh * 1000.
+                print(np.min(self.E_comp), np.min(self.potential))
+                print(self.E_comp[0:15] - np.min(self.E_comp))
+                self.U = self.v @ self.U_comp
+            if not Compress:
+                print('No compression is used in Eigenvalue solution')
+                print(self.H[0, 0])
+                self.E, self.U = sl.eigh(self.H+np.eye(self.H.shape[0])*3./self.Eh, subset_by_index=[0, 29])
+                #self.E, self.U = np.linalg.eigh(self.H)
+                self.E *= self.Eh * 1000.
+                print(np.min(self.E))
+                print(self.E[0:15] - np.min(self.E))
+        #plt.plot(self.E[0:13] - np.min(self.E), marker='o')
+        #plt.show()
+        #print('time in sec.')
+        #print(time2-time1, 'solving H')
+        #print(time3-time2, 'preparing H_comp')
+        #print(time4-time3, 'solving H_comp')
+
+        if Issave:
+            dataset = {}
+            dataset['E'] = self.E
+            dataset['U'] = self.U
+            with open("./save_eigen.pkl", 'wb') as f:
+                pickle.dump(dataset, f, 4)
+
+
+    def GetSJQFile(self, no):
+        outfile = 'sjqtst' + str(no+3) + '.out'
+        sjq = self.sjq[:, :, :, no].flatten(order='F')
+        out = ""
+        for irow in range(sjq.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    sjq[irow*5], sjq[irow*5+1], sjq[irow*5+2], sjq[irow*5+3],
+                    sjq[irow*5+4])
+        last = ""
+        for il in range(sjq.shape[0] % 5):
+            last += "{:.11e} ".format(sjq[il+(sjq.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
+    def GetSJQTOTFile(self):
+        outfile = 'sjqtsttot345.out'
+        sjq = self.sjq.sum(axis=3).flatten(order='F')
+        out = ""
+        for irow in range(sjq.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    sjq[irow*5], sjq[irow*5+1], sjq[irow*5+2], sjq[irow*5+3],
+                    sjq[irow*5+4])
+        last = ""
+        for il in range(sjq.shape[0] % 5):
+            last += "{:.11e} ".format(sjq[il+(sjq.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
+    def GetPotFile(self):
+        outfile = 'potential.out'
+        #den = (self.potential-np.min(self.potential)).flatten(order='F')
+        ##den = den/np.sum(den)
+        #den = np.max(den) - den
+        #den = den/np.sum(den)
+        den = -self.potential.flatten(order='F')
+        print('CHK!!!!', np.max(den))
+        print('CHK!!!!', np.min(den))
+        out = ""
+        for irow in range(den.shape[0] // 5):
+            out += "{:.11e} {:.11e} {:.11e} {:.11e} {:.11e} \n".format(
+                    den[irow*5], den[irow*5+1], den[irow*5+2], den[irow*5+3],
+                    den[irow*5+4])
+        last = ""
+        for il in range(den.shape[0] % 5):
+            last += "{:.11e} ".format(den[il+(den.shape[0] // 5)*5])
+        out += last + "\n"
+        with open(outfile, 'w') as f:
+            f.write(out)
+
+    def GetTransitionMatrix(self, q, Isplot=True, label=None, istate=0,
+                            Iscalledbyigos=False, nebin=3000):
+        nmesh = self.nx*2
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape(3, -1)
+        arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh
+               ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+        mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
+        self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        ene = np.arange(0, nebin, 1)
+        spec = np.zeros(nebin)
+        if not Iscalledbyigos:
+            for iw, s in enumerate(self.sqw[1:]):
+                dE = (self.E[iw+1] - self.E[istate])
+                sigma = dE*0.02
+                spec += s*np.exp(-(ene - dE)**2/sigma**2)
+                self.dataset = {}
+                self.dataset['ene'] = ene
+                self.dataset['spec'] = spec
+                self.dataset['E'] = self.E
+                self.dataset['sqw'] = self.sqw
+                with open("./savedata_" + label + ".pkl", 'wb') as f:
+                    pickle.dump(self.dataset, f, 4)
+        if Isplot:
+            self.Plotter(label=label)
+
+    def GetTransitionMatrixqdep(self, q, Isplot=True, label=None, istate=0,
+                                Iscalledbyigos=False, nebin=3000):
+        print("GetTransitionMatrixdep")
+        nmesh = self.nx*2
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape(3, -1)
+        q /= (np.sum(q**2))**0.5
+        qlengths = self.GetQlength(self.E - self.E[istate])
+        print("minq and maxq in Angs-1:", np.min(qlengths), np.max(qlengths))
+        qs = (np.tile(q, self.E.shape[0]).reshape(self.E.shape[0], -1)).T
+        qs = (qs*qlengths).T
+        arg = (-1.0*np.matmul(qs, pos)*2.6*1.j/nmesh
+               ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+        mat = np.conj(self.wavefuncs)*self.wavefuncs[istate]*np.exp(arg)
+        self.sqw = np.abs(mat.reshape(mat.shape[0], -1).sum(axis=1))**2
+        fermi = self.GetFermi()
+        occ = self.occ(self.E, fermi, 296.)
+        self.sqw = self.sqw*occ[istate]*(1. - occ)
+        ene = np.arange(0, nebin, 1)
+        spec = np.zeros(nebin)
+        if not Iscalledbyigos:
+            for iw, s in enumerate(self.sqw[1:]):
+                dE = (self.E[iw+1] - self.E[istate])
+                sigma = dE*0.02
+                # kf/ki = (2.44625/(2.44625+dE))**0.5 for LaNi5Hx
+                spec += (2.44625/(2.44625+dE))**0.5*s*np.exp(
+                        -(ene - dE)**2/sigma**2)
+            self.dataset = {}
+            self.dataset['ene'] = ene
+            self.dataset['spec'] = spec
+            self.dataset['E'] = self.E
+            self.dataset['sqw'] = self.sqw
+            with open("./savedata_" + label + ".pkl", 'wb') as f:
+                pickle.dump(self.dataset, f, 4)
+        if Isplot:
+            self.Plotter(label=label)
+
+    def GetQlength(self, dE):
+        return 2.*np.pi*(0.05981993438 + 0.01222688202*dE + 0.0003464878540*(5.984121875 + 2.446246487*dE)**0.5)**0.5
+
+    def occ(self, E, fermi, T):
+        return 1./(np.exp((E-fermi)/(8.617333262*0.01*T)) + 1.)
+
+    def GetFermi(self):
+        fermi = (self.E[1] + self.E[0])/2.0
+        print("initial fermi:", fermi)
+        out = so.minimize(self.res, fermi)
+        print(out)
+        return out.x[0]
+
+    def res(self, fermi):
+        return (np.sum(self.occ(self.E, fermi, 296.)) - 1.)**2.
+
+    def GetSJQ(self):
+        qmesh = 30
+        self.sjq = np.zeros((qmesh, qmesh, qmesh, 3))
+        qlen = 6.
+        nmesh = self.nx*2
+        a = np.arange(nmesh)
+        pos = np.array(np.meshgrid(a, a, a)).transpose((0, 2, 1, 3)
+                                                       ).reshape(3, -1)
+        for iqx, qx in enumerate(np.linspace(qlen*-1, qlen, qmesh)):
+            for iqy, qy in enumerate(np.linspace(qlen*-1, qlen, qmesh)):
+                for iqz, qz in enumerate(np.linspace(qlen*-1, qlen, qmesh)):
+                    q = np.array([qx, qy, qz])
+                    arg = (-1.0*np.matmul(q, pos)*2.*np.pi*1.j/nmesh
+                           ).reshape(-1, nmesh, nmesh, nmesh).squeeze()
+                    mat = np.conj(self.wavefuncs[4:7]
+                                  )*self.wavefuncs[0]*np.exp(arg)
+                    #self.sjq[iqx, iqy, iqz] = np.abs(mat.reshape(mat.shape[0],
+                    #                                 -1).sum(axis=1))**2
+                    self.sjq[iqx, iqy, iqz, :] = np.abs(mat.reshape(mat.shape[0],
+                                                        -1).sum(axis=1))**2
+                 
+        #print(mat.shape)
+        #t = np.abs(mat.reshape(mat.shape[0],-1).sum(axis=1))**2
+        #print(t.shape)
+
+    def PlotSavedData(self, infile, label):
+        self.LoadData(infile)
+        self.Plotter(label=label)
+
+    def LoadData(self, infile):
+        with open(infile, 'rb') as f:
+            self.dataset = pickle.load(f)
+
+    def Plotter(self, label=None):
+        ene = self.dataset['ene']
+        spec = self.dataset['spec']
+        E = self.dataset['E']
+        sqw = self.dataset['sqw']
+        plt.plot(ene, spec, label=label)
+        plt.bar(E[1:] - E[0], sqw[1:])
+        plt.xlim((0, 400))
+
+    def Integrateoverallsolidangle(self, qlength):
+        nmesh = 10
+        thetas = np.pi*np.arange(0, nmesh)/nmesh
+        dtheta = thetas[1] - thetas[0]
+        phis = 2.0*np.pi*np.arange(0, nmesh*2)/nmesh*2
+        dphi = phis[1] - phis[0]
+        print(dtheta, dphi)
+        print(thetas)
+        print(phis)
+        #nmesh = 10
+        #a = np.arange(nmesh)
+        #pos = np.array(np.meshgrid(a, a)).reshape(2, -1)
+        #thetas = np.pi*pos[0]/nmesh
+        #phis = 2.0*np.pi*pos[1]/nmesh
+        #dtheta = np.pi/nmesh
+        #dphi = 2.0*np.pi/nmesh
+        #domegas = np.sin(thetas)*dtheta*dphi
+        #qs = np.zeros((thetas.shape[0], 3))
+        #qs[:,0] = np.sin(thetas)*np.cos(phis)
+        #qs[:,1] = np.sin(thetas)*np.sin(phis)
+        #qs[:,2] = np.cos(thetas)
+        #self.GetTransitionMatrix(qs, domegas,  Isplot=True)
+
+
+        for it, theta in enumerate(thetas):
+            for ip, phi in enumerate(phis):
+                print(it, ip)
+                domega = np.sin(theta)*dtheta*dphi
+                #q = qlength * np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+                q = qlength * np.array([np.cos(theta),
+                                        np.sin(theta)*np.cos(phi),
+                                        np.sin(theta)*np.sin(phi)])
+                self.GetTransitionMatrix(q, Isplot=False, Iscalledbyigos=True)
+                if it == 0 and ip == 0:
+                    IntegratedSqw = np.zeros_like(self.sqw)
+                IntegratedSqw += self.sqw*domega
+        ene = np.arange(0, 3000, 1)
+        spec = np.zeros(3000)
+        for iw, s in enumerate(IntegratedSqw[1:]):
+            dE = (self.E[iw+1] - self.E[0])
+            sigma = dE*0.02
+            spec += s*np.exp(-(ene - dE)**2/sigma**2)
+        plt.plot(ene, spec)
+        plt.bar(self.E[1:] - self.E[0], IntegratedSqw[1:])
+        plt.xlim((0, 400))
+
+    def Integrateoverallsolidangle2(self, qlength):
+        nmesh = 10
+        coss, weights = np.polynomial.legendre.leggauss(nmesh)
+        thetas = np.arccos(coss)
+        phis = 2.0*np.pi*np.arange(0, nmesh*2)/nmesh*2
+        #dphi = phis[1] - phis[0]
+        #print(dtheta, dphi)
+        #print(thetas)
+        #print(phis)
+        #nmesh = 10
+        #a = np.arange(nmesh)
+        #pos = np.array(np.meshgrid(a, a)).reshape(2, -1)
+        #thetas = np.pi*pos[0]/nmesh
+        #phis = 2.0*np.pi*pos[1]/nmesh
+        #dtheta = np.pi/nmesh
+        #dphi = 2.0*np.pi/nmesh
+        #domegas = np.sin(thetas)*dtheta*dphi
+        #qs = np.zeros((thetas.shape[0], 3))
+        #qs[:,0] = np.sin(thetas)*np.cos(phis)
+        #qs[:,1] = np.sin(thetas)*np.sin(phis)
+        #qs[:,2] = np.cos(thetas)
+        #self.GetTransitionMatrix(qs, domegas,  Isplot=True)
+
+
+        for it, theta in enumerate(thetas):
+            for ip, phi in enumerate(phis):
+                print(it, ip)
+                #domega = np.sin(theta)*dtheta*dphi
+                #q = qlength * np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)])
+                q = qlength * np.array([np.cos(theta),
+                                        np.sin(theta)*np.cos(phi),
+                                        np.sin(theta)*np.sin(phi)])
+                self.GetTransitionMatrix(q, Isplot=False, Iscalledbyigos=True)
+                if it == 0 and ip == 0:
+                    IntegratedSqw = np.zeros_like(self.sqw)
+                IntegratedSqw += self.sqw*weights[it]
+        ene = np.arange(0, 3000, 1)
+        spec = np.zeros(3000)
+        for iw, s in enumerate(IntegratedSqw[1:]):
+            dE = (self.E[iw+1] - self.E[0])
+            sigma = dE*0.02
+            spec += s*np.exp(-(ene - dE)**2/sigma**2)
+        #plt.plot(ene, spec)
+        #plt.bar(self.E[1:] - self.E[0], IntegratedSqw[1:])
+        #plt.xlim((0, 400))
+        self.dataset = {}
+        self.dataset['ene'] = ene
+        self.dataset['spec'] = spec
+        self.dataset['E'] = self.E
+        self.dataset['integratedsqw'] = IntegratedSqw
+        with open("./savedata_integrated.pkl", 'wb') as f:
+            pickle.dump(self.dataset, f, 4)
+
+    def Integrateoverallphi(self, label='', istate=0,
+                            mat=np.array([[1., 0., 0.],
+                                          [0., 1., 0.],
+                                          [0., 0., 0.]])):
+        nmesh = 100
+        phis = 2.*np.pi*np.arange(nmesh)/nmesh
+        for ip, phi in enumerate(phis):
+            #q = np.array([np.cos(phi), np.sin(phi), 0.])
+            q = np.cos(phi)*mat[0] + np.sin(phi)*mat[1]
+            #q = np.array([0., np.cos(phi), np.sin(phi)])
+            print("CHECK Q:", q)
+            print("CHECK Q length:", (np.sum(q**2))**0.5)
+            self.GetTransitionMatrixqdep(q, Isplot=False, Iscalledbyigos=True,
+                                         istate=istate)
+            if ip == 0:
+                IntegratedSqw = np.zeros_like(self.sqw)
+            IntegratedSqw += self.sqw
+        IntegratedSqw /= nmesh
+        ene = np.arange(0, 3000, 1)
+        spec = np.zeros(3000)
+        for iw, s in enumerate(IntegratedSqw[1:]):
+            dE = (self.E[iw+1] - self.E[istate])
+            sigma = dE*0.02
+            # spec += s*np.exp(-(ene - dE)**2/sigma**2)
+            # kf/ki = (2.44625/(2.44625+dE))**0.5 for LaNi5Hx
+            spec += (2.44625/(2.44625+dE))**0.5*s*np.exp(
+                    -(ene - dE)**2/sigma**2)
+        self.dataset = {}
+        self.dataset['ene'] = ene
+        self.dataset['spec'] = spec
+        self.dataset['E'] = self.E
+        self.dataset['integratedsqw'] = IntegratedSqw
+        with open("./savedata_phiintegrated" + label + ".pkl", 'wb') as f:
+            pickle.dump(self.dataset, f, 4)
+
+    def CheckShortAtomDistanceFlag(self):
+        AtomDistanceFlag = []
+        for irridx, hpos in enumerate(self.irr_hpos):
+            if self.minbondlength(hpos) < 0.6:
+                print(irridx+1, self.minbondlength(hpos))
+                AtomDistanceFlag.append(True)
+            else:
+                AtomDistanceFlag.append(False)
+        self.AtomDistanceFlag = np.array(AtomDistanceFlag)
+        print('# of AtomDistanceFlags=', np.sum(self.AtomDistanceFlag), 'out of ', self.irr_hpos.shape, 'atoms')
+
+    def minbondlength(self, hpos):
+        epos = self.expos(self.rcell[1])
+        diffpos = np.dot(epos - hpos , self.rcell[0])
+        length = np.sum(diffpos**2, axis=2)**0.5
+        return np.min(length)
+        
+    def expos(self, pos):
+        extendedpos = np.tile(pos, (27, 1)).reshape(27, pos.shape[0], 3)
+        x = np.arange(-1, 2)
+        X, Y, Z = np.meshgrid(x, x, x)
+        flatX = X.flatten().reshape((1, -1))
+        flatY = Y.flatten().reshape((1, -1))
+        flatZ = Z.flatten().reshape((1, -1))
+        XYZ = np.concatenate((flatX, flatY, flatZ), axis=0).transpose()
+        XYZ2 = np.tile(XYZ.reshape(27, 1, -1), (1, pos.shape[0], 1))
+        extendedpos += XYZ2*1.0
+        return(extendedpos)
+
+
+def samplerun():
+    infile = 'CONTCAR'
+    std = 0.5
+    edgelength = 0.4
+    # edgelength = 0.6
+    nx = 14
+    # nx = 13
+    prj = change_hpos(infile, std, edgelength, nx)
+    prj.GetSym()
+    prj.GetAllHpos()
+    prj.GetIrreducibleShift()
+    prj.GenerateShiftedPoscar()
+    prj.GetDataOverAllHpos4()
+    # print(prj.irr_idx)
+    # print(prj.irr_idx.shape)
+
+
+def samplerun2():
+    infile = 'CONTCAR'
+    std = 0.5
+    edgelength = 0.4
+    # edgelength = 0.6
+    nx = 14
+    #  nx = 13
+    enefile = 'ENERGIES'
+    prj = change_hpos(infile, std, edgelength, nx, enefile=enefile)
+    prj.GetEnergies()
+    prj.GetSym()
+    prj.GetAllHpos()
+    prj.GetIrreducibleShift()
+    prj.GetDataOverAllHpos4()
+    prj.GetPotential()
+    #prj.PlotPotential()
+    prj.WritePotential()
+
+
+#samplerun()

@@ -3,9 +3,9 @@
 import numpy as np
 import subprocess
 
-fs = '/home/kazu/bsi3n4_m/fixed_vols/MASTER_POSCAR'
+fs = '/home/kazu/gamma-si3n4-unit/fixed_vols/MASTER_POSCAR'
 
-dvol = 0.4
+dvol = 0.4*4
 nmax = 5
 
 def get_lat(filename):
