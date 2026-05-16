@@ -25,9 +25,9 @@ def get_displacedpos(axis, atompos, atomtyp, dispmax_cart):
 # file = sys.argv[1]
 
 
-file = 'POSCAR'
+file = 'CONTCAR'
 st = Poscar(file).structure
-st_sup = supercell_diagonal(st, [1, 1, 1])
+st_sup = supercell_diagonal(st, [3, 3, 2])
 # st_sup.elements[st_sup.elements == 'A'] = 'Pd'
 # st_sup.elements[st_sup.elements == 'B'] = 'H'
 st_sup_dispd = copy.deepcopy(st_sup)
@@ -44,7 +44,7 @@ for (dispmax1_cart, dispmax2_cart) in zip(
         np.linspace(dispmax_cart[0], 0, 101)[:-1],
         np.linspace(dispmax_cart[1], 0, 101)[:-1]):
     for didxo in range(ndisps):
-        print(dispmax1_cart, dispmax2_cart)
+        #print(dispmax1_cart, dispmax2_cart)
         st_sup_dispd.positions = get_displacedpos(
                 st_sup.axis,
                 st_sup.positions,
