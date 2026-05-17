@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-This script performes Latent Dirichlet Allocation (LDA) analysis
+This script performes author Latent Dirichlet Allocation (LDA) analysis
 on a set of titles and abstract of selected papers.
 Kazuyoshi Tatsumi transferred the ipynb script written by Dr. Yoshifumi Amano
 to this script.
@@ -17,10 +17,11 @@ import os
 import time
 import requests
 import nltk
+from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict, Counter
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-from gensim.models import LdaModel, CoherenceModel
+from gensim.models import LdaModel, AuthorTopicModel, CoherenceModel
 from gensim.corpora import Dictionary
 from wordcloud import WordCloud
 
@@ -143,6 +144,7 @@ def perpare_quantities_for_authors(
                 author2doc[each_author].append(docid)
             else:
                 author2doc[each_author] = [docid]
+    return author2doc
 
 
 def get_num_of_topics_dependence_of_cp(
@@ -193,12 +195,16 @@ def plot_coherence_and_preplrexity(
 def get_model(
     corpus,
     id2word,
+    author2doc,
     savefile,
     num_topics=12,
 ):
-    model = LdaModel(corpus=corpus, id2word=id2word,
-                     iterations=400, num_topics=num_topics, random_state=0)
-    pickle.dump(model, open(savefile, 'wb'))
+    if not os.path.exists(savefile):
+        model = AuthorTopicModel(corpus=corpus, id2word=id2word,
+                                 author2doc=author2doc, num_topics=num_topics,
+                                 random_state=0)
+        pickle.dump(model, open(savefile, 'wb'))
+    model = pickle.load(open(savefile, 'rb'))
     # top_topics = list(model.top_topics(corpus))
     # print(top_topics)
     return model
@@ -423,10 +429,10 @@ def get_df_pre(
     return df_pre
 
 
-def run_LDA(
+def run_author_LDA(
     df_pre,
     data,
-    cpfile: str,
+    #cpfile: str,
     savfile: str,
     target: str,
     num_topics: int = 12,
@@ -434,37 +440,66 @@ def run_LDA(
     corpus, id2word, texts, dictionary =\
         prepare_necesarry_quantities_for_lda_from_data(data)
     count_number_of_words(corpus, target)
-    if not os.path.exists(cpfile):
-        get_num_of_topics_dependence_of_cp(
-            corpus, id2word, texts, dictionary, cpfile)
-    df_coherence_perplexity = pd.read_csv(cpfile)
-    plot_coherence_and_preplrexity(df_coherence_perplexity)
-    model = get_model(corpus, id2word, savfile, num_topics=num_topics,)
+    author2doc = perpare_quantities_for_authors(df_pre)
+    #if not os.path.exists(cpfile):
+    #    get_num_of_topics_dependence_of_cp(
+    #        corpus, id2word, texts, dictionary, cpfile)
+    #df_coherence_perplexity = pd.read_csv(cpfile)
+    #plot_coherence_and_preplrexity(df_coherence_perplexity)
+    model = get_model(corpus, id2word, author2doc, savfile,
+                      num_topics=num_topics,)
     plot_word_cloud(model, target)
-    topics_sum = get_topics_sum(df_pre, model, corpus)
-    plot_year(topics_sum, model)
+    #topics_sum = get_topics_sum(df_pre, model, corpus)
+    #plot_year(topics_sum, model)
+    author_vecs = [model.get_author_topics(author) for author
+                   in model.id2author.values()]
+    print(len(author_vecs))
+    person = 'Takahara,A.'
+    if target == "Title":
+        for i in author2doc[person]:
+            print(i, df_pre.Title[i])
+        No_author = list(author2doc.keys()).index(person)
+        print(author_vecs[No_author])
+    if target == "Abstract":
+        author_vecs_list = np.zeros((len(author_vecs), num_topics))
+        for i in range(len(author_vecs)):
+            for j in range(len(author_vecs[i])):
+                author_vecs_list[i][author_vecs[i][j][0]] =\
+                        author_vecs[i][j][1]
+        No_author = list(author2doc.keys()).index(person)
+        for i in range(len(author_vecs[No_author])):
+            print(author_vecs[No_author][i])
+        for i in author2doc[person]:
+            print(i, df_pre.Title[i])
+        cos_sim = np.sum(author_vecs_list[No_author]*author_vecs_list, axis=1)/(np.linalg.norm(author_vecs_list[No_author])*np.linalg.norm(author_vecs_list, axis=1))
+        author_list = list(author2doc.keys())
+        for i in range(1, 31):
+            print(i, np.argsort(cos_sim)[-1*i], round(cos_sim[np.argsort(cos_sim)[-1*i]], 3),
+                  author_list[np.argsort(cos_sim)[-1*i]], len(author2doc[author_list[np.argsort(cos_sim)[-1*i]]]))
     return corpus, model
 
 
 def run(
     dffile: str,
-    cptitlefile: str,
-    cpabstractfile: str,
+    #cptitlefile: str,
+    #cpabstractfile: str,
     num_topics: int = 12,
-    savtitlefile: str = 'lda_title.sav',
-    savabstractfile: str = 'lda_abstract.sav',
+    savtitlefile: str = 'lda_author_title.sav',
+    savabstractfile: str = 'lda_author_abstract.sav',
     debug: bool = True,
 ):
     df_pre = get_df_pre(dffile, debug=debug)
-    #corpus_title, model_title = run_LDA(
-    #    df_pre, df_pre.Title, cptitlefile, savtitlefile, 'Title',
-    #    num_topics,)
-    corpus_abstract, model_abstract = run_LDA(
-        df_pre, df_pre.Abstract, cpabstractfile, savabstractfile, 'Abstract',
+    corpus_title, model_title = run_author_LDA(
+        df_pre, df_pre.Title, savtitlefile, 'Title', num_topics,)
+
+    corpus_abstract, model_abstract = run_author_LDA(
+        df_pre, df_pre.Abstract, savabstractfile, 'Abstract',
         num_topics=num_topics)
     show_top_phis(model_abstract)
+    """
     thetas = get_theta_matrix(df_pre, model_abstract, corpus_abstract,)
     show_title_of_samples_with_10_largest_thetas_on_each_topic(
         df_pre, thetas, model_abstract,)
     df_country_year, df_merge = show_journal_info(df_pre, debug=debug)
     plot_countries(df_country_year, df_merge)
+    """
