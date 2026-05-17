@@ -1,29 +1,30 @@
 #!/usr/bin/env python
+"""
+This script performes Latent Dirichlet Allocation (LDA) analysis
+on a set of titles and abstract of selected papers.
+Kazuyoshi Tatsumi transferred the ipynb script written by Dr. Yoshifumi Amano
+to this script.
+The input documents should be prepared as a csv file by a separated script.
+Kazuyoshi TATSUMI 2026/05/17
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-import copy
 import math
 import ast
-from collections import defaultdict, Counter
-import seaborn as sns
-import re
+import os
+import time
 import requests
-
 import nltk
+from collections import defaultdict, Counter
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-nltk.download('stopwords')
-
-from gensim.models import LdaModel, CoherenceModel, TfidfModel, AuthorTopicModel
+from gensim.models import LdaModel, CoherenceModel
 from gensim.corpora import Dictionary
-from pprint import pprint
-
 from wordcloud import WordCloud
-import gensim
-import os
 
+nltk.download('stopwords')
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = ['Arial']
 
@@ -212,9 +213,10 @@ def plot_word_cloud(
     model,
     target: str,
 ):
-    n_components = 12
-    fig, axs = plt.subplots(ncols=4, nrows=math.ceil(n_components/4),
-                            figsize=(10, 8))
+    num_topics = model.num_topics
+    ncols = 4
+    nrows = math.ceil(num_topics/ncols)
+    fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(10, 8))
     axs = axs.flatten()
 
     for i, t in enumerate(range(model.num_topics)):
@@ -240,11 +242,10 @@ def get_topics_sum(
         df_pre,
         model,
         corpus,
-        num_topics=12,
 ):
     topics_sum = []
     for year in range(1991, 2024):
-        topics_year = np.zeros(num_topics)
+        topics_year = np.zeros(model.num_topics)
         count = 0
         for index in df_pre[df_pre['Year'] == year].index:
             count += 1
@@ -258,14 +259,14 @@ def get_topics_sum(
 
 
 def plot_year(
-        topics_sum_title,
-        num_topics_title=12,
+        topics_sum,
+        model,
 ):
     cm = plt.get_cmap('tab20')
     plt.subplots(figsize=(8, 3))
-    for i in range(1, num_topics_title+1):
-        plt.plot(pd.DataFrame(topics_sum_title)[0],
-                 pd.DataFrame(topics_sum_title)[i], linewidth=5,
+    for i in range(1, model.num_topics+1):
+        plt.plot(pd.DataFrame(topics_sum)[0],
+                 pd.DataFrame(topics_sum)[i], linewidth=5,
                  label='topic'+str(i), c=cm(i))
     plt.legend(bbox_to_anchor=(1, 1), fontsize=14, labelspacing=0.1)
     plt.xlabel('Year', fontsize=20)
@@ -280,98 +281,72 @@ def plot_year(
     plt.show()
 
 
-def show_largest_10_phis(model):
-    for i, t in enumerate(range(model.num_topics)):
-        print("=========topic", str(i+1), "==========")
-        x = dict(model.show_topic(t, 10))
-        print(pd.DataFrame.from_dict(dict(x), orient='index'))
+def show_top_phis(model, topn=10):
+    for i in range(model.num_topics):
+        print(f"\n{'='*15} Topic {i+1} {'='*15}")
+        selected_phis = model.show_topic(i, topn=topn)
+        df_phi = pd.DataFrame(selected_phis, columns=['word', 'probability'])
+        print(df_phi.set_index('word'))
 
 
 def get_theta_matrix(
         df_pre,
         model,
         corpus,
-        num_topics=12):
-    thetas = np.zeros((len(df_pre), num_topics))
+        ):
+    thetas = np.zeros((len(df_pre), model.num_topics))
     for d_idx, crp in enumerate(corpus):
-        # d番目の文書の事後分布 θ_d を計算
         theta_d = model.get_document_topics(crp, minimum_probability=0)
         for k_idx, prob in theta_d:
             thetas[d_idx][k_idx] = prob
     return thetas
 
 
-def do_unknown_things(
-        df_pre, model,
-        corpus_abstract,
-        num_topics=12,
-):
-    #topics_prev = np.zeros((len(df_pre), num_topics))
-    #print("CHK", corpus_abstract[0:100])
-    #for i in range(len(corpus_abstract)):
-    #    topics = model.get_document_topics(corpus_abstract[i])
-    #    for j in range(len(topics)):
-    #        topics_prev[i][topics[j][0]] += topics[j][1]
-    thetas = get_theta_matrix(df_pre, model, corpus_abstract, num_topics=num_topics)
-
-    #for topic_No in range(num_topics):
-    #    print('---------------------'+str(topic_No+1)+'---------------------')
-    #    for i in range(10):
-    #        No_doc = np.arange(len(topics_prev))[
-    #                topics_prev[:, topic_No] ==
-    #                np.sort(topics_prev[:, topic_No])[-(i+1)]]
-    #        if len(No_doc) != 1:
-    #            print('There are more than two documents', i, j)
-    #        print(No_doc[0], np.sort(topics_prev[:, topic_No])[-(i+1)],
-    #              df_pre.loc[No_doc[0]].Title)
-    for k_idx in range(num_topics):
+def show_title_of_samples_with_10_largest_thetas_on_each_topic(
+        df_pre,
+        thetas,
+        model,
+        ):
+    for k_idx in range(model.num_topics):
         print(f"\n{'='*20} Topic {k_idx+1} {'='*20}")
-        # 確率が高い順にインデックスを10個取得
         top10_didxs = np.argsort(thetas[:, k_idx])[::-1][:10]
         for d_idx in top10_didxs:
-            print(f"[{d_idx:d}][{thetas[d_idx, k_idx]:.4f}] {df_pre.iloc[d_idx].Title}")
+            print(f"[{d_idx:d}][{thetas[d_idx, k_idx]:.4f}]"
+                  + f" {df_pre.iloc[d_idx].Title}")
 
+
+def prepare_journal_list_file(
+        df_pre,
+        ):
     issn_dic = Counter(df_pre.ISSN)
     #print(issn_dic)
-    df_issn_dic = pd.DataFrame(issn_dic, index=['abc']).T.sort_values(
-        'abc', ascending=False)
+    df_issn_dic = pd.DataFrame(issn_dic.items(), columns=['ISSN', 'count'])
+    df_issn_dic = df_issn_dic.sort_values('count', ascending=False)
     #print(df_issn_dic)
     Journal_list = []
     for i in range(0, len(df_issn_dic)):
-        num_paper = df_issn_dic.iloc[i].values[0]
-        issn = df_issn_dic.index[i]
+        num_paper = df_issn_dic.iloc[i]['count']
         if num_paper < 10:
             break
-        r = requests.get(f"https://api.openalex.org/sources", params={'filter': f'issn:{issn}'})
-        if r.json()['results'] == []:
+        issn = df_issn_dic.iloc[i]['ISSN']
+        result = requests.get("https://api.openalex.org/sources",
+                              params={'filter': f'issn:{issn}'})
+        time.sleep(0.2)
+        if result.json()['results'] == []:
             continue
         if i < 11 or i % 100 == 0:
-            print(r.json()['results'][0]['display_name'], r.json()['results'][0]['country_code'], issn, num_paper)
-        Journal_list.append([r.json()['results'][0]['display_name'], r.json()['results'][0]['country_code'], issn, num_paper])
+            print(result.json()['results'][0]['display_name'],
+                  result.json()['results'][0]['country_code'], issn, num_paper)
+        Journal_list.append([result.json()['results'][0]['display_name'],
+                             result.json()['results'][0]['country_code'],
+                             issn, num_paper])
     pd.DataFrame(Journal_list).to_csv('Journal_list.csv')
-    issn = '1538-4357'
-    requests.get(f"https://api.openalex.org/sources", params={'filter': f'issn:{issn}'}).json()['results'][0]['country_code']
-    df_journal = pd.read_csv('Journal_list.csv', index_col=0)
-    df_journal.columns = ['journal', 'country', 'ISSN', 'num_paper']
-    print(df_journal)
-    df_merge = pd.merge(df_pre, df_journal[['country', 'ISSN']], on='ISSN', how='left')
-    print(df_merge)
-    df_country_year=pd.DataFrame()
-    for year in range(1991, 2024):
-        df_country_year = pd.concat(
-            [df_country_year,
-             df_merge[df_merge.Year == year].country.value_counts() /
-             np.sum(df_merge[df_merge.Year == year].country.value_counts())
-             ], axis=1)
-    df_country_year = df_country_year.T
-    df_country_year.index = np.arange(1991, 2024)
-    print(df_country_year)
-    country_list = Counter(df_journal.country)
-    print(country_list)
-    df_country = pd.DataFrame(country_list, index=['abc']
-                              ).T.sort_values('abc', ascending=False)
-    print(df_country)
-    print(df_country.index[:8])
+
+
+def plot_countries(
+        df_country_year,
+        df_merge,
+        ):
     country_name_list = ['United States of America',
                          'United Kingdom',
                          'Netherlands',
@@ -381,12 +356,13 @@ def do_unknown_things(
                          "People's Republic of China",
                          'Russian Federation', ]
     cm = plt.get_cmap('tab20')
-    plt.subplots(figsize=(5, 6))
-    for i in range(8):
+    plt.subplots(figsize=(10, 5))
+    for i in range(10):
         plt.plot(df_country_year.index,
                  df_country_year[df_merge.country.value_counts().keys()[i]],
                  marker='o', color=cm(i), markersize=8,
-                 label=country_name_list[i])
+                 label=df_merge.country.value_counts().keys()[i])
+                 #label=country_name_list[i])
     #plt.legend(bbox_to_anchor=(1, 1), fontsize=14)
     plt.xlabel('Year', fontsize=20)
     plt.ylabel('Ratio of papers', fontsize=20)
@@ -397,7 +373,51 @@ def do_unknown_things(
     #plt.yscale('log')
     plt.yticks([0, 0.1, 0.2, 0.3, 0.4])
     plt.minorticks_on()
+    plt.tight_layout()
     plt.show()
+
+
+def show_journal_info(
+        df_pre,
+        jlistfile: str = 'Journal_list.csv',
+        debug: bool = False,
+):
+    if not os.path.exists(jlistfile):
+        prepare_journal_list_file(df_pre,)
+    df_journal = pd.read_csv(jlistfile, index_col=0)
+    df_journal.columns = ['Journal_from_openarex', 'country', 'ISSN', 'num_paper']
+    df_merge = pd.merge(df_pre, df_journal[['country', 'ISSN']], on='ISSN',
+                        how='left')
+    df_country_year = pd.DataFrame()
+    for year in range(1991, 2024):
+        df_country_year = pd.concat(
+            [df_country_year,
+             df_merge[df_merge.Year == year].country.value_counts() /
+             np.sum(df_merge[df_merge.Year == year].country.value_counts())
+             ], axis=1)
+    df_country_year = df_country_year.T
+    df_country_year.index = np.arange(1991, 2024)
+    if debug:
+        print("print(df_journal)")
+        print(df_journal)
+        print("print(df_merge)")
+        print(df_merge)
+        print("print(df_contry_year)")
+        print(df_country_year)
+        country_list = Counter(df_journal.country)
+        print("print(country_list)")
+        print(country_list)
+        df_country = pd.DataFrame(country_list, index=['abc']
+                                  ).T.sort_values('abc', ascending=False)
+        print("print(df_country)")
+        print(df_country)
+        print("print(df_country.index[:8])")
+        print(df_country.index[:8])
+        print("print(df_merge[df_merge.country == 'JP']" +
+              ".Journal.value_counts().head(10))")
+        print(df_merge[df_merge.country == 'JP'
+                       ].Journal.value_counts().head(10))
+    return df_country_year, df_merge
 
 
 def get_df_pre(
@@ -418,6 +438,7 @@ def run_LDA(
     cpfile: str,
     savfile: str,
     target: str,
+    num_topics: int = 12,
 ):
     corpus, id2word, texts, dictionary =\
         prepare_necesarry_quantities_for_lda_from_data(data)
@@ -425,13 +446,12 @@ def run_LDA(
     if not os.path.exists(cpfile):
         get_num_of_topics_dependence_of_cp(
             corpus, id2word, texts, dictionary, cpfile)
-    df_coherence_perplexity_title = pd.read_csv(cpfile)
-    plot_coherence_and_preplrexity(df_coherence_perplexity_title)
-    model = get_model(corpus, id2word, savfile, num_topics=12,)
+    df_coherence_perplexity = pd.read_csv(cpfile)
+    plot_coherence_and_preplrexity(df_coherence_perplexity)
+    model = get_model(corpus, id2word, savfile, num_topics=num_topics,)
     plot_word_cloud(model, target)
-    topics_sum_title = get_topics_sum(
-            df_pre, model, corpus, num_topics=12,)
-    plot_year(topics_sum_title, num_topics_title=12,)
+    topics_sum = get_topics_sum(df_pre, model, corpus)
+    plot_year(topics_sum, model)
     return corpus, model
 
 
@@ -439,17 +459,21 @@ def run(
     dffile: str,
     cptitlefile: str,
     cpabstractfile: str,
+    num_topics: int = 12,
     savtitlefile: str = 'lda_title.sav',
     savabstractfile: str = 'lda_abstract.sav',
     debug: bool = True,
 ):
     df_pre = get_df_pre(dffile, debug=debug)
     #corpus_title, model_title = run_LDA(
-    #    df_pre, df_pre.Title, cptitlefile, savtitlefile, 'Title')
+    #    df_pre, df_pre.Title, cptitlefile, savtitlefile, 'Title',
+    #    num_topics,)
     corpus_abstract, model_abstract = run_LDA(
-        df_pre, df_pre.Abstract, cpabstractfile, savabstractfile, 'Abstract')
-    show_largest_10_phis(model_abstract)
-    topics_sum_abstract = get_topics_sum(
-        df_pre, model_abstract, corpus_abstract, num_topics=12)
-    plot_year(topics_sum_abstract, num_topics_title=12,)
-    do_unknown_things(df_pre, model_abstract, corpus_abstract, num_topics=12)
+        df_pre, df_pre.Abstract, cpabstractfile, savabstractfile, 'Abstract',
+        num_topics=num_topics)
+    show_top_phis(model_abstract)
+    thetas = get_theta_matrix(df_pre, model_abstract, corpus_abstract,)
+    show_title_of_samples_with_10_largest_thetas_on_each_topic(
+        df_pre, thetas, model_abstract,)
+    df_country_year, df_merge = show_journal_info(df_pre, debug=debug)
+    plot_countries(df_country_year, df_merge)
