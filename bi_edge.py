@@ -7,11 +7,13 @@ import pickle
 import matplotlib.pyplot as plt
 import copy
 import datetime
-sys.path.append("/home/kazu/ktpro")
+home = os.path.expanduser("~")
+sys.path.append(home + "/ktpro")
+sys.path.append(home + "/denoise")
 from gp_nrca import draw_sample, draw_sample2d, draw_sample2d_mpi
 from rits_fit_kt import get_sim_spectrum, get_sim_edgespectrum, get_sim_edgespectrum_local
-sys.path.append("/home/kazu/denoise")
 import bi2d
+from alpha_Te_to_a0_b0 import run_alpha_Te_to_a0_b0
 np.random.seed(129)
 
 
@@ -25,15 +27,15 @@ def get_params_edge(rpkl=None, wpkl=None):
         param_sets['string'] = ['Te']
         #param_sets['lims_mean'] = [[0.7, 1.0]]    this is set in param_sets_bccrev2_edge.pkl
         param_sets['lims_mean'] = [[0.86062, 0.860621]]
-        #param_sets['lims_scale'] = [[0.001, 0.03]] this is set in param_sets_bccrev2_edge.pkl
-        param_sets['lims_scale'] = [[0.000001, 0.00003]]
+        #param_sets['lims_scale'] = [[0.001, 0.03]] # this is set in param_sets_bccrev2_edge.pkl
+        param_sets['lims_scale'] = [[0.00001, 0.00002]]
         param_sets['lims_xlim'] = [[10., 30.]]
         param_sets['param_name'].append("Alpha")
         param_sets['string'].append("alpha")
         #param_sets['lims_mean'].append([0.9875, 1.0125]) this is set in param_sets_bccrev2_edge.pkl
         param_sets['lims_mean'].append([1.01521, 1.015211])
-        #param_sets['lims_scale'].append([0.001, 0.0025]) this is set in param_sets_bccrev2_edge.pkl
-        param_sets['lims_scale'].append([0.000001, 0.0000025])
+        #param_sets['lims_scale'].append([0.001, 0.0025]) # this is set in param_sets_bccrev2_edge.pkl
+        param_sets['lims_scale'].append([0.0001, 0.0002])
         param_sets['lims_xlim'].append([10., 30.])
         param_sets['param_name'].append("Beta")
         param_sets['string'].append("beta")
@@ -75,6 +77,9 @@ def draw_params_edge_mpi(rg, param_sets, dim=1, kerneltype='square'):
         _kerneltype = kerneltypes[rg.integers(3)]
     else:
         _kerneltype = kerneltype
+    if dim == 2:
+        samples_alphaTe, samples_a0b0 = run_alpha_Te_to_a0_b0(n_target=1, rg=rg)
+        print('samples_alphaTe', samples_alphaTe, 'samples_a0b0', samples_a0b0)
     for pidx in range(len(param_sets['param_name'])):
         lims_mean = param_sets['lims_mean'][pidx]
         lims_scale = param_sets['lims_scale'][pidx]
@@ -86,6 +91,10 @@ def draw_params_edge_mpi(rg, param_sets, dim=1, kerneltype='square'):
             _params = draw_sample(mean=mean, numsample=1, scale=scale,
                                   xlim=xlim)
         elif dim == 2:
+            if pidx == 0:
+                mean = samples_alphaTe[0, 1]
+            if pidx == 1:
+                mean = samples_alphaTe[0, 0]
             _params = draw_sample2d_mpi(
                     rg, mean=mean, numsample=1, scale=scale, xlim=xlim,
                     xsize=72, ysize=192, rsize=1, kerneltype=_kerneltype)
@@ -151,7 +160,7 @@ def cycles_edge_mpi(pklfile, ns=10, dim=2, kerneltype='square',
         rg = comm.scatter(rgs, root=0)
     else:
         from numpy.random import Generator, PCG64, SeedSequence
-        sg = SeedSequence(1234)
+        sg = SeedSequence(1236)
         ss = sg.spawn(psize)
         rg = Generator(PCG64(ss[rank]))
     _param_sets_sets = []
@@ -188,14 +197,15 @@ def cycles_edge_mpi(pklfile, ns=10, dim=2, kerneltype='square',
 
 
 def cycles_edge_mpi_div(nss=10, ns=10, dim=2, kerneltype='square',
-                        orgpklfile='param_sets_sets_bccrev2_2d_edge.pkl'):
+                        rpklfile="param_sets_bccrev4_test_.pkl",
+                        orgpklfile='param_sets_sets_bccrev4_.pkl'):
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     psize = comm.Get_size()
     import gc
     # for restart job
-    param_sets = get_params(rpkl='param_sets_bccrev2_edge.pkl')
+    param_sets = get_params_edge(rpkl=rpklfile)
     for inss in range(nss):
         pklfile = orgpklfile + "." + str(inss+1)
         outpklfile = orgpklfile + "." + str(inss+2)
@@ -426,43 +436,33 @@ def reform_param_sets(param_sets_sets):
     return param_sets_sets
 
 
-def single_edgecomputation_phantom(pklfile='paramimage_expt_5models.pkl'):
+def single_edgecomputation_phantom(
+        paramimagefile,
+        outfile,
+        inpfile='edge_3.inp.phantom',
+        ):
     # for constructing phantom data from the result of the rits edge fitting.
-    with open(pklfile, 'rb') as f:
+    with open(paramimagefile, 'rb') as f:
         paramimage = pickle.load(f)
-    inpfile = 'edge_3.inp.phantom'
-    #bi3d_true, x = run_edge_local2_phantom_mean(paramimage, inpfile=inpfile)
-    #import matplotlib.pyplot as plt
-    #plt.imshow(np.sum(np.abs(paramimage), axis=0))
-    #plt.show()
     bi3d_true = run_edge_local2_phantom(paramimage, inpfile=inpfile)
-    #bi3d_true, x = run_edge_phantom(paramimage, inpfile=inpfile)
-    #with open('bi2dsingle_scratch_rev.pkl.phantom_local', 'wb') as f:
-    #with open('bi2dsingle_denoised_5models.pkl.phantom_local', 'wb') as f:
-    #with open('bi2dsingle_scratch_rev2.pkl.phantom_local', 'wb') as f:
-    #with open('bi2dsingle_denoised_rev2_5models.pkl.phantom_local', 'wb') as f:
-    #with open('bi2dsingle_scratch_rev3.pkl.phantom_local', 'wb') as f:
-    with open('bi2dsingle_denoised_5models_ktrand.pkl.phantom_local', 'wb') as f:
-        #with open('bi2dsingle_scratch_rev4.pkl.phantom_local', 'wb') as f:
-        #with open('bi2dsingle_scratch.pkl.phantom', 'wb') as f:
+    with open(outfile, 'wb') as f:
         pickle.dump(bi3d_true, f, 4)
 
 
-def synthesize_bi3ddata():
-    with open('/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
-              'rb') as f:
+def synthesize_bi3ddata(
+    openbeamfile='/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
+    transmissionfile='bi3d_test_single_rev4_true_edge_ktrand_wosingle.pkl',
+    outfile='bi3d_testbcc_simudata_rev4_lim_single_resize_full_211_true_edgev_ktrand_wosingle.pkl',
+    partial=False,
+        ):
+    with open(openbeamfile, 'rb') as f:
         openbeamexp = pickle.load(f)
         openbeamexp_noisy = pickle.load(f)
         sampleexp = pickle.load(f)
         sampleexp_noisy = pickle.load(f)
-    with open('bi3d_test_single_rev2_true_edge_ktrand_wosingle.pkl', 'rb') as f:
+    with open(transmissionfile, 'rb') as f:
         datasets = pickle.load(f)
-    #data = datasets['target'].transpose((0,2,1,3))
-    #shape = datasets['target'].shape
-    #data = datasets['target'].reshape((shape[0], shape[2], shape[1], shape[3]))
     data = datasets['target']
-    #plt.imshow(data[0,:,:,:].sum(axis=2))
-    #plt.show()
     print("openbeamexp:", openbeamexp.shape)
     print("data:", data.shape)
     _shape = openbeamexp.shape
@@ -472,8 +472,12 @@ def synthesize_bi3ddata():
     tcount_openbeamexp_noisy = openbeamexp_noisy.sum(axis=0)
     # spatially averaged open beam spectrum
     mean_openbeamexp = np.mean(openbeamexp, axis=(1, 2))*1.15
-    sample = (data*mean_openbeamexp).transpose((0, 3, 2, 1))\
-        * tcount_openbeamexp / np.sum(mean_openbeamexp)*1.5
+    if partial:
+        sample = (data*mean_openbeamexp).transpose((0, 3, 2, 1))\
+            * tcount_openbeamexp / np.sum(mean_openbeamexp)*1.8/7.
+    else:
+        sample = (data*mean_openbeamexp).transpose((0, 3, 2, 1))\
+            * tcount_openbeamexp / np.sum(mean_openbeamexp)*1.5
     op = ((np.zeros_like(data[0])+1)*mean_openbeamexp).transpose((2, 1, 0))\
         * tcount_openbeamexp/np.sum(mean_openbeamexp)
     print("sample:", sample.shape)
@@ -493,6 +497,204 @@ def synthesize_bi3ddata():
     idx[idx < 0] = 0
     idx[idx > w - 1] = w - 1
     #
+    smoothed = np.median(sampleexp[idx, 40-8, 24-16], axis=0)
+    fig, ax = plt.subplots(2, 2)
+    if partial:
+        expspectrum = sampleexp_noisy
+        expopenbeam = openbeamexp_noisy
+        expspectrumlabel = 'sampleexp_noisy'
+        expopenbeamlabel = 'expt_openbeam_noisy'
+    else:
+        expspectrum = sampleexp
+        expopenbeam = openbeamexp
+        expspectrumlabel = 'sampleexp'
+        expopenbeamlabel = 'expt_openbeam'
+    for didx, (spectrum, label) in enumerate(zip([expspectrum[:, px, py],
+                                             np.random.poisson(
+                                                 sample[snum, :, px, py])],
+                                             [expspectrumlabel, 'samplesim'])):
+        smoothed = np.median(spectrum[idx], axis=0)
+        ax[0, didx].plot(spectrum, label=label)
+        ax[0, didx].plot(smoothed, label='medianfiltered')
+        ax[0, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[0, didx].set_xlabel('TOF / ch')
+        ax[0, didx].set_ylabel('Neutron Count')
+        ax[0, didx].legend()
+        ax[1, didx].plot(spectrum - smoothed)
+        ax[1, didx].set_ylabel(label + '-medianfiltered')
+        ax[1, didx].set_xlabel('TOF / ch')
+    plt.tight_layout()
+    #plt.savefig('noise_levels_sample_exp_simu.png')
+    plt.show()
+
+    fig, ax = plt.subplots(4, 2, figsize=(10, 15))
+    for didx, (spectrum, label) in enumerate(zip([sampleexp[:, px, py],
+                                                  sampleexp_noisy[:, px, py],
+                                                  openbeamexp[:, px, py],
+                                                  openbeamexp_noisy[:, px, py]
+                                                  ],
+                                                 ['sample',
+                                                  'sample_part',
+                                                  'openbeam',
+                                                  'openbeam_part']
+                                                 )):
+        smoothed = np.median(spectrum[idx], axis=0)
+        ax[didx, 0].plot(spectrum, label=label)
+        ax[didx, 0].plot(smoothed, label='medianfiltered')
+        ax[didx, 0].set_xlabel(r'$\lambda$ / ch')
+        ax[didx, 0].set_xlabel('TOF / ch')
+        ax[didx, 0].set_ylabel('Neutron Count')
+        ax[didx, 0].legend()
+        ax[didx, 1].plot(spectrum - smoothed)
+        ax[didx, 1].set_ylabel('Diff.')
+    plt.tight_layout()
+    #plt.savefig('noise_levels_sample_exp_full_part.png')
+    plt.show()
+
+    fig, ax = plt.subplots(4, 2, figsize=(10, 10))
+    _op = np.random.poisson(op)
+    vmin1 = np.min(np.vstack((_op[:, px, :], expopenbeam[:, px, :])))
+    vmax1 = np.max(np.vstack((_op[:, px, :], expopenbeam[:, px, :])))
+    vmin2 = np.min(np.vstack((_op[:, :, py], expopenbeam[:, :, py])))
+    vmax2 = np.max(np.vstack((_op[:, :, py], expopenbeam[:, :, py])))
+    vmin3 = np.min(np.vstack((_op.sum(axis=0), expopenbeam.sum(axis=0))))
+    vmax3 = np.max(np.vstack((_op.sum(axis=0), expopenbeam.sum(axis=0))))
+    ymax = np.max(np.vstack((_op[:, px, py], expopenbeam[:, px, py])))
+    ymin = np.min(np.vstack((_op[:, px, py], expopenbeam[:, px, py])))
+    for didx, (image, name) in enumerate(zip([_op, expopenbeam],
+                                             ['simulated_openbeam',
+                                                 expopenbeamlabel])):
+        ax[0, didx].set_title(name + f' crosssection at y={px} ch')
+        ax[0, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[0, didx].set_ylabel('y / ch')
+        ax[0, didx].imshow(image[:, px, :].T, vmin=vmin1, vmax=vmax1, aspect=5)
+        ax[1, didx].set_title(name + f' crosssection at x={py} ch')
+        ax[1, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[1, didx].imshow(image[:, :, py].T, vmin=vmin2, vmax=vmax2, aspect=10)
+        ax[1, didx].set_ylabel('x / ch')
+        ax[2, didx].set_title(name + ' projected onto xy')
+        ax[2, didx].imshow(image.sum(axis=0), vmin=vmin3, vmax=vmax3)
+        ax[2, didx].set_xlabel('x / ch')
+        ax[2, didx].set_ylabel('y / ch')
+        ax[2, didx].axhline(px, color='r', linestyle='--', lw=1)
+        ax[2, didx].axvline(py, color='r', linestyle='--', lw=1)
+        ax[3, didx].set_title(name + f' intensity at y={px} ch, x={py} ch')
+        ax[3, didx].plot(image[:, px, py])
+        ax[3, didx].set_ylim([ymin, ymax])
+        ax[3, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[3, didx].set_ylabel('Neutron Count')
+    plt.tight_layout()
+    #plt.savefig('openbeam_data_expt_simu.png')
+    plt.show()
+    fig, ax = plt.subplots(4, 2, figsize=(10, 10))
+    _sample = np.random.poisson(sample[snum])
+    vmin1 = np.min(np.vstack((_sample[:, px, :], expspectrum[:, px, :])))
+    vmax1 = np.max(np.vstack((_sample[:, px, :], expspectrum[:, px, :])))
+    vmin2 = np.min(np.vstack((_sample[:, :, py], expspectrum[:, :, py])))
+    vmax2 = np.max(np.vstack((_sample[:, :, py], expspectrum[:, :, py])))
+    vmin3 = np.min(np.vstack((_sample.sum(axis=0), expspectrum.sum(axis=0))))
+    vmax3 = np.max(np.vstack((_sample.sum(axis=0), expspectrum.sum(axis=0))))
+    ymax = np.max(np.vstack((_sample[:, px, py], expspectrum[:, px, py])))
+    ymin = np.min(np.vstack((_sample[:, px, py], expspectrum[:, px, py])))
+    for didx, (image, name) in enumerate(zip([_sample, expspectrum],
+                                             ['simulated_sample',
+                                                 expspectrumlabel])):
+        ax[0, didx].set_title(name + ' crosssection at y=4 ch')
+        ax[0, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[0, didx].set_ylabel('y / ch')
+        ax[0, didx].imshow(image[:, px, :].T, vmin=vmin1, vmax=vmax1, aspect=5)
+        ax[1, didx].set_title(name + ' crosssection at x=32 ch')
+        ax[1, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[1, didx].imshow(image[:, :, py].T, vmin=vmin2, vmax=vmax2, aspect=10)
+        ax[1, didx].set_ylabel('x / ch')
+        ax[2, didx].set_title(name + ' projected onto xy')
+        ax[2, didx].imshow(image.sum(axis=0), vmin=vmin3, vmax=vmax3)
+        ax[2, didx].set_xlabel('x / ch')
+        ax[2, didx].set_ylabel('y / ch')
+        ax[2, didx].axhline(px, color='r', linestyle='--', lw=1)
+        ax[2, didx].axvline(py, color='r', linestyle='--', lw=1)
+        ax[3, didx].set_title(name + ' intensity at y=4 ch, x=32 ch')
+        ax[3, didx].plot(image[:, px, py])
+        ax[3, didx].set_ylim([ymin, ymax])
+        ax[3, didx].set_xlabel(r'$\lambda$ / ch')
+        ax[3, didx].set_ylabel('Neutron Count')
+    plt.tight_layout()
+    plt.savefig('sample_data_expt_simu.png')
+    plt.show()
+    sample = sample.transpose((0, 3, 2, 1))[:, np.newaxis].astype('float32')
+    with open(outfile, 'wb') as f:
+        pickle.dump(sample, f, 4)
+
+
+def synthesize_bi3ddata_with_various_intensities(
+    openbeamfile='/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
+    transmissionfile='bi3d_test_single_rev4_true_edge_ktrand_wosingle.pkl',
+    outfilehead='bi3d_testbcc_simudata_rev4_lim_single_resize_full_211_true_edgev_ktrand_wosingle_intx',
+):
+    with open(openbeamfile, 'rb') as f:
+        openbeamexp = pickle.load(f)
+    with open(transmissionfile, 'rb') as f:
+        data = pickle.load(f)['target']
+    print(data.shape)
+    # open beam intensities integrated w.r.t tof
+    tcount_openbeamexp = openbeamexp.sum(axis=0)
+    # noisy open beam intensities integrated w.r.t tof
+    # spatially averaged open beam spectrum
+    #for amp in 2**np.linspace(1, 10, 10):
+    for amp in [32., 64.]:
+        mean_openbeamexp = np.mean(openbeamexp, axis=(1, 2))*1.15
+        sample = (data*mean_openbeamexp).transpose((0, 3, 2, 1))\
+            * tcount_openbeamexp / np.sum(mean_openbeamexp)/315715.*553690.*amp
+        sample = sample.transpose((0, 3, 2, 1))[:, np.newaxis].astype('float32')
+        op = ((np.zeros_like(data[0])+1)*mean_openbeamexp).transpose((2, 1, 0))\
+            * tcount_openbeamexp/np.sum(mean_openbeamexp) * amp
+        with open(outfilehead + str(amp)[:-2] + '.pkl', 'wb') as f:
+            pickle.dump(sample, f, 4)
+
+
+def synthesize_bi3ddata_phantom(
+    openbeamexfile='/home/kazu/desktop/240424/uNID_data_KO/211/openbeam_ex.pkl',
+    transmissionfile='bi2dsingle_denoised_5models_train_rev4.pkl.phantom_localoutfile',
+    outfile='bi3d_denoised_5models_train_rev4_phantom_local.pkl',
+):
+    with open(openbeamexfile, 'rb') as f:
+        openbeamexp = pickle.load(f)
+        openbeamexp_noisy = pickle.load(f)
+        sampleexp = pickle.load(f)
+        sampleexp_noisy = pickle.load(f)
+    with open(transmissionfile, 'rb') as f:
+        data = pickle.load(f)[np.newaxis]
+    # To stride 1x5x5, additional x y arrays are added.
+    dataex = np.ones((data.shape[0], data.shape[1]+4, data.shape[2]+4, data.shape[3]))
+    dataex[:, 2:-2, 2:-2] = data
+    data = dataex
+    _shape = openbeamexp.shape
+    # open beam intensities integrated w.r.t tof
+    tcount_openbeamexp = openbeamexp.sum(axis=0)
+    # noisy open beam intensities integrated w.r.t tof
+    tcount_openbeamexp_noisy = openbeamexp_noisy.sum(axis=0)
+    # spatially averaged open beam spectrum
+    mean_openbeamexp = np.mean(openbeamexp, axis=(1, 2))*1.15
+    sample = (data*mean_openbeamexp).transpose((0, 3, 2, 1))\
+        * tcount_openbeamexp / np.sum(mean_openbeamexp)/315715.*553690.
+    op = ((np.zeros_like(data[0])+1)*mean_openbeamexp).transpose((2, 1, 0))\
+        * tcount_openbeamexp/np.sum(mean_openbeamexp)
+    plt.plot(sample[0, :, 48, 32])
+    plt.show()
+    x = np.arange(_shape[0])*20.+2300
+    output = np.vstack((x, sample[0, :, 40, 12]/op[:, 40, 12]))
+    output = np.vstack((output, np.zeros_like(x) + 0.01))
+    np.savetxt('check_simuspectrum.txt', output.T)
+
+    px = 57
+    py = 44
+    snum = 0
+    # for median filter
+    k = 24
+    w = sampleexp.shape[0]
+    idx = np.fromfunction(lambda i, j: i + j, (k, w), dtype=np.int64) - k // 2
+    idx[idx < 0] = 0
+    idx[idx > w - 1] = w - 1
     smoothed = np.median(sampleexp[idx, 40-8, 24-16], axis=0)
     fig, ax = plt.subplots(2, 2)
     for didx, (spectrum, label) in enumerate(zip([sampleexp[:, px, py],
@@ -599,7 +801,7 @@ def synthesize_bi3ddata():
         ax[2, didx].set_ylabel('y / ch')
         ax[2, didx].axhline(px, color='r', linestyle='--', lw=1)
         ax[2, didx].axvline(py, color='r', linestyle='--', lw=1)
-        ax[3, didx].set_title(name + ' intensity at y=4 ch, x=32 ch')
+        ax[3, didx].set_title(name + f' intensity at y={py} ch, x={px} ch')
         ax[3, didx].plot(image[:, px, py])
         ax[3, didx].set_ylim([ymin, ymax])
         ax[3, didx].set_xlabel(r'$\lambda$ / ch')
@@ -608,49 +810,51 @@ def synthesize_bi3ddata():
     plt.savefig('sample_data_expt_simu.png')
     plt.show()
     sample = sample.transpose((0, 3, 2, 1))[:, np.newaxis].astype('float32')
-    #op = op.transpose((2, 1, 0))
-    print(sample.shape)
-    print(data.shape)
-    #_shape2 = sample.shape
-    #sample[:, 1::2] = np.flip(sample[:, 1::2], axis=2)
-    #data[:, 1::2] = np.flip(data[:, 1::2], axis=2)
-    #sample = sample.reshape((-1, _shape2[2]*2, _shape2[3]))
-    #data = data.reshape((-1, _shape2[2]*2, _shape2[3]))
-    #fig, ax = plt.subplots(4, 1, figsize=(10, 10))
-    #ax[0].imshow(sample[0])
-    #ax[1].imshow(data[0])
-    #ax[2].plot(data[0, :, 300], marker='o')
-    #ax[3].plot(sample[0, :, 300], marker='x')
-    #plt.show()
-    #sim_datasets = {}
-    #sim_datasets['sample'] = sample
-    #sim_datasets['op'] = op
-    #sim_datasets['x'] = x
-    #with open('bi3d_testbcc_simudata_rev2_lim_single_resize_full_211_true_edgev_ktrand_wosingle.pkl.12', 'wb') as f:
-    #    pickle.dump(sample, f, 4)
+    with open(outfile, 'wb') as f:
+        pickle.dump(np.random.poisson(sample[0, 0]).transpose((2, 1, 0)), f, 4)
+        pickle.dump(np.random.poisson(op), f, 4)
 
 
-def synthesize_bi3ddata_with_various_intensities():
-    with open('/home/kazu/desktop/240424/uNID_data_KO/211/openbeam.pkl',
-              'rb') as f:
-        openbeamexp = pickle.load(f)
-    with open('/home/kazu/desktop/240424/connect2d/sampled/bi3d_test_single_rev2_true_edge_ktrand.pkl', 'rb') as f:
-        data = pickle.load(f)['target']
-    print(data.shape)
-    # open beam intensities integrated w.r.t tof
-    tcount_openbeamexp = openbeamexp.sum(axis=0)
-    # noisy open beam intensities integrated w.r.t tof
-    # spatially averaged open beam spectrum
-    #for amp in 2**np.linspace(1, 10, 10):
-    for amp in [2., 4., 8., 16.]:
-        mean_openbeamexp = np.mean(openbeamexp, axis=(1, 2))*1.15
-        sample = (data*mean_openbeamexp).transpose((0, 3, 2, 1))\
-            * tcount_openbeamexp / np.sum(mean_openbeamexp)/315715.*553690.*amp
-        sample = sample.transpose((0, 3, 2, 1))[:, np.newaxis].astype('float32')
-        op = ((np.zeros_like(data[0])+1)*mean_openbeamexp).transpose((2, 1, 0))\
-            * tcount_openbeamexp/np.sum(mean_openbeamexp) * amp
-        with open('bi3d_testbcc_simudata_rev2_lim_single_resize_full_211_true_edgev_ktrand_intx' + str(amp)[:-2] + '.pkl', 'wb') as f:
-            pickle.dump(sample, f, 4)
+def gather_bi2d_only_cond(timescale=600, nidx=100):
+    for iniidx in range(nidx):
+        with open('/home/kazu/desktop/240424/bi2d/' + str(iniidx) + '_rev.pkl',
+                  'rb') as f:
+            data = pickle.load(f)
+        cond = np.isnan(data).sum(axis=1).sum(axis=1) == 0
+        if iniidx == 0:
+            condt = cond
+        else:
+            condt = np.concatenate([condt, cond])
+    param_sets_sets = load_param_sets_sets(param_sets_sets_file='param_sets_sets_bccrev.pkl')
+    param_sets_sets_disel = []
+    for pssidx in range(30000):
+        if not condt[pssidx]:
+            param_sets_sets_disel.append(param_sets_sets[pssidx])
+
+    with open('/home/kazu/desktop/240424/param_sets_sets_bccrev_disel.pkl', 'wb') as f:
+        pickle.dump(param_sets_sets_disel, f, 4)
+
+def gather_bi3d_edge(nini=0, nfin=100, pklfile='dummy.pkl'):
+    datat = []
+    nremainders = 0
+    for iniidx in range(nini, nfin):
+        print(nremainders, iniidx)
+        with open('bi2dedge.pkl.' + str(iniidx), 'rb') as f:
+            data = pickle.load(f)
+            x = pickle.load(f)
+            if np.sum(np.isnan(data)) == 0 and np.min(data) >= 0.:
+                datat.append(data)
+                nremainders += 1
+    if os.path.isfile(pklfile):
+        with open(pklfile, 'rb') as f:
+            _datasets = pickle.load(f)
+        datat = np.vstack((_datasets['target'], np.array(datat)))
+    datasets = {}
+    datasets['target'] = np.array(datat)
+    print(datasets['target'].shape)
+    datasets['x'] = x
+    with open(pklfile, 'wb') as f:
+        pickle.dump(datasets, f, 4)
 
 
 def show_histograms_of_rits_params(param_sets_sets_file, paramname):
@@ -693,3 +897,4 @@ def calculate_alpha_and_Te_for_optimum_a0_b0(a0=0.025, b0=0.075):
 # synthesize_bi3ddata()
 # check_data()
 # crude_parallel_computation()
+# gather_bi3d_edge(nini=0, nfin=1280, pklfile='bi3d_test_single_rev2_true_edge_ktrand_wosingle.pkl.12')

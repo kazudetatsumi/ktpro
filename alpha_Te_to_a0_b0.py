@@ -50,17 +50,22 @@ def get_weights(a0, b0, mu_a0, sigma_a0, mu_b0, sigma_b0):
 def execute_montecalro_sampling(
     a0_range, b0_range, k, C, mu_a0, sigma_a0, mu_b0, sigma_b0,
     n_target=5000,    # gather 5000 points
+    rg=None,
 ):
     samples_alphaTe = []  # (alpha, Te)
     samples_a0b0 = []     # (a0, b0)
-    # outer flame for sampling from the trapozoid region
+    # outer flame for sampling from the trapezoid region
     alpha_min, alpha_max = 1.0, np.exp(b0_range[1] * C / 10000)
     Te_min, Te_max = np.exp(-k * np.log(alpha_max) - a0_range[1]), 1.0
     while len(samples_alphaTe) < n_target:
         # 1. 1st dice: uniform sampling within a rectangle enveloping
-        #    the trapozid region
-        try_alpha = np.random.uniform(alpha_min, alpha_max)
-        try_Te = np.random.uniform(Te_min, Te_max)
+        #    the trapezoid region
+        if rg is None:
+            try_alpha = np.random.uniform(alpha_min, alpha_max)
+            try_Te = np.random.uniform(Te_min, Te_max)
+        else:
+            try_alpha = rg.uniform(alpha_min, alpha_max)
+            try_Te = rg.uniform(Te_min, Te_max)
         # checking whether the sample is inside of the trapezoid
         a0 = -k * np.log(try_alpha) - np.log(try_Te)
         b0 = 10000 * np.log(try_alpha) / C
@@ -68,13 +73,17 @@ def execute_montecalro_sampling(
                 (b0_range[0] <= b0 <= b0_range[1]):
             # 2. 2nd dice: weighting the sampling of a0 and b0.
             p = get_weights(a0, b0, mu_a0, sigma_a0, mu_b0, sigma_b0)
-            if np.random.rand() < p:
-                samples_alphaTe.append([try_alpha, try_Te])
-                samples_a0b0.append([a0, b0])
+            if rg is None:
+                random_value = np.random.rand()
+            else:
+                random_value = rg.random()
+                if random_value < p:
+                    samples_alphaTe.append([try_alpha, try_Te])
+                    samples_a0b0.append([a0, b0])
     return np.array(samples_alphaTe), np.array(samples_a0b0)
 
 
-# visulaization of the results
+# visualization of the results
 def plot_results(samples_alphaTe, samples_a0b0):
     fig, ax = plt.subplots(1, 2, figsize=(14, 5))
     # Left figure: distribution on alpha-Te region
@@ -97,12 +106,12 @@ def plot_results(samples_alphaTe, samples_a0b0):
     plt.show()
 
 
-def run():
+def run_alpha_Te_to_a0_b0(n_target=5000, plot=False, rg=None):
     ti, te, C, k, a0_range, b0_range, mu_a0, sigma_a0, mu_b0, sigma_b0 =\
         get_constants()
     samples_alphaTe, samples_a0b0 = execute_montecalro_sampling(
-            a0_range, b0_range, k, C, mu_a0, sigma_a0, mu_b0, sigma_b0)
-    plot_results(samples_alphaTe, samples_a0b0)
-
-
-run()
+            a0_range, b0_range, k, C, mu_a0, sigma_a0, mu_b0, sigma_b0,
+            n_target=n_target, rg=rg)
+    if plot:
+        plot_results(samples_alphaTe, samples_a0b0)
+    return samples_alphaTe, samples_a0b0
