@@ -980,6 +980,6 @@ def compare_grads_and_pi():
 
 
 if __name__ == '__main__':
-    #compare_grads()
+    compare_grads()
     compare_grads_and_pi()
 
