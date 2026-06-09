@@ -198,7 +198,7 @@ def compare_grads():
     plt.axvline(q95, color='r', linestyle='-', lw=1, label='q^train_95', alpha=0.6)
     plt.axvline(q99, color='r', linestyle='--', lw=1, label='q^train_99', alpha=0.6)
     #plt.xscale('log'); 
-    plt.ylim([0, 0.05])
+    #plt.ylim([0, 0.05])
     plt.ylabel('Density'); plt.xlabel('|∇T|')
     plt.legend(); plt.tight_layout(); plt.show()
 

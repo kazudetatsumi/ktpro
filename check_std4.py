@@ -108,14 +108,15 @@ def check_std():
 
     # ===== 1st row of 2D map=====
     ax_map = fig.add_subplot(gs[0, 0])
-    cim = ax_map.imshow(cond, norm=colors.LogNorm(vmin=cond.min(), vmax=cond.max()))
+    cim = ax_map.imshow(cond, norm=colors.LogNorm(vmin=cond.min(),
+                        vmax=cond.max()), cmap='Grays')
 
     # Annotation
     for pidx, pos in enumerate([maxpos, maxposin, poslists[0]]):
         ax_map.annotate('#'+str(pidx+1), xy=(pos[1], pos[0]),
                         xytext=(pos[1]+5, pos[0]+5), textcoords='data',
-                        color='white', fontsize=10,
-                        arrowprops=dict(arrowstyle="->", color='white'))
+                        color='k', fontsize=11,
+                        arrowprops=dict(arrowstyle="->", color='k'))
 
     ax_map.set_ylabel('y / ch')
     ax_map.set_xlabel('x / ch')
@@ -136,7 +137,8 @@ def check_std():
     cax.tick_params(direction='in', labelsize=8)
 
     # ===== 2nd row: three lineplots without no vacant space between them =====
-    area_pos = fig.add_subplot(gs[1, 0]).get_position()
+    #area_pos = fig.add_subplot(gs[1, 0]).get_position()
+    area_pos = gs[1, 0].get_position(fig)
 
     # equally divided into three and no vacant space between them.
     h_each = area_pos.height / 3.0
@@ -148,23 +150,23 @@ def check_std():
     ax4 = fig.add_axes([left, bottom4, width, h_each])
     ax3 = fig.add_axes([left, bottom3, width, h_each], sharex=ax4)
     ax2 = fig.add_axes([left, bottom2, width, h_each], sharex=ax4)
-    for axi, pos in zip([ax2, ax3, ax4], [maxpos, maxposin, poslists[0]]):
-        axi.plot(maxstd[pos[0], pos[1]], label='maxstd')
-        axi.plot(std_sample[pos[0], pos[1]], label='std_sample')
+    for axid, (axi, pos) in enumerate(zip([ax2, ax3, ax4],
+                                          [maxpos, maxposin, poslists[0]])):
+        axi.plot(maxstd[pos[0], pos[1]], label='max std in val', c='k', ls='--')
+        axi.plot(std_sample[pos[0], pos[1]], label='experiment', c='k')
         axi.tick_params(direction='in', top=True, right=True)
         axi.set_ylim([0., 6])
-    ax2.legend(loc='best', fontsize=9)
-    ax3.legend(loc='best', fontsize=9)
-    ax4.legend(loc='best', fontsize=9)
+        axi.legend(loc='upper right', fontsize=8, frameon=True)
+        axi.set_ylabel('std')
+        axi.text(2, 5, "#"+str(axid+1), fontsize=11)
     for axi in [ax2, ax3]:
         plt.setp(axi.get_xticklabels(), visible=False)
         axi.tick_params(labelbottom=False)
         axi.tick_params(labelsize=8)
     ax4.set_xlabel('tof / ch')
     ax4.tick_params(labelsize=8)
-    ax2.set_ylabel('std')
-    ax3.set_ylabel('std')
-    ax4.set_ylabel('std')
+    for axi in [ax3, ax4]: # 下側の軸の「一番上の目盛り」を消す場合
+        axi.yaxis.get_major_ticks()[-1].label1.set_visible(False)
     plt.show()
 
 
