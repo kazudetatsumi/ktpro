@@ -237,6 +237,7 @@ def pixel_edge_paths(mask: np.ndarray):
 
     return paths
 
+
 def on_frame_xy(p, W, H, atol=1e-9):
     return (np.isclose(p[0], -0.5, atol=atol) or
             np.isclose(p[0], W - 0.5, atol=atol) or
@@ -278,9 +279,15 @@ def compare_images4_2d():
             row_ax.append(a)
         axes.append(row_ax)
     mask = get_mask(smallarea=True)
+    # get a list of mask boundary positions, bd: [[y[i], x[i]]].
     bd = measure.find_contours(mask == 1, level=0.5)[0]
+    # size of square ROIs
     edge = 16
+    # x positions whose y positions == bdpys are picked up from mask boundary
+    # positions. They are used to set centers of ROIs.
     bdpys = [20, 61, 53]
+    # indicies which select one position from possibly plural positions picked
+    # up from each element in bdpys.
     bdidids = [0, 0, 1]
     llimss = []
     ulimss = []
@@ -339,63 +346,15 @@ def compare_images4_2d():
             cbar.set_label(clabel, labelpad=0.2)
             cax.tick_params(direction='in', labelsize=8, length=3)
             cbar.locator = MaxNLocator(nbins=4)
-            cbar.update_ticks()  # これがポイント：カラーバーの
+            cbar.update_ticks()
         _bd = get_bd(_mask)
         for aidx, _ax in enumerate(axes[lidx][:-1]):
-            _ax.plot(_bd[:, 0]+llims[1], _bd[:, 1]+llims[0], ls=':', c='w')
+            _ax.plot(_bd[:, 0]+llims[1], _bd[:, 1]+llims[0], ls='-', c='w')
         for ridx in range(3):
             for cidx in range(4):
                 axes[ridx][cidx].set_ylabel('y / ch', labelpad=0.1)
                 axes[ridx][cidx].set_xlabel('x / ch', labelpad=0.1)
                 axes[ridx][cidx].tick_params(length=2, pad=0.01)
-    plt.show()
-
-
-def _compare_images4_2d():
-    from skimage import measure
-    timage = get_timage(['denoisedx2_5models', 'denoised_5models',
-                        'stride155/expt'])
-    mask = get_mask(smallarea=True)
-    bd = measure.find_contours(mask == 1, level=0.5)[0]
-    edge = 16
-    bdpys = [20, 61, 53]
-    bdidids = [0, 0, 1]
-    llimss = []
-    ulimss = []
-    for bdpy, bdidid in zip(bdpys, bdidids):
-        # Note that bd[:, 0] is y value.
-        bdids = np.where(bd[:, 0] == bdpy)[0][bdidid]
-        bdp = [int(bd[bdids, 1]), int(bd[bdids, 0])]
-        llims = [bdp[1]-edge, bdp[0]-edge]
-        ulims = [bdp[1]+edge, bdp[0]+edge]
-        if llims[1] < 0:
-            diff = llims[1]
-            llims[1] -= diff
-            ulims[1] -= diff
-        if ulims[0] > mask.shape[0]:
-            diff = ulims[0] - mask.shape[0]
-            llims[0] -= diff
-            ulims[0] -= diff
-        llimss.append(llims)
-        ulimss.append(ulims)
-    with open('params_scratch_rev4.pkl', 'rb') as f:
-        paramimage = pickle.load(f)
-    x_test = paramimage[:6]
-    bitest = timage[1]
-    fig, ax = plt.subplots(3, 4)
-    for lidx, (ulims, llims) in enumerate(zip(ulimss, llimss)):
-        true = x_test[4, llims[0]:ulims[0], llims[1]:ulims[1]]
-        denoise = bitest[4, llims[0]:ulims[0], llims[1]:ulims[1]]
-        _mask = ~mask[llims[0]:ulims[0], llims[1]:ulims[1]]
-        vmin = min(np.min(true[true > 0.]), np.min(denoise[denoise > 0.]))
-        vmax = max(np.max(true), np.max(denoise))
-        ax[lidx, 0].imshow(true, vmin=vmin, vmax=vmax)
-        ax[lidx, 1].imshow(denoise, vmin=vmin, vmax=vmax)
-        ax[lidx, 2].imshow(np.abs(true-denoise))
-        ax[lidx, 3].imshow(_mask)
-        _bds = measure.find_contours(_mask == 1, level=0.5)[0]
-        for aidx, _ax in enumerate(ax[lidx, :-1]):
-            _ax.plot(_bds[:, 1], _bds[:, 0], ls=':', c='w')
     plt.show()
 
 
