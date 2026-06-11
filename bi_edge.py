@@ -70,11 +70,14 @@ def get_params_edge(rpkl=None, wpkl=None):
     return param_sets
 
 
-def draw_params_edge_mpi(rg, param_sets, dim=1, kerneltype='square'):
+def draw_params_edge_mpi(
+        rg, param_sets, dim=1, kerneltype='square', wosingle=True):
     if kerneltype == 'random':
-        #kerneltypes = ['square', 'single', 'third', 'fifth']
-        kerneltypes = ['square', 'third', 'fifth']
-        _kerneltype = kerneltypes[rg.integers(3)]
+        if wosingle:
+            kerneltypes = ['square', 'third', 'fifth']
+        else:
+            kerneltypes = ['square', 'single', 'third', 'fifth']
+        _kerneltype = kerneltypes[rg.integers(len(kkerneltypes))]
     else:
         _kerneltype = kerneltype
     if dim == 2:
@@ -139,6 +142,7 @@ def draw_params_edge_mpi(rg, param_sets, dim=1, kerneltype='square'):
 def cycles_edge_mpi(pklfile, ns=10, dim=2, kerneltype='square',
                     rpklfile=None,
                     wpklfile=None,
+                    wosingle=True,
                     ):
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
@@ -173,7 +177,8 @@ def cycles_edge_mpi(pklfile, ns=10, dim=2, kerneltype='square',
     for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
         print('rank=', rank, 'ins=', ins)
         _param_sets_sets.append(draw_params_edge_mpi(rg, param_sets, dim=dim,
-                                                     kerneltype=kerneltype))
+                                                     kerneltype=kerneltype,
+                                                     wosingle=wosingle))
     comm.barrier()
     param_sets_sets = comm.gather(_param_sets_sets, root=0)
     rg_sets = comm.gather(rg, root=0)
@@ -198,7 +203,8 @@ def cycles_edge_mpi(pklfile, ns=10, dim=2, kerneltype='square',
 
 def cycles_edge_mpi_div(nss=10, ns=10, dim=2, kerneltype='square',
                         rpklfile="param_sets_bccrev4_test_.pkl",
-                        orgpklfile='param_sets_sets_bccrev4_.pkl'):
+                        orgpklfile='param_sets_sets_bccrev4_.pkl',
+                        wosingle=True):
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -225,7 +231,8 @@ def cycles_edge_mpi_div(nss=10, ns=10, dim=2, kerneltype='square',
         for ins in range(rank*(ns//psize), (rank+1)*(ns//psize)):
             print('rank=', rank, 'ins=', ins)
             _param_sets_sets.append(draw_params_edge_mpi(rg, param_sets,
-                                    dim=dim, kerneltype=kerneltype))
+                                    dim=dim, kerneltype=kerneltype,
+                                    wosingle=wosingle))
         comm.barrier()
         param_sets_sets = comm.gather(_param_sets_sets, root=0)
         rg_sets = comm.gather(rg, root=0)
@@ -867,14 +874,60 @@ def show_histograms_of_rits_params(param_sets_sets_file, paramname):
     print(params[0]['lims_mean'])
     #plt.imshow(params[0]['params'][4])
     #plt.show()
-    for pidx, name in enumerate(params[0]['param_name']):
-        if name == paramname:
-            target_pidx = pidx
-    print('CHECK', target_pidx)
-    for pset in params:
-        paramvals.append(pset['params'][target_pidx])
-    paramvals = np.asarray(paramvals)
-    plt.hist(paramvals.flatten(), bins=40)
+    #for pidx, name in enumerate(params[0]['param_name']):
+    #    if name == paramname:
+    #        target_pidx = pidx
+    #print('CHECK', target_pidx)
+    #for pset in params:
+    #    paramvals.append(pset['params'][target_pidx])
+    #paramvals = np.asarray(paramvals)
+    #plt.hist(paramvals.flatten(), bins=40)
+    #plt.show()
+    a0 = []
+    b0 = []
+    ahkl = []
+    bhkl = []
+    dhkl = []
+    sigma0 = []
+    for pset in params[0:20]:
+        a0.append(pset['params'][0])
+        b0.append(pset['params'][1])
+        ahkl.append(pset['params'][2])
+        bhkl.append(pset['params'][3])
+        dhkl.append(pset['params'][4])
+        sigma0.append(pset['params'][5])
+    a0 = np.array(a0).flatten()
+    b0 = np.array(b0).flatten()
+    ahkl = np.array(ahkl).flatten()
+    bhkl = np.array(bhkl).flatten()
+    dhkl = np.array(dhkl).flatten()
+    sigma0 = np.array(sigma0).flatten()
+    fig, ax = plt.subplots(3, 3, figsize=(10, 5))
+    ax[0,0].hist(a0, bins=20, label='a0')
+    ax[0,0].set_xlabel('a0')
+    ax[0,0].legend()
+    ax[1,0].hist(b0.flatten(), bins=20, label='b0')
+    ax[1,0].set_xlabel('b0')
+    ax[1,0].legend()
+    ax[2,0].scatter(a0, b0, s=0.1)
+    ax[2,0].set_xlabel('a0')
+    ax[2,0].set_ylabel('b0')
+    ax[0,1].hist(ahkl, bins=20, label='ahkl')
+    ax[0,1].set_xlabel('ahkl')
+    ax[0,1].legend()
+    ax[1,1].hist(bhkl, bins=20, label='bhkl')
+    ax[1,1].set_xlabel('bhkl')
+    ax[1,1].legend()
+    ax[2,1].scatter(ahkl, bhkl, s=0.1)
+    ax[2,1].set_xlabel('ahkl')
+    ax[2,1].set_ylabel('bhkl')
+    ax[0,2].hist(dhkl, bins=20, label='dhkl')
+    ax[0,2].set_xlabel('dhkl')
+    ax[0,2].legend()
+    ax[1,2].hist(sigma0, bins=20, label='sigma0')
+    ax[1,2].set_xlabel('sigma0')
+    ax[1,2].legend()
+    plt.tight_layout()
     plt.show()
 
 
