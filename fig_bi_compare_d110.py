@@ -28,6 +28,7 @@ mpl.rcParams.update({
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
+
 def get_mask(smallarea=False):
     with open('params_scratch_rev4.pkl', 'rb') as f:
         paramimage = pickle.load(f)
