@@ -123,7 +123,7 @@ def compare_images4_2d():
     clabel = r'$\Delta\mathrm{d_{110}\ /\ \AA}$'
     _data = copy.deepcopy(data)
     _data[maskl] = np.nan
-    cmap = copy.copy(plt.cm.get_cmap('gray_r'))
+    cmap = copy.copy(plt.get_cmap('gray_r'))
     cmap.set_bad(color='0.9')
     im = ax.imshow(_data, cmap=cmap, vmin=vmin, vmax=vmax)
     map_pos = ax.get_position()
