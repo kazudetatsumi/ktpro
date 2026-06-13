@@ -21,9 +21,11 @@ plt.rcParams['ytick.direction'] = 'in'
 
 def get_data():
     import pickle
-    with open('params_scratch_rev4.pkl', 'rb') as f:
+    with open('/home/kazu/desktop/240424/connect2d/params_scratch_rev4.pkl',
+              'rb') as f:
         y = pickle.load(f)
-    with open('./test_single_edge/bi3d_scratch_rev4_211_phantom_local.pkl',
+    with open('/home/kazu/desktop/240424/connect2d/test_single_edge/" + \
+              "bi3d_scratch_rev4_211_phantom_local.pkl',
               'rb') as f:
         sample = pickle.load(f)
     return y, sample
