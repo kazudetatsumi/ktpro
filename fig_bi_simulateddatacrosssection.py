@@ -32,7 +32,7 @@ def get_data():
 
 
 def plot_three_maps_with_colorbars_and_1d_profiles(
-    y,
+    y, _sample,
     cmap: str = "viridis",
 ) -> plt.Figure:
     fig = plt.figure(figsize=(8, 12))
@@ -44,7 +44,7 @@ def plot_three_maps_with_colorbars_and_1d_profiles(
         hspace=0.5,
         wspace=0.12*2,
     )
-    variables = ['Neutron Count', r'$\mathrm{a_0}$', r'$\mathrm{b_0}$',
+    variables = ['Neutron count', r'$\mathrm{a_0}$', r'$\mathrm{b_0}$',
                  r'$\mathrm{a_{110}}$', r'$\mathrm{b_{110}}$',
                  r'$\mathrm{d_{110}}$', r'$\mathrm{{\sigma}_{0}}$']
     units = ['',  '', r' / $\mu\mathrm{s^{-1}}$', '',
@@ -76,12 +76,17 @@ def plot_three_maps_with_colorbars_and_1d_profiles(
             )
         ax.set_xlabel("x / ch", labelpad=0)
         ax.set_ylabel("y / ch", labelpad=0)
+        px=100
+        py=30
         if yidx == 0:
             ax.text(2, 2, f"{ystr}", c='w')
+            ax.annotate('', xy=(px, py),
+                        xytext=(px+8, py+8), textcoords='data',
+                        color='w', arrowprops=dict(arrowstyle="->", color='w'))
         else:
             ax.text(2, 2, f"{ystr}", c='k')
-        ax.axhline(40, color='k', linestyle='-', alpha=0.8, lw=2.0)
-        ax.axhline(40, color='w', linestyle='-', lw=1.0)
+            ax.axhline(40, color='k', linestyle='-', alpha=0.8, lw=2.0)
+            ax.axhline(40, color='w', linestyle='-', lw=1.0)
         ax.tick_params(direction='in', length=3, pad=1.4)
         ax.set_xticks([0, 50, 100, 150])
 
@@ -90,13 +95,18 @@ def plot_three_maps_with_colorbars_and_1d_profiles(
         cbar_d.ax.tick_params(pad=2, direction='out')
 
         ax1 = fig.add_subplot(grid[yidx, 1])
-        ax1.plot(_y.T[40], c='k')
-        ax1.set_xlim([0, y.shape[1]])
-        ax1.tick_params(direction="in")
-        ax1.set_xticks([0, 50, 100, 150])
-        ax1.set_ylabel(f"{ystr}"+f"{yunit}", labelpad=0)
-        ax1.set_xlabel("x / ch", labelpad=0)
-        ax1.tick_params(length=3, pad=2)
+        if yidx == 0:
+            print('_yshape:', _y.shape)
+            ax1.plot(np.arange(_sample.shape[-1])*20.+23000, _sample[px, py], c='k', marker='o', ms=2, lw=0)
+            ax1.set_xlim([23000, _sample.shape[-1]*20.+23000,])
+            ax1.set_ylabel("Neutron count", labelpad=0)
+        else:
+            ax1.plot(_y.T[40], c='k')
+            ax1.set_xlim([0, y.shape[1]])
+            ax1.set_xticks([0, 50, 100, 150])
+            ax1.set_xlabel("x / ch", labelpad=0)
+            ax1.set_ylabel(f"{ystr}"+f"{yunit}", labelpad=0)
+        ax1.tick_params(direction="in", length=3, pad=2)
         if ystr == r'$\mathrm{d_{110}}$':
             ax1.set_ylim([np.unique(np.sort(_y))[1],
                           np.unique(np.sort(_y))[-1]])
@@ -107,7 +117,8 @@ if __name__ == "__main__":
     y, sample = get_data()
     y = y.transpose((0, 2, 1))
     D = sample[:, 2:-2, 2:-2].transpose((1, 2, 0))[:, :, 100]
+    _sample = sample[:, 2:-2, 2:-2].transpose((1, 2, 0))
     Dwy = np.vstack((D[np.newaxis], y))
 
-    figure = plot_three_maps_with_colorbars_and_1d_profiles(Dwy)
+    figure = plot_three_maps_with_colorbars_and_1d_profiles(Dwy, _sample)
     plt.show()

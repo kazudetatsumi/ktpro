@@ -25,7 +25,8 @@ def get_data():
     transmission_noisy_strd = sample_noisy_strd/openbeam_noisy_strd
     transmission_strd = sample_strd/openbeam_strd*315715./553690
     return transmission_noisy, transmission, transmission_noisy_strd,\
-        transmission_strd
+        transmission_strd, sample_noisy, sample, sample_noisy_strd,\
+        sample_strd, etc, etc_strd
 
 
 def plot_expt_transmission(
@@ -33,6 +34,7 @@ def plot_expt_transmission(
     D: np.ndarray,
     D_ns: np.ndarray,
     D_s: np.ndarray,
+    dtype: str = 'Transmission',
     cmap: str = "gray_r",
 ) -> plt.Figure:
     fig_w = 12.0
@@ -42,7 +44,7 @@ def plot_expt_transmission(
     left = 0.35   # left margin
     right = 0.25   # right margin
     bottom = 0.30   # bottom margin
-    col_gap = 0.40  # column space
+    col_gap = 0.85  # column space
     row_gap = 0.35  # row space
     # height of top and bottom rows
     top_h = 1.10
@@ -70,6 +72,8 @@ def plot_expt_transmission(
     y_top = (bottom + bottom_h + row_gap)/H
     labels = ['1/7 data ', '1/1 data', '1/7 data with binning',
               '1/1 data with binning']
+    px=100
+    py=36
     for didx, (data, dataname) in enumerate(zip([D_n, D, D_ns, D_s], labels)):
         x = left + didx * (main_w + cbar_w + cbar_pad + col_gap)
         # --- top row of images ---
@@ -80,37 +84,53 @@ def plot_expt_transmission(
             cmap=cmap,
             aspect="auto",
             interpolation="nearest",
-            vmin=0.2,
-            vmax=1.4
+            #vmin=0.2,
+            #vmax=1.4,
         )
         ax_img.set_title(dataname, fontsize=9)
         ax_img.set_xlabel('x / ch', labelpad=1)
         ax_img.set_ylabel('y / ch', labelpad=1)
-        ax_img.tick_params(length=2, labelsize=8, pad=1.1)
+        ax_img.annotate('', xy=(px, py),
+                        xytext=(px+8, py+8), textcoords='data',
+                        color='white',
+                        arrowprops=dict(arrowstyle="->", color='white'))
+        if didx >= 2:
+            ax_img.tick_params(direction='in', length=2, labelsize=8, pad=1.1, color='k')
+        else:
+            ax_img.tick_params(direction='in', length=2, labelsize=8, pad=1.1, color='w')
         # top row color bars
-        if didx == len(labels)-1:
+        #if didx == len(labels)-1:
+        if ((dtype == 'Transmission') and (didx == ncols-1)) or dtype == 'Neutron count':
             cax = fig.add_axes([(x + main_w + cbar_pad)/W, y_top, cbar_w/W,
                                 top_h/H])
             cbar = fig.colorbar(im, cax=cax)
-            cbar.set_label("Transmission", fontsize=8, labelpad=1)
-            cbar.ax.tick_params(direction='in', length=1.3, pad=1, labelsize=8)
+            cbar.set_label(dtype, labelpad=1)
+            cbar.ax.tick_params(direction='in', length=1.3, pad=1,)
         # --- bottom row ---
         ax_line = fig.add_axes([x/W, y_bottom, main_w/W, bottom_h/H])
         ax_line.plot(np.arange(data.shape[0])*20.+23000,
-                     data[:, 100, 36], marker='o', ms=2, lw=0, c='k')
-        ax_line.set_ylim([0, 1.5])
+                     data[:, px, py], marker='o', ms=2, lw=0, c='k')
+        #ax_line.set_ylim([0, 1.5])
         ax_line.set_xticks([23000, 24000, 25000, 26000])
         ax_line.set_xlabel(r'TOF / $\mu$s', labelpad=1)
-        ax_line.set_ylabel('Transmission', labelpad=1)
+        ax_line.set_ylabel(dtype, labelpad=1)
         ax_line.tick_params(direction="in", labelsize=8, pad=2.)
     return fig
 
 
 if __name__ == "__main__":
     transmission_noisy, transmission, transmission_noisy_strd,\
-            transmission_strd = get_data()
+        transmission_strd, sample_noisy, sample, sample_noisy_strd,\
+        sample_strd, etc, etc_strd = get_data()
+    """
     figure = plot_expt_transmission(transmission_noisy, transmission,
                                     transmission_noisy_strd, transmission_strd,
+                                    dtype='Transmission',
                                     cmap="gray")
+    """
+    figure = plot_expt_transmission(sample_noisy, sample,
+                                    sample_noisy_strd, sample_strd,
+                                    dtype='Neutron count',
+                                    cmap="gray_r")
     #figure.savefig("fig_expt_transmission.eps", dpi=160, bbox_inches="tight")
     plt.show()
