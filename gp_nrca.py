@@ -10,10 +10,15 @@
 #os.environ["OPENBLAS_NUM_THREADS"] = "36"
 #os.environ["MKL_NUM_THREADS"] = "36"
 #os.environ["VECLIB_NUM_THREADS"] = "36"
+import sys
+import os
+home = os.path.expanduser("~")
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import datetime
+sys.path.append(home + "/ktpro")
+from alpha_Te_to_a0_b0 import run_alpha_Te_to_a0_b0
 
 
 class GaussianProcessRegression:

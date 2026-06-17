@@ -154,7 +154,7 @@ def check_std(sf,
     cbar = sf.colorbar(cim, cax=cax)
     #ax_map.set_aspect('auto')
 
-    cbar.set_label("# of violated voxels + 1")
+    cbar.set_label("# of violated\nvoxels + 1")
     cax.tick_params(direction='in', labelsize=8)
 
     # ===== 2段目：グラフ領域（3つの個別軸を上下隙間ゼロで配置） =====

@@ -143,6 +143,7 @@ def draw_panel1_hist(ax):
         ax.fill_between(c, lo, hi, color='tab:blue', alpha=0.15, label='Train 95% CI')
     if mean_dens is not None:
         ax.plot(c, mean_dens, color='tab:blue', lw=2, label='Train mean')
+    print('CHK', c[0], c[-1])
 
     ax.plot(c, ph_dens,   color='tab:orange', lw=2, label='Phantom')
     ax.plot(c, expt_dens, color='tab:green',  lw=2, label='Experiment')
@@ -182,7 +183,7 @@ def draw_panel2_survival(ax):
         grid = np.linspace(min(np.nanmin(g_expt), np.nanmin(g_ph), np.nanmin(g_train_all)), max(np.nanmax(g_expt), np.nanmax(g_ph), np.nanmax(g_train_all)), 200)
         xt, St = surv(g_train_all, grid)
         ax.semilogy(xt, St, color='tab:blue', label='Train (all)')
-        ax.axvline(q95, color='k', ls='--', alpha=0.5); ax.axvline(q99, color='k', ls=':', alpha=0.5)
+        ax.axvline(q95, color='tab:blue', ls='--', alpha=0.5); ax.axvline(q99, color='tab:blue', ls=':', alpha=0.5)
     else:
         grid = None
 
@@ -190,7 +191,7 @@ def draw_panel2_survival(ax):
     xe, Se = surv(g_expt, grid)
     ax.semilogy(xm, Sm, color='tab:orange', label='Phantom')
     ax.semilogy(xe, Se, color='tab:green',  label='Experiment')
-    ax.set_xlabel('∇T'); ax.set_ylabel("Survival S(g)=P(∇T>g)")
+    ax.set_xlabel('∇T'); ax.set_ylabel("Survival, \nS(g)=P(∇T>g)")
     tmp_ylim = (ax.get_ylim())
     ax.set_ylim([tmp_ylim[0], tmp_ylim[1]*2])
     ax.legend(loc='best', frameon=False)
@@ -213,10 +214,10 @@ def draw_panel3_corr(ax):
     xc_s, mean_s, sem_s = mod.bin_average(g_s,  pi_s,  bins)
     xc_p, mean_p, sem_p = mod.bin_average(g_ph, pi_ph, bins)
 
-    ax.errorbar(xc_s, mean_s, yerr=sem_s, fmt='-o', label='Experiment', capsize=3)
-    ax.errorbar(xc_p, mean_p, yerr=sem_p, fmt='-s', label='Phantom',    capsize=3)
+    ax.errorbar(xc_s, mean_s, yerr=sem_s, fmt='o', label='Experiment', capsize=3, ms=3.5, lw=1.)
+    ax.errorbar(xc_p, mean_p, yerr=sem_p, fmt='s', label='Phantom',    capsize=3, ms=3.5, lw=1.)
     ax.set_xlabel('$Transmission\ gradient\ ∇T\ /\ ch^{-1}$')
-    ax.set_ylabel('Underestimation rate π')
+    ax.set_ylabel('Underestimation\nrate π')
     ax.grid(True, alpha=0.3); ax.legend(loc='best', frameon=False)
     tmp_ylim = (ax.get_ylim())
     ax.set_ylim([tmp_ylim[0], tmp_ylim[1]+0.1])
