@@ -18,15 +18,18 @@ mpl.rcParams.update({
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
+
 def synthesize_bi3ddata():
-    with open('bi3d_testbcc_simudata_rev2_lim_single_resize_full_211_true_edgev_ktrand.pkl', 'rb') as f:
+    fdir = "/home/kazu/desktop/240424/connect2d/sampled/"
+    pklfile = "bi3d_testbcc_simudata_rev2_lim_single_resize_full_211_true_edgev_ktrand.pkl"
+    with open(fdir+pklfile, 'rb') as f:
         sample_saved = pickle.load(f).squeeze().transpose((0, 3, 1, 2))
     _shape = sample_saved.shape
     x = np.arange(_shape[1])*20.+23000
     py = 57
     px = 44
     snum = 4
-    fig, ax = plt.subplots(2, figsize=(5, 5))
+    fig, ax = plt.subplots(2, figsize=(4, 4))
     _sample = np.random.poisson(sample_saved[snum])
     ax[0].set_title('Neutron counts of training data point projected onto (x, y)')
     im = ax[0].imshow(_sample.sum(axis=0), origin='lower', cmap='gray')
@@ -34,8 +37,8 @@ def synthesize_bi3ddata():
     ax[0].set_xlabel('x / ch')
     ax[0].set_ylabel('y / ch')
     ax[0].tick_params(direction='in', color='w')
-    ax[0].annotate(f'({py}, {px})', xy=(py, px),
-                   xytext=(py+5, px+5), textcoords='data',
+    ax[0].annotate('', xy=(py, px),
+                   xytext=(py+7, px+7), textcoords='data',
                    color='white',
                    arrowprops=dict(arrowstyle="->", color='white'))
     #cbar = fig.colorbar(im)
@@ -65,7 +68,8 @@ def synthesize_bi3ddata():
     cax.tick_params(direction='out', labelsize=8, length=2)
     cbar.locator = MaxNLocator(nbins=4)
     cbar.update_ticks()
-    #plt.savefig('bi_simulated_profile_wcb.eps')
+    plt.savefig('fig_bi_trainingdata.eps')
     plt.show()
+
 
 synthesize_bi3ddata()

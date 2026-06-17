@@ -121,4 +121,5 @@ if __name__ == "__main__":
     Dwy = np.vstack((D[np.newaxis], y))
 
     figure = plot_three_maps_with_colorbars_and_1d_profiles(Dwy, _sample)
+    plt.savefig('fig_bi_simulateddata.eps')
     plt.show()
