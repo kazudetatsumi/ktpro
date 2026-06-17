@@ -3,8 +3,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import sys
-sys.path.append("/home/kazu/ktpro")
+
 # 既存の計算・前処理を流用
 import fig_bi_check_grad as mod   # ← あなたのファイル名
 
