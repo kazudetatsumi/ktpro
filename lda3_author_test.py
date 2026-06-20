@@ -16,6 +16,8 @@ import ast
 import os
 import time
 import requests
+import pandas as pd
+from sklearn.cluster import KMeans
 import nltk
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict, Counter
@@ -568,7 +570,7 @@ def get_info_on_specific_author(
               len(author2doc[author_list[np.argsort(deg)[i]]]))
 
 
-def get_2D_map(theta_a, model):
+def get_2D_map(theta_a, model, df_cluster):
     X = theta_a
     # list of 22,862 authors in correct order
     names_list = [model.id2author[i] for i in range(len(model.id2author))]
@@ -588,7 +590,9 @@ def get_2D_map(theta_a, model):
     plt.figure(figsize=(12, 10))
     plt.rcParams['font.family'] = 'Arial'
     # Plot all authors with thin gray
-    plt.scatter(pc1, pc2, s=5, alpha=0.15, c='gray', edgecolors='none',
+    #plt.scatter(pc1, pc2, s=5, alpha=0.15, c='gray', edgecolors='none',
+                #label='All Researchers')
+    plt.scatter(pc1, pc2, s=5, alpha=0.15, c=df_cluster['Cluster'], cmap='Set1', edgecolors='none',
                 label='All Researchers')
     # Plot of knwon authors
     targets = {
@@ -608,19 +612,85 @@ def get_2D_map(theta_a, model):
     for i in range(5):
         # Vh[0, i] is contirubtion to PC1, and Vh[1, i] is contribution to PC2.
         plt.arrow(0, 0, Vh[0, i] * scale_factor, Vh[1, i] * scale_factor,
-                  color='orange', alpha=0.8, width=scale_factor*0.003,
+                  color='k', alpha=0.8, width=scale_factor*0.003,
                   head_width=scale_factor*0.01)
         plt.text(Vh[0, i] * scale_factor * 1.1, Vh[1, i] * scale_factor * 1.1,
-                 f"Topic {i}", color='darkorange', fontsize=12,
+                 f"Topic {i}", color='k', fontsize=12,
                  fontweight='bold')
     plt.xlabel(f'PC1 ({var_exp[0]:.1f}%)')
     plt.ylabel(f'PC2 ({var_exp[1]:.1f}%)')
-    plt.title('Researcher Map (Author Topic based PCA)')
+    plt.title('Researcher Map (Author Topic based PCA and kmeans)')
     plt.legend()
     plt.grid(True, linestyle=':', alpha=0.5)
     plt.axhline(0, color='black', alpha=0.2)
     plt.axvline(0, color='black', alpha=0.2)
     plt.show()
+
+
+def cluster_authors_by_theta_a(theta_a, author_names, k=6, random_state=42):
+    """
+    theta_a (トピック分布行列) を用いてK-meansクラスタリングを行い、
+    全著者にラベルを付与して DataFrame として返す関数。
+    """
+    print(f"Running K-means clustering with k={k}...")
+
+    # 1. K-meansの実行 (n_init=10 はアルゴリズムの安定化のため)
+    kmeans = KMeans(n_clusters=k, random_state=random_state, n_init=10)
+    cluster_labels = kmeans.fit_predict(theta_a)
+
+    # 2. 結果を Pandas DataFrame に整理する
+    # トピック確率も一緒に保存しておくと後で検索が超便利になります
+    num_topics = theta_a.shape[1]
+    df_authors = pd.DataFrame(theta_a, columns=[f"Topic_{i}" for i in range(num_topics)])
+    df_authors['Author'] = author_names
+    df_authors['Cluster'] = cluster_labels
+
+    # 列の並び順を見やすく変更
+    cols = ['Author', 'Cluster'] + [f"Topic_{i}" for i in range(num_topics)]
+    df_authors = df_authors[cols]
+
+    # 3. クラスタごとのサマリー（人口と特徴）を表示
+    print("\n--- Cluster Summary ---")
+    cluster_centers = kmeans.cluster_centers_
+    for i in range(k):
+        # その村の人数
+        count = np.sum(cluster_labels == i)
+        # その村の「重心（平均的な住人）」が最も強く持っているトピック
+        dominant_topic = np.argmax(cluster_centers[i])
+        max_prob = cluster_centers[i][dominant_topic]
+        print(f"Cluster {i}: {count:5d} authors | Dominant Feature: Topic {dominant_topic} ({max_prob*100:.1f}%)")
+
+    return df_authors, kmeans
+
+
+def run_kmeans(theta_a, model):
+    # ==========================================
+    # 実行部分
+    # ==========================================
+    # k=6 で実行（必要に応じて k=5 や k=8 などに変更して試してください）
+    # ※ names_list は前回の PCA の時に作った [model.id2author[i] for i in ...] のリストです
+    names_list = [model.id2author[i] for i in range(len(model.id2author))]
+    k_num = 6
+    df_cluster, kmeans_model = cluster_authors_by_theta_a(
+            theta_a, names_list, k=k_num)
+
+    # --- 答え合わせ（3大スターの所属村を確認） ---
+    print("\n--- Target Authors Clusters ---")
+    targets = ['Kawakita,Y.', 'Kitaguchi,M.', 'Kanaya,T.']
+
+    for target in targets:
+        if target in names_list:
+            # その人の行を抽出
+            author_info = df_cluster[df_cluster['Author'] == target].iloc[0]
+            c_label = author_info['Cluster']
+
+            # わかりやすく表示
+            print(f"⭐ {target}")
+            print(f"   Assigned to : Cluster {c_label}")
+            # トピック分布の数値を小数点3桁で表示
+            probs = [round(p, 3) for p in author_info.iloc[2:].values]
+            print(f"   Theta_a     : {probs}")
+    return df_cluster
 
 
 def run_author_LDA_on_abstract(
@@ -728,16 +798,17 @@ def run(
 #    for name in takahara_list:
 #        # 名前と、その人が何件の論文を持っているかを表示
 #        print(f"'{name}' : {len(author2doc[name])} docs")
-    get_info_on_specific_author(
-        'Kawakita,Y.',
-        author2doc,
-        model,
-        theta_a_list,
-        df_pre,
-        theta_a,
-        )
-    show_top_phis(model, topn=30)
-    get_2D_map(theta_a, model)
+    #get_info_on_specific_author(
+    #    'Kawakita,Y.',
+    #    author2doc,
+    #    model,
+    #    theta_a_list,
+    #    df_pre,
+    #    theta_a,
+    #    )
+    #show_top_phis(model, topn=30)
+    df_cluster = run_kmeans(theta_a, model)
+    get_2D_map(theta_a, model, df_cluster)
     #corpus_abstract, model_abstract = run_author_LDA(
     #    df_pre, df_pre.Abstract, savabstractfile, "Abstract", num_topics=num_topics)
     #show_top_phis(model_abstract)
