@@ -28,6 +28,8 @@ def synthesize_bi3ddata():
     x = np.arange(_shape[1])*20.+23000
     py = 57
     px = 44
+    py = 50
+    px = 50
     snum = 4
     fig, ax = plt.subplots(2, figsize=(4, 4))
     _sample = np.random.poisson(sample_saved[snum])
@@ -50,6 +52,7 @@ def synthesize_bi3ddata():
 
     ax[1].set_title(f'TOF spectrum of training data point at x={py} ch, y={px} ch')
     ax[1].plot(x, _sample[:, px, py], marker='o', ms=2, lw=0, c='k')
+    ax[1].plot(x, sample_saved[snum][:, px, py], ls="-", c='gray')
 
     ax[1].set_xlabel(r'TOF / $\mu$s')
     ax[1].set_ylabel('Neutron Count')
@@ -68,7 +71,7 @@ def synthesize_bi3ddata():
     cax.tick_params(direction='out', labelsize=8, length=2)
     cbar.locator = MaxNLocator(nbins=4)
     cbar.update_ticks()
-    plt.savefig('fig_bi_trainingdata.eps')
+    plt.savefig('fig_bi_trainingdata_.eps')
     plt.show()
 
 
