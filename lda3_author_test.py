@@ -48,8 +48,7 @@ def _preprocess(textstring):
 
 def preprocess(textstring):
     stops = set(stopwords.words('english'))
-
-    # 1. 文章全体の状態で、熟語をアンダースコアで繋ぐ
+    # 1. on the whole sentences, words in idioms are coonected with underscore.
     text = str(textstring).lower()
     text = text.replace('monte carlo', 'monte_carlo')
     text = text.replace('monte-carlo', 'monte_carlo')
@@ -84,20 +83,18 @@ def preprocess(textstring):
     text = text.replace('in-situ', 'in_situ')
     text = text.replace('x ray', 'x_ray')
     text = text.replace('x-ray', 'x_ray')
-
-    # 2. 残りのハイフンをスペースにして、単語に分割（トークン化）
+    # 2. remaining '-' is replaced with space and divided the text into words
+    #    (tokeniation).
     text = text.replace('-', ' ')
     tokens = word_tokenize(text)
-
-    # 3. フィルタリング
+    # 3. filtering
     cleaned_tokens = []
     for token in tokens:
-        # アンダースコアが含まれている（in_situ等）か、アルファベットのみの場合に残す
+        # keep words including underscores or not included in stopss.
         if (token.isalpha() or '_' in token) and token not in stops:
-            # ついでに2文字以下のゴミ（x, y等）もここで弾くと綺麗です
+            # words whose number of letters <= 2 are excluded.
             if len(token) > 2:
                 cleaned_tokens.append(token)
-
     return cleaned_tokens
 
 
@@ -324,8 +321,10 @@ def plot_word_cloud(
     model,
 ):
     num_topics = model.num_topics
-    ncols = 5
-    nrows = math.ceil(num_topics/ncols)
+    #ncols = 5
+    #nrows = math.ceil(num_topics/ncols)
+    nrows = 5
+    ncols = math.ceil(num_topics/nrows)
     #fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(10, 8))
     fig, axs = plt.subplots(ncols=ncols, nrows=nrows,)
     axs = axs.flatten()
@@ -590,10 +589,10 @@ def get_2D_map(theta_a, model, df_cluster):
     plt.figure(figsize=(12, 10))
     plt.rcParams['font.family'] = 'Arial'
     # Plot all authors with thin gray
-    #plt.scatter(pc1, pc2, s=5, alpha=0.15, c='gray', edgecolors='none',
-                #label='All Researchers')
-    plt.scatter(pc1, pc2, s=5, alpha=0.15, c=df_cluster['Cluster'], cmap='Set1', edgecolors='none',
+    plt.scatter(pc1, pc2, s=5, alpha=0.15, c='gray', edgecolors='none',
                 label='All Researchers')
+    #plt.scatter(pc1, pc2, s=5, alpha=0.15, c=df_cluster['Cluster'], cmap='Set1', edgecolors='none',
+    #            label='All Researchers')
     # Plot of knwon authors
     targets = {
         'Kawakita,Y.': 'red',
@@ -710,10 +709,10 @@ def run_author_LDA_on_abstract(
     print("CHK", type(model.id2author))
     print(len(model.id2author))
     print(len(model.id2author.values()))
-    print("CHK2", model.get_author_topics('Kawakita,Y.', minimum_probability=0))
-    print("CHK2", model.get_author_topics('Shibayama,N.', minimum_probability=0))
-    print("CHK2", model.get_author_topics('Kitaguchi,M.', minimum_probability=0))
-    print("CHK2", model.get_author_topics('Yamaguchi,N.', minimum_probability=0))
+    print("Kawakita,Y.", model.get_author_topics('Kawakita,Y.', minimum_probability=0))
+    print("Shibayama,N.", model.get_author_topics('Shibayama,N.', minimum_probability=0))
+    print("Kitaguchi,M.", model.get_author_topics('Kitaguchi,M.', minimum_probability=0))
+    print("Yamaguchi,N.", model.get_author_topics('Yamaguchi,N.', minimum_probability=0))
     theta_a_list = [model.get_author_topics(author, minimum_probability=0) for author
                     in model.id2author.values()]
     theta_a = np.zeros((len(theta_a_list), num_topics))
