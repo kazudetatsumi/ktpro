@@ -12,8 +12,7 @@ plt.rcParams['mathtext.default'] = 'regular'
 
 
 
-def get_tdata():
-    tdatafile = 'tdata.pkl'
+def get_tdata(tdatafile='tdata.pkl'):
     if not os.path.exists(tdatafile):
         for i in range(0, 5):
             with open('./seed' + str(i) + '/valtesttot.pkl', 'rb') as f:
@@ -25,7 +24,7 @@ def get_tdata():
             else:
                 tdata = np.vstack((tdata, data.squeeze()[np.newaxis]))
                 tvar = np.vstack((tvar, var.squeeze()[np.newaxis]))
-        with open('tdata.pkl', 'wb') as f:
+        with open(tdatafile, 'wb') as f:
             pickle.dump(tdata.astype('float32'), f, 4)
             pickle.dump(tvar.astype('float32'), f, 4)
     else:
@@ -37,9 +36,8 @@ def get_tdata():
     return tdata, tvar
 
 
-def get_tdata_phantom():
-    tdatafile = 'tdata_phantom.pkl'
-    if not os.path.exists(tdatafile):
+def get_tdata_phantom(tdataphantomfile='tdata_phantom.pkl'):
+    if not os.path.exists(tdataphantomfile):
         for i in range(0, 5): 
             with open('./seed' + str(i) + '/valtesttot_phantom.pkl', 'rb') as f:
                 data = pickle.load(f)
@@ -50,15 +48,15 @@ def get_tdata_phantom():
                 else:
                     tdata = np.vstack((tdata, data.squeeze()[np.newaxis]))
                     tvar = np.vstack((tvar, var.squeeze()[np.newaxis]))
-        with open('tdata_phantom.pkl', 'wb') as f:
+        with open(tdataphantomfile, 'wb') as f:
             pickle.dump(tdata.astype('float32'), f, 4)
             pickle.dump(tvar.astype('float32'), f, 4)
     else:
-        print('reading ' + tdatafile)
-        with open(tdatafile, 'rb') as f:
+        print('reading ' + tdataphantomfile)
+        with open(tdataphantomfile, 'rb') as f:
             tdata = pickle.load(f)
             tvar = pickle.load(f)
-        print('readed ' + tdatafile)
+        print('readed ' + tdataphantomfile)
     return tdata, tvar
 
 

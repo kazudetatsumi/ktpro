@@ -6,10 +6,10 @@ from matplotlib.gridspec import GridSpec
 import numpy as np
 import os
 from scipy.ndimage import binary_dilation, distance_transform_edt, gaussian_filter1d
+from fig_bi_check_std_phantom import get_tdata, get_tdata_phantom
 #plt.rcParams["font.family"] = "Arial"   # 使用するフォント
 plt.rcParams["font.size"] = 10
 plt.rcParams['mathtext.default'] = 'regular'
-
 
 
 from scipy.ndimage import gaussian_filter, sobel
@@ -20,9 +20,11 @@ def get_mask(expt=True):
     if expt:
         sample_expt, openbeam_expt, transmission_expt = get_data()
         import cv2
-        return cv2.GaussianBlur(transmission_expt.sum(axis=-1), (5, 5), 0) > 236*315715./553690
+        return cv2.GaussianBlur(transmission_expt.sum(axis=-1), (5, 5), 0
+                                ) > 236*315715./553690
     else:
-        sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(expt=False)
+        sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(
+                expt=False)
         sumtransmission_phantom = transmission_phantom_gt.sum(axis=-1)
         bmask = sumtransmission_phantom > 132*315715./553690
         return bmask
@@ -217,10 +219,12 @@ def compare_grads():
     plt.show()
 
 
-def get_pi_phantom():
-    if not os.path.exists('tmp_data_phantom.pkl'):
-        tdata, tvar = get_tdata()
-        tdata_phantom, tvar_phantom = get_tdata_phantom()
+def get_pi_phantom(tmp_dataphantomfile='tmp_data_phantom.pkl', tdatafile='tdata.pkl',
+                   tdataphantomfile='tdata_phantom.pkl'):
+    if not os.path.exists(tmp_dataphantomfile):
+        tdata, tvar = get_tdata(tdatafile=tdatafile)
+        tdata_phantom, tvar_phantom = get_tdata_phantom(
+                tdataphantomfile=tdataphantomfile)
         print(tdata_phantom.shape)
         print(tdata.shape)
         print(tvar_phantom.shape)
@@ -234,13 +238,13 @@ def get_pi_phantom():
         im = tdata_phantom[0, -2].sum(axis=-1)
         #transmission = tdata[0, -2] / tdata[0, -1]
         #std_sample = std[-2]
-        with open('tmp_data_phantom.pkl', 'wb') as f:
+        with open(tmp_dataphantomfile, 'wb') as f:
             #pickle.dump(transmission, f, 4)
             pickle.dump(im, f, 4)
             pickle.dump(maxstd, f, 4)
             pickle.dump(std_phantom_sample, f, 4)
     else:
-        with open('tmp_data_phantom.pkl', 'rb') as f:
+        with open(tmp_dataphantomfile, 'rb') as f:
             #transmission = pickle.load(f)
             im = pickle.load(f)
             maxstd = pickle.load(f)
@@ -248,42 +252,46 @@ def get_pi_phantom():
     return std_phantom_sample > maxstd
 
 
-def get_pi():
-    if not os.path.exists('tmp_data.pkl'):
-        tdata, tvar = get_tdata()
+def get_pi(tmp_datafile='tmp_data.pkl', tdatafile='tdata.pkl'):
+    if not os.path.exists(tmp_datafile):
+        tdata, tvar = get_tdata(tdatafile=tdatafile)
         M = tdata.shape[0]
-        std = (1/M * (tvar.sum(axis=0) + (tdata**2).sum(axis=0)) - np.mean(tdata, axis=0)**2) ** 0.5 
+        std = (1/M * (tvar.sum(axis=0) + (tdata**2).sum(axis=0))
+               - np.mean(tdata, axis=0)**2) ** 0.5
         maxstd = np.max(std[:-2], axis=0)
         im = tdata[0, -2].sum(axis=-1)
-        transmission = tdata[0, -2] / tdata[0, -1] 
+        transmission = tdata[0, -2] / tdata[0, -1]
         std_sample = std[-2]
-        with open('tmp_data.pkl', 'wb') as f:
+        with open(tmp_datafile, 'wb') as f:
             pickle.dump(transmission, f, 4)
             pickle.dump(im, f, 4)
             pickle.dump(maxstd, f, 4)
             pickle.dump(std_sample, f, 4)
     else:
-        with open('tmp_data.pkl', 'rb') as f:
+        with open(tmp_datafile, 'rb') as f:
             transmission = pickle.load(f)
             im = pickle.load(f)
             maxstd = pickle.load(f)
             std_sample = pickle.load(f)
-    return std_sample>maxstd
+    return std_sample > maxstd
 
 
-def get_gs():
-    gsfile = 'gs.pkl'
+def get_gs(gsfile='gs.pkl'):
     if not os.path.exists(gsfile):
         x_train_noisy = get_simudata()
         sample_expt, openbeam_expt, transmission_expt = get_data(expt=True)
-        sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(expt=False)
+        sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(
+                expt=False)
         transmission_phantom = sample_phantom/openbeam_phantom*315715./553690
         transmission_train = x_train_noisy/openbeam_phantom*315715./553690
-        g_sample_expt = grad_map_xy(transmission_expt, mask=get_mask(expt=True), agg='p95')
-        g_sample_phantom = grad_map_xy(transmission_phantom, mask=get_mask(expt=False), agg='p95')
+        g_sample_expt = grad_map_xy(transmission_expt, mask=get_mask(
+            expt=True), agg='p95')
+        g_sample_phantom = grad_map_xy(transmission_phantom, mask=get_mask(
+            expt=False), agg='p95')
         g_x_train_noisy = []
         for tidx in np.arange(transmission_train.shape[0]):
-            g_x_train_noisy.append(grad_map_xy(transmission_train[tidx], agg='p95'))
+            g_x_train_noisy.append(grad_map_xy(
+                transmission_train[tidx], agg='p95'))
         with open(gsfile, 'wb') as f:
             pickle.dump(g_sample_expt, f, 4)
             pickle.dump(g_sample_phantom, f, 4)
@@ -296,30 +304,31 @@ def get_gs():
     return g_sample_expt, g_sample_phantom
 
 
-def get_g2ds():
-    gsfile = 'g2ds.pkl'
-    if not os.path.exists(gsfile):
+def get_g2ds(gdsfile='g2ds.pkl'):
+    if not os.path.exists(gdsfile):
         #x_train_noisy = get_simudata()
         sample_expt, openbeam_expt, transmission_expt = get_data(expt=True)
-        sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(expt=False)
+        sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(
+                expt=False)
         transmission_phantom = sample_phantom/openbeam_phantom*315715./553690
         #transmission_train = x_train_noisy/openbeam_phantom*315715./553690
-        g_sample_expt = grad_map_2d(transmission_expt, mask=get_mask(expt=True), agg='p95')
-        g_sample_phantom = grad_map_2d(transmission_phantom, mask=get_mask(expt=False), agg='p95')
+        g_sample_expt = grad_map_2d(
+                transmission_expt, mask=get_mask(expt=True), agg='p95')
+        g_sample_phantom = grad_map_2d(
+                transmission_phantom, mask=get_mask(expt=False), agg='p95')
         #g_x_train_noisy = []
         #for tidx in np.arange(transmission_train.shape[0]):
         #    g_x_train_noisy.append(grad_map_xy(transmission_train[tidx], agg='p95'))
-        with open(gsfile, 'wb') as f:
+        with open(gdsfile, 'wb') as f:
             pickle.dump(g_sample_expt, f, 4)
             pickle.dump(g_sample_phantom, f, 4)
             #pickle.dump(g_x_train_noisy, f, 4)
     else:
-        with open(gsfile, 'rb') as f:
+        with open(gdsfile, 'rb') as f:
             g_sample_expt = pickle.load(f)
             g_sample_phantom = pickle.load(f)
             #g_x_train_noisy = pickle.load(f)
     return g_sample_expt, g_sample_phantom
-
 
 
 #def compare_grads_and_pi():
@@ -328,8 +337,6 @@ def get_g2ds():
 #    pi_sample = (get_pi().mean(axis=-1))[np.invert(mask)].ravel()
 #    pi_sample_phantom = (get_pi_phantom().mean(axis=-1))[np.invert(mask_phantom)].ravel()
 #    g_sample, g_sample_phantom = get_gs()
-
-
 
 
 def bin_average(x, y, bins, with_sem=True):
@@ -342,7 +349,7 @@ def bin_average(x, y, bins, with_sem=True):
     digit = np.digitize(x, bins)
     xc = 0.5 * (bins[1:] + bins[:-1])  # ビン中心
     y_mean = np.full(len(bins)-1, np.nan)
-    y_sem  = np.full(len(bins)-1, np.nan)
+    y_sem = np.full(len(bins)-1, np.nan)
 
     for i in range(1, len(bins)):
         sel = (digit == i)
@@ -357,8 +364,6 @@ def bin_average(x, y, bins, with_sem=True):
                 elif n == 1:
                     y_sem[i-1] = 0.0
     return xc, y_mean, y_sem
-
-
 
 
 from scipy.ndimage import gaussian_filter, map_coordinates, distance_transform_edt

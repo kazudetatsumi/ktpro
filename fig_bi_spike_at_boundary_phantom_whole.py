@@ -4,6 +4,7 @@ import pickle
 import sys
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
+import matplotlib as mpl
 import copy
 from skimage import measure
 sys.path.append("/home/kazu/denoise")
@@ -13,7 +14,17 @@ fdir = '/home/kazu/restormer_rev2_lim/bi3d/restormer_conv3d/for_single/' +\
 df = '/home/kazu/desktop/240424/uNID_data_KO/211/' +\
      'bi3d_scratch_rev4_211_partial_phantom_local_with_gt.pkl'
 data_names = ['denoisedx2_5models', 'denoised_5models', 'stride155/expt']
-
+# setting on fonts and eps file
+mpl.rcParams.update({
+    "pdf.fonttype": 42, "ps.fonttype": 42,
+    "font.size": 9, "axes.labelsize": 11, "xtick.labelsize": 9, "ytick.labelsize": 9,
+    "legend.fontsize": 9,
+    'xtick.major.pad': 2.2,
+    'ytick.major.pad': 2.2,
+})
+plt.rcParams['font.family'] = 'Arial'
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
 
 def get_mask(smallarea=False):
     if not smallarea:
@@ -109,7 +120,7 @@ def get_images(data_names):
 
 
 def compare_images4_2d():
-    fig, ax = plt.subplots(1, 1, figsize=(6, 3))
+    fig, ax = plt.subplots(1, 1, figsize=(4.5, 2.25))
     mask = get_mask(smallarea=True)
     # get a list of mask boundary positions, bd: [[y[i], x[i]]].
     bd = measure.find_contours(mask == 1, level=0.5)[0]
@@ -126,7 +137,7 @@ def compare_images4_2d():
     _data[get_mask(smallarea=False)] = np.nan
     cmap = copy.copy(plt.get_cmap('gray_r'))
     cmap.set_bad(color='0.9')
-    im = ax.imshow(_data, cmap=cmap, vmin=vmin, vmax=vmax)
+    im = ax.imshow(_data, cmap=cmap, vmin=vmin, vmax=vmax, origin='lower')
     map_pos = ax.get_position()
     cax = fig.add_axes([
         map_pos.x1 + 0.003,  # left
@@ -139,11 +150,12 @@ def compare_images4_2d():
     cax.tick_params(direction='out', labelsize=8, length=2)
     cbar.locator = MaxNLocator(nbins=4)
     cbar.update_ticks()
-    ax.plot(bd[:, 1], bd[:, 0], ls='-', c='k', alpha=0.8, lw=2.0)
-    ax.plot(bd[:, 1], bd[:, 0], ls='-', c='white', lw=1.0)
+    ax.plot(bd[:, 1], bd[:, 0], ls='-', c='k', lw=0.5)
+    #ax.plot(bd[:, 1], bd[:, 0], ls='-', c='white', alpha=0.8, lw=1.0)
     ax.set_ylabel('y / ch', labelpad=0.2)
     ax.set_xlabel('x / ch', labelpad=0.2)
     ax.tick_params(direction='in', length=4)
+    plt.savefig('fig_bi_spike_phantom_.eps')
     plt.show()
 
 

@@ -3,23 +3,29 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import socket
+import os
 
-# 既存の計算・前処理を流用
-import fig_bi_check_grad as mod   # ← あなたのファイル名
+# use exsiting preprocess and data
+import fig_bi_check_grad as mod
 
-# フォント・EPS設定
+# setting on fonts and eps file
 mpl.rcParams.update({
     "pdf.fonttype": 42, "ps.fonttype": 42,
-    "font.size": 9, "axes.labelsize": 11, "xtick.labelsize": 9, "ytick.labelsize": 9,
-    "legend.fontsize": 9,
+    "font.size": 9/2*1.3, "axes.labelsize": 11/2*1.3, "xtick.labelsize": 9/2*1.3, "ytick.labelsize": 9/2*1.3,
+    "legend.fontsize": 9/2*1.3,
+    'xtick.major.pad': 2.2,
+    'ytick.major.pad': 2.2,
 })
+plt.rcParams['font.family'] = 'Arial'
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
 
 
-def draw_density(ax):
-    # 勾配ヒスト（Train帯が gs.pkl にあればシェードと平均も描く）
-    g_expt, g_ph = mod.get_gs()
+def draw_density(ax, gsfile):
+    # histogram of transmission gradient
+    # shade and mean are drawn if gsfile contains whole train data points
+    g_expt, g_ph = mod.get_gs(gsfile=gsfile)
     all_vals = np.concatenate([g_expt, g_ph])
     eps = 1e-8
     vmin = np.percentile(all_vals, 0.1)
@@ -27,14 +33,14 @@ def draw_density(ax):
     bins = np.exp(np.linspace(np.log(max(vmin, eps)), np.log(vmax), 100))
 
     c, expt_dens = mod.hist_density(g_expt, bins)
-    _, ph_dens   = mod.hist_density(g_ph, bins)
+    _, ph_dens = mod.hist_density(g_ph, bins)
 
-    # 訓練分布が保存されていれば 95%CI と平均
+    # 95%CI and mean are used if whole train data points available.
     mean_dens = lo = hi = None
     try:
         import pickle, os
-        if os.path.exists('gs.pkl'):
-            with open('gs.pkl', 'rb') as f:
+        if os.path.exists(gsfile):
+            with open(gsfile, 'rb') as f:
                 _ = pickle.load(f); _ = pickle.load(f); g_x_train_noisy = pickle.load(f)
             mat = []
             for v in g_x_train_noisy:
@@ -47,30 +53,49 @@ def draw_density(ax):
     except Exception:
         pass
 
-
     if lo is not None and hi is not None:
-        ax.fill_between(c, lo, hi, color='lightgray', alpha=0.45, label='Train 95% CI')
+        ax.fill_between(c, lo, hi, color='lightgray', alpha=0.45,
+                        label='Train CI')
     if mean_dens is not None:
-        ax.plot(c, mean_dens, color='gray', lw=2, label='Train mean')
+        ax.plot(c, mean_dens, color='gray', lw=1.5, label='Train')
 
-    ax.plot(c, ph_dens,   lw=2, label='Phantom', ls='--', c='k')
-    ax.plot(c, expt_dens, lw=2, label='Experiment', ls='-', c='k')
-    #ax.set_ylim(0, 0.05)
+    ax.plot(c, ph_dens,   lw=1.5, label='Moc', ls='--', c='k')
+    ax.plot(c, expt_dens, lw=1.5, label='Expt', ls='-', c='k')
+    # ax.set_ylim(0, 0.05)
     ax.set_yscale('log')
     ax.set_xlabel(r'$|\nabla T|_{qtof95}$')
-    ax.set_ylabel('Probability Density')
-    #ax.legend(loc='best', frameon=False)
-    ax.legend(loc='upper right', ncol=2, fontsize=8, frameon=True)
-    ax.set_title(r'Probability Density of $|\nabla T|_{qtof95}$')
+    ax.set_ylabel('Probability density')
+    # ax.legend(loc='best', frameon=False)
+    ax.legend(bbox_to_anchor=(1.01, 1.03), loc='upper right',
+              ncol=2, frameon=False, borderpad=0.1, labelspacing=0.1,
+              handlelength=2., handletextpad=0.5, columnspacing=0.5,)
+    # ax.tick_params(axis='both', which='both', pad=0.4)
+    #ax.set_title(r'Probability Density of $|\nabla T|_{qtof95}$')
 
 
-def draw_corr(ax):
-    # （元4の図）勾配 vs π 相関
-    mask    = mod.get_mask(expt=True)
+def draw_corr(
+        ax,
+        gsfile,
+        tmp_datafile,
+        tmp_dataphantomfile,
+        tdatafile,
+        tdataphantomfile,
+        ):
+    # gradient vs violation prob correlation
+    mask = mod.get_mask(expt=True)
     mask_ph = mod.get_mask(expt=False)
-    pi_s  = (mod.get_pi().mean(axis=-1))[~mask].ravel()
-    pi_ph = (mod.get_pi_phantom().mean(axis=-1))[~mask_ph].ravel()
-    g_s, g_ph = mod.get_gs()
+    pi_s = (mod.get_pi(
+               tmp_datafile=tmp_datafile,
+               tdatafile=tdatafile,
+                       ).mean(axis=-1)
+            )[~mask].ravel()
+    pi_ph = (mod.get_pi_phantom(
+                tmp_dataphantomfile=tmp_dataphantomfile,
+                tdatafile=tdatafile,
+                tdataphantomfile=tdataphantomfile,
+                                ).mean(axis=-1)
+             )[~mask_ph].ravel()
+    g_s, g_ph = mod.get_gs(gsfile=gsfile)
 
     g_min = np.nanmin([np.nanmin(g_s),  np.nanmin(g_ph)])
     g_max = np.nanmax([np.nanmax(g_s),  np.nanmax(g_ph)])
@@ -79,54 +104,53 @@ def draw_corr(ax):
     xc_s, mean_s, sem_s = mod.bin_average(g_s,  pi_s,  bins)
     xc_p, mean_p, sem_p = mod.bin_average(g_ph, pi_ph, bins)
 
-    #ax.errorbar(xc_s, mean_s, yerr=sem_s, fmt='-o', label='Experiment', capsize=3, c='tab:green')
-    ax.errorbar(xc_s, mean_s, yerr=sem_s, color='black', marker='o', lw=0.7, ls='-', label='Experiment', capsize=3)
-    #ax.errorbar(xc_p, mean_p, yerr=sem_p, fmt='-s', label='Phantom',    capsize=3, c='tab:orange')
-    ax.errorbar(xc_p, mean_p, yerr=sem_p, color='black', marker='s', lw=0.7, ls='-', mfc='white', mew=1, label='Phantom', capsize=3)
-    ax.set_xlabel(r'Transmission gradient $|\nabla T|_{qtof95}$')
-    ax.set_ylabel('Uncertainty violation rate π')
-    #ax.grid(True, alpha=0.3); ax.legend(loc='best', frameon=False)
-    ax.set_title(r'Correlation between $|\nabla T|_{qtof95}$ and π')
+    ax.errorbar(xc_s, mean_s, yerr=sem_s, color='black', marker='o', lw=0.7,
+                ls='-', label='Experiment', capsize=2, ms=2.5)
+    ax.errorbar(xc_p, mean_p, yerr=sem_p, color='black', marker='s', lw=0.7,
+                ls='-', mfc='white', mew=1, label='Phantom', capsize=2, ms=2.5)
+    ax.set_xlabel(r'Transmission gradient $|\nabla T|_{qtof95}$', labelpad=-0.5)
+    ax.set_ylabel('Violation rate')
+    #ax.set_title(r'Correlation between $|\nabla T|_{qtof95}$ and π')
     ax.legend(loc='best', frameon=False)
 
 
-def draw_line(ax):
-    # （元3の図）マップを描かず、回転後の行平均ラインだけを描く
+def draw_line(ax, gdsfile):
+    # Draw row mean line plots on spatially rotated map
     import cv2
-    g2d_s, g2d_ph = mod.get_g2ds()
+    g2d_s, g2d_ph = mod.get_g2ds(gdsfile=gdsfile)
     H, W = g2d_s.shape
     center = (int(H/2), int(W/2))
     angle, angle_ph = 5.5, -7.0
     scale = 1.0
-    trans    = cv2.getRotationMatrix2D(center, angle,    scale)
+    trans = cv2.getRotationMatrix2D(center, angle,    scale)
     trans_ph = cv2.getRotationMatrix2D(center, angle_ph, scale)
-    g2d_s_rot  = cv2.warpAffine(g2d_s,  trans,    (W, H))
+    g2d_s_rot = cv2.warpAffine(g2d_s,  trans,    (W, H))
     g2d_ph_rot = cv2.warpAffine(g2d_ph, trans_ph, (W, H))[::-1, :]
 
     ax.plot(g2d_s_rot.mean(axis=-1), ls='-', label='Experiment', c='k')
     ax.plot(g2d_ph_rot.mean(axis=-1), ls='--', label='Phantom', c='k')
-    ax.set_xlim(0, 50)  # 元コード準拠
-    ax.set_xlabel('Transverse position / pixel')
+    ax.set_xlim(0, 50)
+    ax.set_xlabel('Transverse position / ch', labelpad=-0.5)
     ax.set_ylabel(r'$<|\nabla T|_{qtof95}>_{longitude}$')
     ax.legend(loc='best', frameon=False)
-    ax.set_title(r'Spatial Distribution of $<|\nabla T|_{qtof95}>_{longitude}$')
+    #ax.set_title(r'Spatial Distribution of $<|\nabla T|_{qtof95}>_{longitude}$')
 
 
 def get_axes_and_fig():
     fig = plt.figure()
-    # ★ インチで厳密配置（必要なら値を調整）
-    left = 0.65
-    right = 0.45
-    top = 0.35
-    bottom = 0.55
-    panel_w = 4.8
-    h1 = 1.55
-    h2 = 1.55
-    h3 = 1.55
-    #h4 = 1.25
-    s12 = 0.28*2.5
-    s23 = 0.25*2.5
-    #s34 = 0.28*2
+    # strict inch scale
+    left = 0.65/2
+    right = 0.45/2
+    top = 0.35/2
+    bottom = 0.55/2
+    panel_w = 4.5/2.5
+    h1 = 1.55/1.9
+    h2 = 1.55/1.9
+    h3 = 1.55/1.9
+    # h4 = 1.25
+    s12 = 0.28*2.5/2.
+    s23 = 0.25*2.5/2.
+    # s34 = 0.28*2
     """
     1列×4段の Axes をインチ指定で厳密配置し、[ax1, ax2, ax3, ax4] を返す。
     """
@@ -135,6 +159,7 @@ def get_axes_and_fig():
     #h = top + (h1 + s12 + h2 + s23 + h3 + s34 + h4) + bottom
     h = top + (h1 + s12 + h2 + s23 + h3) + bottom
     # 図の物理サイズを決め打ち
+    print(w, h)
     fig.set_size_inches(w, h)
 
     # 下から段を積み上げる
@@ -156,22 +181,58 @@ def get_axes_and_fig():
     return fig, ax1, ax2, ax3
 
 
-def main(output="grad_all_in_one_inches.pdf"):
+def main():
+    hostname = socket.gethostname()
+    if hostname == "mlfdev61":
+        fdir = "/home/kazu/restormer_rev2_lim/bi3d/restormer_conv3d/" +\
+             "for_single/train/full/211/true_edge/nll/gau2ch/ktrand/rev4/"
+    elif hostname == "mlfdev51":
+        fdir = "/data1/kazu/restormer_rev2_lim/bi3d/restormer_conv3d/" +\
+             "for_single/train/full/211/true_edge/nll/gau2ch/ktrand/"
+    else:
+        raise RuntimeError("You should be in mlfdev51 or mlfdev61")
+    gsfile = fdir + 'gs.pkl'
+    if not os.path.exists(gsfile):
+        raise RuntimeError("gsfile doest not exist")
+    gdsfile = fdir + 'g2ds.pkl'
+    if not os.path.exists(gdsfile):
+        raise RuntimeError("gdsfile doest not exist")
+    tmp_datafile = fdir + 'tmp_data.pkl'
+    if not os.path.exists(tmp_datafile):
+        raise RuntimeError("tmp_datafile doest not exist")
+    tmp_dataphantomfile = fdir + 'tmp_data_phantom.pkl'
+    if not os.path.exists(tmp_dataphantomfile):
+        raise RuntimeError("tmp_dataphantomfile doest not exist")
+    tdatafile = fdir + 'tdata.pkl'
+    if (not os.path.exists(tdatafile)) and (not os.path.exists(tmp_datafile)):
+        raise RuntimeError("tdatafile and tmp_datafile do not exist")
+    tdataphantomfile = fdir + 'tdata_phantom.pkl'
+    if not (os.path.exists(tdataphantomfile)) and\
+           (not os.path.exists(tmp_dataphantomfile)):
+        raise RuntimeError(tdataphantomfile + " and " + tmp_dataphantomfile +
+                           " do not exist")
     fig, ax1, ax2, ax3 = get_axes_and_fig()
     # 並べ順は (1) → (2) → (4) → (3)
-    draw_density(ax2)
+    draw_density(ax2, gsfile)
     #draw_survival(ax3)
-    draw_corr(ax1)   # ← 元「4番目」
-    draw_line(ax3)   # ← 元「3番目（マップなし）」
+    draw_corr(
+            ax1,
+            gsfile,
+            tmp_datafile,
+            tmp_dataphantomfile,
+            tdatafile,
+            tdataphantomfile,
+            )   # ← 元「4番目」
+    draw_line(ax3, gdsfile)   # ← 元「3番目（マップなし）」
 
     # 体裁：上3段の x ラベルは隠す（横位置は inch 固定なのでズレません）
     #for a in [ax1, ax2, ax3]:
     #    a.tick_params(labelbottom=False)
 
-    #fig.savefig(output, dpi=300)
+    fig.savefig("fig_bi_grad.eps")
     plt.show()
     #print(f"Saved -> {output}")
 
+
 if __name__ == "__main__":
     main()
-

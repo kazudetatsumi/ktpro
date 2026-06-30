@@ -2,12 +2,19 @@
 import pickle
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+import matplotlib as mpl
 from matplotlib.gridspec import GridSpec
 import numpy as np
 import os
+import socket
 plt.rcParams["font.family"] = "Arial"
 plt.rcParams["font.size"] = 10
 plt.rcParams['mathtext.default'] = 'regular'
+mpl.rcParams.update({
+    "pdf.fonttype": 42, "ps.fonttype": 42,
+    "font.size": 9/2*1.3, "axes.labelsize": 11/2*1.3, "xtick.labelsize": 9/2*1.3, "ytick.labelsize": 9/2*1.3,
+    "legend.fontsize": 9/2*1.3,
+})
 
 
 def get_tdata():
@@ -40,21 +47,30 @@ def get_mask(transmission):
 
 
 def check_std():
-    if not os.path.exists('tmp_data.pkl'):
-        tdata, tvar = get_tdata()
+    hostname = socket.gethostname()
+    if hostname == "mlfdev61":
+        fdir = "/home/kazu/restormer_rev2_lim/bi3d/restormer_conv3d/" +\
+             "for_single/train/full/211/true_edge/nll/gau2ch/ktrand/rev4/"
+    elif hostname == "mlfdev51":
+        fdir = "/data1/kazu/restormer_rev2_lim/bi3d/restormer_conv3d/" +\
+             "for_single/train/full/211/true_edge/nll/gau2ch/ktrand/"
+    else:
+        raise RuntimeError("You should be in mlfdev51 or mlfdev61")
+    if not os.path.exists(fdir + 'tmp_data.pkl'):
+        tdata, tvar = get_tdata(tdatafile=fdir + 'tdata.pkl')
         M = tdata.shape[0]
         std = (1/M * (tvar.sum(axis=0) + (tdata**2).sum(axis=0)) - np.mean(tdata, axis=0)**2) ** 0.5
         maxstd = np.max(std[:-2], axis=0)
         im = tdata[0, -2].sum(axis=-1)
         transmission = tdata[0, -2] / tdata[0, -1]
         std_sample = std[-2]
-        with open('tmp_data.pkl', 'wb') as f:
+        with open(fdir + 'tmp_data.pkl', 'wb') as f:
             pickle.dump(transmission, f, 4)
             pickle.dump(im, f, 4)
             pickle.dump(maxstd, f, 4)
             pickle.dump(std_sample, f, 4)
     else:
-        with open('tmp_data.pkl', 'rb') as f:
+        with open(fdir + 'tmp_data.pkl', 'rb') as f:
             transmission = pickle.load(f)
             im = pickle.load(f)
             maxstd = pickle.load(f)
@@ -76,13 +92,13 @@ def check_std():
     maxposin = np.unravel_index(np.argmax(condin, axis=None), cond.shape)
 
     # ===== layout in inch ====
-    axes_width = 3.0      # width of map or lineplots
-    map_height = 2.2      # height of map in the 1st row
-    lineplot_height = 1.2*3    # total hiehgt of three lineplots in the 2nd row
-    left_margin = 0.6     # left vacant space
-    right_margin = 0.6    # right vacant space in the righter side of the cbar
-    top_margin = 0.3      # top vacant space
-    bottom_margin = 0.4   # bottom vacant space
+    axes_width = 3.0*0.6     # width of map or lineplots
+    map_height = 2.2*0.6     # height of map in the 1st row
+    lineplot_height = 1.2*3*0.6   # total hiehgt of three lineplots in the 2nd row
+    left_margin = 0.6*0.6    # left vacant space
+    right_margin = 0.6*0.6   # right vacant space in the righter side of the cbar
+    top_margin = 0.3*0.6     # top vacant space
+    bottom_margin = 0.4*0.6  # bottom vacant space
     # ===== colorbar =====
     cbar_width = 0.05     # width of cbar
     cbar_pad = 0.02       # horizontal distacne bewteen map and colorbar
@@ -91,6 +107,7 @@ def check_std():
     # ===== figure ==========================
     fig_height = top_margin + map_height + lineplot_height + bottom_margin
     fig_width = left_margin + axes_width + cbar_pad + cbar_width + right_margin
+    print(fig_width, fig_height)
     fig = plt.figure(figsize=(fig_width, fig_height))
     # ====== grid spec (2x1) =========================
     #   1st row: 2Dmap, 2nd row: lineplots which will be divided to three axes
@@ -109,18 +126,18 @@ def check_std():
     # ===== 1st row of 2D map=====
     ax_map = fig.add_subplot(gs[0, 0])
     cim = ax_map.imshow(cond, norm=colors.LogNorm(vmin=cond.min(),
-                        vmax=cond.max()), cmap='Grays')
+                        vmax=cond.max()), cmap='Grays', origin='lower')
 
     # Annotation
     for pidx, pos in enumerate([maxpos, maxposin, poslists[0]]):
         ax_map.annotate('#'+str(pidx+1), xy=(pos[1], pos[0]),
-                        xytext=(pos[1]+5, pos[0]+5), textcoords='data',
-                        color='k', fontsize=11,
+                        xytext=(pos[1]-20, pos[0]-20), textcoords='data',
+                        color='k',
                         arrowprops=dict(arrowstyle="->", color='k'))
 
     ax_map.set_ylabel('y / ch')
     ax_map.set_xlabel('x / ch')
-    ax_map.tick_params(length=2, labelsize=8, pad=1.1)
+    ax_map.tick_params(direction='in')
 
     # ===== put cbar in the right side of the map strictly by add_axes =====
     map_pos = ax_map.get_position()  # figure coordination
@@ -134,7 +151,7 @@ def check_std():
     ])
     cbar = fig.colorbar(cim, cax=cax)
     cbar.set_label("# of violated voxels + 1")
-    cax.tick_params(direction='in', labelsize=8)
+    cax.tick_params(direction='out', which='both')
 
     # ===== 2nd row: three lineplots without no vacant space between them =====
     #area_pos = fig.add_subplot(gs[1, 0]).get_position()
@@ -150,23 +167,24 @@ def check_std():
     ax4 = fig.add_axes([left, bottom4, width, h_each])
     ax3 = fig.add_axes([left, bottom3, width, h_each], sharex=ax4)
     ax2 = fig.add_axes([left, bottom2, width, h_each], sharex=ax4)
+    tof = np.arange(maxstd.shape[-1])*20 + 23000
     for axid, (axi, pos) in enumerate(zip([ax2, ax3, ax4],
                                           [maxpos, maxposin, poslists[0]])):
-        axi.plot(maxstd[pos[0], pos[1]], label='max std in val', c='k', ls='--')
-        axi.plot(std_sample[pos[0], pos[1]], label='experiment', c='k')
+        axi.plot(tof, maxstd[pos[0], pos[1]], label='Ref.', c='k', ls='--')
+        axi.plot(tof, std_sample[pos[0], pos[1]], label='Expt.', c='k')
         axi.tick_params(direction='in', top=True, right=True)
         axi.set_ylim([0., 6])
-        axi.legend(loc='upper right', fontsize=8, frameon=True)
+        axi.set_xlim([tof[0], tof[-1]])
+        axi.legend(loc='upper right', frameon=True)
         axi.set_ylabel('std')
-        axi.text(2, 5, "#"+str(axid+1), fontsize=11)
+        axi.text(2, 5, "#"+str(axid+1))
     for axi in [ax2, ax3]:
         plt.setp(axi.get_xticklabels(), visible=False)
         axi.tick_params(labelbottom=False)
-        axi.tick_params(labelsize=8)
-    ax4.set_xlabel('tof / ch')
-    ax4.tick_params(labelsize=8)
+    ax4.set_xlabel(r'TOF / $\mu$s')
     for axi in [ax3, ax4]: # 下側の軸の「一番上の目盛り」を消す場合
         axi.yaxis.get_major_ticks()[-1].label1.set_visible(False)
+    plt.savefig('fig_bi_std.eps')
     plt.show()
 
 
