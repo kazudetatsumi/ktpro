@@ -191,7 +191,7 @@ def check_std(
     ax3.set_ylabel('std')
     ax4.set_ylabel('std')
     #plt.savefig('check_std.png')
-    plt.savefig('check_std.eps')
+    #plt.savefig('check_std.eps')
 
     plt.show()
 

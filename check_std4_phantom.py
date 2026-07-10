@@ -45,6 +45,31 @@ def get_tdata():
     return tdata, tvar
 
 
+def get_tdata_phantom():
+    tdatafile = 'tdata_phantom.pkl'
+    if not os.path.exists(tdatafile):
+        for i in range(0, 5): 
+            with open('./seed' + str(i) + '/valtesttot_phantom.pkl', 'rb') as f:
+                data = pickle.load(f)
+                var = pickle.load(f)
+                if i == 0:
+                    tdata = data.squeeze()[np.newaxis]
+                    tvar = var.squeeze()[np.newaxis]
+                else:
+                    tdata = np.vstack((tdata, data.squeeze()[np.newaxis]))
+                    tvar = np.vstack((tvar, var.squeeze()[np.newaxis]))
+        with open('tdata_phantom.pkl', 'wb') as f:
+            pickle.dump(tdata.astype('float32'), f, 4)
+            pickle.dump(tvar.astype('float32'), f, 4)
+    else:
+        print('reading ' + tdatafile)
+        with open(tdatafile, 'rb') as f:
+            tdata = pickle.load(f)
+            tvar = pickle.load(f)
+        print('readed ' + tdatafile)
+    return tdata, tvar
+
+
 def get_mask(smallarea=False):
     if not smallarea:
         return paramimage[4] == 0.
@@ -70,23 +95,38 @@ def check_std():
              "for_single/train/full/211/true_edge/nll/gau2ch/ktrand/"
     else:
         raise RuntimeError("You should be in mlfdev51 or mlfdev61")
-    if not os.path.exists(fdir + 'tmp_data_phantom.pkl'):
+    if not os.path.exists(fdir + 'tmp_data_phantom_epi.pkl'):
         tdata, tvar = get_tdata()
-        M = tdata.shape[0]
-        std = (1/M * (tvar.sum(axis=0) + (tdata**2).sum(axis=0)) - np.mean(tdata, axis=0)**2) ** 0.5
-        maxstd = np.max(std[:-2], axis=0)
+        tdata_phantom, tvar_phantom = get_tdata_phantom()
+        print(tdata_phantom.shape)
+        print(tdata.shape)
+        print(tvar_phantom.shape)
+        print(tvar.shape)
+        # old ver uses the total std
+        #M = tdata.shape[0]
+        #std = (1/M * (tvar.sum(axis=0) + (tdata**2).sum(axis=0)) - np.mean(tdata, axis=0)**2) ** 0.5
+        #maxstd = np.max(std[:-2], axis=0)
+        # new ver uses the epistemic std
+        var_epi = np.var(tdata, axis=0)
+        var_epi = np.maximum(var_epi, 0)
+        std_epi = np.sqrt(var_epi)
+        #maxstd  = np.nanpercentile(std_epi[:-2], 99, axis=0)
+        maxstd = np.max(std_epi[:-2], axis=0)
+        var_phantom_epi = np.var(tdata_phantom, axis=0)
+        var_phantom_epi = np.maximum(var_phantom_epi, 0)
+        std_phantom_sample = np.sqrt(var_phantom_epi[-2])
         im = tdata[0, -2].sum(axis=-1)
-        transmission = tdata[0, -2] / tdata[0, -1]
-        std_sample = std[-2]
-        with open(fdir + 'tmp_data_phantom.pkl', 'wb') as f:
+        #transmission = tdata[0, -2] / tdata[0, -1]
+        #std_sample = std[-2]
+        with open(fdir + 'tmp_data_phantom_epi.pkl', 'wb') as f:
             pickle.dump(im, f, 4)
             pickle.dump(maxstd, f, 4)
-            pickle.dump(std_sample, f, 4)
+            pickle.dump(std_phantom_sample, f, 4)
     else:
-        with open(fdir + 'tmp_data_phantom.pkl', 'rb') as f:
+        with open(fdir + 'tmp_data_phantom_epi.pkl', 'rb') as f:
             im = pickle.load(f)
             maxstd = pickle.load(f)
-            std_sample = pickle.load(f)
+            std_phantom_sample = pickle.load(f)
 
     _mask = get_mask(smallarea=True)
     mask = get_mask(smallarea=True)
@@ -100,8 +140,8 @@ def check_std():
         _mask = copy.deepcopy(_masknew)
 
     poslists = [[40, 130], [30, 50], [30, 30], [40, 15], [66, 79]]
-    cond = (maxstd < std_sample).sum(axis=-1) + 1
-    condin = (maxstd < std_sample).sum(axis=-1)
+    cond = (maxstd < std_phantom_sample).sum(axis=-1) + 1
+    condin = (maxstd < std_phantom_sample).sum(axis=-1)
     cond[mask] = 2
     condin[_mask] = 0.
     maxpos = np.unravel_index(np.argmax(cond, axis=None), cond.shape)
@@ -144,7 +184,7 @@ def check_std():
     # Annotation
     for pidx, pos in enumerate([maxpos, maxposin, poslists[0]]):
         ax_map.annotate('#'+str(pidx+1), xy=(pos[1], pos[0]),
-                        xytext=(pos[1]-20, pos[0]-20), textcoords='data',
+                        xytext=(pos[1]-10, pos[0]-10), textcoords='data',
                         color='k',
                         arrowprops=dict(arrowstyle="->", color='k'))
     ax_map.set_ylabel('y / ch')
@@ -183,7 +223,7 @@ def check_std():
     for axid, (axi, pos) in enumerate(zip([ax2, ax3, ax4],
                                           [maxpos, maxposin, poslists[0]])):
         axi.plot(tof, maxstd[pos[0], pos[1]], label='Ref.', c='k', ls='--')
-        axi.plot(tof, std_sample[pos[0], pos[1]], label='Moc', c='k')
+        axi.plot(tof, std_phantom_sample[pos[0], pos[1]], label='Moc', c='k')
         axi.tick_params(direction='in', top=True, right=True)
         axi.set_ylim([0., 6])
         axi.set_xlim([tof[0], tof[-1]])
