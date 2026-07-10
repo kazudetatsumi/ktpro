@@ -17,8 +17,7 @@ mpl.rcParams.update({
 })
 
 
-def get_tdata():
-    tdatafile = 'tdata.pkl'
+def get_tdata(tdatafile='tdata.pkl'):
     if not os.path.exists(tdatafile):
         for i in range(0, 5):
             with open('./seed' + str(i) + '/valtesttot.pkl', 'rb') as f:
@@ -56,25 +55,31 @@ def check_std():
              "for_single/train/full/211/true_edge/nll/gau2ch/ktrand/"
     else:
         raise RuntimeError("You should be in mlfdev51 or mlfdev61")
-    if not os.path.exists(fdir + 'tmp_data.pkl'):
+    if not os.path.exists(fdir + 'tmp_data_epi.pkl'):
         tdata, tvar = get_tdata(tdatafile=fdir + 'tdata.pkl')
-        M = tdata.shape[0]
-        std = (1/M * (tvar.sum(axis=0) + (tdata**2).sum(axis=0)) - np.mean(tdata, axis=0)**2) ** 0.5
-        maxstd = np.max(std[:-2], axis=0)
+        #M = tdata.shape[0]
+        #std = (1/M * (tvar.sum(axis=0) + (tdata**2).sum(axis=0)) - np.mean(tdata, axis=0)**2) ** 0.5
+        #maxstd = np.max(std[:-2], axis=0)
+        var_epi = np.var(tdata, axis=0)
+        var_epi = np.maximum(var_epi, 0)
+        std_epi = np.sqrt(var_epi)
+        #maxstd  = np.nanmax(std_epi[:-2], axis=0)
+        #maxstd  = np.nanpercentile(std_epi[:-2], 99, axis=0)
+        maxstd  = np.max(std_epi[:-2], axis=0)
         im = tdata[0, -2].sum(axis=-1)
         transmission = tdata[0, -2] / tdata[0, -1]
-        std_sample = std[-2]
-        with open(fdir + 'tmp_data.pkl', 'wb') as f:
+        std_epi_sample = std_epi[-2]
+        with open(fdir + 'tmp_data_epi.pkl', 'wb') as f:
             pickle.dump(transmission, f, 4)
             pickle.dump(im, f, 4)
             pickle.dump(maxstd, f, 4)
-            pickle.dump(std_sample, f, 4)
+            pickle.dump(std_epi_sample, f, 4)
     else:
-        with open(fdir + 'tmp_data.pkl', 'rb') as f:
+        with open(fdir + 'tmp_data_epi.pkl', 'rb') as f:
             transmission = pickle.load(f)
             im = pickle.load(f)
             maxstd = pickle.load(f)
-            std_sample = pickle.load(f)
+            std_epi_sample = pickle.load(f)
 
     _mask = get_mask(transmission)
     mask = get_mask(transmission)
@@ -83,9 +88,11 @@ def check_std():
             if (mask[ix-3, iy]) & (not mask[ix, iy]):
                 _mask[ix, iy] = True
 
-    poslists = [[40, 130], [30, 50], [30, 30], [40, 15], [66, 79]]
-    cond = (maxstd < std_sample).sum(axis=-1) + 1
-    condin = (maxstd < std_sample).sum(axis=-1)
+    poslists = [[39, 130], [30, 50], [30, 30], [40, 15], [66, 79]]
+    cond = (maxstd < std_epi_sample).sum(axis=-1) + 1
+    print('chk', cond.shape)
+    print('chk', mask.shape)
+    condin = (maxstd < std_epi_sample).sum(axis=-1)
     cond[mask] = 2
     condin[_mask] = 0.
     maxpos = np.unravel_index(np.argmax(cond, axis=None), cond.shape)
@@ -171,7 +178,7 @@ def check_std():
     for axid, (axi, pos) in enumerate(zip([ax2, ax3, ax4],
                                           [maxpos, maxposin, poslists[0]])):
         axi.plot(tof, maxstd[pos[0], pos[1]], label='Ref.', c='k', ls='--')
-        axi.plot(tof, std_sample[pos[0], pos[1]], label='Expt.', c='k')
+        axi.plot(tof, std_epi_sample[pos[0], pos[1]], label='Expt.', c='k')
         axi.tick_params(direction='in', top=True, right=True)
         axi.set_ylim([0., 6])
         axi.set_xlim([tof[0], tof[-1]])
