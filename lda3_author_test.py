@@ -569,7 +569,7 @@ def get_info_on_specific_author(
               len(author2doc[author_list[np.argsort(deg)[i]]]))
 
 
-def get_2D_map(theta_a, model, df_cluster):
+def get_2D_map(theta_a, model, df_cluster, df_uo=None):
     X = theta_a
     # list of 22,862 authors in correct order
     names_list = [model.id2author[i] for i in range(len(model.id2author))]
@@ -589,21 +589,40 @@ def get_2D_map(theta_a, model, df_cluster):
     plt.figure(figsize=(12, 10))
     plt.rcParams['font.family'] = 'Arial'
     # Plot all authors with thin gray
-    plt.scatter(pc1, pc2, s=5, alpha=0.15, c='gray', edgecolors='none',
-                label='All Researchers')
-    #plt.scatter(pc1, pc2, s=5, alpha=0.15, c=df_cluster['Cluster'], cmap='Set1', edgecolors='none',
+    #plt.scatter(pc1, pc2, s=5, alpha=0.15, c='gray', edgecolors='none',
     #            label='All Researchers')
+    plt.scatter(pc1, pc2, s=5, alpha=0.15, c=df_cluster['Cluster'], cmap='Set1', edgecolors='none',
+                label='All Researchers')
     # Plot of knwon authors
     targets = {
-        'Kawakita,Y.': 'red',
-        'Kitaguchi,M.': 'blue',
-        'Kanaya,T.': 'green',
+        #'Kawakita,Y.': 'red',
+        'Nakata,M.': 'red',
+        #'Kitaguchi,M.': 'blue',
+        'Yoshii,S.': 'blue',
+        'Oshima,N.': 'green',
+        'Mizutori,S.': 'orange',
+        'Itoh,R.': 'cyan',
+        'Iga,Y.': 'k',
+        #'Kanaya,T.': 'green',
     }
     for name, color in targets.items():
         if name in names_list:
             idx = names_list.index(name)
-            plt.scatter(pc1[idx], pc2[idx], c=color, s=100, marker='*',
+            plt.scatter(pc1[idx], pc2[idx], c=color, s=100, marker='*', alpha=1.0, zorder=10,
                         edgecolors='black', linewidth=1, label=name)
+    c_min = df_cluster['Cluster'].min()
+    c_max = df_cluster['Cluster'].max()
+    uo_indices = [names_list.index(name) for name in df_uo['申請者氏名（英）'].unique() if name in names_list]
+    print('num of uo_indices', len(uo_indices))
+    plt.scatter(pc1[uo_indices], pc2[uo_indices],
+                s=20, # 背景の点(5)より少し大きくすると見やすいです
+                alpha=1.0,
+                c=df_cluster['Cluster'].iloc[uo_indices],
+                cmap='Set1',
+                vmin=c_min, vmax=c_max, # 背景の色と完璧にシンクロさせる魔法
+                edgecolors='black', linewidth=0.5, # 縁取りを入れるとさらに際立ちます
+                label='Applicants')
+
     # Mean position of each topics shown as an arrow
     # indicates what topic you will be close to as you proceed along a specifc
     # direction.
@@ -616,6 +635,45 @@ def get_2D_map(theta_a, model, df_cluster):
         plt.text(Vh[0, i] * scale_factor * 1.1, Vh[1, i] * scale_factor * 1.1,
                  f"Topic {i}", color='k', fontsize=12,
                  fontweight='bold')
+
+    # --- 1. ユーザー重心の計算（5次元 theta_a 空間） ---
+    # 申請者(User)かつ各クラスターごとに平均をとる
+    user_centroids_5d = df_cluster[df_cluster['is_user']].groupby('Cluster')[[f"Topic_{i}" for i in range(5)]].mean()
+
+    # --- 2. 5次元の重心をPCAの2次元座標に変換 ---
+    # PCAの計算で使った X_mean と Vh (主成分) を再利用します
+    centroid_coords_2d = []
+
+    for c_idx, row in user_centroids_5d.iterrows():
+        # 5次元ベクトルを取り出す
+        vec_5d = row.values
+
+        # 中心化（全体平均を引く）
+        vec_centered = vec_5d - X_mean
+
+        # 主成分ベクトル(Vh)に投影して x, y を出す
+        # Vh[0]がPC1の向き、Vh[1]がPC2の向き
+        cx = np.dot(vec_centered, Vh[0, :])
+        cy = np.dot(vec_centered, Vh[1, :])
+        centroid_coords_2d.append((c_idx, cx, cy))
+
+    # --- 3. プロット（既存の散布図に重ねる） ---
+    # 前回のプロットコードの後にこれを追加
+    for c_idx, cx, cy in centroid_coords_2d:
+        # 各クラスターの色を取得（背景の scatter と同じ cmap, vmin, vmax を使うのがコツ）
+        plt.scatter(cx, cy,
+                    s=250,               # かなり大きくして目立たせる
+                    marker='X',          # ✕印で「中心」を表現
+                    color='black',       # 縁取り
+                    edgecolors='white',
+                    linewidth=2,
+                    label=f'User Centroid C{c_idx}',
+                    alpha=0.4,
+                    zorder=5)           # 最前面に描画
+
+        # ラベルも添えると分かりやすいです
+        plt.text(cx, cy, f"  Center {c_idx}", fontsize=12, fontweight='bold', zorder=5, alpha=0.4)
+
     plt.xlabel(f'PC1 ({var_exp[0]:.1f}%)')
     plt.ylabel(f'PC2 ({var_exp[1]:.1f}%)')
     plt.title('Researcher Map (Author Topic based PCA and kmeans)')
@@ -690,6 +748,97 @@ def run_kmeans(theta_a, model):
             probs = [round(p, 3) for p in author_info.iloc[2:].values]
             print(f"   Theta_a     : {probs}")
     return df_cluster
+
+
+def format_author_name(name):
+    # もし空欄(NaN)ならそのまま返す
+    if pd.isna(name):
+        return name
+
+    # 前後の空白を消して、スペースで単語に分割する
+    parts = str(name).strip().split()
+
+    if len(parts) >= 2:
+        # 最後の単語を「姓」とし、先頭だけ大文字（あとは小文字）にする
+        last_name = parts[-1].capitalize()
+        # 最初の単語を「名」とし、その1文字目を大文字にする
+        first_initial = parts[0][0].upper()
+
+        # 'Yamaguchi,A.' の形式で結合して返す
+        return f"{last_name},{first_initial}."
+    elif len(parts) == 1:
+        # 万が一、単語が1つしかない場合は、先頭だけ大文字にして返す
+        return parts[0].capitalize()
+    else:
+        return name
+
+
+def get_users(userlistfile):
+    df_uo = pd.read_csv(userlistfile)
+    df_uo['申請者氏名（英）'] = df_uo['申請者氏名（英）'].apply(format_author_name)
+    return df_uo
+
+
+def put_users(df_cluster, df_uo):
+    # 1. ユーザー（申請者）の照合用セット
+    user_set = set(df_uo['申請者氏名（英）'].unique())
+
+    # 2. クラスターごとの分析を実行
+    # df_cluster に 'is_user' フラグを追加
+    df_cluster['is_user'] = df_cluster['Author'].apply(lambda x: x in user_set)
+
+    # 結果を格納するリスト
+    final_scout_list = []
+
+    print("===== Cluster-based Scouter Running =====")
+
+    for c_idx in sorted(df_cluster['Cluster'].unique()):
+        # そのクラスターに属する人たち
+        in_cluster = df_cluster[df_cluster['Cluster'] == c_idx]
+
+        # その中のユーザー（申請者）たち
+        users_in_c = in_cluster[in_cluster['is_user'] == True]
+
+        # その中の非ユーザー（ターゲット）たち
+        non_users_in_c = in_cluster[in_cluster['is_user'] == False]
+
+        if len(users_in_c) == 0:
+            print(f"Cluster {c_idx}: No active users found. Skipping.")
+            continue
+
+        # A. ユーザー重心（User Centroid）の計算
+        # Topic_0 ~ Topic_4 のカラムの平均をとる
+        user_features = users_in_c[[f"Topic_{i}" for i in range(5)]].values
+        user_centroid = np.mean(user_features, axis=0)
+
+        # B. 非ユーザーとの類似度（角度）計算
+        target_features = non_users_in_c[[f"Topic_{i}" for i in range(5)]].values
+
+        # コサイン類似度
+        norm_centroid = np.linalg.norm(user_centroid)
+        norm_targets = np.linalg.norm(target_features, axis=1)
+        cos_sim = np.dot(target_features, user_centroid) / (norm_centroid * norm_targets + 1e-10)
+
+        # 角度(deg)に変換
+        angles = np.degrees(np.arccos(np.clip(cos_sim, -1.0, 1.0)))
+
+        # C. このクラスター内でのランキングを作成
+        non_users_in_c = non_users_in_c.copy()
+        non_users_in_c['angle_to_centroid'] = angles
+
+        # 角度が小さい（重心に近い）順にソート
+        top_targets = non_users_in_c.sort_values('angle_to_centroid').head(30)
+
+        print(f"\n[Cluster {c_idx}] (Users: {len(users_in_c)}, Non-Users: {len(non_users_in_c)})")
+        print(f"Top 30 Prospects (Closest to User Centroid):")
+        for i, row in enumerate(top_targets.head(30).itertuples(), 1):
+            print(f"  {i}. {row.Author} ({round(row.angle_to_centroid, 2)}°)")
+
+        final_scout_list.append(top_targets)
+
+    # 全クラスターの有望株をまとめる
+    df_scout = pd.concat(final_scout_list)
+    return df_cluster, df_scout
 
 
 def run_author_LDA_on_abstract(
@@ -789,7 +938,7 @@ def run(
     corpus, model, author2doc, theta_a_list, theta_a =\
         run_author_LDA_on_abstract(
             df_pre, df_pre.Abstract, savabstractfile, num_topics=num_topics)
-    plot_word_cloud(model)
+    #plot_word_cloud(model)
     ## 辞書のキー（著者名）の中から 'Takahara' を含むものをすべて探す
     #takahara_list = [name for name in author2doc.keys() if 'Kawakita' in name]
 #
@@ -807,7 +956,9 @@ def run(
     #    )
     #show_top_phis(model, topn=30)
     df_cluster = run_kmeans(theta_a, model)
-    get_2D_map(theta_a, model, df_cluster)
+    df_uo = get_users('申請が受理された課題一覧_採択.csv')
+    df_cluster, df_scout = put_users(df_cluster, df_uo)
+    get_2D_map(theta_a, model, df_cluster, df_uo=df_uo)
     #corpus_abstract, model_abstract = run_author_LDA(
     #    df_pre, df_pre.Abstract, savabstractfile, "Abstract", num_topics=num_topics)
     #show_top_phis(model_abstract)
