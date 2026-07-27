@@ -478,7 +478,7 @@ def plot_countries(
     plt.minorticks_on()
     plt.tight_layout()
     plt.show()
-
+ 
 
 def show_journal_info(
         df_pre,
@@ -588,39 +588,46 @@ def get_2D_map(theta_a, model, df_cluster, df_uo=None):
     # Visualization
     plt.figure(figsize=(12, 10))
     plt.rcParams['font.family'] = 'Arial'
-    # Plot all authors with thin gray
-    #plt.scatter(pc1, pc2, s=5, alpha=0.15, c='gray', edgecolors='none',
-    #            label='All Researchers')
-    plt.scatter(pc1, pc2, s=5, alpha=0.15, c=df_cluster['Cluster'], cmap='Set1', edgecolors='none',
-                label='All Researchers')
-    # Plot of knwon authors
+    plt.scatter(pc1, pc2, s=5, alpha=0.15, c=df_cluster['Cluster'],
+                cmap='Set1', edgecolors='none', label='All Researchers')
+    # Plot of authors to scout.
+    # Obtain colors used in kmeans result on 2D map
+    cmap = plt.get_cmap('Set1')
+    norm = plt.Normalize(vmin=df_cluster['Cluster'].min(),
+                         vmax=df_cluster['Cluster'].max())
     targets = {
-        #'Kawakita,Y.': 'red',
-        'Nakata,M.': 'red',
-        #'Kitaguchi,M.': 'blue',
-        'Yoshii,S.': 'blue',
-        'Oshima,N.': 'green',
-        'Mizutori,S.': 'orange',
-        'Itoh,R.': 'cyan',
-        'Iga,Y.': 'k',
-        #'Kanaya,T.': 'green',
+        # 'Kawakita,Y.': 'red',
+        'Nakata,M.': cmap(norm(0)),
+        'Mizutori,S.': cmap(norm(1)),
+        'Itoh,R.': cmap(norm(2)),
+        # 'Kitaguchi,M.': 'blue',
+        'Oshima,N.': cmap(norm(3)),
+        'Yoshii,S.': cmap(norm(4)),
+        'Iga,Y.': cmap(norm(5)),
+        # 'Kanaya,T.': 'green',
     }
     for name, color in targets.items():
         if name in names_list:
             idx = names_list.index(name)
-            plt.scatter(pc1[idx], pc2[idx], c=color, s=100, marker='*', alpha=1.0, zorder=10,
-                        edgecolors='black', linewidth=1, label=name)
+            plt.scatter(pc1[idx], pc2[idx], color=color, s=100, marker='*',
+                        alpha=1.0, zorder=10, edgecolors='black', linewidth=1,
+                        label=name)
+    # Plot of authors who are users.
     c_min = df_cluster['Cluster'].min()
     c_max = df_cluster['Cluster'].max()
-    uo_indices = [names_list.index(name) for name in df_uo['申請者氏名（英）'].unique() if name in names_list]
+    uo_indices = [names_list.index(name) for name in
+                  df_uo['申請者氏名（英）'].unique() if name in names_list]
     print('num of uo_indices', len(uo_indices))
     plt.scatter(pc1[uo_indices], pc2[uo_indices],
-                s=20, # 背景の点(5)より少し大きくすると見やすいです
+                s=20,     # better visiblity for using slighly larger value
+                          # than that of all authors (5).
                 alpha=1.0,
                 c=df_cluster['Cluster'].iloc[uo_indices],
                 cmap='Set1',
-                vmin=c_min, vmax=c_max, # 背景の色と完璧にシンクロさせる魔法
-                edgecolors='black', linewidth=0.5, # 縁取りを入れるとさらに際立ちます
+                vmin=c_min, vmax=c_max,  # use the same vmax and vmin as those
+                                         # for all authors.
+                edgecolors='black', linewidth=0.5,  # An outline makes it pop
+                                                    # more.
                 label='Applicants')
 
     # Mean position of each topics shown as an arrow
@@ -636,43 +643,43 @@ def get_2D_map(theta_a, model, df_cluster, df_uo=None):
                  f"Topic {i}", color='k', fontsize=12,
                  fontweight='bold')
 
-    # --- 1. ユーザー重心の計算（5次元 theta_a 空間） ---
-    # 申請者(User)かつ各クラスターごとに平均をとる
-    user_centroids_5d = df_cluster[df_cluster['is_user']].groupby('Cluster')[[f"Topic_{i}" for i in range(5)]].mean()
+    # --- 1. Calculation of user_centroid(5 dimensional theta_a space) ---
+    # take mean of theta_a across users in each cluster.
+    user_centroids_5d = df_cluster[df_cluster['is_user']].groupby(
+            'Cluster')[[f"Topic_{i}" for i in range(5)]].mean()
 
-    # --- 2. 5次元の重心をPCAの2次元座標に変換 ---
-    # PCAの計算で使った X_mean と Vh (主成分) を再利用します
+    # --- 2. project the centroids in the 5D space to the 2D made by PCA. ---
+    # Reuse X_mean and Vh (loading) in the PCA calc.
     centroid_coords_2d = []
 
     for c_idx, row in user_centroids_5d.iterrows():
-        # 5次元ベクトルを取り出す
+        # take the 5D vector
         vec_5d = row.values
 
-        # 中心化（全体平均を引く）
+        # centering by subtracting the mean.
         vec_centered = vec_5d - X_mean
 
-        # 主成分ベクトル(Vh)に投影して x, y を出す
-        # Vh[0]がPC1の向き、Vh[1]がPC2の向き
+        # Projecting the vector onto the vector of PCA (Vh) and obtain x, y.
+        # Vh[0] is along PC1, while Vh[1] along PC2
         cx = np.dot(vec_centered, Vh[0, :])
         cy = np.dot(vec_centered, Vh[1, :])
         centroid_coords_2d.append((c_idx, cx, cy))
 
-    # --- 3. プロット（既存の散布図に重ねる） ---
-    # 前回のプロットコードの後にこれを追加
+    # --- 3. Plot(Overlay on the already generated scatter plot) ---
+    # Adding this after the previous plotting code.
     for c_idx, cx, cy in centroid_coords_2d:
-        # 各クラスターの色を取得（背景の scatter と同じ cmap, vmin, vmax を使うのがコツ）
+        target_color = cmap(norm(c_idx))
         plt.scatter(cx, cy,
-                    s=250,               # かなり大きくして目立たせる
-                    marker='X',          # ✕印で「中心」を表現
-                    color='black',       # 縁取り
-                    edgecolors='white',
+                    s=250,
+                    marker='X',
+                    color=target_color,
+                    edgecolors='black',
                     linewidth=2,
                     label=f'User Centroid C{c_idx}',
-                    alpha=0.4,
-                    zorder=5)           # 最前面に描画
-
-        # ラベルも添えると分かりやすいです
-        plt.text(cx, cy, f"  Center {c_idx}", fontsize=12, fontweight='bold', zorder=5, alpha=0.4)
+                    alpha=0.8,
+                    zorder=5)
+        plt.text(cx, cy, f"  Center {c_idx}", fontsize=12, fontweight='bold',
+                 zorder=5, alpha=0.4, c=target_color)
 
     plt.xlabel(f'PC1 ({var_exp[0]:.1f}%)')
     plt.ylabel(f'PC2 ({var_exp[1]:.1f}%)')
@@ -686,65 +693,65 @@ def get_2D_map(theta_a, model, df_cluster, df_uo=None):
 
 def cluster_authors_by_theta_a(theta_a, author_names, k=6, random_state=42):
     """
-    theta_a (トピック分布行列) を用いてK-meansクラスタリングを行い、
-    全著者にラベルを付与して DataFrame として返す関数。
+    Using theta_a, clustering is performed by K-means, giving all authors the
+    labels, then a DataFlame of all authors with the labels  are returned.
     """
     print(f"Running K-means clustering with k={k}...")
 
-    # 1. K-meansの実行 (n_init=10 はアルゴリズムの安定化のため)
+    # 1. Performing K-means (n_init=10 is for stabilization of the algorithm)
     kmeans = KMeans(n_clusters=k, random_state=random_state, n_init=10)
     cluster_labels = kmeans.fit_predict(theta_a)
 
-    # 2. 結果を Pandas DataFrame に整理する
-    # トピック確率も一緒に保存しておくと後で検索が超便利になります
+    # 2. reform the results to a Pandas DataFrame.
+    # Topic probability (theta_a) had better saved for conviniently searching
+    # later.
     num_topics = theta_a.shape[1]
-    df_authors = pd.DataFrame(theta_a, columns=[f"Topic_{i}" for i in range(num_topics)])
+    df_authors = pd.DataFrame(theta_a, columns=[f"Topic_{i}" for i in
+                              range(num_topics)])
     df_authors['Author'] = author_names
     df_authors['Cluster'] = cluster_labels
 
-    # 列の並び順を見やすく変更
+    # Rearrange columns for clarity.
     cols = ['Author', 'Cluster'] + [f"Topic_{i}" for i in range(num_topics)]
     df_authors = df_authors[cols]
 
-    # 3. クラスタごとのサマリー（人口と特徴）を表示
+    # 3. show summary of each cluster (population and feature(topic))
     print("\n--- Cluster Summary ---")
     cluster_centers = kmeans.cluster_centers_
     for i in range(k):
-        # その村の人数
+        # polulation of the cluster
         count = np.sum(cluster_labels == i)
-        # その村の「重心（平均的な住人）」が最も強く持っているトピック
+        # Most imporatnt topic of each cluster centroid.
         dominant_topic = np.argmax(cluster_centers[i])
         max_prob = cluster_centers[i][dominant_topic]
-        print(f"Cluster {i}: {count:5d} authors | Dominant Feature: Topic {dominant_topic} ({max_prob*100:.1f}%)")
+        print(f"Cluster {i}: {count:5d} authors | Dominant Feature:"
+              f" Topic {dominant_topic} ({max_prob*100:.1f}%)")
 
     return df_authors, kmeans
 
 
 def run_kmeans(theta_a, model):
-    # ==========================================
-    # 実行部分
-    # ==========================================
-    # k=6 で実行（必要に応じて k=5 や k=8 などに変更して試してください）
-    # ※ names_list は前回の PCA の時に作った [model.id2author[i] for i in ...] のリストです
+    # names_list is the same as a list of [model.id2author[i] for i in ...]
+    # invoked in PCA.
     names_list = [model.id2author[i] for i in range(len(model.id2author))]
     k_num = 6
     df_cluster, kmeans_model = cluster_authors_by_theta_a(
             theta_a, names_list, k=k_num)
 
-    # --- 答え合わせ（3大スターの所属村を確認） ---
+    # --- validation (show the cluster where three star researchers belong to） ---
     print("\n--- Target Authors Clusters ---")
     targets = ['Kawakita,Y.', 'Kitaguchi,M.', 'Kanaya,T.']
 
     for target in targets:
         if target in names_list:
-            # その人の行を抽出
+            # extract the cluster of the person.
             author_info = df_cluster[df_cluster['Author'] == target].iloc[0]
             c_label = author_info['Cluster']
 
-            # わかりやすく表示
+            # print clearly
             print(f"⭐ {target}")
             print(f"   Assigned to : Cluster {c_label}")
-            # トピック分布の数値を小数点3桁で表示
+            # show topic ditribution (theta_a)
             probs = [round(p, 3) for p in author_info.iloc[2:].values]
             print(f"   Theta_a     : {probs}")
     return df_cluster
@@ -812,12 +819,14 @@ def put_users(df_cluster, df_uo):
         user_centroid = np.mean(user_features, axis=0)
 
         # B. 非ユーザーとの類似度（角度）計算
-        target_features = non_users_in_c[[f"Topic_{i}" for i in range(5)]].values
+        target_features = non_users_in_c[[f"Topic_{i}"
+                                          for i in range(5)]].values
 
         # コサイン類似度
         norm_centroid = np.linalg.norm(user_centroid)
         norm_targets = np.linalg.norm(target_features, axis=1)
-        cos_sim = np.dot(target_features, user_centroid) / (norm_centroid * norm_targets + 1e-10)
+        cos_sim = np.dot(target_features, user_centroid
+                         ) / (norm_centroid * norm_targets + 1e-10)
 
         # 角度(deg)に変換
         angles = np.degrees(np.arccos(np.clip(cos_sim, -1.0, 1.0)))
@@ -829,8 +838,9 @@ def put_users(df_cluster, df_uo):
         # 角度が小さい（重心に近い）順にソート
         top_targets = non_users_in_c.sort_values('angle_to_centroid').head(30)
 
-        print(f"\n[Cluster {c_idx}] (Users: {len(users_in_c)}, Non-Users: {len(non_users_in_c)})")
-        print(f"Top 30 Prospects (Closest to User Centroid):")
+        print(f"\n[Cluster {c_idx}] (Users: {len(users_in_c)}, "
+              f"Non-Users: {len(non_users_in_c)})")
+        print("Top 30 Prospects (Closest to User Centroid):")
         for i, row in enumerate(top_targets.head(30).itertuples(), 1):
             print(f"  {i}. {row.Author} ({round(row.angle_to_centroid, 2)}°)")
 
@@ -858,12 +868,16 @@ def run_author_LDA_on_abstract(
     print("CHK", type(model.id2author))
     print(len(model.id2author))
     print(len(model.id2author.values()))
-    print("Kawakita,Y.", model.get_author_topics('Kawakita,Y.', minimum_probability=0))
-    print("Shibayama,N.", model.get_author_topics('Shibayama,N.', minimum_probability=0))
-    print("Kitaguchi,M.", model.get_author_topics('Kitaguchi,M.', minimum_probability=0))
-    print("Yamaguchi,N.", model.get_author_topics('Yamaguchi,N.', minimum_probability=0))
-    theta_a_list = [model.get_author_topics(author, minimum_probability=0) for author
-                    in model.id2author.values()]
+    print("Kawakita,Y.", model.get_author_topics('Kawakita,Y.',
+                                                 minimum_probability=0))
+    print("Shibayama,N.", model.get_author_topics('Shibayama,N.',
+                                                  minimum_probability=0))
+    print("Kitaguchi,M.", model.get_author_topics('Kitaguchi,M.',
+                                                  minimum_probability=0))
+    print("Yamaguchi,N.", model.get_author_topics('Yamaguchi,N.',
+                                                  minimum_probability=0))
+    theta_a_list = [model.get_author_topics(author, minimum_probability=0)
+                    for author in model.id2author.values()]
     theta_a = np.zeros((len(theta_a_list), num_topics))
     for i in range(len(theta_a_list)):
         for j in range(len(theta_a_list[i])):
