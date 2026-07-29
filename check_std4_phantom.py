@@ -72,6 +72,8 @@ def get_tdata_phantom():
 
 def get_mask(smallarea=False):
     if not smallarea:
+        with open('params_scratch_rev4.pkl', 'rb') as f:
+            paramimage = pickle.load(f)
         return paramimage[4] == 0.
     else:
         with open('/home/kazu/desktop/240424/uNID_data_KO/211/bi3d_scratch_rev4_211_partial_phantom_local_with_gt.pkl', 'rb') as f:
@@ -128,8 +130,10 @@ def check_std():
             maxstd = pickle.load(f)
             std_phantom_sample = pickle.load(f)
 
-    _mask = get_mask(smallarea=True)
-    mask = get_mask(smallarea=True)
+    #_mask = get_mask(smallarea=True)
+    #mask = get_mask(smallarea=True)
+    _mask = get_mask(smallarea=False)
+    mask = get_mask(smallarea=False)
     _masknew = copy.deepcopy(_mask)
 
     for irp in range(4):
@@ -236,7 +240,7 @@ def check_std():
     ax4.set_xlabel(r'TOF / $\mu$s')
     for axi in [ax3, ax4]: # 下側の軸の「一番上の目盛り」を消す場合
         axi.yaxis.get_major_ticks()[-1].label1.set_visible(False)
-    plt.savefig("fig_bi_std_phantom.eps")
+    plt.savefig("fig_bi_std_phantom_rev.eps")
     plt.show()
 
 

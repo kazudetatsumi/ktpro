@@ -42,7 +42,8 @@ def get_tdata(tdatafile='tdata.pkl'):
 
 def get_mask(transmission):
     import cv2
-    return cv2.GaussianBlur(transmission.sum(axis=-1), (5, 5), 0) > 236
+    #return cv2.GaussianBlur(transmission.sum(axis=-1), (5, 5), 0) > 236
+    return cv2.GaussianBlur(transmission.sum(axis=-1), (5, 5), 0) > 260
 
 
 def check_std():
@@ -191,7 +192,7 @@ def check_std():
     ax4.set_xlabel(r'TOF / $\mu$s')
     for axi in [ax3, ax4]: # 下側の軸の「一番上の目盛り」を消す場合
         axi.yaxis.get_major_ticks()[-1].label1.set_visible(False)
-    plt.savefig('fig_bi_std.eps')
+    plt.savefig('fig_bi_std_rev.eps')
     plt.show()
 
 

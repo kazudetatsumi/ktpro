@@ -127,9 +127,11 @@ def draw_line(ax, gdsfile):
     g2d_s_rot = cv2.warpAffine(g2d_s,  trans,    (W, H))
     g2d_ph_rot = cv2.warpAffine(g2d_ph, trans_ph, (W, H))[::-1, :]
 
-    ax.plot(g2d_s_rot.mean(axis=-1), ls='-', label='Experiment', c='k')
-    ax.plot(g2d_ph_rot.mean(axis=-1), ls='--', label='Phantom', c='k')
-    ax.set_xlim(0, 50)
+    #ax.plot(g2d_s_rot.mean(axis=-1), ls='-', label='Experiment', c='k')
+    #ax.plot(g2d_ph_rot.mean(axis=-1), ls='--', label='Phantom', c='k')
+    ax.plot(g2d_s_rot[:, :].max(axis=-1), ls='-', label='Experiment', c='k')
+    ax.plot(g2d_ph_rot[:, :].max(axis=-1), ls='--', label='Phantom', c='k')
+    ax.set_xlim(0, 57)
     ax.set_xlabel('Transverse position / ch', labelpad=-0.5)
     ax.set_ylabel(r'$<|\nabla T|_{qtof95}>_{longitude}$')
     ax.legend(loc='best', frameon=False)
@@ -197,10 +199,10 @@ def main():
     gdsfile = fdir + 'g2ds.pkl'
     if not os.path.exists(gdsfile):
         raise RuntimeError("gdsfile doest not exist")
-    tmp_datafile = fdir + 'tmp_data.pkl'
+    tmp_datafile = fdir + 'tmp_data_epi.pkl'
     if not os.path.exists(tmp_datafile):
         raise RuntimeError("tmp_datafile doest not exist")
-    tmp_dataphantomfile = fdir + 'tmp_data_phantom.pkl'
+    tmp_dataphantomfile = fdir + 'tmp_data_phantom_epi.pkl'
     if not os.path.exists(tmp_dataphantomfile):
         raise RuntimeError("tmp_dataphantomfile doest not exist")
     tdatafile = fdir + 'tdata.pkl'
@@ -229,7 +231,7 @@ def main():
     #for a in [ax1, ax2, ax3]:
     #    a.tick_params(labelbottom=False)
 
-    fig.savefig("fig_bi_grad.eps")
+    fig.savefig("fig_bi_grad_rev2.eps")
     plt.show()
     #print(f"Saved -> {output}")
 

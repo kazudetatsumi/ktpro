@@ -20,14 +20,19 @@ def get_mask(expt=True):
     if expt:
         sample_expt, openbeam_expt, transmission_expt = get_data()
         import cv2
+        #return cv2.GaussianBlur(transmission_expt.sum(axis=-1), (5, 5), 0
+        #                        ) > 236*315715./553690
         return cv2.GaussianBlur(transmission_expt.sum(axis=-1), (5, 5), 0
-                                ) > 236*315715./553690
+                                ) > 262*315715./553690
     else:
-        sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(
-                expt=False)
-        sumtransmission_phantom = transmission_phantom_gt.sum(axis=-1)
-        bmask = sumtransmission_phantom > 132*315715./553690
-        return bmask
+        #sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(
+        #        expt=False)
+        #sumtransmission_phantom = transmission_phantom_gt.sum(axis=-1)
+        #bmask = sumtransmission_phantom > 132*315715./553690
+        #return bmask
+        with open('params_scratch_rev4.pkl', 'rb') as f:
+            paramimage = pickle.load(f)
+        return paramimage[4] == 0.
 
 
 def get_data(expt=True):
@@ -152,11 +157,14 @@ def compare_grads():
         sample_phantom, openbeam_phantom, transmission_phantom_gt = get_data(expt=False)
         transmission_phantom = sample_phantom/openbeam_phantom*315715./553690
         transmission_train = x_train_noisy/openbeam_phantom*315715./553690
-        g_sample_expt = grad_map_xy(transmission_expt, mask=get_mask(expt=True), agg='p95')
-        g_sample_phantom = grad_map_xy(transmission_phantom, mask=get_mask(expt=False), agg='p95')
+        #g_sample_expt = grad_map_xy(transmission_expt, mask=get_mask(expt=True), agg='p95')
+        g_sample_expt = grad_map_xy(transmission_expt, mask=get_mask(expt=True), agg='max')
+        #g_sample_phantom = grad_map_xy(transmission_phantom, mask=get_mask(expt=False), agg='p95')
+        g_sample_phantom = grad_map_xy(transmission_phantom, mask=get_mask(expt=False), agg='max')
         g_x_train_noisy = []
         for tidx in np.arange(transmission_train.shape[0]):
-            g_x_train_noisy.append(grad_map_xy(transmission_train[tidx], agg='p95'))
+            g_x_train_noisy.append(grad_map_xy(transmission_train[tidx], agg='max'))
+            #g_x_train_noisy.append(grad_map_xy(transmission_train[tidx], agg='p95'))
         with open(gsfile, 'wb') as f:
             pickle.dump(g_sample_expt, f, 4)
             pickle.dump(g_sample_phantom, f, 4)
@@ -285,13 +293,16 @@ def get_gs(gsfile='gs.pkl'):
         transmission_phantom = sample_phantom/openbeam_phantom*315715./553690
         transmission_train = x_train_noisy/openbeam_phantom*315715./553690
         g_sample_expt = grad_map_xy(transmission_expt, mask=get_mask(
-            expt=True), agg='p95')
+            expt=True), agg='max')
+        #expt=True), agg='p95')
         g_sample_phantom = grad_map_xy(transmission_phantom, mask=get_mask(
-            expt=False), agg='p95')
+            expt=False), agg='max')
+        #expt=False), agg='p95')
         g_x_train_noisy = []
         for tidx in np.arange(transmission_train.shape[0]):
             g_x_train_noisy.append(grad_map_xy(
-                transmission_train[tidx], agg='p95'))
+                transmission_train[tidx], agg='max'))
+            #transmission_train[tidx], agg='p95'))
         with open(gsfile, 'wb') as f:
             pickle.dump(g_sample_expt, f, 4)
             pickle.dump(g_sample_phantom, f, 4)
@@ -313,9 +324,11 @@ def get_g2ds(gdsfile='g2ds.pkl'):
         transmission_phantom = sample_phantom/openbeam_phantom*315715./553690
         #transmission_train = x_train_noisy/openbeam_phantom*315715./553690
         g_sample_expt = grad_map_2d(
-                transmission_expt, mask=get_mask(expt=True), agg='p95')
+                transmission_expt, mask=get_mask(expt=True), agg='max')
+        #transmission_expt, mask=get_mask(expt=True), agg='p95')
         g_sample_phantom = grad_map_2d(
-                transmission_phantom, mask=get_mask(expt=False), agg='p95')
+                transmission_phantom, mask=get_mask(expt=False), agg='max')
+        #transmission_phantom, mask=get_mask(expt=False), agg='p95')
         #g_x_train_noisy = []
         #for tidx in np.arange(transmission_train.shape[0]):
         #    g_x_train_noisy.append(grad_map_xy(transmission_train[tidx], agg='p95'))
@@ -934,11 +947,13 @@ def compare_grads_and_pi():
     g2d_sample_php1 = cv2.warpAffine(g2d_sample_phantom, trans_php1, (height, width))[::-1, :]
     g2d_sample_phm1 = cv2.warpAffine(g2d_sample_phantom, trans_phm1, (height, width))[::-1, :]
     g2d_sample_phantom_rotated = cv2.warpAffine(g2d_sample_phantom, trans_ph, (height, width))[::-1, :]
-    ax[2].plot(g2d_sample_rotated.mean(axis=-1), label='expt')
     #plt.plot(g2d_sample_php1.mean(axis=-1), label='phantomp1', lw=0.5)
     #plt.plot(g2d_sample_phm1.mean(axis=-1), label='phantomm1', lw=0.5)
-    ax[2].plot(g2d_sample_phantom_rotated.mean(axis=-1), label='phantom')
-    ax[2].set_xlim([0, 50])
+    #ax[2].plot(g2d_sample_rotated.mean(axis=-1), label='expt')
+    #ax[2].plot(g2d_sample_phantom_rotated.mean(axis=-1), label='phantom')
+    ax[2].plot(g2d_sample_rotated[:, -25:-24].mean(axis=-1), label='expt')
+    ax[2].plot(g2d_sample_phantom_rotated[:, -10:-9].mean(axis=-1), label='phantom')
+    #ax[2].set_xlim([0, 50])
 
     vmin = min(np.mean(g2d_sample), np.mean(g2d_sample_phantom))
     vmax = max(np.max(g2d_sample), np.max(g2d_sample_phantom))
@@ -975,7 +990,7 @@ def compare_grads_and_pi():
     plt.grid(True, alpha=0.3)
     plt.legend()
     plt.tight_layout()
-    plt.savefig('fig_bi_g_vs_pi.png')
+    #plt.savefig('fig_bi_g_vs_pi.png')
     plt.show()
     return bins, (xc_s, mean_s, sem_s), (xc_p, mean_p, sem_p)
 
