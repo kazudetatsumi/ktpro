@@ -968,10 +968,11 @@ def run(
     #    df_pre,
     #    theta_a,
     #    )
-    #show_top_phis(model, topn=30)
+    show_top_phis(model, topn=30)
     df_cluster = run_kmeans(theta_a, model)
     df_uo = get_users('申請が受理された課題一覧_採択.csv')
     df_cluster, df_scout = put_users(df_cluster, df_uo)
+
     get_2D_map(theta_a, model, df_cluster, df_uo=df_uo)
     #corpus_abstract, model_abstract = run_author_LDA(
     #    df_pre, df_pre.Abstract, savabstractfile, "Abstract", num_topics=num_topics)

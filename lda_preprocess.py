@@ -12,7 +12,7 @@ index_list = ['Reference Type', 'Year', 'Title', 'Author', 'Journal',
 
 all_series = []
 
-with open('Neutron.txt', 'r') as f:
+with open('Hydrogen.txt', 'r') as f:
     df_inter = None
     for line in f:
         line = line.rstrip()
@@ -23,7 +23,8 @@ with open('Neutron.txt', 'r') as f:
             # 【ここが重要】すべてのSeriesの名前を 0 に固定します
             # これにより転置後のインデックスがすべて 0 になり、元のバグ挙動を再現します
             df_inter.name = 0
-            df_inter['Reference Type'] = line[18:]
+            # df_inter['Reference Type'] = line[18:]
+            df_inter['Reference Type'] = line.replace('Reference Type:', '').strip()
             continue
         if df_inter is not None:
             if line[0:5] == 'Title':
@@ -45,4 +46,4 @@ if df_inter is not None:
 # axis=1 で結合すると、列名がすべて 0 の DataFrame ができます
 df = pd.concat(all_series, axis=1)
 # df.T をすると、行名（インデックス）がすべて 0 になります
-df.T.to_csv('Neutron.csv')
+df.T.to_csv('Hydrogen.csv')
