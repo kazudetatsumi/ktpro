@@ -211,6 +211,7 @@ def count_number_of_words(
 
 def prepare_quantities_for_authors(
     df_pre,
+    min_papers: int = 5,
 ):
     frequency = defaultdict(int)
 
@@ -233,7 +234,7 @@ def prepare_quantities_for_authors(
 
 
     # build only words above 5 into an array
-    authors = [[token for token in text if frequency[token] >= 5]
+    authors = [[token for token in text if frequency[token] >= min_papers]
                for text in author_list]
 
     # print(frequency)
@@ -851,6 +852,221 @@ def put_users(df_cluster, df_uo):
     return df_cluster, df_scout
 
 
+def _infer_theta_a_for_new_data(
+    model,
+    df_target,
+    target_both: bool = False
+):
+    """
+    既存のモデルを固定したまま、新しいデータ（Hydrogen）の
+    著者たちの theta_a を推論（計算）する関数
+    """
+    print("--- Starting Inference for New Authors ---")
+
+    # 1. 重要：既存モデルの辞書をそのまま使う（新しく作らない！）
+    dictionary = model.id2word
+
+    # 2. テキストデータの準備（Title + Abstract を結合）
+    if target_both:
+        texts_new = [t + a for t, a in zip(df_target['Title'], df_target['Abstract'])]
+    else:
+        texts_new = df_target['Abstract'].tolist()
+
+    # 既存の辞書を使って BoW (単語IDと頻度のペア) に変換
+    corpus_new = [dictionary.doc2bow(text) for text in texts_new]
+
+    # 3. 各論文のトピック分布を推論（既存の物差しで採点）
+    num_topics = model.num_topics
+    doc_topics = np.zeros((len(corpus_new), num_topics))
+
+    for d_idx, bow in enumerate(corpus_new):
+        # get_document_topics を minimum_probability=0 で呼ぶと、
+        # 既存の5トピックの確率がそのまま手に入ります
+        topics = model.get_document_topics(bow, minimum_probability=0)
+        for t_id, prob in topics:
+            doc_topics[d_idx][t_id] = prob
+
+    # 4. 新しい著者と論文の紐付け (以前直した関数を使用)
+    author2doc_new = prepare_quantities_for_authors(df_target)
+    new_author_names = list(author2doc_new.keys())
+
+    # 5. 著者の論文たちのトピックを平均して、新しい theta_a を作成
+    theta_a_new = np.zeros((len(new_author_names), num_topics))
+    for i, auth in enumerate(new_author_names):
+        doc_ids = author2doc_new[auth]
+        # その著者が書いた論文のトピックベクトルの平均
+        theta_a_new[i] = np.mean(doc_topics[doc_ids], axis=0)
+
+    print(f"Inference Complete: {len(new_author_names)} new authors mapped to {num_topics} topics.")
+
+    return theta_a_new, new_author_names, author2doc_new
+
+
+def infer_theta_a_for_new_data(
+    model,
+    df_target,
+    target_both=False
+):
+    """既存のモデルを固定したまま、新しいデータ（任意のターゲットデータ）の
+
+    著者たちの theta_a を推論（計算）する汎用関数
+    """
+    print("--- Starting Inference for New Authors ---")
+
+    # 1. model.id2word (dict) から逆引き辞書（単語 -> ID）を作成
+    id2word = model.id2word
+    token2id = {word: word_id for word_id, word in id2word.items()}
+
+    # 2. テキストデータの準備（ピリオド形式）
+    if target_both:
+        texts_new = [t + a for t, a in zip(df_target.Title, df_target.Abstract)]
+    else:
+        texts_new = df_target.Abstract.tolist()
+
+    # 3. doc2bow 相当の処理を標準の辞書で実行
+    corpus_new = []
+    for text in texts_new:
+        tokens = text if isinstance(text, list) else str(text).split()
+        counts = Counter(tokens)
+        bow = sorted([
+            (token2id[token], count)
+            for token, count in counts.items()
+            if token in token2id
+        ])
+        corpus_new.append(bow)
+
+    # 4. 新しい著者と論文の紐付け
+    author2doc_new = prepare_quantities_for_authors(df_target, min_papers=1)
+    new_author_names = list(author2doc_new.keys())
+    num_topics = model.num_topics
+    theta_a_new = np.zeros((len(new_author_names), num_topics))
+
+    # 5. Gensim公式の get_new_author_topics を使って著者ごとに推論
+    for i, auth in enumerate(new_author_names):
+        doc_ids = author2doc_new[auth]
+        # その著者が執筆した論文のコーパス（BoWリスト）を抽出
+        author_corpus = [corpus_new[d_idx] for d_idx in doc_ids]
+
+        # 著者の論文群に学習時辞書の単語が1つも含まれていない場合の安全策
+        total_words = sum(len(bow) for bow in author_corpus)
+        if total_words == 0:
+            theta_a_new[i] = 1.0 / num_topics
+            continue
+
+        # Gensim公式の新規著者推論メソッドを実行
+        topics = model.get_new_author_topics(
+            author_corpus, minimum_probability=0.0
+        )
+        for t_id, prob in topics:
+            theta_a_new[i][t_id] = prob
+
+    print(
+        f"Inference Complete: {len(new_author_names)} new authors mapped to"
+        f" {num_topics} topics."
+    )
+
+    return theta_a_new, new_author_names, author2doc_new
+
+
+def check_inference_sanity(
+    theta_a_new,
+    author_names,
+    author2doc_new,
+    df_target,
+    target_topic_id=0,
+    model=None,
+):
+    """推論結果（theta_a_new）の妥当性を総合チェックする関数"""
+    print("========================================")
+    print("       INFERENCE SANITY CHECK REPORT    ")
+    print("========================================")
+
+    num_authors, num_topics = theta_a_new.shape
+
+    # --------------------------------------------------
+    # 1. 数学的整合性チェック
+    # --------------------------------------------------
+    row_sums = np.sum(theta_a_new, axis=1)
+    is_sum_one = np.allclose(row_sums, 1.0, atol=1e-3)
+    has_nan = np.isnan(theta_a_new).any()
+
+    # 完全に均等（1/K）になってしまった著者の数（単語が拾えなかった人）
+    uniform_prob = 1.0 / num_topics
+    is_uniform = np.all(
+        np.isclose(theta_a_new, uniform_prob, atol=1e-3), axis=1
+    )
+    num_uniform = np.sum(is_uniform)
+
+    print("[1. 数学的チェック]")
+    print(f"・各著者の確率合計が 1.0 か？ : {'OK' if is_sum_one else 'NG'}")
+    print(f"・NaN（欠損値）の有無        : {'なし (OK)' if not has_nan else 'あり (NG)'}")
+    print(
+        f"・均等確率({uniform_prob:.2f})の著者数: {num_uniform} /"
+        f" {num_authors} 人 ({num_uniform/num_authors*100:.1f}%)"
+    )
+
+    # --------------------------------------------------
+    # 2. トピック別平均確率のチェック（仮説の検証）
+    # --------------------------------------------------
+    mean_topics = np.mean(theta_a_new, axis=0)
+    print("\n[2. 全体の平均トピック分布]")
+    for t_id, avg_prob in enumerate(mean_topics):
+        star = " ★ (ターゲット)" if t_id == target_topic_id else ""
+        bar = "#" * int(avg_prob * 50)
+        print(f"  Topic {t_id}: {avg_prob:.4f} | {bar}{star}")
+
+    # --------------------------------------------------
+    # 3. トピック0の親和性が最も高い著者トップ3の確認
+    # --------------------------------------------------
+    print(f"\n[3. Topic {target_topic_id} の親和性トップ3著者の論文確認]")
+    top_author_indices = np.argsort(theta_a_new[:, target_topic_id])[::-1][:3]
+
+    for rank, idx in enumerate(top_author_indices, 1):
+        author = author_names[idx]
+        prob = theta_a_new[idx, target_topic_id]
+        doc_ids = author2doc_new[author]
+
+        print(f"\n  --- 第 {rank} 位: {author} (Topic {target_topic_id} 確率: {prob:.4f}) ---")
+        print(f"  執筆論文数: {len(doc_ids)} 件")
+        # 最初の1本のタイトルを表示（ピリオド形式）
+        first_doc_title = df_target.Title.iloc[doc_ids[0]]
+        print(f"  代表論文タイトル: {first_doc_title}")
+
+    # --------------------------------------------------
+    # 4. Neutron（学習時）との重複著者の一貫性チェック
+    # --------------------------------------------------
+    if model is not None and hasattr(model, "id2author"):
+        neutron_authors = set(model.id2author.values())
+        overlap = [a for a in author_names if a in neutron_authors]
+        print(
+            f"\n[4. Neutron学習データとの重複著者数: {len(overlap)} 人 /"
+            f" {num_authors} 人]"
+        )
+        if len(overlap) > 0:
+            sample_author = overlap[0]
+            # Neutron学習時の theta_a
+            train_topics = dict(
+                model.get_author_topics(sample_author, minimum_probability=0.0)
+            )
+            # 今回の推論時の theta_a
+            new_idx = author_names.index(sample_author)
+            infer_topics = theta_a_new[new_idx]
+
+            print(f"  重複著者の例: {sample_author}")
+            print(
+                f"    学習時: "
+                + ", ".join(
+                    [f"T{k}:{train_topics.get(k, 0):.2f}" for k in range(num_topics)]
+                )
+            )
+            print(
+                f"    推論時: "
+                + ", ".join([f"T{k}:{infer_topics[k]:.2f}" for k in range(num_topics)])
+            )
+
+    print("========================================")
+
+
 def run_author_LDA_on_abstract(
     df_pre,
     data,
@@ -932,7 +1148,162 @@ def run_author_LDA(
     return corpus, model
 
 
-def run(
+def prepare_df_for_inference(csv_path: str):
+    """任意のターゲットCSV（WoS検索結果）を読み込み、推論関数用に前処理・整形する汎用関数"""
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"指定されたファイルが見つかりません: {csv_path}")
+
+    print(f"Reading and preprocessing: {csv_path}")
+    df_target = pd.read_csv(csv_path)
+
+    # 欠損値対策（空欄によるエラー防止）
+    df_target.Abstract = df_target.Abstract.fillna("")
+    df_target.Title = df_target.Title.fillna("")
+
+    # 前処理を適用（ピリオド形式）
+    df_target.Abstract = (
+        df_target.Abstract.apply(preprocess).apply(preprocess2)
+    )
+    df_target.Title = df_target.Title.apply(preprocess).apply(preprocess2)
+
+    # 前処理結果が文字列として残っている場合のパース（安全策）
+    if len(df_target) > 0 and isinstance(df_target.Abstract.iloc[0], str):
+        df_target.Abstract = df_target.Abstract.apply(
+          lambda x: ast.literal_eval(x) if x.startswith("[") else x.split()
+        )
+        df_target.Title = df_target.Title.apply(
+          lambda x: ast.literal_eval(x) if x.startswith("[") else x.split()
+        )
+
+    return df_target
+
+
+def _try_to_show_conversion_rate(
+    ufilepath: str,
+    df_target,
+):
+    # --------------------------------------------------
+    # 1. 採択データから「氏名」と「初採択年」の対応表を作る
+    # --------------------------------------------------
+    df_user = get_users(ufilepath)
+    df_accepted = df_user[df_user["採択結果"].astype(str).str.strip() != "不採択"]
+
+    df_first_year = (
+        df_accepted.groupby("申請者氏名（英）")["年度"]
+        .min()
+        .reset_index()
+        .rename(columns={"申請者氏名（英）": "Author", "年度": "初採択年"})
+    )
+
+    # --------------------------------------------------
+    # 2. df_target 側を基準に「how='left'」で結合
+    # --------------------------------------------------
+    df_target["Author"] = df_target["Author"].apply(format_author_name)
+
+    # df_target にいる全員を残す（未採択の人は初採択年が NaN になる）
+    df_target_merged = pd.merge(df_target, df_first_year, on="Author", how="left")
+
+    # --------------------------------------------------
+    # 3. 転換率の計算（例：2025年の新規転換）
+    # --------------------------------------------------
+    # 分母：df_target のユニークな全人数
+    total_users = df_target_merged["Author"].nunique()
+
+    # 分子：2025年に初めて採択されたユニーク人数
+    target_year = 2025  # 調べたい年度
+    converted_users = df_target_merged[
+        df_target_merged["初採択年"] == target_year
+    ]["Author"].nunique()
+
+    # 転換率の計算
+    conversion_rate = (converted_users / total_users) * 100
+
+    print(f"対象の全人数（分母）: {total_users} 人")
+    print(f"{target_year}年に初採択された人数（分子）: {converted_users} 人")
+    print(f"転換率: {conversion_rate:.2f}%")
+
+
+    # 1. J-PARC側の名前のサンプルを表示
+    print("J-PARC側の名前サンプル:")
+    print(df_accepted["申請者氏名（英）"].dropna().head(5).tolist())
+
+    # 2. df_target側の名前のサンプルを表示
+    print("\ndf_target側の名前サンプル:")
+    print(df_target["Author"].dropna().head(5).tolist())
+
+    # 3. 過去全期間で、そもそも何人マッチしているか？
+    matched_total = df_target_merged["初採択年"].notna().sum()
+    print(f"\n★ 過去全期間でマッチした延べ件数: {matched_total} 件")
+
+
+def try_to_show_conversion_rate(
+    ufilepath: str,
+    new_author_names: list,  # df_target ではなく new_author_names を受け取る
+    target_year: int = 2024,
+):
+    print("\n--- Checking J-PARC User Conversion Rate ---")
+
+    # --------------------------------------------------
+    # 1. J-PARCの採択データ読み込み
+    # --------------------------------------------------
+    df_user = get_users(ufilepath)
+    df_accepted = df_user[
+        df_user["採択結果"].astype(str).str.strip() != "不採択"
+    ].copy()
+
+    # J-PARC側の申請者ごとの初採択年を集計（1人1行）
+    # ※ J-PARC側はすでに 'Moritomo,Y.' の形式なので format_author_name は不要です
+    df_first_year = (
+        df_accepted.groupby("申請者氏名（英）")["年度"]
+        .min()
+        .reset_index()
+        .rename(columns={"申請者氏名（英）": "Author", "年度": "初採択年"})
+    )
+
+    # --------------------------------------------------
+    # 2. 推論した484人の著者を基準に左結合（how='left'）
+    # --------------------------------------------------
+    # 484人のユニークな著者テーブルを作成
+    df_authors = pd.DataFrame({"Author": new_author_names})
+
+    # 左結合（推論対象の484人全員を残す）
+    df_merged = pd.merge(df_authors, df_first_year, on="Author", how="left")
+
+    # --------------------------------------------------
+    # 3. 集計と表示
+    # --------------------------------------------------
+    total_users = len(df_authors)  # 確実に484人になります
+    matched_total = (
+        df_merged["初採択年"].notna().sum()
+    )  # 過去全期間で利用歴がある人数
+    converted_users = (df_merged["初採択年"] == target_year).sum()
+
+    conversion_rate = (
+        (converted_users / total_users) * 100 if total_users > 0 else 0
+    )
+
+    print("========================================")
+    print(f"推論対象の全著者数（分母）    : {total_users} 人")
+    print(f"★ 過去全期間での利用経験者数 : {matched_total} 人")
+    print(f"{target_year}年に初採択された人数（分子） : {converted_users} 人")
+    print(f"{target_year}年 新規転換率            : {conversion_rate:.2f}%")
+    print("========================================")
+
+    # どの年度に何人初利用したかの内訳を表示
+    if matched_total > 0:
+        print("\n【初採択年の内訳（利用経験者）】")
+        print(df_merged["初採択年"].value_counts().sort_index())
+
+        print("\n【マッチした研究者の例】")
+        sample_df = df_merged[df_merged["初採択年"].notna()][
+            ["Author", "初採択年"]
+        ].head(5)
+        print(sample_df.to_string(index=False))
+
+    return df_merged
+
+
+def run_training_pipeline(
     dffile: str,
     #cptitlefile: str,
     #cpabstractfile: str,
@@ -984,3 +1355,55 @@ def run(
     df_country_year, df_merge = show_journal_info(df_pre, debug=debug)
     plot_countries(df_country_year, df_merge)
     """
+
+
+def run_topic_inference(
+    model_savefile: str,
+    target_csv_path: str,
+    target_both: bool = False
+):
+    """学習済みモデルとターゲットCSVを受け取り、著者トピック分布(theta_a)を推論する統合関数"""
+    # 1. 学習済みNeutronモデルのロード
+    print(f"Loading trained model from: {model_savefile}")
+    with open(model_savefile, "rb") as f:
+         model = pickle.load(f)
+
+    # 2. データの汎用前処理
+    df_target = prepare_df_for_inference(target_csv_path)
+# df_target = prepare_df_for_inference(target_csv_path) の直後に追加
+
+    print("========================================")
+    print("【df_target.Year の直接チェック】")
+    print("========================================")
+    print("1. データの型 (dtype):", df_target.Year.dtype)
+    print("\n2. 年ごとの件数内訳:")
+    print(df_target.Year.value_counts(dropna=False).sort_index())
+    print("\n3. 最初の10件の生データ:")
+    print(df_target.Year.head(10).tolist())
+    print("========================================")
+# ★ Year 列を数値型に変換（文字列や空文字を安全に数値化）
+    df_target.Year = pd.to_numeric(df_target.Year, errors="coerce")
+
+    # 2023年以下で絞り込み（ピリオド形式）
+    df_target = df_target[df_target.Year <= 2023].copy()
+
+    # 3. 推論実行
+    theta_a_new, new_author_names, author2doc_new = infer_theta_a_for_new_data(
+        model, df_target, target_both=target_both
+    )
+
+    print(f"Finished inference for {len(new_author_names)} authors.")
+
+    check_inference_sanity(
+        theta_a_new,
+        new_author_names,
+        author2doc_new,
+        df_target,
+        target_topic_id=0,
+        model=None,
+    )
+    try_to_show_conversion_rate(
+        '共通技術開発セクション巽様_抽出結果_20250307.csv',
+        new_author_names,
+    )
+    return theta_a_new, new_author_names, author2doc_new, df_target
