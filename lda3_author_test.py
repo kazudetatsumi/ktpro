@@ -233,7 +233,7 @@ def prepare_quantities_for_authors(
             author_list.append([])
 
 
-    # build only words above 5 into an array
+    # build only words with freqnecy >= min_papers into an array
     authors = [[token for token in text if frequency[token] >= min_papers]
                for text in author_list]
 
@@ -973,97 +973,74 @@ def check_inference_sanity(
     author_names,
     author2doc_new,
     df_target,
-    target_topic_id=0,
-    model=None,
+    target_topic_ids: list = [0, 2],
 ):
-    """推論結果（theta_a_new）の妥当性を総合チェックする関数"""
-    print("========================================")
-    print("       INFERENCE SANITY CHECK REPORT    ")
-    print("========================================")
+    """Function generally checking the validity of the inference results"""
+    print("===========================================")
+    print(" INFERENCE SANITY CHECK REPORT 1, 2, and 3")
+    print("===========================================")
 
     num_authors, num_topics = theta_a_new.shape
 
     # --------------------------------------------------
-    # 1. 数学的整合性チェック
+    # 1. check on mathematical consistency
     # --------------------------------------------------
     row_sums = np.sum(theta_a_new, axis=1)
     is_sum_one = np.allclose(row_sums, 1.0, atol=1e-3)
     has_nan = np.isnan(theta_a_new).any()
 
-    # 完全に均等（1/K）になってしまった著者の数（単語が拾えなかった人）
+    # # of the authors having the uniform probability（1/K）,
+    # those whose abstracts did not contain any topic words.
     uniform_prob = 1.0 / num_topics
     is_uniform = np.all(
         np.isclose(theta_a_new, uniform_prob, atol=1e-3), axis=1
     )
     num_uniform = np.sum(is_uniform)
 
-    print("[1. 数学的チェック]")
-    print(f"・各著者の確率合計が 1.0 か？ : {'OK' if is_sum_one else 'NG'}")
-    print(f"・NaN（欠損値）の有無        : {'なし (OK)' if not has_nan else 'あり (NG)'}")
-    print(
-        f"・均等確率({uniform_prob:.2f})の著者数: {num_uniform} /"
-        f" {num_authors} 人 ({num_uniform/num_authors*100:.1f}%)"
-    )
+    print("[1. Mathematical concistency]")
+    print("• Sum of probabilities of each author is 1.0？ :" +
+          f" {'OK' if is_sum_one else 'NG'}")
+    print("• NaN (broken values) exists?                  :" +
+          f" {'No (OK)' if not has_nan else 'Yes (NG)'}")
+    print("• Authors with uniform θ_a" +
+          f" ({uniform_prob:.2f})              : {num_uniform} /" +
+          f" {num_authors} people ({num_uniform/num_authors*100:.1f}%)")
+    # -------------------------------------------------------------------
+    # 2. Check average θ_a across target authors (valdatin of hypothesis)
+    # -------------------------------------------------------------------
+    avg_probs = np.mean(theta_a_new, axis=0)
+    print("[2. Sum of probabilities (θ_a) for target topics, averaged across" +
+          f" all target authors: {np.sum(avg_probs[target_topic_ids]):.2f}]")
+    # -------------------------------------------------------------------
+    # 3. Check paper titles of the authors with the 3 highest θ_a.
+    # -------------------------------------------------------------------
+    for target_topic_id in target_topic_ids:
+        print("[3. Authors with the 3 highest probabilities" +
+              f"for Topic {target_topic_id}]")
+        top_author_indices = np.argsort(theta_a_new[:, target_topic_id]
+                                        )[::-1][:3]
+        for rank, idx in enumerate(top_author_indices, 1):
+            author = author_names[idx]
+            prob = theta_a_new[idx, target_topic_id]
+            doc_ids = author2doc_new[author]
+            print(f"--- No. {rank}: {author} (Topic {target_topic_id} prob:"
+                  + f"{prob:.4f}) ---")
+            print(f"  # of papers: {len(doc_ids)} 件")
+            # Show the first paper tile
+            first_doc_title = df_target.Title.iloc[doc_ids[0]]
+            print("  representtative paper title:")
+            print(f"{first_doc_title}")
 
-    # --------------------------------------------------
-    # 2. トピック別平均確率のチェック（仮説の検証）
-    # --------------------------------------------------
-    mean_topics = np.mean(theta_a_new, axis=0)
-    print("\n[2. 全体の平均トピック分布]")
-    for t_id, avg_prob in enumerate(mean_topics):
-        star = " ★ (ターゲット)" if t_id == target_topic_id else ""
-        bar = "#" * int(avg_prob * 50)
-        print(f"  Topic {t_id}: {avg_prob:.4f} | {bar}{star}")
 
-    # --------------------------------------------------
-    # 3. トピック0の親和性が最も高い著者トップ3の確認
-    # --------------------------------------------------
-    print(f"\n[3. Topic {target_topic_id} の親和性トップ3著者の論文確認]")
-    top_author_indices = np.argsort(theta_a_new[:, target_topic_id])[::-1][:3]
-
-    for rank, idx in enumerate(top_author_indices, 1):
-        author = author_names[idx]
-        prob = theta_a_new[idx, target_topic_id]
-        doc_ids = author2doc_new[author]
-
-        print(f"\n  --- 第 {rank} 位: {author} (Topic {target_topic_id} 確率: {prob:.4f}) ---")
-        print(f"  執筆論文数: {len(doc_ids)} 件")
-        # 最初の1本のタイトルを表示（ピリオド形式）
-        first_doc_title = df_target.Title.iloc[doc_ids[0]]
-        print(f"  代表論文タイトル: {first_doc_title}")
-
-    # --------------------------------------------------
-    # 4. Neutron（学習時）との重複著者の一貫性チェック
-    # --------------------------------------------------
-    if model is not None and hasattr(model, "id2author"):
-        neutron_authors = set(model.id2author.values())
-        overlap = [a for a in author_names if a in neutron_authors]
-        print(
-            f"\n[4. Neutron学習データとの重複著者数: {len(overlap)} 人 /"
-            f" {num_authors} 人]"
-        )
-        if len(overlap) > 0:
-            sample_author = overlap[0]
-            # Neutron学習時の theta_a
-            train_topics = dict(
-                model.get_author_topics(sample_author, minimum_probability=0.0)
-            )
-            # 今回の推論時の theta_a
-            new_idx = author_names.index(sample_author)
-            infer_topics = theta_a_new[new_idx]
-
-            print(f"  重複著者の例: {sample_author}")
-            print(
-                f"    学習時: "
-                + ", ".join(
-                    [f"T{k}:{train_topics.get(k, 0):.2f}" for k in range(num_topics)]
-                )
-            )
-            print(
-                f"    推論時: "
-                + ", ".join([f"T{k}:{infer_topics[k]:.2f}" for k in range(num_topics)])
-            )
-
+def check_df_target(df_target):
+    print("========================================")
+    print("【Direct check of df_target.Year】")
+    print("========================================")
+    print("1. data type (dtype):", df_target.Year.dtype)
+    print("\n2. Annual breakdown of the number of the cases:")
+    print(df_target.Year.value_counts(dropna=False).sort_index())
+    print("\n3. raw data of the initial 10 cases:")
+    print(df_target.Year.head(10).tolist())
     print("========================================")
 
 
@@ -1149,9 +1126,10 @@ def run_author_LDA(
 
 
 def prepare_df_for_inference(csv_path: str):
-    """任意のターゲットCSV（WoS検索結果）を読み込み、推論関数用に前処理・整形する汎用関数"""
+    """Loading a specific taget csv file (WoS search result), do preprocesses
+       on the data for inference"""
     if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"指定されたファイルが見つかりません: {csv_path}")
+        raise FileNotFoundError(f"Cannot find the specified file: {csv_path}")
 
     print(f"Reading and preprocessing: {csv_path}")
     df_target = pd.read_csv(csv_path)
@@ -1175,68 +1153,15 @@ def prepare_df_for_inference(csv_path: str):
           lambda x: ast.literal_eval(x) if x.startswith("[") else x.split()
         )
 
+    # 文字列の中から4桁の西暦（2022, 2023など）を正規表現で取り出して数値化
+    df_target.Year = (
+        df_target.Year.astype(str).str.extract(r"(\d{4})")[0].astype(float)
+    )
+
     return df_target
 
 
-def _try_to_show_conversion_rate(
-    ufilepath: str,
-    df_target,
-):
-    # --------------------------------------------------
-    # 1. 採択データから「氏名」と「初採択年」の対応表を作る
-    # --------------------------------------------------
-    df_user = get_users(ufilepath)
-    df_accepted = df_user[df_user["採択結果"].astype(str).str.strip() != "不採択"]
-
-    df_first_year = (
-        df_accepted.groupby("申請者氏名（英）")["年度"]
-        .min()
-        .reset_index()
-        .rename(columns={"申請者氏名（英）": "Author", "年度": "初採択年"})
-    )
-
-    # --------------------------------------------------
-    # 2. df_target 側を基準に「how='left'」で結合
-    # --------------------------------------------------
-    df_target["Author"] = df_target["Author"].apply(format_author_name)
-
-    # df_target にいる全員を残す（未採択の人は初採択年が NaN になる）
-    df_target_merged = pd.merge(df_target, df_first_year, on="Author", how="left")
-
-    # --------------------------------------------------
-    # 3. 転換率の計算（例：2025年の新規転換）
-    # --------------------------------------------------
-    # 分母：df_target のユニークな全人数
-    total_users = df_target_merged["Author"].nunique()
-
-    # 分子：2025年に初めて採択されたユニーク人数
-    target_year = 2025  # 調べたい年度
-    converted_users = df_target_merged[
-        df_target_merged["初採択年"] == target_year
-    ]["Author"].nunique()
-
-    # 転換率の計算
-    conversion_rate = (converted_users / total_users) * 100
-
-    print(f"対象の全人数（分母）: {total_users} 人")
-    print(f"{target_year}年に初採択された人数（分子）: {converted_users} 人")
-    print(f"転換率: {conversion_rate:.2f}%")
-
-
-    # 1. J-PARC側の名前のサンプルを表示
-    print("J-PARC側の名前サンプル:")
-    print(df_accepted["申請者氏名（英）"].dropna().head(5).tolist())
-
-    # 2. df_target側の名前のサンプルを表示
-    print("\ndf_target側の名前サンプル:")
-    print(df_target["Author"].dropna().head(5).tolist())
-
-    # 3. 過去全期間で、そもそも何人マッチしているか？
-    matched_total = df_target_merged["初採択年"].notna().sum()
-    print(f"\n★ 過去全期間でマッチした延べ件数: {matched_total} 件")
-
-
-def try_to_show_conversion_rate(
+def show_conversion_rate(
     ufilepath: str,
     new_author_names: list,  # df_target ではなく new_author_names を受け取る
     target_year: int = 2024,
@@ -1247,10 +1172,14 @@ def try_to_show_conversion_rate(
     # 1. J-PARCの採択データ読み込み
     # --------------------------------------------------
     df_user = get_users(ufilepath)
+    #df_accepted = df_user[
+    #    df_user["採択結果"].astype(str).str.strip() != "不採択"
+    #].copy()
+    # 修正案：不採択と補欠を除外する
+    # （ただし 2008-2009年の空欄 NaN は通す）
     df_accepted = df_user[
-        df_user["採択結果"].astype(str).str.strip() != "不採択"
+        ~df_user["採択結果"].astype(str).str.strip().isin(["不採択", "補欠"])
     ].copy()
-
     # J-PARC側の申請者ごとの初採択年を集計（1人1行）
     # ※ J-PARC側はすでに 'Moritomo,Y.' の形式なので format_author_name は不要です
     df_first_year = (
@@ -1260,22 +1189,24 @@ def try_to_show_conversion_rate(
         .rename(columns={"申請者氏名（英）": "Author", "年度": "初採択年"})
     )
 
-    # --------------------------------------------------
-    # 2. 推論した484人の著者を基準に左結合（how='left'）
-    # --------------------------------------------------
-    # 484人のユニークな著者テーブルを作成
+    # -----------------------------------------------------------
+    # 2. Left-join based on the inferred author list (how='left')
+    # -----------------------------------------------------------
+    # Make a table of unique authors in the inference target data.
     df_authors = pd.DataFrame({"Author": new_author_names})
 
-    # 左結合（推論対象の484人全員を残す）
+    # Conbining the table with J-PARC first accept yaer data (authors who are
+    # still non-user have a NaN value at the first accept year).
     df_merged = pd.merge(df_authors, df_first_year, on="Author", how="left")
 
     # --------------------------------------------------
-    # 3. 集計と表示
+    # 3. Summary and present
     # --------------------------------------------------
-    total_users = len(df_authors)  # 確実に484人になります
+    total_users = len(df_authors)
+    # # of unique historical users
     matched_total = (
         df_merged["初採択年"].notna().sum()
-    )  # 過去全期間で利用歴がある人数
+    )
     converted_users = (df_merged["初採択年"] == target_year).sum()
 
     conversion_rate = (
@@ -1289,7 +1220,7 @@ def try_to_show_conversion_rate(
     print(f"{target_year}年 新規転換率            : {conversion_rate:.2f}%")
     print("========================================")
 
-    # どの年度に何人初利用したかの内訳を表示
+    # show the # of the fist-time users for each year
     if matched_total > 0:
         print("\n【初採択年の内訳（利用経験者）】")
         print(df_merged["初採択年"].value_counts().sort_index())
@@ -1362,32 +1293,22 @@ def run_topic_inference(
     target_csv_path: str,
     target_both: bool = False
 ):
-    """学習済みモデルとターゲットCSVを受け取り、著者トピック分布(theta_a)を推論する統合関数"""
-    # 1. 学習済みNeutronモデルのロード
+    """This pipeline obtains a pretrained model and a target csv file, and
+    infer the author topic distribution (theta_a)."""
+    # 1. Load the model pretrained with neutron.csv.
     print(f"Loading trained model from: {model_savefile}")
     with open(model_savefile, "rb") as f:
-         model = pickle.load(f)
+        model = pickle.load(f)
 
-    # 2. データの汎用前処理
+    # 2. preconditioning on the target data.
     df_target = prepare_df_for_inference(target_csv_path)
-# df_target = prepare_df_for_inference(target_csv_path) の直後に追加
+    # Check on the df_target, these lines should be just after
+    check_df_target(df_target)
 
-    print("========================================")
-    print("【df_target.Year の直接チェック】")
-    print("========================================")
-    print("1. データの型 (dtype):", df_target.Year.dtype)
-    print("\n2. 年ごとの件数内訳:")
-    print(df_target.Year.value_counts(dropna=False).sort_index())
-    print("\n3. 最初の10件の生データ:")
-    print(df_target.Year.head(10).tolist())
-    print("========================================")
-# ★ Year 列を数値型に変換（文字列や空文字を安全に数値化）
-    df_target.Year = pd.to_numeric(df_target.Year, errors="coerce")
-
-    # 2023年以下で絞り込み（ピリオド形式）
+    # Focus the data whose year <= 2023
     df_target = df_target[df_target.Year <= 2023].copy()
 
-    # 3. 推論実行
+    # 3. Make inferences
     theta_a_new, new_author_names, author2doc_new = infer_theta_a_for_new_data(
         model, df_target, target_both=target_both
     )
@@ -1399,10 +1320,9 @@ def run_topic_inference(
         new_author_names,
         author2doc_new,
         df_target,
-        target_topic_id=0,
-        model=None,
+        target_topic_ids=[0, 2],
     )
-    try_to_show_conversion_rate(
+    show_conversion_rate(
         '共通技術開発セクション巽様_抽出結果_20250307.csv',
         new_author_names,
     )
